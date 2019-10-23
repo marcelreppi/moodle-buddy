@@ -1,0 +1,36 @@
+{
+  "manifest_version": 2,
+  "name": "Moodle Buddy",
+  "version": "1.5",
+  "description": "Moodle Buddy offers additional helpful functionality to the moodle learning management platform.",
+  "homepage_url": "https://github.com/marcelreppi/moodle-buddy",
+  "icons": {
+    "16": "./icons/icon16.png",
+    "48": "./icons/icon48.png",
+    "128": "./icons/icon128.png"
+  },
+  "permissions": ["https://*/*", "activeTab", "downloads"],
+  "browser_action": {
+    "default_icon": {
+      "16": "./icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "./icons/icon128.png"
+    },
+    "default_title": "Moodle Buddy",
+    "default_popup": "./popup/index.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "js": ["./browser-polyfill.js", "./content_scripts/crawler.js"]
+    }
+  ],
+  "background": {
+    "scripts": ["./browser-polyfill.js", "./background_scripts/downloader.js"]
+  },
+  "applications": {
+    "gecko": {
+      "update_url": "https://raw.githubusercontent.com/marcelreppi/moodle-buddy/master/update.json"
+    }
+  }
+}
