@@ -1,7 +1,6 @@
 browser.runtime.onMessage.addListener(message => {
   if (message.command === "download") {
-    const urlParts = message.url.split("/")
-    let filename = urlParts[urlParts.length - 1]
+    let filename = message.url.split("/").pop()
     const filenameParts = filename.split(".")
     const fileType = filenameParts[filenameParts.length - 1]
 
@@ -26,6 +25,24 @@ browser.runtime.onMessage.addListener(message => {
 
   if (message.command === "download-folder") {
     let filename = `${message.folderName}.zip`
+
+    if (message.prependCourseToFilename) {
+      filename = `${message.courseName}_${filename}`
+    }
+
+    if (message.prependCourseShortcutToFilename) {
+      filename = `${message.courseShortcut}_${filename}`
+    }
+
+    browser.downloads.download({
+      url: message.url,
+      filename,
+    })
+    return
+  }
+
+  if (message.command === "download-folder-file") {
+    let filename = `${message.folderName}_${message.filename}`
 
     if (message.prependCourseToFilename) {
       filename = `${message.courseName}_${filename}`

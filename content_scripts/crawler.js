@@ -12,26 +12,24 @@ if (!window.scriptHasRun) {
     let nDocuments = 0
     let nFolders = 0
     resourceNodes = []
-    document.querySelectorAll("a").forEach(node => {
-      // Skip repeating link to a document
-      if (node.children.length > 0) return
+    document
+      .querySelector("#region-main")
+      .querySelectorAll("a")
+      .forEach(node => {
+        if (node.href.match(/https:\/\/.*\/mod\/resource\/view\.php\?id=/gi)) {
+          node.isDocument = true
+          resourceNodes.push(node)
+          nDocuments++
+          return
+        }
 
-      if (node.href.match(/https:\/\/.*\/mod\/resource\/view\.php\?id=/gi)) {
-        node.isDocument = true
-        resourceNodes.push(node)
-        nDocuments++
-        return
-      }
-
-      if (node.href.match(/https:\/\/.*\/mod\/folder\/view\.php\?id=/gi)) {
-        node.isFolder = true
-        resourceNodes.push(node)
-        nFolders++
-        return
-      }
-    })
-
-    console.log(resourceNodes.map(n => n.href))
+        if (node.href.match(/https:\/\/.*\/mod\/folder\/view\.php\?id=/gi)) {
+          node.isFolder = true
+          resourceNodes.push(node)
+          nFolders++
+          return
+        }
+      })
 
     browser.runtime.sendMessage({
       command: "scan-result",
@@ -79,22 +77,52 @@ if (!window.scriptHasRun) {
         const body = await res.text()
         const parser = new DOMParser()
         const resHTML = parser.parseFromString(body, "text/html")
-        const downloadIDTag = resHTML.querySelector("input[name='id']")
 
-        if (downloadIDTag === null) continue
+        // Two options here
+        // 1. "Download Folder" button is shown --> Download zip via button
+        // 2. "Download Folder" button is hidden --> Download all files seperately
 
-        const downloadURL = `https://${
-          window.location.hostname
-        }/mod/folder/download_folder.php?id=${downloadIDTag.getAttribute("value")}`
-        browser.runtime.sendMessage({
-          command: "download-folder",
-          url: downloadURL,
-          folderName: sanitizeFilename(node.children[1].firstChild.textContent),
-          courseName: courseName,
-          prependCourseToFilename: message.prependCourseToFilename,
-          courseShortcut: courseShortcut,
-          prependCourseShortcutToFilename: message.prependCourseShortcutToFilename,
-        })
+        const downloadButtonVisible =
+          resHTML.querySelector(
+            `form[action="https://${window.location.hostname}/mod/folder/download_folder.php"]`
+          ) !== null
+
+        if (downloadButtonVisible) {
+          const downloadIDTag = resHTML.querySelector("input[name='id']")
+
+          if (downloadIDTag === null) continue
+
+          const downloadURL = `https://${
+            window.location.hostname
+          }/mod/folder/download_folder.php?id=${downloadIDTag.getAttribute("value")}`
+          browser.runtime.sendMessage({
+            command: "download-folder",
+            url: downloadURL,
+            folderName: sanitizeFilename(node.children[1].firstChild.textContent),
+            courseName: courseName,
+            prependCourseToFilename: message.prependCourseToFilename,
+            courseShortcut: courseShortcut,
+            prependCourseShortcutToFilename: message.prependCourseShortcutToFilename,
+          })
+        } else {
+          const fileNodes = resHTML.querySelectorAll("a[href$='forcedownload=1'") // All a tags whose href attribute ends with forcedownload=1
+          fileNodes.forEach(fileNode => {
+            const filename = fileNode.href
+              .split("/")
+              .pop()
+              .split("?")[0]
+            browser.runtime.sendMessage({
+              command: "download-folder-file",
+              url: fileNode.href,
+              filename: sanitizeFilename(filename),
+              folderName: sanitizeFilename(node.children[1].firstChild.textContent),
+              courseName: courseName,
+              prependCourseToFilename: message.prependCourseToFilename,
+              courseShortcut: courseShortcut,
+              prependCourseShortcutToFilename: message.prependCourseShortcutToFilename,
+            })
+          })
+        }
       }
     }
   }
