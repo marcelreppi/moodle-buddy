@@ -1,3 +1,5 @@
+node_modules
 *.zip
 events
 *.txt
+popup/bundle.*

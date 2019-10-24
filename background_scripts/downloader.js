@@ -71,8 +71,6 @@ function sendEvent(event) {
       mode: "no-cors",
       body: JSON.stringify({
         event,
-        date: now.toLocaleDateString("de-DE"),
-        time: now.toLocaleTimeString("de-DE"),
         browser: isFirefox ? "firefox" : "chrome",
       }),
     }

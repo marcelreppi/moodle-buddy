@@ -1,101 +1,14 @@
 <!DOCTYPE html>
-
 <html>
   <head>
     <meta charset="utf-8" />
+
     <link rel="stylesheet" href="./index.css" />
-  </head>
-
-  <body>
-    <div class="container">
-      <div class="title">
-        Moodle Buddy
-        <img class="title-icon" src="../icons/icon48.png" />
-      </div>
-
-      <div id="popup-content" class="content-container">
-        <div class="resource-info">
-          <div id="resource-info-loading">Scanning for resources...</div>
-          <div id="resource-info-single" class="hidden">
-            There is <span class="resource-info-number">1</span> resource available for download.
-          </div>
-          <div id="resource-info-multiple" class="hidden">
-            There are <span class="resource-info-number" id="resource-info-number"></span> resources
-            available for download.
-          </div>
-          <div class="resource-selection">
-            <div>
-              <label id="documents-cb-label">
-                <input type="checkbox" id="documents-cb" checked />
-                <span class="checkbox-label">
-                  <span id="n-documents"></span> document(s) (PDF, etc.)
-                </span>
-              </label>
-            </div>
-            <div>
-              <label id="folders-cb-label">
-                <input type="checkbox" id="folders-cb" checked />
-                <span class="checkbox-label"><span id="n-folders"></span> folder(s) </span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="download-info">
-          Click the button below to download all available resources from this Moodle course.
-        </div>
-
-        <div>
-          <div>
-            <label>
-              <input type="checkbox" id="moodle-filename-check" />
-              <span class="checkbox-label">
-                Use Moodle file name as actual file name
-              </span>
-            </label>
-          </div>
-          <div>
-            <label>
-              <input type="checkbox" id="course-short-filename-check" />
-              <span class="checkbox-label">Prepend course shortcut to each file name</span>
-            </label>
-          </div>
-          <div>
-            <label>
-              <input type="checkbox" id="course-filename-check" />
-              <span class="checkbox-label">Prepend course name to each file name</span>
-            </label>
-          </div>
-        </div>
-        <button id="crawl-button">Download</button>
-      </div>
-
-      <div id="wrong-page-content" class="content-container hidden">
-        <p>Can't download resources here...</p>
-        <div>Make sure you...</div>
-        <ul>
-          <li>are on your university's Moodle page</a></li>
-          <li>are logged in</li>
-          <li>have the course page open in this tab</li>
-        </ul>
-      </div>
-
-      <div id="error-content" class="content-container hidden">
-        <p>There was an error...</p>
-      </div>
-
-      <div class="footer">
-        <span>
-          Inofficial Plugin made by <a href="https://twitter.com/marcelreppi">marcelreppi</a>
-        </span>
-        <span class="footer-right-section">
-          <a href="https://github.com/marcelreppi/moodle-buddy">GitHub</a>
-          <img class="info-icon" src="../icons/information.png" />
-        </span>
-      </div>
-    </div>
+    <link rel="stylesheet" href="./bundle.css" />
 
     <script src="../browser-polyfill.js"></script>
-    <script src="./index.js"></script>
-  </body>
+    <script defer src="./bundle.js"></script>
+  </head>
+
+  <body></body>
 </html>
