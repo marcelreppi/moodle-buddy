@@ -17,7 +17,7 @@
       "128": "./icons/icon128.png"
     },
     "default_title": "Moodle Buddy",
-    "default_popup": "./popup/index.html"
+    "default_popup": "./dist/index.html"
   },
   "content_scripts": [
     {

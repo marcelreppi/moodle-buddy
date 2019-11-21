@@ -2,4 +2,6 @@ node_modules
 *.zip
 events
 *.txt
-popup/bundle.*
+dist
+.cache
+build
