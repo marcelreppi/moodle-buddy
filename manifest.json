@@ -22,7 +22,15 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["./browser-polyfill.js", "./content_scripts/crawler.js"]
+      "js": ["./browser-polyfill.js"]
+    },
+    {
+      "matches": ["*://*/course/view.php?id=*"],
+      "js": ["./content_scripts/crawler.js"]
+    },
+    {
+      "matches": ["*://*/my*"],
+      "js": ["./content_scripts/startPage.js"]
     }
   ],
   "background": {

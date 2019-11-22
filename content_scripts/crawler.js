@@ -8,36 +8,44 @@ if (!window.scriptHasRun) {
     return filename.trim().replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString)
   }
 
-  function scanForResources(message) {
-    let nDocuments = 0
-    let nFolders = 0
-    resourceNodes = []
-    document
-      .querySelector("#region-main")
-      .querySelectorAll("a")
-      .forEach(node => {
-        if (node.href.match(/https:\/\/.*\/mod\/resource\/view\.php\?id=/gi)) {
-          node.isDocument = true
-          resourceNodes.push(node)
-          nDocuments++
-          return
-        }
+  let nDocuments = 0
+  let nFolders = 0
+  let resourceNodes = []
+  document
+    .querySelector("#region-main")
+    .querySelectorAll("a")
+    .forEach(node => {
+      if (node.href.match(/https:\/\/.*\/mod\/resource\/view\.php\?id=/gi)) {
+        node.isDocument = true
+        resourceNodes.push(node)
+        nDocuments++
+        return
+      }
 
-        if (node.href.match(/https:\/\/.*\/mod\/folder\/view\.php\?id=/gi)) {
-          node.isFolder = true
-          resourceNodes.push(node)
-          nFolders++
-          return
-        }
-      })
-
-    browser.runtime.sendMessage({
-      command: "scan-result",
-      numberOfResources: resourceNodes.length,
-      nDocuments,
-      nFolders,
+      if (node.href.match(/https:\/\/.*\/mod\/folder\/view\.php\?id=/gi)) {
+        node.isFolder = true
+        resourceNodes.push(node)
+        nFolders++
+        return
+      }
     })
-  }
+
+  browser.runtime.onMessage.addListener(async message => {
+    if (message.command === "scan") {
+      browser.runtime.sendMessage({
+        command: "scan-result",
+        numberOfResources: resourceNodes.length,
+        nDocuments,
+        nFolders,
+      })
+      return
+    }
+
+    if (message.command === "crawl") {
+      await crawlResources(message)
+      return
+    }
+  })
 
   async function crawlResources(message) {
     const courseName = sanitizeFilename(
@@ -126,18 +134,4 @@ if (!window.scriptHasRun) {
       }
     }
   }
-
-  let resourceNodes = []
-
-  browser.runtime.onMessage.addListener(async message => {
-    if (message.command === "scan") {
-      scanForResources(message)
-      return
-    }
-
-    if (message.command === "crawl") {
-      await crawlResources(message)
-      return
-    }
-  })
 }
