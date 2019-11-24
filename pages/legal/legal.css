@@ -3,7 +3,7 @@ html, body {
   font-weight: 300;
   font-size: 16px;
   display: flex;
-  justify-content: center;
+  justify-content: center; 
 }
 
 .container {
@@ -12,6 +12,7 @@ html, body {
   justify-content: center;
   align-items: center;
   padding: 5px 20px; 
+  min-width: 500px;
   max-width: 1000px
 }
 
