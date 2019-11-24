@@ -3,32 +3,55 @@
     <div class="resource-info">
       <div>
         There
-        <span v-if="numberOfResources === 1">is</span>
+        <span v-if="nResources === 1">is</span>
         <span v-else>are</span>
-        <span class="resource-info-number">{{numberOfResources}}</span>
-        <span v-if="numberOfResources === 1">resource</span>
+        <span class="bold">{{ nResources }}</span>
+        <span v-if="nResources === 1">resource</span>
         <span v-else>resources</span>
-        available for download.
+        available for download
+      </div>
+      <div v-if="showNewResourceInfo" class="new-resources-info">
+        <div>
+          Since last download <span class="bold">{{ nNewResources }} new</span>
+          <span v-if="nNewResources === 1">resource</span>
+          <span v-else>resources</span>
+          <span v-if="nNewResources === 1">was</span>
+          <span v-else>were</span> added
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" ref="newResourceCb" @input="onNewResourceCbClick" />
+            <span class="checkbox-label">Download only new resources</span>
+          </label>
+        </div>
       </div>
       <div class="resource-selection">
         <div>
           <label id="documents-cb-label">
             <input type="checkbox" ref="documentsCb" @input="onDocumentCbClick" checked />
-            <span class="checkbox-label">{{nDocuments}} document(s) (PDF, etc.)</span>
+            <span class="checkbox-label">
+              <span v-if="onlyNewResources">{{ nNewDocuments }}</span>
+              <span v-else>{{ nDocuments }}</span>
+              document(s) (PDF, etc.)
+            </span>
           </label>
         </div>
         <div>
           <label id="folders-cb-label">
             <input type="checkbox" ref="foldersCb" @input="onFolderCbClick" checked />
-            <span class="checkbox-label">{{nFolders}} folder(s)</span>
+            <span class="checkbox-label">
+              <span v-if="onlyNewResources">{{ nNewFolders }}</span>
+              <span v-else>{{ nFolders }}</span>
+              folder(s)
+            </span>
           </label>
         </div>
       </div>
     </div>
 
-    <div
-      class="download-info"
-    >Click the button below to download all available resources from this Moodle course.</div>
+    <!-- <div class="download-info">
+      Click the button below to download all available resources from this Moodle course
+    </div> -->
 
     <div>
       <div>
@@ -65,10 +88,24 @@ export default {
   data: function() {
     return {
       loading: true,
-      numberOfResources: 0,
       nDocuments: 0,
+      nNewDocuments: 0,
       nFolders: 0,
+      nNewFolders: 0,
+      firstDownload: true,
+      onlyNewResources: false,
     }
+  },
+  computed: {
+    showNewResourceInfo: function() {
+      return !this.firstDownload && (this.nNewDocuments > 0 || this.nNewFolders > 0)
+    },
+    nResources: function() {
+      return this.nDocuments + this.nFolders
+    },
+    nNewResources: function() {
+      return this.nNewDocuments + this.nNewFolders
+    },
   },
   methods: {
     onDownload: function() {
@@ -81,6 +118,7 @@ export default {
         prependCourseShortcutToFilename: this.$refs.prependCourseShortcutToFilenameCb.checked,
         skipDocuments: !this.$refs.documentsCb.checked,
         skipFolders: !this.$refs.foldersCb.checked,
+        onlyNewResources: this.onlyNewResources,
       })
     },
     onDocumentCbClick: function(e) {
@@ -97,35 +135,80 @@ export default {
         this.$refs.downloadButton.disabled = false
       }
     },
+    onNewResourceCbClick: function(e) {
+      this.onlyNewResources = this.$refs.newResourceCb.checked
+
+      if (this.onlyNewResources) {
+        if (this.nNewDocuments === 0) {
+          this.$refs.documentsCb.disabled = true
+          this.$refs.documentsCb.checked = false
+        } else {
+          this.$refs.documentsCb.disabled = false
+          this.$refs.documentsCb.checked = true
+        }
+
+        if (this.nNewFolders === 0) {
+          this.$refs.foldersCb.disabled = true
+          this.$refs.foldersCb.checked = false
+        } else {
+          this.$refs.foldersCb.disabled = false
+          this.$refs.foldersCb.checked = true
+        }
+      } else {
+        if (this.nDocuments === 0) {
+          this.$refs.documentsCb.disabled = true
+          this.$refs.documentsCb.checked = false
+        } else {
+          this.$refs.documentsCb.disabled = false
+          this.$refs.documentsCb.checked = true
+        }
+
+        if (this.nFolders === 0) {
+          this.$refs.foldersCb.disabled = true
+          this.$refs.foldersCb.checked = false
+        } else {
+          this.$refs.foldersCb.disabled = false
+          this.$refs.foldersCb.checked = true
+        }
+      }
+
+      this.$refs.downloadButton.disabled = false
+    },
   },
   created: function() {
-    // Scan for documents
-    browser.tabs.sendMessage(this.activeTab.id, {
-      command: "scan",
+    browser.storage.local.get(this.activeTab.url).then(res => {
+      this.firstDownload = !res[this.activeTab.url]
     })
-
+  },
+  mounted: function() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "scan-result") {
-        this.numberOfResources = message.numberOfResources
         this.nDocuments = message.nDocuments
+        this.nNewDocuments = message.nNewDocuments
         this.nFolders = message.nFolders
+        this.nNewFolders = message.nNewFolders
 
-        if (message.numberOfResources === 0) {
+        if (this.nResources === 0) {
           this.$refs.downloadButton.disabled = true
         }
 
-        if (message.nDocuments === 0) {
+        if (this.nDocuments === 0) {
           this.$refs.documentsCb.disabled = true
           this.$refs.documentsCb.checked = false
         }
 
-        if (message.nFolders === 0) {
+        if (this.nFolders === 0) {
           this.$refs.foldersCb.disabled = true
           this.$refs.foldersCb.checked = false
         }
 
         this.loading = false
       }
+    })
+
+    // Scan for documents
+    browser.tabs.sendMessage(this.activeTab.id, {
+      command: "scan",
     })
   },
 }
@@ -164,8 +247,15 @@ export default {
   align-items: center;
 }
 
-.resource-info-number {
+.bold {
   font-weight: 600;
+}
+
+.new-resources-info {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .resource-selection {
