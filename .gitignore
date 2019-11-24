@@ -5,3 +5,4 @@ events
 dist
 .cache
 build
+env.js

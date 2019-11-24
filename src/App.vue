@@ -25,7 +25,8 @@
 </template>
 
 <script>
-import { getActiveTab, sendEvent } from "./helpers.js"
+import { getActiveTab } from "./helpers.js"
+import { sendEvent } from "../shared/sendEvent.js"
 import StartingPageView from "./views/StartingPageView.vue"
 import CourseView from "./views/CourseView.vue"
 import NoMoodle from "./views/NoMoodle.vue"

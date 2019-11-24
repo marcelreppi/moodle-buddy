@@ -55,7 +55,8 @@
 </template>
 
 <script>
-import { getActiveTab, sendEvent } from "../helpers.js"
+import { getActiveTab } from "../helpers.js"
+import { sendEvent } from "../../shared/sendEvent.js"
 
 export default {
   props: {

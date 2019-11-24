@@ -22,7 +22,7 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["./browser-polyfill.js"]
+      "js": ["./shared/browser-polyfill.js"]
     },
     {
       "matches": ["*://*/course/view.php?id=*"],
@@ -34,7 +34,7 @@
     }
   ],
   "background": {
-    "scripts": ["./browser-polyfill.js", "./background_scripts/downloader.js"]
+    "page": "./background_scripts/scripts.html"
   },
   "applications": {
     "gecko": {
