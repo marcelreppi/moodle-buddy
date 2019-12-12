@@ -1,9 +1,9 @@
 <template>
   <div class="content-container">
-    <div class="course-list">
-      <div class="no-courses" v-if="courses.length === 0">No courses in overview</div>
-      <div class="course-card" v-else v-for="(item, index) in courses" :key="index">
-        <div>{{item}}</div>
+    <div class="no-courses" v-if="courses.length === 0">No courses in overview</div>
+    <div class="course-container" v-else>
+      <div class="course-card" v-for="(item, index) in courses" :key="index">
+        <div>{{ item }}</div>
         <div class="course-update">No new updates</div>
       </div>
     </div>
@@ -35,10 +35,13 @@ export default {
 </script>
 
 <style>
-.course-list {
-  width: 100%;
+.course-container {
   box-sizing: border-box;
-  padding: 0px 10px;
+  width: 100%;
+  max-height: 300px;
+  padding: 0px 20px;
+  overflow-y: auto;
+  /* margin-left: 20px; */
 }
 
 .no-courses {

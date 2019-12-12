@@ -3,6 +3,11 @@ import { apiUrl, apiKey } from "./env.js"
 export function sendEvent(event) {
   console.log("sendEvent " + event)
   return
+
+  if (apiUrl === undefined || apiKey === undefined) {
+    return
+  }
+
   const now = new Date()
   const isFirefox = typeof InstallTrigger !== "undefined"
   fetch(apiUrl, {

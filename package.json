@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "author": "Marcel Reppenhagen",
   "scripts": {
-    "dev": "parcel ./popup/index.html --public-url .",
-    "start": "web-ext run",
-    "build": "parcel build ./popup/index.html --public-url ."
+    "dev": "parcel ./extension/popup/index.html --public-url . --out-dir ./extension/build",
+    "start": "web-ext run -s ./extension",
+    "build": "rm -rf ./extension/build && parcel build ./extension/popup/index.html --public-url . --out-dir ./extension/build"
   },
   "repository": {
     "type": "git",
@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "vue": "^2.6.10",
-    "vue-hot-reload-api": "^2.3.4"
+    "vue-hot-reload-api": "^2.3.4",
+    "webextension-polyfill": "^0.5.0"
   },
   "devDependencies": {
     "@vue/component-compiler-utils": "^3.1.0",

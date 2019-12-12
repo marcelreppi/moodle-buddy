@@ -33,9 +33,9 @@ if (!window.scriptHasRun) {
       // Check for documents and other elements in the course pages
 
       // Somehow save the number of documents
-      Array.from(courseNodes).forEach(n => {
-        localStorage.setItem(`course-${n.children[0].href.split("=")[1]}`, Math.random())
-      })
+      // Array.from(courseNodes).forEach(n => {
+      //   localStorage.setItem(`course-${n.children[0].href.split("=")[1]}`, Math.random())
+      // })
 
       // Check if number has changed
 

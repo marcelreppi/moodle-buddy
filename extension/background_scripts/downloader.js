@@ -1,21 +1,29 @@
 import { sendEvent } from "../shared/sendEvent.js"
 
+const sanitizeFilename = (filename, connectingString = "") => {
+  return filename.trim().replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString)
+}
+
 browser.runtime.onMessage.addListener(message => {
-  if (message.command === "download") {
+  const courseName = sanitizeFilename(message.courseName)
+  const courseShortcut = sanitizeFilename(message.courseShortcut, "_")
+
+  if (message.command === "download-file") {
     let filename = message.url.split("/").pop()
     const filenameParts = filename.split(".")
     const fileType = filenameParts[filenameParts.length - 1]
 
     if (message.useMoodleFilename) {
-      filename = `${message.moodleFilename}.${fileType}`
+      const moodleFilename = sanitizeFilename(message.moodleFilename)
+      filename = `${moodleFilename}.${fileType}`
     }
 
     if (message.prependCourseToFilename) {
-      filename = `${message.courseName}_${filename}`
+      filename = `${courseName}_${filename}`
     }
 
     if (message.prependCourseShortcutToFilename) {
-      filename = `${message.courseShortcut}_${filename}`
+      filename = `${courseShortcut}_${filename}`
     }
 
     browser.downloads.download({
@@ -26,14 +34,15 @@ browser.runtime.onMessage.addListener(message => {
   }
 
   if (message.command === "download-folder") {
-    let filename = `${message.folderName}.zip`
+    const folderName = sanitizeFilename(message.folderName)
+    let filename = `${folderName}.zip`
 
     if (message.prependCourseToFilename) {
-      filename = `${message.courseName}_${filename}`
+      filename = `${courseName}_${filename}`
     }
 
     if (message.prependCourseShortcutToFilename) {
-      filename = `${message.courseShortcut}_${filename}`
+      filename = `${courseShortcut}_${filename}`
     }
 
     browser.downloads.download({
@@ -44,14 +53,17 @@ browser.runtime.onMessage.addListener(message => {
   }
 
   if (message.command === "download-folder-file") {
-    let filename = `${message.folderName}_${message.filename}`
+    let filename = sanitizeFilename(message.filename)
+    const folderName = sanitizeFilename(folderName)
+
+    filename = `${folderName}_${filename}`
 
     if (message.prependCourseToFilename) {
-      filename = `${message.courseName}_${filename}`
+      filename = `${courseName}_${filename}`
     }
 
     if (message.prependCourseShortcutToFilename) {
-      filename = `${message.courseShortcut}_${filename}`
+      filename = `${courseShortcut}_${filename}`
     }
 
     browser.downloads.download({

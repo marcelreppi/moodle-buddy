@@ -1,36 +1,43 @@
 /* eslint-disable no-inner-declarations */
-
-const sanitizeFilename = (filename, connectingString = "") => {
-  return filename.trim().replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString)
-}
-
 let nDocuments = 0
+let nNonDownloadDocuments = 0
 let nNewDocuments = 0
 let nFolders = 0
+let nNonDownloadFolders = 0
 let nNewFolders = 0
-let resourceNodes = []
 
-let storedResourceList = []
+let resourceNodes = []
+let downloadedResources = []
+
+let courseData = {}
 
 // browser.storage.local.clear()
 browser.storage.local.get(location.href).then(res => {
   if (res[location.href]) {
-    storedResourceList = res[location.href]
+    courseData = res[location.href]
   }
 
-  console.log(storedResourceList)
+  const previousResources = courseData.allResources || []
+  const previouslyDownloadedResources = courses.downloadedResources || []
 
   document
     .querySelector("#region-main")
     .querySelectorAll("a")
     .forEach(node => {
+      console.log(node.href)
       if (node.href.match(/https:\/\/.*\/mod\/resource\/view\.php\?id=/gi)) {
         node.isDocument = true
         resourceNodes.push(node)
         nDocuments++
 
-        if (!storedResourceList.includes(node.href)) {
+        if (!previousResources.includes(node.href)) {
           nNewDocuments++
+          node.isNewResource = true
+        } else {
+          if (!previouslyDownloadedResources.includes(node.href)) {
+            nNonDownloadDocuments++
+            node.isNonDownloadResource = true
+          }
         }
 
         return
@@ -41,8 +48,14 @@ browser.storage.local.get(location.href).then(res => {
         resourceNodes.push(node)
         nFolders++
 
-        if (!storedResourceList.includes(node.href)) {
+        if (!previousResources.includes(node.href)) {
           nNewFolders++
+          node.isNewResource = true
+        } else {
+          if (!previouslyDownloadedResources.includes(node.href)) {
+            nNonDownloadFolders++
+            node.isNonDownloadResource = true
+          }
         }
 
         return
@@ -55,8 +68,10 @@ browser.runtime.onMessage.addListener(async message => {
     browser.runtime.sendMessage({
       command: "scan-result",
       nDocuments,
+      nNonDownloadDocuments,
       nNewDocuments,
       nFolders,
+      nNonDownloadFolders,
       nNewFolders,
     })
     return
@@ -69,30 +84,25 @@ browser.runtime.onMessage.addListener(async message => {
 })
 
 async function crawlResources(message) {
-  const courseName = sanitizeFilename(
-    document.querySelector(".page-header-headings").children[0].textContent
-  )
+  const courseName = document.querySelector(".page-header-headings").children[0].textContent
 
-  const courseShortcut = sanitizeFilename(
-    document.querySelector("a[aria-current='page']").textContent,
-    "_"
-  )
+  const courseShortcut = document.querySelector("a[aria-current='page']").textContent
 
   for (let i = 0; i < resourceNodes.length; i++) {
     const node = resourceNodes[i]
 
+    // Skip documents or folders if checkbox was unticked
     if (message.skipDocuments && node.isDocument) continue
     if (message.skipFolders && node.isFolder) continue
 
-    if (!storedResourceList.includes(node.href)) {
-      // Add unseen new resources to the list
-      storedResourceList.push(node.href)
-    } else {
-      if (message.onlyNewResources) {
-        // Skip already downloaded resources
+    if (message.onlyNewResources) {
+      // Skip already downloaded resources
+      if (node.isNewResource || node.isNonDownloadResource) {
         continue
       }
     }
+
+    downloadedResources.push(node)
 
     // Fetch the href to get the actual download URL
     const res = await fetch(node.href)
@@ -100,9 +110,9 @@ async function crawlResources(message) {
     if (node.isDocument) {
       // Content script can't access downloads API -> send msg to background script
       browser.runtime.sendMessage({
-        command: "download",
+        command: "download-file",
         url: res.url,
-        moodleFilename: sanitizeFilename(node.children[1].firstChild.textContent),
+        moodleFilename: node.children[1].firstChild.textContent,
         useMoodleFilename: message.useMoodleFilename,
         courseName: courseName,
         prependCourseToFilename: message.prependCourseToFilename,
@@ -137,7 +147,7 @@ async function crawlResources(message) {
         browser.runtime.sendMessage({
           command: "download-folder",
           url: downloadURL,
-          folderName: sanitizeFilename(node.children[1].firstChild.textContent),
+          folderName: node.children[1].firstChild.textContent,
           courseName: courseName,
           prependCourseToFilename: message.prependCourseToFilename,
           courseShortcut: courseShortcut,
@@ -153,8 +163,8 @@ async function crawlResources(message) {
           browser.runtime.sendMessage({
             command: "download-folder-file",
             url: fileNode.href,
-            filename: sanitizeFilename(filename),
-            folderName: sanitizeFilename(node.children[1].firstChild.textContent),
+            filename: filename,
+            folderName: node.children[1].firstChild.textContent,
             courseName: courseName,
             prependCourseToFilename: message.prependCourseToFilename,
             courseShortcut: courseShortcut,
@@ -166,7 +176,10 @@ async function crawlResources(message) {
   }
 
   browser.storage.local.set({
-    [location.href]: storedResourceList,
+    [location.href]: {
+      allResources: resourceNodes.map(n => n.href),
+      downloadedResources: downloadedResources.map(n => n.href),
+    },
   })
   nNewDocuments = 0
   nNewFolders = 0
