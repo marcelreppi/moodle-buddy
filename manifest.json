@@ -9,7 +9,7 @@
     "48": "./icons/icon48.png",
     "128": "./icons/icon128.png"
   },
-  "permissions": ["https://*/*", "activeTab", "downloads"],
+  "permissions": ["https://*/*", "activeTab", "downloads", "storage"],
   "browser_action": {
     "default_icon": {
       "16": "./icons/icon16.png",
@@ -22,11 +22,19 @@
   "content_scripts": [
     {
       "matches": ["*://*/*"],
-      "js": ["./browser-polyfill.js", "./content_scripts/crawler.js"]
+      "js": ["./shared/browser-polyfill.js"]
+    },
+    {
+      "matches": ["*://*/course/view.php?id=*"],
+      "js": ["./content_scripts/crawler.js"]
+    },
+    {
+      "matches": ["*://*/my*"],
+      "js": ["./content_scripts/startPage.js"]
     }
   ],
   "background": {
-    "scripts": ["./browser-polyfill.js", "./background_scripts/downloader.js"]
+    "page": "./background_scripts/scripts.html"
   },
   "applications": {
     "gecko": {
