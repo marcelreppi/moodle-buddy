@@ -18,13 +18,6 @@ module.exports = {
     path: join(__dirname, "build"),
     filename: "[name].js",
   },
-  devServer: {
-    port: 1234,
-    hot: true, // enable hot reloading
-    open: false, // automatically open browser
-    historyApiFallback: true, // serve index.html as fallback instead of 404,
-    writeToDisk: true,
-  },
   module: {
     rules: [
       {

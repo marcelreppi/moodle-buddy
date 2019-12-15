@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "author": "Marcel Reppenhagen",
   "scripts": {
-    "dev": "webpack-dev-server",
-    "watch": "npm run nuke && webpack --watch",
     "start": "web-ext run -s ./build",
-    "build": "webpack",
+    "dev": "npm run nuke && webpack --watch",
+    "build": "npm run nuke && webpack",
     "nuke": "rm -rf build"
   },
   "repository": {
@@ -34,7 +33,6 @@
     "web-ext": "^3.2.1",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.9.0"
   },
   "license": "MIT"
 }
