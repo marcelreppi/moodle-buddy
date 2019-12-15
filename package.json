@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "author": "Marcel Reppenhagen",
   "scripts": {
-    "dev": "parcel ./extension/popup/index.html --public-url . --out-dir ./extension/build",
-    "start": "web-ext run -s ./extension",
-    "build": "rm -rf ./extension/build && parcel build ./extension/popup/index.html --public-url . --out-dir ./extension/build"
+    "dev": "webpack-dev-server",
+    "watch": "npm run nuke && webpack --watch",
+    "start": "web-ext run -s ./build",
+    "build": "webpack",
+    "nuke": "rm -rf build"
   },
   "repository": {
     "type": "git",
@@ -15,15 +17,24 @@
     "url": "https://github.com/marcelreppi/moodle-buddy/issues"
   },
   "dependencies": {
-    "vue": "^2.6.10",
-    "vue-hot-reload-api": "^2.3.4",
+    "vue": "^2.6.11",
     "webextension-polyfill": "^0.5.0"
   },
   "devDependencies": {
-    "@vue/component-compiler-utils": "^3.1.0",
-    "parcel-bundler": "^1.12.4",
-    "vue-template-compiler": "^2.6.10",
-    "web-ext": "^3.2.1"
+    "@babel/cli": "^7.7.5",
+    "@babel/core": "^7.7.5",
+    "@babel/preset-env": "^7.7.6",
+    "babel-loader": "^8.0.6",
+    "copy-webpack-plugin": "^5.1.1",
+    "css-loader": "^3.3.2",
+    "file-loader": "^5.0.2",
+    "vue-loader": "^15.7.2",
+    "vue-style-loader": "^4.1.2",
+    "vue-template-compiler": "^2.6.11",
+    "web-ext": "^3.2.1",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10",
+    "webpack-dev-server": "^3.9.0"
   },
   "license": "MIT"
 }

@@ -2,7 +2,7 @@
   <div>
     <div class="title">
       Moodle Buddy
-      <img class="title-icon" src="../icons/icon48.png" alt="logo" />
+      <img class="title-icon" :src="MoodleIcon" alt="logo" />
     </div>
 
     <div id="popup-content">
@@ -18,7 +18,7 @@
       </span>
       <span class="footer-right-section">
         <a href="https://github.com/marcelreppi/moodle-buddy">GitHub</a>
-        <img class="info-icon" src="../icons/information.png" alt="info" @click="onInfoClick" />
+        <img class="info-icon" :src="InfoIcon" alt="info" @click="onInfoClick" />
       </span>
     </div>
   </div>
@@ -30,6 +30,9 @@ import { sendEvent } from "../shared/sendEvent.js"
 import StartingPageView from "./views/StartingPageView.vue"
 import CourseView from "./views/CourseView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
+
+import MoodleIcon from "../icons/icon48.png"
+import InfoIcon from "../icons/information.png"
 
 sendEvent("pageview")
 
@@ -45,6 +48,8 @@ export default {
       showStartingPageView: false,
       showCourseView: false,
       showNoMoodle: false,
+      InfoIcon,
+      MoodleIcon,
     }
   },
   methods: {
