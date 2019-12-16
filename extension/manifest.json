@@ -34,7 +34,7 @@
     }
   ],
   "background": {
-    "scripts": ["./background_scripts/downloader.js"]
+    "scripts": ["./shared/browser-polyfill.js", "./background_scripts/downloader.js"]
   },
   "browser_specific_settings": {
     "gecko": {
