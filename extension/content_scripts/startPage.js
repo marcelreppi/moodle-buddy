@@ -1,5 +1,3 @@
-import browser from "webextension-polyfill"
-
 let courseTitles = null
 
 function scanForCourses() {
