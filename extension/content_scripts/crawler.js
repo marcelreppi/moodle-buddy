@@ -18,13 +18,12 @@ browser.storage.local.get(location.href).then(res => {
   }
 
   const previousResources = courseData.allResources || []
-  const previouslyDownloadedResources = courses.downloadedResources || []
+  const previouslyDownloadedResources = courseData.downloadedResources || []
 
   document
     .querySelector("#region-main")
     .querySelectorAll("a")
     .forEach(node => {
-      console.log(node.href)
       if (node.href.match(/https:\/\/.*\/mod\/resource\/view\.php\?id=/gi)) {
         node.isDocument = true
         resourceNodes.push(node)
