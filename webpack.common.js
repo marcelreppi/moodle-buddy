@@ -3,8 +3,6 @@ const CopyPlugin = require("copy-webpack-plugin")
 const { VueLoaderPlugin } = require("vue-loader")
 
 module.exports = {
-  mode: "development",
-  devtool: "inline-source-map",
   entry: {
     "popup/app.bundle": join(__dirname, "extension", "src", "index.js"),
     // "background_scripts/downloader": join(

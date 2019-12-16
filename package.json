@@ -4,8 +4,8 @@
   "author": "Marcel Reppenhagen",
   "scripts": {
     "start": "web-ext run -s ./build",
-    "dev": "npm run nuke && webpack --watch",
-    "build": "npm run nuke && webpack",
+    "dev": "npm run nuke && webpack --watch --config webpack.dev.js",
+    "build": "npm run nuke && webpack --config webpack.prod.js && zip",
     "nuke": "rm -rf build"
   },
   "repository": {
@@ -16,8 +16,7 @@
     "url": "https://github.com/marcelreppi/moodle-buddy/issues"
   },
   "dependencies": {
-    "vue": "^2.6.11",
-    "webextension-polyfill": "^0.5.0"
+    "vue": "^2.6.11"
   },
   "devDependencies": {
     "@babel/cli": "^7.7.5",
@@ -27,12 +26,14 @@
     "copy-webpack-plugin": "^5.1.1",
     "css-loader": "^3.3.2",
     "file-loader": "^5.0.2",
+    "terser-webpack-plugin": "^2.3.0",
     "vue-loader": "^15.7.2",
     "vue-style-loader": "^4.1.2",
     "vue-template-compiler": "^2.6.11",
     "web-ext": "^3.2.1",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10",
+    "webpack-merge": "^4.2.2"
   },
   "license": "MIT"
 }
