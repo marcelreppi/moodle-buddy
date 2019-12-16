@@ -4,8 +4,8 @@
   "author": "Marcel Reppenhagen",
   "scripts": {
     "start": "web-ext run -s ./build",
-    "dev": "npm run nuke && webpack --watch",
-    "build": "npm run nuke && webpack",
+    "dev": "npm run nuke && webpack --watch --config webpack.dev.js",
+    "build": "npm run nuke && webpack --config webpack.prod.js",
     "nuke": "rm -rf build"
   },
   "repository": {
@@ -32,7 +32,8 @@
     "vue-template-compiler": "^2.6.11",
     "web-ext": "^3.2.1",
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10"
+    "webpack-cli": "^3.3.10",
+    "webpack-merge": "^4.2.2"
   },
   "license": "MIT"
 }
