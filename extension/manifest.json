@@ -34,7 +34,7 @@
     }
   ],
   "background": {
-    "page": "./background_scripts/scripts.html"
+    "scripts": ["./background_scripts/downloader.js"]
   },
   "browser_specific_settings": {
     "gecko": {

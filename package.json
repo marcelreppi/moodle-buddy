@@ -5,7 +5,11 @@
   "scripts": {
     "start": "web-ext run -s ./build",
     "dev": "npm run nuke && webpack --watch --config webpack.dev.js",
+<<<<<<< HEAD
     "build": "npm run nuke && webpack --config webpack.prod.js && zip",
+=======
+    "build": "npm run nuke && webpack --config webpack.prod.js",
+>>>>>>> webpack
     "nuke": "rm -rf build"
   },
   "repository": {
@@ -16,6 +20,7 @@
     "url": "https://github.com/marcelreppi/moodle-buddy/issues"
   },
   "dependencies": {
+    "core-js": "^3.5.0",
     "vue": "^2.6.11"
   },
   "devDependencies": {
