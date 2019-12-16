@@ -5,11 +5,7 @@
   "scripts": {
     "start": "web-ext run -s ./build",
     "dev": "npm run nuke && webpack --watch --config webpack.dev.js",
-<<<<<<< HEAD
-    "build": "npm run nuke && webpack --config webpack.prod.js && zip",
-=======
     "build": "npm run nuke && webpack --config webpack.prod.js",
->>>>>>> webpack
     "nuke": "rm -rf build"
   },
   "repository": {
