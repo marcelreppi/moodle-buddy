@@ -1,28 +1,35 @@
 const { join } = require("path")
 const CopyPlugin = require("copy-webpack-plugin")
 const { VueLoaderPlugin } = require("vue-loader")
+const TerserPlugin = require("terser-webpack-plugin")
+
+const isProd = process.env.NODE_ENV === "production"
+
+console.log(`Webpack is in ${isProd ? "production" : "development"} mode`)
 
 const polyfills = ["core-js/stable", "regenerator-runtime/runtime"]
 
-const getBackgroundEntry = filename => {
+const backgroundEntry = filename => {
   return polyfills.concat(join(__dirname, "extension", "background_scripts", filename))
 }
 
-const getContentEntry = filename => {
+const contentEntry = filename => {
   return polyfills.concat(join(__dirname, "extension", "content_scripts", filename))
 }
 
 module.exports = {
   entry: {
     "popup/app.bundle": join(__dirname, "extension", "src", "index.js"),
-    "background_scripts/downloader": getBackgroundEntry("downloader.js"),
-    "content_scripts/crawler": getContentEntry("crawler.js"),
-    "content_scripts/startPage": getContentEntry("startPage.js"),
+    "background_scripts/downloader": backgroundEntry("downloader.js"),
+    "content_scripts/crawler": contentEntry("crawler.js"),
+    "content_scripts/startPage": contentEntry("startPage.js"),
   },
   output: {
     path: join(__dirname, "build"),
     filename: "[name].js",
   },
+  mode: isProd ? "production" : "development",
+  devtool: isProd ? "source-map" : "inline-source-map",
   module: {
     rules: [
       {
@@ -42,10 +49,30 @@ module.exports = {
       },
       {
         test: /\.(gif|png|jpe?g|svg)$/i,
+        loader: "image-webpack-loader",
+        enforce: "pre",
+        options: {
+          mozjpeg: {
+            progressive: true,
+            quality: 50,
+          },
+          // optipng.enabled: false will disable optipng
+          optipng: {
+            enabled: false,
+          },
+          pngquant: {
+            quality: [0.3, 0.65],
+            speed: 6,
+          },
+        },
+      },
+      {
+        test: /\.(gif|png|jpe?g|svg)$/i,
         use: [
           {
-            loader: "file-loader",
+            loader: "url-loader",
             options: {
+              limit: 10 * 1024,
               outputPath: "/popup/images",
               publicPath: "/popup/images",
             },
@@ -64,4 +91,12 @@ module.exports = {
       { from: "./extension/icons", to: "./icons" },
     ]),
   ],
+  optimization: {
+    minimize: isProd,
+    minimizer: [
+      new TerserPlugin({
+        sourceMap: true,
+      }),
+    ],
+  },
 }

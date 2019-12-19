@@ -4,8 +4,8 @@
   "author": "Marcel Reppenhagen",
   "scripts": {
     "start": "web-ext run -s ./build",
-    "dev": "npm run nuke && webpack --watch --config webpack.dev.js",
-    "build": "npm run nuke && webpack --config webpack.prod.js",
+    "dev": "npm run nuke && cross-env NODE_ENV=dev webpack --watch",
+    "build": "npm run nuke && cross-env NODE_ENV=production webpack",
     "nuke": "rm -rf build"
   },
   "repository": {
@@ -25,16 +25,18 @@
     "@babel/preset-env": "^7.7.6",
     "babel-loader": "^8.0.6",
     "copy-webpack-plugin": "^5.1.1",
+    "cross-env": "^6.0.3",
     "css-loader": "^3.3.2",
     "file-loader": "^5.0.2",
+    "image-webpack-loader": "^6.0.0",
     "terser-webpack-plugin": "^2.3.0",
+    "url-loader": "^3.0.0",
     "vue-loader": "^15.7.2",
     "vue-style-loader": "^4.1.2",
     "vue-template-compiler": "^2.6.11",
     "web-ext": "^3.2.1",
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10",
-    "webpack-merge": "^4.2.2"
+    "webpack-cli": "^3.3.10"
   },
   "license": "MIT"
 }
