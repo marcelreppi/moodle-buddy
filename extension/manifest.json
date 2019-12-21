@@ -26,7 +26,7 @@
     },
     {
       "matches": ["*://*/course/view.php?id=*"],
-      "js": ["./content_scripts/crawler.js"]
+      "js": ["./content_scripts/coursePage.js"]
     },
     {
       "matches": ["*://*/my*"],

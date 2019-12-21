@@ -1,4 +1,4 @@
-import { sendEvent } from "../shared/sendEvent.js"
+import { sendEvent } from "../shared/helpers.js"
 
 const sanitizeFilename = (filename, connectingString = "") => {
   return filename.trim().replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString)

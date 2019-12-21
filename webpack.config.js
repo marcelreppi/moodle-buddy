@@ -20,9 +20,9 @@ const contentEntry = filename => {
 module.exports = {
   entry: {
     "popup/app.bundle": join(__dirname, "extension", "src", "index.js"),
-    "background_scripts/downloader": backgroundEntry("downloader.js"),
-    "content_scripts/crawler": contentEntry("crawler.js"),
+    "content_scripts/coursePage": contentEntry("coursePage.js"),
     "content_scripts/startPage": contentEntry("startPage.js"),
+    "background_scripts/downloader": backgroundEntry("downloader.js"),
   },
   output: {
     path: join(__dirname, "build"),

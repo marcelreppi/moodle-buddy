@@ -12,7 +12,8 @@
       </div>
       <div v-if="showNewResourceInfo" class="new-resources-info">
         <div>
-          Since last download <span class="bold">{{ nNewResources }} new</span>
+          Since last download
+          <span class="bold">{{ nNewResources }} new</span>
           <span v-if="nNewResources === 1">resource</span>
           <span v-else>resources</span>
           <span v-if="nNewResources === 1">was</span>
@@ -51,7 +52,7 @@
 
     <!-- <div class="download-info">
       Click the button below to download all available resources from this Moodle course
-    </div> -->
+    </div>-->
 
     <div>
       <div>
@@ -78,8 +79,7 @@
 </template>
 
 <script>
-import { getActiveTab } from "../helpers.js"
-import { sendEvent } from "../../shared/sendEvent.js"
+import { sendEvent, getActiveTab } from "../../shared/helpers.js"
 
 export default {
   props: {
@@ -176,9 +176,9 @@ export default {
     },
   },
   created: function() {
-    browser.storage.local.get(this.activeTab.url).then(res => {
-      this.firstDownload = !res[this.activeTab.url]
-    })
+    // browser.storage.local.get(this.activeTab.url).then(res => {
+    //   this.firstDownload = !res[this.activeTab.url]
+    // })
   },
   mounted: function() {
     browser.runtime.onMessage.addListener(message => {
@@ -214,7 +214,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .download-button {
   width: 100px;
   padding: 10px 0px;
