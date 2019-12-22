@@ -17,7 +17,7 @@
         <button
           class="download-button"
           v-if="hasUpdates(course)"
-          @click="() => onDownloadClick(course)"
+          @click="e => onDownloadClick(e, course)"
         >
           Download new resources
         </button>
@@ -46,7 +46,8 @@ export default {
         url: link,
       })
     },
-    onDownloadClick: function(course) {
+    onDownloadClick: function(e, course) {
+      e.target.disabled = true
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
         link: course.link,
@@ -85,7 +86,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .course-container {
   box-sizing: border-box;
   width: 100%;
@@ -132,11 +133,8 @@ export default {
 }
 
 .download-button {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  width: 175px;
-  font-size: 10px;
-  padding: 10px 4px;
+  width: 200px;
+  padding: 10px 0px;
   margin-top: 10px;
   border-radius: 5px;
   border: 0;
@@ -151,5 +149,11 @@ export default {
 .download-button:hover {
   cursor: pointer;
   text-decoration: underline;
+}
+
+.download-button:disabled {
+  background-color: #a8a8a8;
+  cursor: default;
+  text-decoration: none;
 }
 </style>

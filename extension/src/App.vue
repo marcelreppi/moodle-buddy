@@ -86,7 +86,7 @@ export default {
   font-size: 24px;
   text-align: center;
   margin-bottom: 20px;
-  margin-top: 5px;
+  margin-top: 15px;
 }
 
 .title-icon {
