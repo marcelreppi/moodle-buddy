@@ -19,7 +19,9 @@ export async function scanCourse(courseLink, HTMLDocument) {
   HTMLDocument.querySelector("#region-main")
     .querySelectorAll("a")
     .forEach(node => {
-      if (node.href.match(/https:\/\/.*\/mod\/resource\/view\.php\?id=/gi)) {
+      if (
+        node.href.match(/http(s)?:\/\/([A-z]*\.)*[A-z]*\/mod\/resource\/view\.php\?id=[0-9]*/gi)
+      ) {
         node.isDocument = true
         nDocuments++
 
@@ -32,7 +34,7 @@ export async function scanCourse(courseLink, HTMLDocument) {
         return
       }
 
-      if (node.href.match(/https:\/\/.*\/mod\/folder\/view\.php\?id=/gi)) {
+      if (node.href.match(/http(s)?:\/\/([A-z]*\.)*[A-z]*\/mod\/folder\/view\.php\?id=[0-9]*/gi)) {
         node.isFolder = true
         nFolders++
 
@@ -76,7 +78,7 @@ export async function scanCourse(courseLink, HTMLDocument) {
   }
 }
 
-export async function crawlCourse(HTMLNode, courseName, courseShortcut, message) {
+export async function crawlCourse(HTMLNode, courseName, courseShortcut, options = {}) {
   // Fetch the href to get the actual download URL
   const res = await fetch(HTMLNode.href)
 
@@ -86,11 +88,11 @@ export async function crawlCourse(HTMLNode, courseName, courseShortcut, message)
       command: "download-file",
       url: res.url,
       moodleFilename: HTMLNode.children[1].firstChild.textContent,
-      useMoodleFilename: message.useMoodleFilename,
+      useMoodleFilename: options.useMoodleFilename,
       courseName: courseName,
-      prependCourseToFilename: message.prependCourseToFilename,
+      prependCourseToFilename: options.prependCourseToFilename,
       courseShortcut: courseShortcut,
-      prependCourseShortcutToFilename: message.prependCourseShortcutToFilename,
+      prependCourseShortcutToFilename: options.prependCourseShortcutToFilename,
     })
     return
   }
@@ -122,9 +124,9 @@ export async function crawlCourse(HTMLNode, courseName, courseShortcut, message)
         url: downloadURL,
         folderName: HTMLNode.children[1].firstChild.textContent,
         courseName: courseName,
-        prependCourseToFilename: message.prependCourseToFilename,
+        prependCourseToFilename: options.prependCourseToFilename,
         courseShortcut: courseShortcut,
-        prependCourseShortcutToFilename: message.prependCourseShortcutToFilename,
+        prependCourseShortcutToFilename: options.prependCourseShortcutToFilename,
       })
     } else {
       const fileNodes = resHTML.querySelectorAll("a[href$='forcedownload=1'") // All a tags whose href attribute ends with forcedownload=1
@@ -139,9 +141,9 @@ export async function crawlCourse(HTMLNode, courseName, courseShortcut, message)
           filename: filename,
           folderName: HTMLNode.children[1].firstChild.textContent,
           courseName: courseName,
-          prependCourseToFilename: message.prependCourseToFilename,
+          prependCourseToFilename: options.prependCourseToFilename,
           courseShortcut: courseShortcut,
-          prependCourseShortcutToFilename: message.prependCourseShortcutToFilename,
+          prependCourseShortcutToFilename: options.prependCourseShortcutToFilename,
         })
       })
     }

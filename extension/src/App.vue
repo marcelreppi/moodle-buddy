@@ -63,12 +63,14 @@ export default {
     getActiveTab().then(tab => {
       this.activeTab = tab
 
-      if (this.activeTab.url.match(/https:\/\/.*\/my\//gi)) {
+      if (this.activeTab.url.match(/http(s)?:\/\/([A-z]*\.)*[A-z]*\/my\//gi)) {
         this.showStartingPageView = true
         return
       }
 
-      if (this.activeTab.url.match(/https:\/\/.*\/course\/view\.php\?id=/gi)) {
+      if (
+        this.activeTab.url.match(/http(s)?:\/\/([A-z]*\.)*[A-z]*\/course\/view\.php\?id=[0-9]*/gi)
+      ) {
         this.showCourseView = true
         return
       }

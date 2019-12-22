@@ -6,20 +6,21 @@
       <div class="course-card" v-for="(course, index) in courses" :key="index">
         <div class="course-name">
           <div :class="{ 'update-name': hasUpdates(course) }">{{ course.name }}</div>
-          <a @click="() => onCourseLinkClick(course.link)" :href="course.link">Go to course</a>
+          <!-- <a @click="() => onCourseLinkClick(course.link)" :href="course.link">Go to course</a> -->
         </div>
 
-        <div
-          class="course-details update-details"
-          v-if="hasUpdates(course)"
-        >{{ course.nNewDocuments + course.nNewFolders }} new resources</div>
+        <div class="course-details update-details" v-if="hasUpdates(course)">
+          {{ course.nNewDocuments + course.nNewFolders }} new resources
+        </div>
         <div class="course-details" v-else>No new updates</div>
 
         <button
           class="download-button"
           v-if="hasUpdates(course)"
-          @click="() => onDownloadClick(course.link)"
-        >Download new resources</button>
+          @click="() => onDownloadClick(course)"
+        >
+          Download new resources
+        </button>
       </div>
     </div>
   </div>
@@ -45,10 +46,10 @@ export default {
         url: link,
       })
     },
-    onDownloadClick: function(link) {
+    onDownloadClick: function(course) {
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
-        link,
+        link: course.link,
       })
     },
   },

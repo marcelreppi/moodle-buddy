@@ -1,11 +1,14 @@
 import { scanCourse, crawlCourse } from "./crawler.js"
+import * as parser from "./parser"
 
 let scanInProgress = true
 let courses = []
 
 // browser.storage.local.clear()
 
-async function scanForCourses() {
+async function scanOverview() {
+  courses = []
+
   const overviewNode = document.querySelector("div[data-region='myoverview']")
   if (!overviewNode) {
     // Overview is hidden
@@ -25,29 +28,30 @@ async function scanForCourses() {
   let courseNodes = overviewNode.querySelectorAll("div[data-region='course-content']")
   if (courseNodes.length === 0) {
     // Check again if courses have not loaded yet
-    setTimeout(scanForCourses, 200)
+    setTimeout(scanOverview, 200)
   } else {
-    const parser = new DOMParser()
+    // Overview page has fully loaded
+    const domParser = new DOMParser()
     for (let i = 0; i < courseNodes.length; i++) {
       const node = courseNodes[i]
-      const courseLink = node.children[0].href
+      const courseLink = parser.parseCourseLink(node.innerHTML)
       const res = await fetch(courseLink)
       const resBody = await res.text()
-      const HTMLDocument = parser.parseFromString(resBody, "text/html")
+      const HTMLDocument = domParser.parseFromString(resBody, "text/html")
       const scanResult = await scanCourse(courseLink, HTMLDocument)
       courses.push({
-        name: node.querySelector(".multiline").innerText,
+        name: parser.parseCourseNameFromCard(node),
         link: courseLink,
         HTMLDocument,
         ...scanResult,
       })
     }
-    // console.log(courses)
+
     scanInProgress = false
   }
 }
 
-scanForCourses()
+scanOverview()
 
 browser.runtime.onMessage.addListener(async message => {
   console.log(message)
@@ -57,7 +61,6 @@ browser.runtime.onMessage.addListener(async message => {
         command: "scan-in-progress",
       })
     } else {
-      console.log(courses)
       browser.runtime.sendMessage({
         command: "scan-result",
         courses: courses.map(c => {
@@ -74,11 +77,11 @@ browser.runtime.onMessage.addListener(async message => {
   }
 
   if (message.command === "crawl") {
-    const course = courses.find(c => c.link === message.link)
+    const i = courses.findIndex(c => c.link === message.link)
+    const course = courses[i]
 
-    const courseName = course.HTMLDocument.querySelector(".page-header-headings").children[0]
-      .textContent
-    const courseShortcut = course.HTMLDocument.querySelector("a[aria-current='page']").textContent
+    const courseName = parser.parseCourseName(course.HTMLDocument)
+    const courseShortcut = parser.parseCourseShortcut(course.HTMLDocument)
 
     const downloadedResources = []
 
@@ -89,26 +92,26 @@ browser.runtime.onMessage.addListener(async message => {
 
       downloadedResources.push(node)
 
-      await crawlCourse(node, courseName, courseShortcut, message)
+      await crawlCourse(node, courseName, courseShortcut)
     }
 
-    const localStorage = await browser.storage.local.get(courseLink)
-    const courseData = localStorage[courseLink]
+    const localStorage = await browser.storage.local.get(course.link)
+    const storedCourseData = localStorage[course.link]
 
-    console.log(
-      Array.from(
-        new Set(courseData.oldResources.concat(downloadedResources.map(n => n.href))) // Remove duplicates
-      )
-    )
-    const now = new Date()
-    browser.storage.local.set({
-      [courseLink]: {
-        ...courseData,
+    await browser.storage.local.set({
+      [course.link]: {
+        ...storedCourseData,
         oldResources: Array.from(
-          new Set(courseData.oldResources.concat(downloadedResources.map(n => n.href))) // Remove duplicates
+          new Set(storedCourseData.oldResources.concat(downloadedResources.map(n => n.href))) // Remove duplicates
         ),
-        downloadTimestamp: now.getTime(),
       },
     })
+
+    // Update course
+    const scanResult = await scanCourse(course.link, course.HTMLDocument)
+    courses[i] = {
+      ...course,
+      ...scanResult,
+    }
   }
 })

@@ -1,11 +1,12 @@
 import { scanCourse, crawlCourse } from "./crawler.js"
+import { parseCourseName, parseCourseShortcut } from "./parser"
 
 let resourceNodes = null
 let resourceCounts = null
 
 const courseLink = location.href
-const courseName = document.querySelector(".page-header-headings").children[0].textContent
-const courseShortcut = document.querySelector("a[aria-current='page']").textContent
+const courseName = parseCourseName(document)
+const courseShortcut = parseCourseShortcut(document)
 
 scanCourse(courseLink, document).then(result => {
   resourceNodes = result.resourceNodes
@@ -45,11 +46,6 @@ browser.runtime.onMessage.addListener(async message => {
     const localStorage = await browser.storage.local.get(courseLink)
     const courseData = localStorage[courseLink]
 
-    console.log(
-      Array.from(
-        new Set(courseData.oldResources.concat(downloadedResources.map(n => n.href))) // Remove duplicates
-      )
-    )
     const now = new Date()
     browser.storage.local.set({
       [courseLink]: {
