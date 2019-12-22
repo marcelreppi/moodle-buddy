@@ -1,4 +1,4 @@
-import { scanCourse, crawlCourse } from "./crawler.js"
+import { scanCourse, downloadResource } from "./crawler.js"
 import { parseCourseName, parseCourseShortcut } from "./parser"
 
 let resourceNodes = null
@@ -30,30 +30,23 @@ browser.runtime.onMessage.addListener(async message => {
 
       if (message.skipDocuments && node.isDocument) continue
       if (message.skipFolders && node.isFolder) continue
-
-      if (message.onlyNewResources) {
-        // Skip already downloaded resources
-        if (node.isNewResource || node.isNonDownloadResource) {
-          continue
-        }
-      }
+      if (message.onlyNewResources && !node.isNewResource) continue
 
       downloadedResources.push(node)
 
-      await crawlCourse(node, courseName, courseShortcut, message)
+      await downloadResource(node, courseName, courseShortcut, message)
     }
 
     const localStorage = await browser.storage.local.get(courseLink)
     const courseData = localStorage[courseLink]
 
-    const now = new Date()
     browser.storage.local.set({
       [courseLink]: {
         ...courseData,
-        oldResources: Array.from(
-          new Set(courseData.oldResources.concat(downloadedResources.map(n => n.href))) // Remove duplicates
+        seenResources: Array.from(
+          new Set(courseData.seenResources.concat(downloadedResources.map(n => n.href))) // Remove duplicates
         ),
-        downloadTimestamp: now.getTime(),
+        lastDownload: new Date().getTime(),
       },
     })
 

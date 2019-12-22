@@ -1,4 +1,4 @@
-import { scanCourse, crawlCourse } from "./crawler.js"
+import { scanCourse, downloadResource } from "./crawler.js"
 import * as parser from "./parser"
 
 let scanInProgress = true
@@ -54,7 +54,6 @@ async function scanOverview() {
 scanOverview()
 
 browser.runtime.onMessage.addListener(async message => {
-  console.log(message)
   if (message.command === "scan") {
     if (scanInProgress) {
       browser.runtime.sendMessage({
@@ -92,18 +91,22 @@ browser.runtime.onMessage.addListener(async message => {
 
       downloadedResources.push(node)
 
-      await crawlCourse(node, courseName, courseShortcut)
+      await downloadResource(node, courseName, courseShortcut)
     }
 
     const localStorage = await browser.storage.local.get(course.link)
     const storedCourseData = localStorage[course.link]
 
+    // Merge already seen resources with downloaded resources
+    // Use set to remove duplicates
+    const updatedSeenResources = Array.from(
+      new Set(storedCourseData.seenResources.concat(downloadedResources.map(n => n.href)))
+    )
     await browser.storage.local.set({
       [course.link]: {
         ...storedCourseData,
-        oldResources: Array.from(
-          new Set(storedCourseData.oldResources.concat(downloadedResources.map(n => n.href))) // Remove duplicates
-        ),
+        seenResources: updatedSeenResources,
+        lastDownload: new Date().getTime(),
       },
     })
 

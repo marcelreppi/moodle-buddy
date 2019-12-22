@@ -1,68 +1,85 @@
 export async function scanCourse(courseLink, HTMLDocument) {
+  // Variable prep
   let nDocuments = 0
   let nNewDocuments = 0
   let nFolders = 0
   let nNewFolders = 0
-
   let resourceNodes = []
 
-  let courseData = {}
+  //  Local storage data
+  let storedCourseData = {}
 
   const localStorage = await browser.storage.local.get(courseLink)
-
   if (localStorage[courseLink]) {
-    courseData = localStorage[courseLink]
+    storedCourseData = localStorage[courseLink]
   }
 
-  const previousResources = courseData.oldResources || []
+  const previousSeenResources = storedCourseData.seenResources || []
+  const previousNewResources = storedCourseData.newResources || []
+  const lastDownload = storedCourseData.lastDownload || -1
+
+  // RegEx and other conditionals
+  const documentRegex = /http(s)?:\/\/([A-z]*\.)*[A-z]*\/mod\/resource\/view\.php\?id=[0-9]*/gi
+  const folderRegex = /http(s)?:\/\/([A-z]*\.)*[A-z]*\/mod\/folder\/view\.php\?id=[0-9]*/gi
+  const lastDownloadLimit = 1000 * 60 * 60 * 24 // 1 day
 
   HTMLDocument.querySelector("#region-main")
     .querySelectorAll("a")
     .forEach(node => {
-      if (
-        node.href.match(/http(s)?:\/\/([A-z]*\.)*[A-z]*\/mod\/resource\/view\.php\?id=[0-9]*/gi)
-      ) {
-        node.isDocument = true
-        nDocuments++
+      node.isDocument = node.href.match(documentRegex)
+      node.isFolder = node.href.match(folderRegex)
 
-        if (!previousResources.includes(node.href)) {
-          nNewDocuments++
-          node.isNewResource = true
-        }
-
+      if (node.isDocument || node.isFolder) {
         resourceNodes.push(node)
+      } else {
         return
       }
 
-      if (node.href.match(/http(s)?:\/\/([A-z]*\.)*[A-z]*\/mod\/folder\/view\.php\?id=[0-9]*/gi)) {
-        node.isFolder = true
-        nFolders++
+      if (node.isDocument) nDocuments++
+      if (node.isFolder) nFolders++
 
-        if (!previousResources.includes(node.href)) {
-          nNewFolders++
+      if (!previousSeenResources.includes(node.href)) {
+        // Resource was not seen on last scan
+        if (previousNewResources.includes(node.href)) {
+          // Resource was new at last scan
+          if (new Date().getTime() - lastDownloadLimit > lastDownload) {
+            // Last download was more than 1 day ago
+            // -> Keep on treating resource as new
+
+            if (node.isDocument) nNewDocuments++
+            if (node.isFolder) nNewFolders++
+            node.isNewResource = true
+          } else {
+            // Last download for this course through the tool was less than 1 day ago
+            // -> Assuming that user must have seen it but actively decided not to downloaded it or download it by other means
+            // -> Treat resource as old
+          }
+        } else {
+          // Resource did not exist during last scan
+          // -> Resource is completely new
+          if (node.isDocument) nNewDocuments++
+          if (node.isFolder) nNewFolders++
           node.isNewResource = true
         }
-
-        resourceNodes.push(node)
-        return
       }
     })
 
-  const now = new Date()
   if (localStorage[courseLink]) {
     browser.storage.local.set({
       [courseLink]: {
         ...localStorage[courseLink],
-        oldResources: resourceNodes.filter(n => !n.isNewResource).map(n => n.href),
-        scanTimestamp: now.getTime(),
+        seenResources: resourceNodes.filter(n => !n.isNewResource).map(n => n.href),
+        newResources: resourceNodes.filter(n => n.isNewResource).map(n => n.href),
+        lastScan: new Date().getTime(),
       },
     })
   } else {
     // First time this course was scanned
     browser.storage.local.set({
       [courseLink]: {
-        oldResources: resourceNodes.map(n => n.href),
-        scanTimestamp: now.getTime(),
+        seenResources: resourceNodes.map(n => n.href),
+        newResources: [],
+        lastScan: new Date().getTime(),
       },
     })
   }
@@ -78,7 +95,7 @@ export async function scanCourse(courseLink, HTMLDocument) {
   }
 }
 
-export async function crawlCourse(HTMLNode, courseName, courseShortcut, options = {}) {
+export async function downloadResource(HTMLNode, courseName, courseShortcut, options = {}) {
   // Fetch the href to get the actual download URL
   const res = await fetch(HTMLNode.href)
 
