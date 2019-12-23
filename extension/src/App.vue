@@ -16,6 +16,9 @@
         Inofficial Plugin made by
         <a href="https://twitter.com/marcelreppi">marcelreppi</a>
       </span>
+      <span>
+        <a href="https://paypal.me/marcelreppi">Donate</a>
+      </span>
       <span class="footer-right-section">
         <a href="https://github.com/marcelreppi/moodle-buddy">GitHub</a>
         <img class="info-icon" :src="InfoIcon" alt="info" @click="onInfoClick" />
@@ -25,7 +28,7 @@
 </template>
 
 <script>
-import { sendEvent, getActiveTab } from "../shared/helpers.js"
+import { sendEvent, getActiveTab, validURLRegex } from "../shared/helpers.js"
 import StartingPageView from "./views/StartingPageView.vue"
 import CourseView from "./views/CourseView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
@@ -63,14 +66,17 @@ export default {
     getActiveTab().then(tab => {
       this.activeTab = tab
 
-      if (this.activeTab.url.match(/http(s)?:\/\/([A-z]*\.)*[A-z]*\/my\//gi)) {
+      const startingPageRegex = new RegExp(validURLRegex + /\/my\//.source, "gi")
+      if (this.activeTab.url.match(startingPageRegex)) {
         this.showStartingPageView = true
         return
       }
 
-      if (
-        this.activeTab.url.match(/http(s)?:\/\/([A-z]*\.)*[A-z]*\/course\/view\.php\?id=[0-9]*/gi)
-      ) {
+      const coursePageRegex = new RegExp(
+        validURLRegex + /\/course\/view\.php\?id=[0-9]*/.source,
+        "gi"
+      )
+      if (this.activeTab.url.match(coursePageRegex)) {
         this.showCourseView = true
         return
       }
@@ -86,7 +92,7 @@ export default {
   font-size: 24px;
   text-align: center;
   margin-bottom: 20px;
-  margin-top: 15px;
+  margin-top: 25px;
 }
 
 .title-icon {

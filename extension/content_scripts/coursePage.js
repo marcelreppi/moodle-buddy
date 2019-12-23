@@ -1,5 +1,6 @@
 import { scanCourse, downloadResource } from "./crawler.js"
-import { parseCourseName, parseCourseShortcut } from "./parser"
+import { parseCourseName, parseCourseShortcut } from "./parser.js"
+import { filterMoodleBuddyKeys } from "../shared/helpers.js"
 
 let resourceNodes = null
 let resourceCounts = null
@@ -15,8 +16,13 @@ scanCourse(courseLink, document).then(result => {
 
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "scan") {
+    const scanResult = await scanCourse(courseLink, document)
+    resourceNodes = scanResult.resourceNodes
+    resourceCounts = scanResult.resourceCounts
+
     browser.runtime.sendMessage({
       command: "scan-result",
+      resourceNodes: resourceNodes.map(filterMoodleBuddyKeys),
       ...resourceCounts,
     })
     return
@@ -28,9 +34,9 @@ browser.runtime.onMessage.addListener(async message => {
     for (let i = 0; i < resourceNodes.length; i++) {
       const node = resourceNodes[i]
 
-      if (message.skipDocuments && node.isDocument) continue
-      if (message.skipFolders && node.isFolder) continue
-      if (message.onlyNewResources && !node.isNewResource) continue
+      if (message.skipFiles && node.mb_isFile) continue
+      if (message.skipFolders && node.mb_isFolder) continue
+      if (message.onlyNewResources && !node.mb_isNewResource) continue
 
       downloadedResources.push(node)
 

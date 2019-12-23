@@ -13,11 +13,7 @@ browser.runtime.onMessage.addListener(message => {
   }
 
   if (message.command === "download-file") {
-    let filename = message.url
-      .split("/")
-      .pop() // Take last part of URL
-      .split("?")
-      .shift() // Take everything before query parameters
+    let filename = message.filename
     const filenameParts = filename.split(".")
     const fileType = filenameParts[filenameParts.length - 1]
 

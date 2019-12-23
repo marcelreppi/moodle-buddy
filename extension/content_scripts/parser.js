@@ -13,3 +13,23 @@ export function parseCourseNameFromCard(cardNode) {
 export function parseCourseLink(htmlString) {
   return htmlString.match(/http(s)?:\/\/([A-z]*\.)*[A-z]*\/course\/view\.php\?id=[0-9]*/i)[0]
 }
+
+export function parseFilenameFromCourse(aTag) {
+  // Files or Folders
+  if (aTag.querySelector(".instancename")) {
+    return aTag.querySelector(".instancename").firstChild.textContent
+  }
+
+  // Pluginfiles
+  if (aTag.querySelector(".fp-filename")) {
+    return aTag.querySelector(".fp-filename").textContent
+  }
+}
+
+export function parseFilenameFromPluginfileURL(url) {
+  return url
+    .split("/")
+    .pop() // Take last part of URL
+    .split("?")
+    .shift() // Take everything before query parameters
+}

@@ -1,0 +1,199 @@
+<template>
+  <div class="course-card">
+    <div class="course-name">
+      <div :class="{ 'update-name': hasUpdates(course) }">{{ course.name }}</div>
+      <!-- <a @click="() => onCourseLinkClick(course.link)" :href="course.link">Go to course</a> -->
+    </div>
+
+    <div v-if="hasUpdates(course)">
+      <div class="course-details">
+        <div class="update-details">{{ course.nNewFiles + course.nNewFolders }} new resources</div>
+        <div class="detail-switch" @click="onDetailClick">
+          <div ref="arrow" class="arrow" />
+          <div>{{ switchWord }} details</div>
+        </div>
+        <div v-if="showDetails" class="detail-container">
+          <div v-for="(resource, i) in newResources" key="i">
+            <span>- {{ resource.mb_filename }}</span>
+            <span v-if="resource.mb_isFile || resource.mb_isPluginfile">(File)</span>
+            <span v-if="resource.mb_isFolder">(Folder)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="download-row">
+        <button
+          v-if="hasUpdates(course)"
+          class="download-button"
+          @click="e => onDownloadClick(e, course)"
+        >Download new resources</button>
+        <div class="mark-as-seen" @click="() => onMarkAsSeenClick(course)">Mark as seen</div>
+      </div>
+    </div>
+    <div v-else class="course-details">No new updates</div>
+  </div>
+</template>
+
+<script>
+export default {
+  props: {
+    course: Object,
+    activeTab: Object,
+  },
+  data: function() {
+    return {
+      showDetails: false,
+      switchWord: "More",
+      // x: null,
+    }
+  },
+  computed: {
+    newResources: function() {
+      return this.course.resourceNodes.filter(n => n.mb_isNewResource)
+    },
+  },
+  methods: {
+    hasUpdates: function(course) {
+      return course.nNewFiles > 0 || course.nNewFolders > 0
+    },
+    onCourseLinkClick: function(link) {
+      browser.tabs.update(this.activeTab.id, {
+        active: true,
+        url: link,
+      })
+    },
+    onDownloadClick: function(e, course) {
+      e.target.disabled = true
+      browser.tabs.sendMessage(this.activeTab.id, {
+        command: "crawl",
+        link: course.link,
+      })
+    },
+    onMarkAsSeenClick: function(course) {
+      course.nNewFiles = 0
+      course.nNewFolders = 0
+      browser.tabs.sendMessage(this.activeTab.id, {
+        command: "mark-as-seen",
+        link: course.link,
+      })
+    },
+    onDetailClick: function() {
+      this.showDetails = !this.showDetails
+
+      if (this.showDetails) {
+        this.$refs.arrow.style.marginTop = "-2px"
+        this.$refs.arrow.style.transform = "rotate(135deg)"
+        this.switchWord = "Less"
+      } else {
+        this.$refs.arrow.style.marginTop = "0px"
+        this.$refs.arrow.style.transform = "rotate(45deg)"
+        this.switchWord = "More"
+      }
+    },
+  },
+}
+</script>
+
+<style scoped>
+.course-card {
+  border: 1px rgb(230, 230, 230) solid;
+  border-radius: 5px;
+  padding: 10px 15px;
+  margin: 7px 0px;
+  display: flex;
+  flex-direction: column;
+}
+
+.course-name {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.update-name::after {
+  content: "*";
+  margin-left: 2px;
+  vertical-align: super;
+  color: #c50e20;
+}
+
+.course-details {
+  font-size: 12px;
+  color: rgb(57, 57, 57);
+  margin-top: 5px;
+}
+
+.update-details {
+  font-weight: bold;
+}
+
+.detail-container {
+  margin-top: 5px;
+  padding-left: 15px;
+}
+
+.download-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mark-as-seen {
+  font-size: 14px;
+  align-self: flex-end;
+  text-decoration: underline;
+  color: rgb(66, 66, 66);
+}
+
+.mark-as-seen:hover {
+  cursor: pointer;
+}
+
+.download-button {
+  /* width: 170px; */
+  padding: 10px 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+  border: 0;
+  background-color: #c50e20;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.7px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.download-button:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.download-button:disabled {
+  background-color: #a8a8a8;
+  cursor: default;
+  text-decoration: none;
+}
+
+.detail-switch {
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  margin-top: 3px;
+}
+
+.detail-switch:hover {
+  cursor: pointer;
+}
+
+.arrow {
+  transition: all 0.5s;
+  margin-right: 6px;
+  margin-left: -5px;
+  width: 4px;
+  height: 4px;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  transform: rotate(45deg);
+}
+</style>

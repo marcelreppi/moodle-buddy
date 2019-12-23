@@ -12,7 +12,7 @@
       </div>
       <div v-if="showNewResourceInfo" class="new-resources-info">
         <div>
-          Since last download
+          Since last visit
           <span class="bold">{{ nNewResources }} new</span>
           <span v-if="nNewResources === 1">resource</span>
           <span v-else>resources</span>
@@ -28,12 +28,12 @@
       </div>
       <div class="resource-selection">
         <div>
-          <label id="documents-cb-label">
-            <input type="checkbox" ref="documentsCb" @input="onDocumentCbClick" checked />
+          <label id="files-cb-label">
+            <input type="checkbox" ref="filesCb" @input="onFilesCbClick" checked />
             <span class="checkbox-label">
-              <span v-if="onlyNewResources">{{ nNewDocuments }}</span>
-              <span v-else>{{ nDocuments }}</span>
-              document(s) (PDF, etc.)
+              <span v-if="onlyNewResources">{{ nNewFiles }}</span>
+              <span v-else>{{ nFiles }}</span>
+              file(s) (PDF, etc.)
             </span>
           </label>
         </div>
@@ -49,10 +49,6 @@
         </div>
       </div>
     </div>
-
-    <!-- <div class="download-info">
-      Click the button below to download all available resources from this Moodle course
-    </div>-->
 
     <div>
       <div>
@@ -88,8 +84,8 @@ export default {
   data: function() {
     return {
       loading: true,
-      nDocuments: 0,
-      nNewDocuments: 0,
+      nFiles: 0,
+      nNewFiles: 0,
       nFolders: 0,
       nNewFolders: 0,
       firstDownload: true,
@@ -98,13 +94,13 @@ export default {
   },
   computed: {
     showNewResourceInfo: function() {
-      return !this.firstDownload && (this.nNewDocuments > 0 || this.nNewFolders > 0)
+      return this.nNewFiles > 0 || this.nNewFolders > 0
     },
     nResources: function() {
-      return this.nDocuments + this.nFolders
+      return this.nFiles + this.nFolders
     },
     nNewResources: function() {
-      return this.nNewDocuments + this.nNewFolders
+      return this.nNewFiles + this.nNewFolders
     },
   },
   methods: {
@@ -116,12 +112,12 @@ export default {
         useMoodleFilename: this.$refs.useMoodleFilenameCb.checked,
         prependCourseToFilename: this.$refs.prependCourseToFilenameCb.checked,
         prependCourseShortcutToFilename: this.$refs.prependCourseShortcutToFilenameCb.checked,
-        skipDocuments: !this.$refs.documentsCb.checked,
+        skipFiles: !this.$refs.filesCb.checked,
         skipFolders: !this.$refs.foldersCb.checked,
         onlyNewResources: this.onlyNewResources,
       })
     },
-    onDocumentCbClick: function(e) {
+    onFilesCbClick: function(e) {
       if (!e.target.checked && !this.$refs.foldersCb.checked) {
         this.$refs.downloadButton.disabled = true
       } else {
@@ -129,7 +125,7 @@ export default {
       }
     },
     onFolderCbClick: function(e) {
-      if (!e.target.checked && !this.$refs.documentsCb.checked) {
+      if (!e.target.checked && !this.$refs.filesCb.checked) {
         this.$refs.downloadButton.disabled = true
       } else {
         this.$refs.downloadButton.disabled = false
@@ -139,12 +135,12 @@ export default {
       this.onlyNewResources = this.$refs.newResourceCb.checked
 
       if (this.onlyNewResources) {
-        if (this.nNewDocuments === 0) {
-          this.$refs.documentsCb.disabled = true
-          this.$refs.documentsCb.checked = false
+        if (this.nNewFiles === 0) {
+          this.$refs.filesCb.disabled = true
+          this.$refs.filesCb.checked = false
         } else {
-          this.$refs.documentsCb.disabled = false
-          this.$refs.documentsCb.checked = true
+          this.$refs.filesCb.disabled = false
+          this.$refs.filesCb.checked = true
         }
 
         if (this.nNewFolders === 0) {
@@ -155,12 +151,12 @@ export default {
           this.$refs.foldersCb.checked = true
         }
       } else {
-        if (this.nDocuments === 0) {
-          this.$refs.documentsCb.disabled = true
-          this.$refs.documentsCb.checked = false
+        if (this.nFiles === 0) {
+          this.$refs.filesCb.disabled = true
+          this.$refs.filesCb.checked = false
         } else {
-          this.$refs.documentsCb.disabled = false
-          this.$refs.documentsCb.checked = true
+          this.$refs.filesCb.disabled = false
+          this.$refs.filesCb.checked = true
         }
 
         if (this.nFolders === 0) {
@@ -175,16 +171,11 @@ export default {
       this.$refs.downloadButton.disabled = false
     },
   },
-  created: function() {
-    // browser.storage.local.get(this.activeTab.url).then(res => {
-    //   this.firstDownload = !res[this.activeTab.url]
-    // })
-  },
   mounted: function() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "scan-result") {
-        this.nDocuments = message.nDocuments
-        this.nNewDocuments = message.nNewDocuments
+        this.nFiles = message.nFiles
+        this.nNewFiles = message.nNewFiles
         this.nFolders = message.nFolders
         this.nNewFolders = message.nNewFolders
 
@@ -192,9 +183,9 @@ export default {
           this.$refs.downloadButton.disabled = true
         }
 
-        if (this.nDocuments === 0) {
-          this.$refs.documentsCb.disabled = true
-          this.$refs.documentsCb.checked = false
+        if (this.nFiles === 0) {
+          this.$refs.filesCb.disabled = true
+          this.$refs.filesCb.checked = false
         }
 
         if (this.nFolders === 0) {
@@ -206,7 +197,7 @@ export default {
       }
     })
 
-    // Scan for documents
+    // Scan for resources
     browser.tabs.sendMessage(this.activeTab.id, {
       command: "scan",
     })
@@ -253,6 +244,7 @@ export default {
 
 .new-resources-info {
   margin-top: 10px;
+  margin-bottom: 5px;
   display: flex;
   flex-direction: column;
   align-items: center;

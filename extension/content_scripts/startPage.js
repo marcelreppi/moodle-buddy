@@ -1,5 +1,6 @@
 import { scanCourse, downloadResource } from "./crawler.js"
-import * as parser from "./parser"
+import * as parser from "./parser.js"
+import { filterMoodleBuddyKeys } from "../shared/helpers.js"
 
 let scanInProgress = true
 let courses = []
@@ -66,6 +67,7 @@ browser.runtime.onMessage.addListener(async message => {
           return {
             name: c.name,
             link: c.link,
+            resourceNodes: c.resourceNodes.map(filterMoodleBuddyKeys),
             ...c.resourceCounts,
           }
         }),
@@ -73,6 +75,33 @@ browser.runtime.onMessage.addListener(async message => {
     }
 
     return
+  }
+
+  if (message.command === "mark-as-seen") {
+    const i = courses.findIndex(c => c.link === message.link)
+    const course = courses[i]
+
+    const localStorage = await browser.storage.local.get(course.link)
+    const storedCourseData = localStorage[course.link]
+
+    // Merge already seen resources with downloaded resources
+    // Use set to remove duplicates
+    const updatedSeenResources = Array.from(
+      new Set(storedCourseData.seenResources.concat(storedCourseData.newResources))
+    )
+    await browser.storage.local.set({
+      [course.link]: {
+        ...storedCourseData,
+        seenResources: updatedSeenResources,
+      },
+    })
+
+    // Update course
+    const scanResult = await scanCourse(course.link, course.HTMLDocument)
+    courses[i] = {
+      ...course,
+      ...scanResult,
+    }
   }
 
   if (message.command === "crawl") {
@@ -87,9 +116,9 @@ browser.runtime.onMessage.addListener(async message => {
     for (let i = 0; i < course.resourceNodes.length; i++) {
       const node = course.resourceNodes[i]
 
-      if (!node.isNewResource) continue // Only download new resources
+      if (!node.mb_isNewResource) continue // Only download new resources
 
-      downloadedResources.push(node)
+      downloadedResources.push(node.href)
 
       await downloadResource(node, courseName, courseShortcut)
     }
@@ -100,7 +129,7 @@ browser.runtime.onMessage.addListener(async message => {
     // Merge already seen resources with downloaded resources
     // Use set to remove duplicates
     const updatedSeenResources = Array.from(
-      new Set(storedCourseData.seenResources.concat(downloadedResources.map(n => n.href)))
+      new Set(storedCourseData.seenResources.concat(downloadedResources))
     )
     await browser.storage.local.set({
       [course.link]: {
