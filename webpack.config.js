@@ -23,6 +23,7 @@ module.exports = {
     "content_scripts/coursePage": contentEntry("coursePage.js"),
     "content_scripts/startPage": contentEntry("startPage.js"),
     "background_scripts/downloader": backgroundEntry("downloader.js"),
+    "background_scripts/extension-listener": backgroundEntry("extension-listener.js"),
   },
   output: {
     path: join(__dirname, "build"),

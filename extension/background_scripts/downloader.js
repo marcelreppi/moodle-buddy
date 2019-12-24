@@ -1,5 +1,3 @@
-import { sendEvent } from "../shared/helpers.js"
-
 const sanitizeFilename = (filename, connectingString = "") => {
   return filename.trim().replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString)
 }
@@ -68,18 +66,5 @@ browser.runtime.onMessage.addListener(message => {
       filename,
     })
     return
-  }
-})
-
-browser.runtime.onInstalled.addListener(details => {
-  switch (details.reason) {
-    case "install":
-      sendEvent("install")
-      break
-    case "update":
-      sendEvent("update")
-      break
-    default:
-      break
   }
 })

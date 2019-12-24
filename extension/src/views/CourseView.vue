@@ -1,76 +1,80 @@
 <template>
   <div class="content-container">
-    <div class="resource-info">
-      <div>
-        There
-        <span v-if="nResources === 1">is</span>
-        <span v-else>are</span>
-        <span class="bold">{{ nResources }}</span>
-        <span v-if="nResources === 1">resource</span>
-        <span v-else>resources</span>
-        available for download
-      </div>
-      <div v-if="showNewResourceInfo" class="new-resources-info">
+    <div v-if="loading">Scanning course...</div>
+    <div v-else class="content-container">
+      <div class="resource-info">
         <div>
-          Since last visit
-          <span class="bold">{{ nNewResources }} new</span>
-          <span v-if="nNewResources === 1">resource</span>
+          There
+          <span v-if="nResources === 1">is</span>
+          <span v-else>are</span>
+          <span class="bold">{{ nResources }}</span>
+          <span v-if="nResources === 1">resource</span>
           <span v-else>resources</span>
-          <span v-if="nNewResources === 1">was</span>
-          <span v-else>were</span> added
+          available for download
+        </div>
+        <div v-if="showNewResourceInfo" class="new-resources-info">
+          <div>
+            Since last visit
+            <span class="bold">{{ nNewResources }} new</span>
+            <span v-if="nNewResources === 1">resource</span>
+            <span v-else>resources</span>
+            <span v-if="nNewResources === 1">was</span>
+            <span v-else>were</span> added
+          </div>
+          <div>
+            <label>
+              <input type="checkbox" ref="newResourceCb" @input="onNewResourceCbClick" />
+              <span class="checkbox-label">Download only new resources</span>
+            </label>
+          </div>
+          <div class="mark-as-seen" @click="onMarkAsSeenClick">Mark as seen</div>
+        </div>
+        <div class="resource-selection">
+          <div>
+            <label id="files-cb-label">
+              <input type="checkbox" ref="filesCb" @input="onFilesCbClick" checked />
+              <span class="checkbox-label">
+                <span v-if="onlyNewResources">{{ nNewFiles }}</span>
+                <span v-else>{{ nFiles }}</span>
+                file(s) (PDF, etc.)
+              </span>
+            </label>
+          </div>
+          <div>
+            <label id="folders-cb-label">
+              <input type="checkbox" ref="foldersCb" @input="onFolderCbClick" checked />
+              <span class="checkbox-label">
+                <span v-if="onlyNewResources">{{ nNewFolders }}</span>
+                <span v-else>{{ nFolders }}</span>
+                folder(s)
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <label>
+            <input type="checkbox" ref="useMoodleFilenameCb" />
+            <span class="checkbox-label">Use Moodle file name as actual file name</span>
+          </label>
         </div>
         <div>
           <label>
-            <input type="checkbox" ref="newResourceCb" @input="onNewResourceCbClick" />
-            <span class="checkbox-label">Download only new resources</span>
-          </label>
-        </div>
-      </div>
-      <div class="resource-selection">
-        <div>
-          <label id="files-cb-label">
-            <input type="checkbox" ref="filesCb" @input="onFilesCbClick" checked />
-            <span class="checkbox-label">
-              <span v-if="onlyNewResources">{{ nNewFiles }}</span>
-              <span v-else>{{ nFiles }}</span>
-              file(s) (PDF, etc.)
-            </span>
+            <input type="checkbox" ref="prependCourseShortcutToFilenameCb" />
+            <span class="checkbox-label">Prepend course shortcut to each file name</span>
           </label>
         </div>
         <div>
-          <label id="folders-cb-label">
-            <input type="checkbox" ref="foldersCb" @input="onFolderCbClick" checked />
-            <span class="checkbox-label">
-              <span v-if="onlyNewResources">{{ nNewFolders }}</span>
-              <span v-else>{{ nFolders }}</span>
-              folder(s)
-            </span>
+          <label>
+            <input type="checkbox" ref="prependCourseToFilenameCb" />
+            <span class="checkbox-label">Prepend course name to each file name</span>
           </label>
         </div>
       </div>
+      <button class="download-button" @click="onDownload" ref="downloadButton">Download</button>
     </div>
-
-    <div>
-      <div>
-        <label>
-          <input type="checkbox" ref="useMoodleFilenameCb" />
-          <span class="checkbox-label">Use Moodle file name as actual file name</span>
-        </label>
-      </div>
-      <div>
-        <label>
-          <input type="checkbox" ref="prependCourseShortcutToFilenameCb" />
-          <span class="checkbox-label">Prepend course shortcut to each file name</span>
-        </label>
-      </div>
-      <div>
-        <label>
-          <input type="checkbox" ref="prependCourseToFilenameCb" />
-          <span class="checkbox-label">Prepend course name to each file name</span>
-        </label>
-      </div>
-    </div>
-    <button class="download-button" @click="onDownload" ref="downloadButton">Download</button>
   </div>
 </template>
 
@@ -88,7 +92,6 @@ export default {
       nNewFiles: 0,
       nFolders: 0,
       nNewFolders: 0,
-      firstDownload: true,
       onlyNewResources: false,
     }
   },
@@ -105,7 +108,12 @@ export default {
   },
   methods: {
     onDownload: function() {
-      sendEvent("download")
+      if (this.onlyNewResources) {
+        sendEvent("download-course-page-only-new")
+      } else {
+        sendEvent("download-course-page")
+      }
+
       this.$refs.downloadButton.disabled = true
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
@@ -170,6 +178,14 @@ export default {
 
       this.$refs.downloadButton.disabled = false
     },
+    onMarkAsSeenClick: function() {
+      sendEvent("mark-as-seen-course-page")
+      this.nNewFiles = 0
+      this.nNewFolders = 0
+      browser.tabs.sendMessage(this.activeTab.id, {
+        command: "mark-as-seen",
+      })
+    },
   },
   mounted: function() {
     browser.runtime.onMessage.addListener(message => {
@@ -192,6 +208,8 @@ export default {
           this.$refs.foldersCb.disabled = true
           this.$refs.foldersCb.checked = false
         }
+
+        console.log("scan-result")
 
         this.loading = false
       }
@@ -248,6 +266,16 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.mark-as-seen {
+  font-size: 14px;
+  text-decoration: underline;
+  color: rgb(66, 66, 66);
+}
+
+.mark-as-seen:hover {
+  cursor: pointer;
 }
 
 .resource-selection {

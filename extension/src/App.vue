@@ -17,7 +17,7 @@
         <a href="https://twitter.com/marcelreppi">marcelreppi</a>
       </span>
       <span>
-        <a href="https://paypal.me/marcelreppi">Donate</a>
+        <a href="https://paypal.me/marcelreppi" @click="onDonateClick">Donate</a>
       </span>
       <span class="footer-right-section">
         <a href="https://github.com/marcelreppi/moodle-buddy">GitHub</a>
@@ -35,8 +35,6 @@ import NoMoodle from "./views/NoMoodle.vue"
 
 import MoodleIcon from "../icons/icon48.png"
 import InfoIcon from "../icons/information.png"
-
-sendEvent("pageview")
 
 export default {
   components: {
@@ -61,6 +59,9 @@ export default {
       })
       sendEvent("info-click")
     },
+    onDonateClick: function() {
+      sendEvent("donate")
+    },
   },
   created: function() {
     getActiveTab().then(tab => {
@@ -69,6 +70,7 @@ export default {
       const startingPageRegex = new RegExp(validURLRegex + /\/my\//.source, "gi")
       if (this.activeTab.url.match(startingPageRegex)) {
         this.showStartingPageView = true
+        sendEvent("view-start-page")
         return
       }
 
@@ -78,6 +80,7 @@ export default {
       )
       if (this.activeTab.url.match(coursePageRegex)) {
         this.showCourseView = true
+        sendEvent("view-course-page")
         return
       }
 

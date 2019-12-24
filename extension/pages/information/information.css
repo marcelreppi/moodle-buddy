@@ -82,3 +82,7 @@ html, body {
   text-decoration: underline;
   margin-bottom: 5px;
 }
+
+.center {
+  text-align: center;
+}

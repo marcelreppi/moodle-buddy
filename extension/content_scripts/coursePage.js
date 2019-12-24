@@ -28,6 +28,25 @@ browser.runtime.onMessage.addListener(async message => {
     return
   }
 
+  if (message.command === "mark-as-seen") {
+    const localStorage = await browser.storage.local.get(courseLink)
+    const storedCourseData = localStorage[courseLink]
+
+    // Merge already seen resources with downloaded resources
+    // Use set to remove duplicates
+    const updatedSeenResources = Array.from(
+      new Set(storedCourseData.seenResources.concat(storedCourseData.newResources))
+    )
+    await browser.storage.local.set({
+      [courseLink]: {
+        ...storedCourseData,
+        seenResources: updatedSeenResources,
+      },
+    })
+
+    return
+  }
+
   if (message.command === "crawl") {
     const downloadedResources = []
 

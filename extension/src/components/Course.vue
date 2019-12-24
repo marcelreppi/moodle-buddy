@@ -26,7 +26,9 @@
           v-if="hasUpdates(course)"
           class="download-button"
           @click="e => onDownloadClick(e, course)"
-        >Download new resources</button>
+        >
+          Download new resources
+        </button>
         <div class="mark-as-seen" @click="() => onMarkAsSeenClick(course)">Mark as seen</div>
       </div>
     </div>
@@ -35,6 +37,8 @@
 </template>
 
 <script>
+import { sendEvent } from "../../shared/helpers"
+
 export default {
   props: {
     course: Object,
@@ -44,7 +48,6 @@ export default {
     return {
       showDetails: false,
       switchWord: "More",
-      // x: null,
     }
   },
   computed: {
@@ -63,6 +66,7 @@ export default {
       })
     },
     onDownloadClick: function(e, course) {
+      sendEvent("download-start-page")
       e.target.disabled = true
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
@@ -70,6 +74,8 @@ export default {
       })
     },
     onMarkAsSeenClick: function(course) {
+      sendEvent("mark-as-seen-start-page")
+
       course.nNewFiles = 0
       course.nNewFolders = 0
       browser.tabs.sendMessage(this.activeTab.id, {
