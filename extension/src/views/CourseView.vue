@@ -180,12 +180,28 @@ export default {
     },
     onMarkAsSeenClick: function() {
       sendEvent("mark-as-seen-course-page")
+      this.onlyNewResources = false
       this.nNewFiles = 0
       this.nNewFolders = 0
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "mark-as-seen",
       })
     },
+  },
+  updated: function() {
+    if (this.nResources === 0) {
+      this.$refs.downloadButton.disabled = true
+    }
+
+    if (this.nFiles === 0) {
+      this.$refs.filesCb.disabled = true
+      this.$refs.filesCb.checked = false
+    }
+
+    if (this.nFolders === 0) {
+      this.$refs.foldersCb.disabled = true
+      this.$refs.foldersCb.checked = false
+    }
   },
   mounted: function() {
     browser.runtime.onMessage.addListener(message => {
@@ -194,23 +210,6 @@ export default {
         this.nNewFiles = message.nNewFiles
         this.nFolders = message.nFolders
         this.nNewFolders = message.nNewFolders
-
-        if (this.nResources === 0) {
-          this.$refs.downloadButton.disabled = true
-        }
-
-        if (this.nFiles === 0) {
-          this.$refs.filesCb.disabled = true
-          this.$refs.filesCb.checked = false
-        }
-
-        if (this.nFolders === 0) {
-          this.$refs.foldersCb.disabled = true
-          this.$refs.foldersCb.checked = false
-        }
-
-        console.log("scan-result")
-
         this.loading = false
       }
     })

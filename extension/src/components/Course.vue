@@ -2,19 +2,23 @@
   <div class="course-card">
     <div class="course-name">
       <div :class="{ 'update-name': hasUpdates(course) }">{{ course.name }}</div>
-      <!-- <a @click="() => onCourseLinkClick(course.link)" :href="course.link">Go to course</a> -->
+      <div class="action" @click="() => onCourseLinkClick(course.link)">Go to course</div>
     </div>
 
     <div v-if="hasUpdates(course)">
       <div class="course-details">
-        <div class="update-details">{{ course.nNewFiles + course.nNewFolders }} new resources</div>
+        <div class="update-details">
+          <span>{{ course.nNewFiles + course.nNewFolders }}</span>
+          <span v-if="course.nNewFiles + course.nNewFolders === 1">new resource</span>
+          <span v-else>new resources</span>
+        </div>
         <div class="detail-switch" @click="onDetailClick">
           <div ref="arrow" class="arrow" />
-          <div>{{ switchWord }} details</div>
+          <div class="switch-text">{{ switchWord }} details</div>
         </div>
         <div v-if="showDetails" class="detail-container">
           <div v-for="(resource, i) in newResources" key="i">
-            <span>- {{ resource.mb_filename }}</span>
+            <span class="filename">- {{ resource.mb_filename }}</span>
             <span v-if="resource.mb_isFile || resource.mb_isPluginfile">(File)</span>
             <span v-if="resource.mb_isFolder">(Folder)</span>
           </div>
@@ -29,7 +33,7 @@
         >
           Download new resources
         </button>
-        <div class="mark-as-seen" @click="() => onMarkAsSeenClick(course)">Mark as seen</div>
+        <div class="action" @click="() => onMarkAsSeenClick(course)">Mark as seen</div>
       </div>
     </div>
     <div v-else class="course-details">No new updates</div>
@@ -60,10 +64,10 @@ export default {
       return course.nNewFiles > 0 || course.nNewFolders > 0
     },
     onCourseLinkClick: function(link) {
-      browser.tabs.update(this.activeTab.id, {
-        active: true,
+      browser.tabs.create({
         url: link,
       })
+      window.close()
     },
     onDownloadClick: function(e, course) {
       sendEvent("download-start-page")
@@ -112,8 +116,24 @@ export default {
 
 .course-name {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
+}
+
+.action:hover {
+  color: #c50e20;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.action {
+  white-space: nowrap;
+  font-size: 14px;
+  align-self: flex-end;
+  /* text-decoration: underline; */
+  color: rgb(66, 66, 66);
+  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 -1px 0px rgba(0, 0, 0, 0.02);
+  padding: 5px; */
 }
 
 .update-name::after {
@@ -138,21 +158,14 @@ export default {
   padding-left: 15px;
 }
 
+.filename {
+  word-break: break-all;
+}
+
 .download-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.mark-as-seen {
-  font-size: 14px;
-  align-self: flex-end;
-  text-decoration: underline;
-  color: rgb(66, 66, 66);
-}
-
-.mark-as-seen:hover {
-  cursor: pointer;
 }
 
 .download-button {
@@ -188,8 +201,10 @@ export default {
   margin-top: 3px;
 }
 
-.detail-switch:hover {
+.switch-text:hover {
+  color: #c50e20;
   cursor: pointer;
+  text-decoration: underline;
 }
 
 .arrow {

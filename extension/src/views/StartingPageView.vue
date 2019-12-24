@@ -60,9 +60,8 @@ export default {
   box-sizing: border-box;
   width: 100%;
   max-height: 300px;
-  padding: 0px 20px;
+  padding: 0px 10px;
   overflow-y: auto;
-  /* margin-left: 20px; */
 }
 
 .no-courses {

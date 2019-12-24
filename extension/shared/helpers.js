@@ -36,3 +36,7 @@ export function filterMoodleBuddyKeys(obj) {
   moodleBuddyKeys.forEach(k => (newObj[k] = obj[k]))
   return newObj
 }
+
+export function isFirefox() {
+  return typeof InstallTrigger !== "undefined"
+}
