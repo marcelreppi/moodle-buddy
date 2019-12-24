@@ -1,0 +1,96 @@
+html, body {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  font-weight: 300;
+  font-size: 14px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+input {
+  margin-right: 10px;
+}
+
+button[type=submit] {
+  width: 75px;
+  padding: 7px 5px;
+  margin-top: 15px;
+  border-radius: 5px;
+  border: 0;
+  background-color: #c50e20;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+button[type=submit]:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.form-section {
+  font-weight: bold;
+  margin-bottom: 7px;
+}
+
+.form-section:nth-of-type(n+2) {
+  margin-top: 20px;
+}
+
+.container {
+  position: relative;
+  padding: 10px 0px;
+}
+
+.success {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  opacity: 0;
+  padding: 10px 20px;
+  margin-top: 15px;
+  border-radius: 5px;
+  border: 0;
+  background-color: #1b6e3c;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  transition: all 0.5s ease-in;
+}
+
+.error {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  max-width: 200px;
+  max-height: 150px;
+  overflow-y: scroll;
+  opacity: 0;
+  padding: 10px 20px;
+  margin-top: 15px;
+  border-radius: 5px;
+  border: 0;
+  background-color: #000000;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  transition: all 0.5s ease-in;
+}
+
+.show {
+  opacity: 100;
+}

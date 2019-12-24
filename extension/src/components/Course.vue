@@ -1,11 +1,11 @@
 <template>
   <div class="course-card">
     <div class="course-name">
-      <div :class="{ 'update-name': hasUpdates(course) }">{{ course.name }}</div>
+      <div :class="{ 'update-name': hasUpdates }">{{ course.name }}</div>
       <div class="action" @click="() => onCourseLinkClick(course.link)">Go to course</div>
     </div>
 
-    <div v-if="hasUpdates(course)">
+    <div v-if="hasUpdates">
       <div class="course-details">
         <div class="update-details">
           <span>{{ course.nNewFiles + course.nNewFolders }}</span>
@@ -26,11 +26,7 @@
       </div>
 
       <div class="download-row">
-        <button
-          v-if="hasUpdates(course)"
-          class="download-button"
-          @click="e => onDownloadClick(e, course)"
-        >
+        <button v-if="hasUpdates" class="download-button" @click="e => onDownloadClick(e, course)">
           Download new resources
         </button>
         <div class="action" @click="() => onMarkAsSeenClick(course)">Mark as seen</div>
@@ -47,6 +43,7 @@ export default {
   props: {
     course: Object,
     activeTab: Object,
+    options: Object,
   },
   data: function() {
     return {
@@ -58,11 +55,24 @@ export default {
     newResources: function() {
       return this.course.resourceNodes.filter(n => n.mb_isNewResource)
     },
+    hasUpdates: function() {
+      return this.course.nNewFiles > 0 || this.course.nNewFolders > 0
+    },
+  },
+  watch: {
+    showDetails: function(value) {
+      if (value) {
+        this.$refs.arrow.style.marginTop = "-2px"
+        this.$refs.arrow.style.transform = "rotate(135deg)"
+        this.switchWord = "Less"
+      } else {
+        this.$refs.arrow.style.marginTop = "0px"
+        this.$refs.arrow.style.transform = "rotate(45deg)"
+        this.switchWord = "More"
+      }
+    },
   },
   methods: {
-    hasUpdates: function(course) {
-      return course.nNewFiles > 0 || course.nNewFolders > 0
-    },
     onCourseLinkClick: function(link) {
       browser.tabs.create({
         url: link,
@@ -89,17 +99,14 @@ export default {
     },
     onDetailClick: function() {
       this.showDetails = !this.showDetails
-
-      if (this.showDetails) {
-        this.$refs.arrow.style.marginTop = "-2px"
-        this.$refs.arrow.style.transform = "rotate(135deg)"
-        this.switchWord = "Less"
-      } else {
-        this.$refs.arrow.style.marginTop = "0px"
-        this.$refs.arrow.style.transform = "rotate(45deg)"
-        this.switchWord = "More"
-      }
     },
+  },
+  mounted: function() {
+    if (!this.options) return
+
+    if (this.hasUpdates) {
+      this.showDetails = this.options.alwaysShowDetails
+    }
   },
 }
 </script>

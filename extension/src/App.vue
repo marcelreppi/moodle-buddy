@@ -6,9 +6,13 @@
     </div>
 
     <div id="popup-content">
-      <StartingPageView v-if="showStartingPageView" :activeTab="activeTab"></StartingPageView>
-      <CourseView v-if="showCourseView" :activeTab="activeTab"></CourseView>
-      <NoMoodle v-if="showNoMoodle" :activeTab="activeTab"></NoMoodle>
+      <StartingPageView
+        v-if="showStartingPageView"
+        :activeTab="activeTab"
+        :options="options"
+      ></StartingPageView>
+      <CourseView v-if="showCourseView" :activeTab="activeTab" :options="options"></CourseView>
+      <NoMoodle v-if="showNoMoodle"></NoMoodle>
     </div>
 
     <div class="footer">
@@ -51,16 +55,17 @@ export default {
   },
   data: function() {
     return {
-      activeTab: { url: "" },
+      activeTab: null,
       InfoIcon,
       MoodleIcon,
       currentURL: "",
+      options: null,
     }
   },
   computed: {
     isFirefox,
     showStartingPageView: function() {
-      if (this.activeTab.url.match(startingPageRegex)) {
+      if (this.activeTab && this.activeTab.url.match(startingPageRegex)) {
         sendEvent("view-start-page")
         return true
       } else {
@@ -68,7 +73,7 @@ export default {
       }
     },
     showCourseView: function() {
-      if (this.activeTab.url.match(coursePageRegex)) {
+      if (this.activeTab && this.activeTab.url.match(coursePageRegex)) {
         sendEvent("view-course-page")
         return true
       } else {
@@ -99,9 +104,11 @@ export default {
     },
   },
   created: function() {
-    getActiveTab().then(tab => {
-      this.activeTab = tab
-    })
+    browser.storage.local
+      .get("options")
+      .then(({ options }) => (this.options = options ? options : null))
+      .then(getActiveTab)
+      .then(tab => (this.activeTab = tab))
   },
 }
 </script>

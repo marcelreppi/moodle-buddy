@@ -3,7 +3,13 @@
     <div v-if="courses === null" class="no-courses">Scanning courses for updates...</div>
     <div v-else-if="courses.length === 0" class="no-courses">No courses in overview</div>
     <div v-else class="course-container">
-      <course v-for="(course, i) in courses" :key="i" :course="course" :active-tab="activeTab" />
+      <course
+        v-for="(course, i) in courses"
+        :key="i"
+        :course="course"
+        :active-tab="activeTab"
+        :options="options"
+      />
     </div>
   </div>
 </template>
@@ -17,6 +23,7 @@ export default {
   },
   props: {
     activeTab: Object,
+    options: Object,
   },
   data: function() {
     return {

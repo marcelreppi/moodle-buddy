@@ -1,10 +1,7 @@
 import { validURLRegex } from "../shared/helpers.js"
 import { parseFilenameFromCourse, parseFilenameFromPluginfileURL } from "./parser.js"
 
-const fileRegex = new RegExp(
-  validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source,
-  "gi"
-)
+const fileRegex = new RegExp(validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source, "gi")
 
 const folderRegex = new RegExp(validURLRegex + /\/mod\/folder\/view\.php\?id=[0-9]*/.source, "gi")
 9

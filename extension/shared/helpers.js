@@ -1,25 +1,35 @@
 import { apiUrl, apiKey } from "./env.js"
 
 export function sendEvent(event) {
-  console.log("sendEvent " + event)
-  return
+  browser.storage.local.get(["options", "browserId"]).then(({ options = {}, browserId }) => {
+    if (options.disableInteractionTracking) {
+      if (!(event === "install" || event === "update")) {
+        // Excluding install and update events
+        console.log("Tracking disabled!")
+        return
+      }
+    }
 
-  if (apiUrl === undefined || apiKey === undefined) {
+    console.log("sendEvent", event)
     return
-  }
 
-  const now = new Date()
-  const isFirefox = typeof InstallTrigger !== "undefined"
-  fetch(apiUrl, {
-    method: "POST",
-    mode: "no-cors",
-    headers: {
-      "X-API-Key": apiKey,
-    },
-    body: JSON.stringify({
-      event,
-      browser: isFirefox ? "firefox" : "chrome",
-    }),
+    if (apiUrl === undefined || apiKey === undefined) {
+      return
+    }
+
+    const isFirefox = typeof InstallTrigger !== "undefined"
+    fetch(apiUrl, {
+      method: "POST",
+      mode: "no-cors",
+      headers: {
+        "X-API-Key": apiKey,
+      },
+      body: JSON.stringify({
+        event,
+        browser: isFirefox ? "firefox" : "chrome",
+        browserId,
+      }),
+    })
   })
 }
 

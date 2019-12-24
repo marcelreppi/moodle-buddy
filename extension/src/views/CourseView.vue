@@ -19,11 +19,12 @@
             <span v-if="nNewResources === 1">resource</span>
             <span v-else>resources</span>
             <span v-if="nNewResources === 1">was</span>
-            <span v-else>were</span> added
+            <span v-else>were</span>
+            added
           </div>
           <div>
             <label>
-              <input type="checkbox" ref="newResourceCb" @input="onNewResourceCbClick" />
+              <input type="checkbox" ref="onlyNewResourcesCb" @input="filterNewResources" />
               <span class="checkbox-label">Download only new resources</span>
             </label>
           </div>
@@ -84,6 +85,7 @@ import { sendEvent, getActiveTab } from "../../shared/helpers.js"
 export default {
   props: {
     activeTab: Object,
+    options: Object,
   },
   data: function() {
     return {
@@ -139,8 +141,8 @@ export default {
         this.$refs.downloadButton.disabled = false
       }
     },
-    onNewResourceCbClick: function(e) {
-      this.onlyNewResources = this.$refs.newResourceCb.checked
+    filterNewResources: function(e) {
+      this.onlyNewResources = this.$refs.onlyNewResourcesCb.checked
 
       if (this.onlyNewResources) {
         if (this.nNewFiles === 0) {
@@ -202,6 +204,23 @@ export default {
       this.$refs.foldersCb.disabled = true
       this.$refs.foldersCb.checked = false
     }
+
+    if (!this.options) return
+
+    this.$refs.onlyNewResourcesCb.checked = this.options.onlyNewResources
+    this.filterNewResources()
+
+    if (this.$refs.filesCb.checked && this.options.onlyFolders) {
+      this.$refs.filesCb.checked = false
+    }
+
+    if (this.$refs.foldersCb.checked && this.options.onlyFiles) {
+      this.$refs.foldersCb.checked = false
+    }
+
+    this.$refs.useMoodleFilenameCb.checked = this.options.useMoodleFilename
+    this.$refs.prependCourseToFilenameCb.checked = this.options.prependCourseToFilename
+    this.$refs.prependCourseShortcutToFilenameCb.checked = this.options.prependCourseShortcutToFilename
   },
   mounted: function() {
     browser.runtime.onMessage.addListener(message => {

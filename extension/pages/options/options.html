@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="./options.css" />
+  </head>
+
+  <body>
+    <div class="container">
+      <form>
+        <div class="form-section">Default download options</div>
+        <label>
+          <input type="checkbox" id="onlyNewResources" />
+          <span>When new resources are available only download the new ones</span>
+        </label>
+        <label>
+          <input type="checkbox" id="onlyFiles" />
+          <span>Only download files</span>
+        </label>
+        <label>
+          <input type="checkbox" id="onlyFolders" />
+          <span>Only download folders</span>
+        </label>
+        <label>
+          <input type="checkbox" id="useMoodleFilename" />
+          <span>Use Moodle file name as actual file name</span>
+        </label>
+        <label>
+          <input type="checkbox" id="prependCourseShortcutToFilename" />
+          <span>Prepend course shortcut to each file name</span>
+        </label>
+        <label>
+          <input type="checkbox" id="prependCourseToFilename" />
+          <span>Prepend course name to each file name</span>
+        </label>
+
+        <div class="form-section">Course overview page options</div>
+        <label>
+          <input type="checkbox" id="alwaysShowDetails" />
+          <span>Always show details on new resources</span>
+        </label>
+
+        <div class="form-section">Interaction tracking</div>
+        <div>
+          <p>
+            I track a few interaction events when the plugin is used such as when the plugin is
+            installed or when a user clicks download and which options were used.
+          </p>
+
+          <p>
+            I collect the following data: <b>event name</b>, <b>date</b>, <b>time</b>, a
+            <b>browser ID</b> and the <b>browser</b> that was used.
+          </p>
+
+          <p>
+            I use this data to measure the usage and improve the features. It really helps me out a
+            lot!
+          </p>
+
+          <p>If you wish to turn it off you can do it here:</p>
+
+          <label>
+            <input type="checkbox" id="disableInteractionTracking" />
+            <span>Disable interaction tracking</span>
+          </label>
+        </div>
+
+        <button type="submit">Save</button>
+      </form>
+
+      <div class="success">Saved successfully</div>
+      <div class="error"></div>
+    </div>
+
+    <script src="../../shared/browser-polyfill.js"></script>
+    <script src="./options.js"></script>
+  </body>
+</html>
