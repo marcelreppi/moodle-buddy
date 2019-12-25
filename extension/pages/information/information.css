@@ -63,11 +63,6 @@ html, body {
   margin-bottom: 10px;
 }
 
-.legal-link:hover {
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 .version {
   margin-right: 5px;
 }
@@ -85,4 +80,13 @@ html, body {
 
 .center {
   text-align: center;
+}
+
+.link {
+  color: blue;
+  text-decoration: underline;
+}
+
+.link:hover {
+  cursor: pointer;
 }
