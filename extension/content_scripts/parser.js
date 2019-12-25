@@ -1,4 +1,6 @@
-export function parseCourseName(document) {
+import { validURLRegex } from "../shared/helpers.js"
+
+export function parseCourseNameFromCoursePage(document) {
   return document.querySelector(".page-header-headings").children[0].textContent
 }
 
@@ -7,11 +9,16 @@ export function parseCourseShortcut(document) {
 }
 
 export function parseCourseNameFromCard(cardNode) {
-  return cardNode.querySelector(".multiline").innerText
+  return cardNode
+    .querySelector(".coursename")
+    .innerText.split("\n")
+    .pop()
 }
 
 export function parseCourseLink(htmlString) {
-  return htmlString.match(/http(s)?:\/\/([A-z]*\.)*[A-z]*\/course\/view\.php\?id=[0-9]*/i)[0]
+  return htmlString.match(
+    new RegExp(validURLRegex + /\/course\/view\.php\?id=[0-9]*/.source, "i")
+  )[0]
 }
 
 export function parseFilenameFromCourse(aTag) {

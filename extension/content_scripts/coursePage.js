@@ -1,12 +1,12 @@
 import { scanCourse, downloadResource } from "./crawler.js"
-import { parseCourseName, parseCourseShortcut } from "./parser.js"
+import { parseCourseNameFromCoursePage, parseCourseShortcut } from "./parser.js"
 import { filterMoodleBuddyKeys } from "../shared/helpers.js"
 
 let resourceNodes = null
 let resourceCounts = null
 
 const courseLink = location.href
-const courseName = parseCourseName(document)
+const courseName = parseCourseNameFromCoursePage(document)
 const courseShortcut = parseCourseShortcut(document)
 
 scanCourse(courseLink, document).then(result => {

@@ -17,7 +17,7 @@
 
     <div class="footer">
       <span>
-        Inofficial Plugin made by
+        Inofficial Plugin by
         <span class="link" @click="() => navigateTo('https://twitter.com/marcelreppi')">
           marcelreppi
         </span>
@@ -159,7 +159,7 @@ export default {
   justify-content: space-between;
   align-items: center;
   margin-top: 30px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   color: #8f8f8f;
 }

@@ -2,7 +2,9 @@
   <div class="course-card">
     <div class="course-name">
       <div :class="{ 'update-name': hasUpdates }">{{ course.name }}</div>
-      <div class="action" @click="() => onCourseLinkClick(course.link)">Go to course</div>
+      <div class="course-link action" @click="() => onCourseLinkClick(course.link)">
+        Go to course
+      </div>
     </div>
 
     <div v-if="hasUpdates">
@@ -31,6 +33,11 @@
         </button>
         <div class="action" @click="() => onMarkAsSeenClick(course)">Mark as seen</div>
       </div>
+    </div>
+    <div v-else-if="course.isNew" class="course-details">
+      Scanned for the first time.
+      <br />
+      Updates will be shown on your next visit.
     </div>
     <div v-else class="course-details">No new updates</div>
   </div>
@@ -127,6 +134,10 @@ export default {
   justify-content: space-between;
 }
 
+.course-link {
+  margin-left: 5px;
+}
+
 .action:hover {
   color: #c50e20;
   cursor: pointer;
@@ -137,10 +148,7 @@ export default {
   white-space: nowrap;
   font-size: 14px;
   align-self: flex-end;
-  /* text-decoration: underline; */
   color: rgb(66, 66, 66);
-  /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 -1px 0px rgba(0, 0, 0, 0.02);
-  padding: 5px; */
 }
 
 .update-name::after {

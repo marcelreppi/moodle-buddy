@@ -10,6 +10,11 @@ const pluginfileRegex = new RegExp(
   "gi"
 )
 
+const specialResourceViewRegex = new RegExp(
+  validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source,
+  "i"
+)
+
 export async function scanCourse(courseLink, HTMLDocument) {
   // Variable prep
   let nFiles = 0
@@ -17,16 +22,19 @@ export async function scanCourse(courseLink, HTMLDocument) {
   let nFolders = 0
   let nNewFolders = 0
   let resourceNodes = []
+  let isFirstScan = true
 
   //  Local storage data
   let storedCourseData = {}
 
   const localStorage = await browser.storage.local.get(courseLink)
+
   if (localStorage[courseLink]) {
+    isFirstScan = false
     storedCourseData = localStorage[courseLink]
   }
 
-  const previousSeenResources = storedCourseData.seenResources || []
+  const previousSeenResources = storedCourseData.seenResources || null
 
   HTMLDocument.querySelector("#region-main")
     .querySelectorAll("a")
@@ -44,7 +52,10 @@ export async function scanCourse(courseLink, HTMLDocument) {
       if (node.mb_isFile || node.mb_isPluginfile) nFiles++
       if (node.mb_isFolder) nFolders++
 
-      if (previousSeenResources.includes(node.href)) {
+      if (previousSeenResources === null || previousSeenResources.includes(node.href)) {
+        // If course has never been scanned previousSeenResources don't exist
+        // Never treat a resource as new when the course is scanned for the first time
+        // because we're capturing the initial state of the course
         node.mb_isNewResource = false
       } else {
         if (node.mb_isFile || node.mb_isPluginfile) nNewFiles++
@@ -72,8 +83,8 @@ export async function scanCourse(courseLink, HTMLDocument) {
     // First time this course was scanned
     await browser.storage.local.set({
       [courseLink]: {
-        seenResources: resourceNodes.map(n => n.href),
-        newResources: [],
+        seenResources: resourceNodes.filter(n => !n.mb_isNewResource).map(n => n.href),
+        newResources: resourceNodes.filter(n => n.mb_isNewResource).map(n => n.href),
         lastScan: new Date().getTime(),
       },
     })
@@ -87,6 +98,7 @@ export async function scanCourse(courseLink, HTMLDocument) {
       nFolders,
       nNewFolders,
     },
+    isFirstScan,
   }
 }
 
@@ -109,7 +121,6 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
   // Fetch the href to get the actual download URL
   const res = await fetch(HTMLNode.href)
 
-  const specialResourceViewRegex = /http(s)?:\/\/([A-z]*\.)*[A-z]*\/mod\/resource\/view\.php\?id=[0-9]*/i
   if (res.url.match(specialResourceViewRegex)) {
     const body = await res.text()
     const parser = new DOMParser()

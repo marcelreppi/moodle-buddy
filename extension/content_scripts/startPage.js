@@ -1,37 +1,49 @@
+import shajs from "sha.js"
+
 import { scanCourse, downloadResource } from "./crawler.js"
 import * as parser from "./parser.js"
 import { filterMoodleBuddyKeys } from "../shared/helpers.js"
 
 let scanInProgress = true
 let courses = []
+let lastOverviewHash = ""
 
 // browser.storage.local.clear()
 
+function getOverviewNode() {
+  return document.querySelector("[data-region='myoverview']")
+}
+
 async function scanOverview() {
+  scanInProgress = true
   courses = []
 
-  const overviewNode = document.querySelector("div[data-region='myoverview']")
+  const overviewNode = getOverviewNode()
+  // Save hash to check for changes
+  lastOverviewHash = shajs("sha224")
+    .update(overviewNode.innerHTML)
+    .digest("hex")
+
   if (!overviewNode) {
     // Overview is hidden
-    // console.log("hidden list")
     scanInProgress = false
     return
   }
 
-  const emptyCourseList = overviewNode.querySelector("div[data-region='empty-message']")
+  const emptyCourseList = overviewNode.querySelector("[data-region='empty-message']")
   if (emptyCourseList) {
     // There are no courses shown
-    // console.log("empty list")
     scanInProgress = false
     return
   }
 
-  let courseNodes = overviewNode.querySelectorAll("div[data-region='course-content']")
+  let courseNodes = overviewNode.querySelectorAll("[data-region='course-content']")
   if (courseNodes.length === 0) {
     // Check again if courses have not loaded yet
     setTimeout(scanOverview, 200)
   } else {
     // Overview page has fully loaded
+    // console.log(courseNodes)
     const domParser = new DOMParser()
     for (let i = 0; i < courseNodes.length; i++) {
       const node = courseNodes[i]
@@ -61,12 +73,26 @@ browser.runtime.onMessage.addListener(async message => {
         command: "scan-in-progress",
       })
     } else {
+      const currentOverviewHash = shajs("sha224")
+        .update(getOverviewNode().innerHTML)
+        .digest("hex")
+
+      if (currentOverviewHash !== lastOverviewHash) {
+        // User has modified the overview -> Repeat the scan
+        scanOverview()
+        browser.runtime.sendMessage({
+          command: "scan-in-progress",
+        })
+        return
+      }
+
       browser.runtime.sendMessage({
         command: "scan-result",
         courses: courses.map(c => {
           return {
             name: c.name,
             link: c.link,
+            isNew: c.isFirstScan,
             resourceNodes: c.resourceNodes.map(filterMoodleBuddyKeys),
             ...c.resourceCounts,
           }
@@ -108,7 +134,7 @@ browser.runtime.onMessage.addListener(async message => {
     const i = courses.findIndex(c => c.link === message.link)
     const course = courses[i]
 
-    const courseName = parser.parseCourseName(course.HTMLDocument)
+    const courseName = parser.parseCourseNameFromCoursePage(course.HTMLDocument)
     const courseShortcut = parser.parseCourseShortcut(course.HTMLDocument)
 
     const downloadedResources = []
