@@ -14,8 +14,8 @@ Furthermore, Moodle Buddy scans your courses for any updates and shows them to y
 
 ### How to install the plugin for **Firefox**
 
-1. Download the plugin [here](https://raw.githubusercontent.com/marcelreppi/moodle-buddy/master/dist/moodle-buddy-1.0-fx.xpi) or check the [dist](https://github.com/marcelreppi/moodle-buddy/tree/master/dist) directory for the newest version
-2. Execute the file with Firefox
+1. Download the plugin [here](https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/) or check the [dist](https://github.com/marcelreppi/moodle-buddy/tree/master/dist) directory for the newest version
+2. If you download the file from the `dist` directory execute the file with Firefox
 
 Alternatively...
 
