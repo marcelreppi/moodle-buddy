@@ -134,6 +134,8 @@ browser.runtime.onMessage.addListener(async message => {
     const i = courses.findIndex(c => c.link === message.link)
     const course = courses[i]
 
+    const localStorage = await browser.storage.local.get([course.link, "options"])
+
     const courseName = parser.parseCourseNameFromCoursePage(course.HTMLDocument)
     const courseShortcut = parser.parseCourseShortcut(course.HTMLDocument)
 
@@ -146,10 +148,9 @@ browser.runtime.onMessage.addListener(async message => {
 
       downloadedResources.push(node.href)
 
-      await downloadResource(node, courseName, courseShortcut)
+      await downloadResource(node, courseName, courseShortcut, localStorage.options)
     }
 
-    const localStorage = await browser.storage.local.get(course.link)
     const storedCourseData = localStorage[course.link]
 
     // Merge already seen resources with downloaded resources
