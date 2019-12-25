@@ -1,10 +1,12 @@
 node_modules
-*.zip
 events
-*.txt
 dist
 .cache
 build
-env.js
-*.sh
+
+
+*.zip
+*.txt
 *.stackdump
+
+env.js
