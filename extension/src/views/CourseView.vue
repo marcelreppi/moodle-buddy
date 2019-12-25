@@ -24,7 +24,7 @@
           </div>
           <div>
             <label>
-              <input type="checkbox" ref="onlyNewResourcesCb" @input="filterNewResources" />
+              <input type="checkbox" v-model="onlyNewResources" />
               <span class="checkbox-label">Download only new resources</span>
             </label>
           </div>
@@ -33,7 +33,7 @@
         <div class="resource-selection">
           <div>
             <label id="files-cb-label">
-              <input type="checkbox" ref="filesCb" @input="onFilesCbClick" checked />
+              <input type="checkbox" v-model="downloadFiles" :disabled="disableFilesCb" />
               <span class="checkbox-label">
                 <span v-if="onlyNewResources">{{ nNewFiles }}</span>
                 <span v-else>{{ nFiles }}</span>
@@ -43,7 +43,7 @@
           </div>
           <div>
             <label id="folders-cb-label">
-              <input type="checkbox" ref="foldersCb" @input="onFolderCbClick" checked />
+              <input type="checkbox" v-model="downloadFolders" :disabled="disableFoldersCb" />
               <span class="checkbox-label">
                 <span v-if="onlyNewResources">{{ nNewFolders }}</span>
                 <span v-else>{{ nFolders }}</span>
@@ -57,24 +57,24 @@
       <div>
         <div>
           <label>
-            <input type="checkbox" ref="useMoodleFilenameCb" />
+            <input type="checkbox" ref="useMoodleFilenameCb" v-model="useMoodleFilename" />
             <span class="checkbox-label">Use Moodle file name as actual file name</span>
           </label>
         </div>
         <div>
           <label>
-            <input type="checkbox" ref="prependCourseShortcutToFilenameCb" />
+            <input type="checkbox" v-model="prependCourseShortcutToFilename" />
             <span class="checkbox-label">Prepend course shortcut to each file name</span>
           </label>
         </div>
         <div>
           <label>
-            <input type="checkbox" ref="prependCourseToFilenameCb" />
+            <input type="checkbox" v-model="prependCourseToFilename" />
             <span class="checkbox-label">Prepend course name to each file name</span>
           </label>
         </div>
       </div>
-      <button class="download-button" @click="onDownload" ref="downloadButton">Download</button>
+      <button class="download-button" @click="onDownload" :disabled="disableDownload">Download</button>
     </div>
   </div>
 </template>
@@ -90,11 +90,17 @@ export default {
   data: function() {
     return {
       loading: true,
-      nFiles: 0,
-      nNewFiles: 0,
-      nFolders: 0,
-      nNewFolders: 0,
+      nFiles: -1,
+      nNewFiles: -1,
+      nFolders: -1,
+      nNewFolders: -1,
       onlyNewResources: false,
+      useMoodleFilename: false,
+      prependCourseToFilename: false,
+      prependCourseShortcutToFilename: false,
+      downloadFiles: true,
+      downloadFolders: true,
+      disableDownload: false,
     }
   },
   computed: {
@@ -107,8 +113,47 @@ export default {
     nNewResources: function() {
       return this.nNewFiles + this.nNewFolders
     },
+    disableFilesCb: function() {
+      if (this.onlyNewResources) {
+        return this.nNewFiles === 0
+      } else {
+        return this.nFiles === 0
+      }
+    },
+    disableFoldersCb: function() {
+      if (this.onlyNewResources) {
+        return this.nNewFolders === 0
+      } else {
+        return this.nFolders === 0
+      }
+    },
+  },
+  watch: {
+    nResources: function() {
+      this.handleCheckboxes()
+
+      this.disableDownload = this.nResources === 0
+    },
+    onlyNewResources: function() {
+      this.handleCheckboxes()
+    },
+    downloadFiles: function() {
+      this.disableDownload = !this.downloadFiles && !this.downloadFolders
+    },
+    downloadFolders: function() {
+      this.disableDownload = !this.downloadFiles && !this.downloadFolders
+    },
   },
   methods: {
+    handleCheckboxes: function() {
+      if (this.onlyNewResources) {
+        this.downloadFiles = this.nNewFiles !== 0
+        this.downloadFolders = this.nNewFolders !== 0
+      } else {
+        this.downloadFiles = this.nFiles !== 0
+        this.downloadFolders = this.nFolders !== 0
+      }
+    },
     onDownload: function() {
       if (this.onlyNewResources) {
         sendEvent("download-course-page-only-new")
@@ -116,69 +161,17 @@ export default {
         sendEvent("download-course-page")
       }
 
-      this.$refs.downloadButton.disabled = true
+      this.disableDownload = true
+
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
-        useMoodleFilename: this.$refs.useMoodleFilenameCb.checked,
-        prependCourseToFilename: this.$refs.prependCourseToFilenameCb.checked,
-        prependCourseShortcutToFilename: this.$refs.prependCourseShortcutToFilenameCb.checked,
-        skipFiles: !this.$refs.filesCb.checked,
-        skipFolders: !this.$refs.foldersCb.checked,
+        useMoodleFilename: this.useMoodleFilename,
+        prependCourseToFilename: this.prependCourseToFilename,
+        prependCourseShortcutToFilename: this.prependCourseShortcutToFilename,
+        skipFiles: !this.downloadFiles,
+        skipFolders: !this.downloadFolders,
         onlyNewResources: this.onlyNewResources,
       })
-    },
-    onFilesCbClick: function(e) {
-      if (!e.target.checked && !this.$refs.foldersCb.checked) {
-        this.$refs.downloadButton.disabled = true
-      } else {
-        this.$refs.downloadButton.disabled = false
-      }
-    },
-    onFolderCbClick: function(e) {
-      if (!e.target.checked && !this.$refs.filesCb.checked) {
-        this.$refs.downloadButton.disabled = true
-      } else {
-        this.$refs.downloadButton.disabled = false
-      }
-    },
-    filterNewResources: function(e) {
-      this.onlyNewResources = this.$refs.onlyNewResourcesCb.checked
-
-      if (this.onlyNewResources) {
-        if (this.nNewFiles === 0) {
-          this.$refs.filesCb.disabled = true
-          this.$refs.filesCb.checked = false
-        } else {
-          this.$refs.filesCb.disabled = false
-          this.$refs.filesCb.checked = true
-        }
-
-        if (this.nNewFolders === 0) {
-          this.$refs.foldersCb.disabled = true
-          this.$refs.foldersCb.checked = false
-        } else {
-          this.$refs.foldersCb.disabled = false
-          this.$refs.foldersCb.checked = true
-        }
-      } else {
-        if (this.nFiles === 0) {
-          this.$refs.filesCb.disabled = true
-          this.$refs.filesCb.checked = false
-        } else {
-          this.$refs.filesCb.disabled = false
-          this.$refs.filesCb.checked = true
-        }
-
-        if (this.nFolders === 0) {
-          this.$refs.foldersCb.disabled = true
-          this.$refs.foldersCb.checked = false
-        } else {
-          this.$refs.foldersCb.disabled = false
-          this.$refs.foldersCb.checked = true
-        }
-      }
-
-      this.$refs.downloadButton.disabled = false
     },
     onMarkAsSeenClick: function() {
       sendEvent("mark-as-seen-course-page")
@@ -190,38 +183,6 @@ export default {
       })
     },
   },
-  updated: function() {
-    if (this.nResources === 0) {
-      this.$refs.downloadButton.disabled = true
-    }
-
-    if (this.nFiles === 0) {
-      this.$refs.filesCb.disabled = true
-      this.$refs.filesCb.checked = false
-    }
-
-    if (this.nFolders === 0) {
-      this.$refs.foldersCb.disabled = true
-      this.$refs.foldersCb.checked = false
-    }
-
-    if (!this.options) return
-
-    this.$refs.onlyNewResourcesCb.checked = this.options.onlyNewResources
-    this.filterNewResources()
-
-    if (this.$refs.filesCb.checked && this.options.onlyFolders) {
-      this.$refs.filesCb.checked = false
-    }
-
-    if (this.$refs.foldersCb.checked && this.options.onlyFiles) {
-      this.$refs.foldersCb.checked = false
-    }
-
-    this.$refs.useMoodleFilenameCb.checked = this.options.useMoodleFilename
-    this.$refs.prependCourseToFilenameCb.checked = this.options.prependCourseToFilename
-    this.$refs.prependCourseShortcutToFilenameCb.checked = this.options.prependCourseShortcutToFilename
-  },
   mounted: function() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "scan-result") {
@@ -229,6 +190,14 @@ export default {
         this.nNewFiles = message.nNewFiles
         this.nFolders = message.nFolders
         this.nNewFolders = message.nNewFolders
+
+        if (this.options) {
+          this.onlyNewResources = this.options.onlyNewResources
+          this.useMoodleFilename = this.options.useMoodleFilename
+          this.prependCourseToFilename = this.options.prependCourseToFilename
+          this.prependCourseShortcutToFilename = this.options.prependCourseShortcutToFilename
+        }
+
         this.loading = false
       }
     })
