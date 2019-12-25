@@ -56,3 +56,21 @@ UI when you open the plugin on the Moodle Dashboard
 UI when you open the plugin on any Moodle course page
 
 ![Preview](https://raw.githubusercontent.com/marcelreppi/moodle-buddy/master/screenshots/coursepage.png "Plugin Preview")
+
+# For Developers
+
+## Build
+
+1. Install dependencies
+
+```
+npm i
+```
+
+2. Build project
+
+```
+npm run build
+```
+
+3. Now the `build` directory will contain all files for the addon
