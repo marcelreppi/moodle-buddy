@@ -42,7 +42,7 @@ import CourseView from "./views/CourseView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
 
 import MoodleIcon from "../icons/icon48.png"
-import InfoIcon from "../icons/information.png"
+import InfoIcon from "./static/images/information.png"
 
 const startingPageRegex = new RegExp(validURLRegex + /\/my\//.source, "gi")
 const coursePageRegex = new RegExp(validURLRegex + /\/course\/view\.php\?id=[0-9]*/.source, "gi")

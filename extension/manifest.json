@@ -9,7 +9,7 @@
     "48": "./icons/icon48.png",
     "128": "./icons/icon128.png"
   },
-  "permissions": ["https://*/*", "activeTab", "downloads", "storage"],
+  "permissions": ["<all_urls>", "activeTab", "downloads", "storage"],
   "browser_action": {
     "default_icon": {
       "16": "./icons/icon16.png",

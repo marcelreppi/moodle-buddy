@@ -74,7 +74,9 @@
           </label>
         </div>
       </div>
-      <button class="download-button" @click="onDownload" :disabled="disableDownload">Download</button>
+      <button class="download-button" @click="onDownload" :disabled="disableDownload">
+        Download
+      </button>
     </div>
   </div>
 </template>
