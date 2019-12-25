@@ -19,7 +19,7 @@
           <div class="switch-text">{{ switchWord }} details</div>
         </div>
         <div v-if="showDetails" class="detail-container">
-          <div v-for="(resource, i) in newResources" key="i">
+          <div v-for="(resource, i) in newResources" :key="i">
             <span class="filename">- {{ resource.mb_filename }}</span>
             <span v-if="resource.mb_isFile || resource.mb_isPluginfile">(File)</span>
             <span v-if="resource.mb_isFolder">(Folder)</span>
