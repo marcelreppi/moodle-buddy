@@ -1,17 +1,40 @@
 <template>
   <div class="content-container">
-    <p>Can't download resources here...</p>
-    <div>Make sure you...</div>
+    <div>This is an unsupported webpage.</div>
+    <p>Make sure you are...</p>
     <ul>
-      <li>are on your university's Moodle page</li>
-      <li>are logged in</li>
-      <li>have the course page open in this tab</li>
+      <li>on your university's Moodle page</li>
+      <li>logged in</li>
+      <li>on a supported Moodle webpage</li>
     </ul>
+    <p>
+      Click
+      <span class="link" @click="openInfoPage">here</span>
+      to see where Moodle Buddy is available.
+    </p>
   </div>
 </template>
 
 <script>
-export default {}
+export default {
+  props: {
+    openInfoPage: Function,
+  },
+}
 </script>
 
-<style></style>
+<style scoped>
+ul {
+  margin: 0;
+}
+
+p {
+  margin: 17px 0px;
+  /* padding: 0px 60px; */
+  text-align: center;
+}
+
+p:last-of-type {
+  margin-bottom: 0px;
+}
+</style>

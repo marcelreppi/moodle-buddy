@@ -1,6 +1,6 @@
 document.querySelector("#imprint-link").addEventListener("click", e => {
   browser.tabs.create({
-    url: "pages/legal/legal.html",
+    url: "/pages/legal/legal.html",
   })
 })
 

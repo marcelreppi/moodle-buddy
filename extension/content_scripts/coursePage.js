@@ -1,11 +1,11 @@
 import { scanCourse, downloadResource } from "./crawler.js"
-import { parseCourseNameFromCoursePage, parseCourseShortcut } from "./parser.js"
+import { parseCourseNameFromCoursePage, parseCourseShortcut, parseCourseLink } from "./parser.js"
 import { filterMoodleBuddyKeys } from "../shared/helpers.js"
 
 let resourceNodes = null
 let resourceCounts = null
 
-const courseLink = location.href
+const courseLink = parseCourseLink(location.href)
 const courseName = parseCourseNameFromCoursePage(document)
 const courseShortcut = parseCourseShortcut(document)
 
@@ -14,7 +14,11 @@ scanCourse(courseLink, document).then(result => {
   resourceCounts = result.resourceCounts
 })
 
+// browser.storage.local.clear()
+
 browser.runtime.onMessage.addListener(async message => {
+  const localStorage = await browser.storage.local.get()
+
   if (message.command === "scan") {
     const scanResult = await scanCourse(courseLink, document)
     resourceNodes = scanResult.resourceNodes
@@ -29,7 +33,6 @@ browser.runtime.onMessage.addListener(async message => {
   }
 
   if (message.command === "mark-as-seen") {
-    const localStorage = await browser.storage.local.get(courseLink)
     const storedCourseData = localStorage[courseLink]
 
     // Merge already seen resources with downloaded resources
@@ -62,7 +65,6 @@ browser.runtime.onMessage.addListener(async message => {
       await downloadResource(node, courseName, courseShortcut, message)
     }
 
-    const localStorage = await browser.storage.local.get(courseLink)
     const courseData = localStorage[courseLink]
 
     browser.storage.local.set({

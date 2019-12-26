@@ -12,7 +12,7 @@
         :options="options"
       ></StartingPageView>
       <CourseView v-if="showCourseView" :activeTab="activeTab" :options="options"></CourseView>
-      <NoMoodle v-if="showNoMoodle"></NoMoodle>
+      <NoMoodle v-if="showNoMoodle" :openInfoPage="onInfoClick"></NoMoodle>
     </div>
 
     <div class="footer">

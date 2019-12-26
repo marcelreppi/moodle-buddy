@@ -4,7 +4,7 @@ import { parseFilenameFromCourse, parseFilenameFromPluginfileURL } from "./parse
 const fileRegex = new RegExp(validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source, "gi")
 
 const folderRegex = new RegExp(validURLRegex + /\/mod\/folder\/view\.php\?id=[0-9]*/.source, "gi")
-9
+
 const pluginfileRegex = new RegExp(
   validURLRegex + /\/pluginfile\.php([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.source,
   "gi"

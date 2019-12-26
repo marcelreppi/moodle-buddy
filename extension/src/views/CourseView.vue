@@ -185,7 +185,7 @@ export default {
       })
     },
   },
-  mounted: function() {
+  created: function() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "scan-result") {
         this.nFiles = message.nFiles
@@ -194,7 +194,10 @@ export default {
         this.nNewFolders = message.nNewFolders
 
         if (this.options) {
-          this.onlyNewResources = this.options.onlyNewResources
+          if (this.nNewResources > 0) {
+            this.onlyNewResources = this.options.onlyNewResources
+          }
+
           this.useMoodleFilename = this.options.useMoodleFilename
           this.prependCourseToFilename = this.options.prependCourseToFilename
           this.prependCourseShortcutToFilename = this.options.prependCourseShortcutToFilename
