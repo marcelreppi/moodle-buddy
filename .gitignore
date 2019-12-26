@@ -1,10 +1,11 @@
 node_modules
-events
-dist
 .cache
 build
+excel
+raw
 
-
+*.rest
+*.csv
 *.zip
 *.txt
 *.stackdump
