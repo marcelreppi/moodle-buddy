@@ -49,18 +49,17 @@ async function sendEvent(event) {
     return
   }
 
-  console.log("sendEvent", {
-    event,
-    browser: isFirefox() ? "firefox" : "chrome",
-    browserId,
-  })
-  return
+  // console.log("sendEvent", {
+  //   event,
+  //   browser: isFirefox() ? "firefox" : "chrome",
+  //   browserId,
+  // })
+  // return
 
   fetch(apiUrl, {
     method: "POST",
-    mode: "no-cors",
     headers: {
-      // "X-API-Key": apiKey,
+      "X-API-Key": apiKey,
     },
     body: JSON.stringify({
       event,
@@ -69,6 +68,6 @@ async function sendEvent(event) {
       // test: true,
     }),
   })
-    .then(res => console.log(res.status))
+    // .then(res => console.info(res))
     .catch(error => console.log(error))
 }
