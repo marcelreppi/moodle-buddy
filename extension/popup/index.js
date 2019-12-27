@@ -2,6 +2,8 @@ import Vue from "vue"
 
 import App from "./App.vue"
 
+import "./index.css"
+
 Vue.config.devtools = false
 Vue.config.productionTip = false
 

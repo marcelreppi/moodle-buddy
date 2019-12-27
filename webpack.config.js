@@ -21,7 +21,7 @@ const contentEntry = filename => {
 
 module.exports = {
   entry: {
-    "popup/app.bundle": join(__dirname, "extension", "src", "index.js"),
+    "popup/app.bundle": join(__dirname, "extension", "popup", "index.js"),
     "content_scripts/coursePage": contentEntry("coursePage.js"),
     "content_scripts/startPage": contentEntry("startPage.js"),
     "background_scripts/downloader": backgroundEntry("downloader.js"),
@@ -88,7 +88,7 @@ module.exports = {
     new VueLoaderPlugin(),
     new CopyPlugin([
       { from: "./extension/manifest.json", to: "./manifest.json" },
-      { from: "./extension/popup", to: "./popup" },
+      { from: "./extension/popup/index.html", to: "./popup/index.html" },
       { from: "./extension/pages", to: "./pages" },
       { from: "./extension/shared", to: "./shared" },
       { from: "./extension/icons", to: "./icons" },
