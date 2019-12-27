@@ -1,4 +1,3 @@
-import { apiUrl, apiKey } from "./env.js"
 import { isFirefox } from "../shared/helpers"
 
 function uuidv4() {
@@ -45,29 +44,30 @@ async function sendEvent(event) {
     }
   }
 
-  if (apiUrl === undefined || apiKey === undefined) {
+  if (!process.env.API_URL || !process.env.API_KEY) {
     return
   }
 
-  // console.log("sendEvent", {
-  //   event,
-  //   browser: isFirefox() ? "firefox" : "chrome",
-  //   browserId,
-  // })
-  // return
+  if (process.env.NODE_ENV === "development") {
+    console.log({
+      event,
+      browser: isFirefox() ? "firefox" : "chrome",
+      browserId,
+    })
+  }
 
-  fetch(apiUrl, {
+  fetch(process.env.API_URL, {
     method: "POST",
     headers: {
-      "X-API-Key": apiKey,
+      "X-API-Key": process.env.API_KEY,
     },
     body: JSON.stringify({
       event,
       browser: isFirefox() ? "firefox" : "chrome",
       browserId,
-      // test: true,
+      dev: process.env.NODE_ENV === "development",
     }),
   })
-    // .then(res => console.info(res))
+    .then(res => console.info(res))
     .catch(error => console.log(error))
 }

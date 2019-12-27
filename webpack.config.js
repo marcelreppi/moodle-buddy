@@ -1,11 +1,13 @@
 const { join } = require("path")
+const webpack = require("webpack")
 const CopyPlugin = require("copy-webpack-plugin")
 const { VueLoaderPlugin } = require("vue-loader")
 const TerserPlugin = require("terser-webpack-plugin")
+const DotenvPlugin = require("dotenv-webpack")
 
 const isProd = process.env.NODE_ENV === "production"
 
-console.log(`Webpack is in ${isProd ? "production" : "development"} mode`)
+console.log(`Webpack is in ${process.env.NODE_ENV} mode`)
 
 const polyfills = ["core-js/stable", "regenerator-runtime/runtime"]
 
@@ -91,6 +93,8 @@ module.exports = {
       { from: "./extension/shared", to: "./shared" },
       { from: "./extension/icons", to: "./icons" },
     ]),
+    new webpack.EnvironmentPlugin(["NODE_ENV"]), // Make process.env.NODE_ENV available in code
+    new DotenvPlugin(), // Load environment variables from .env file
   ],
   optimization: {
     minimize: isProd,

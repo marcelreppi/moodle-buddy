@@ -4,7 +4,7 @@
   "author": "Marcel Reppenhagen",
   "scripts": {
     "start": "web-ext run -s ./build -f=nightly",
-    "dev": "npm run nuke && cross-env NODE_ENV=dev webpack --watch",
+    "dev": "npm run nuke && cross-env NODE_ENV=development webpack --watch",
     "build": "npm run nuke && cross-env NODE_ENV=production webpack",
     "nuke": "rm -rf build"
   },
@@ -28,6 +28,7 @@
     "core-js": "^3.5.0",
     "cross-env": "^6.0.3",
     "css-loader": "^3.3.2",
+    "dotenv-webpack": "^1.7.0",
     "file-loader": "^5.0.2",
     "image-webpack-loader": "^6.0.0",
     "prettier": "1.19.1",
