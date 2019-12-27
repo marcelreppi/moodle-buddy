@@ -1,13 +1,13 @@
 node_modules
 .cache
 build
-excel
-raw
+events
 
 *.rest
 *.csv
 *.zip
 *.txt
 *.stackdump
+*.env
 
 env.js
