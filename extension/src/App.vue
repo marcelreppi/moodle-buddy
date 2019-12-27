@@ -94,7 +94,7 @@ export default {
     },
     onDonateClick: function() {
       this.navigateTo("https://paypal.me/marcelreppi")
-      sendEvent("donate")
+      sendEvent("donate-click")
     },
     navigateTo: function(link) {
       browser.tabs.create({
