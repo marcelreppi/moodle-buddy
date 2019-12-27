@@ -1,13 +1,11 @@
-# Remove old zip if it exists
+cd lambda
+
 rm lambda.zip
 
 # Make new zip file
-cd lambda
-zip -r ../lambda.zip ./*
-cd ..
+zip -r -1 -q ./lambda.zip .
 
 # Upload to AWS
 aws lambda update-function-code --function-name moodle-buddy-event-tracker --zip-file fileb://lambda.zip
 
-# Delete zip
 rm lambda.zip
