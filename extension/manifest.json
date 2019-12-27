@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Moodle Buddy",
-  "version": "1.0",
+  "version": "1.1",
   "description": "Moodle Buddy offers additional helpful functionality to the moodle learning management platform.",
   "homepage_url": "https://github.com/marcelreppi/moodle-buddy",
   "icons": {
