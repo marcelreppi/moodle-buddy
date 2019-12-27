@@ -10,5 +10,3 @@ raw
 *.txt
 *.stackdump
 *.env
-
-env.js
