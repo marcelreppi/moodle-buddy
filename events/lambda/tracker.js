@@ -17,7 +17,7 @@ exports.writeEventToS3 = async event => {
 
   const pad = n => (n < 10 ? `0${n}` : n)
   const now = new Date()
-  const date = `${pad(now.getDate())}.${pad(now.getMonth())}.${now.getFullYear()}`
+  const date = `${pad(now.getDate())}-${pad(now.getMonth())}-${now.getFullYear()}`
   const time = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
   const newEvent = `${event.event};${date};${time};${event.browser};${event.browserId}\n`
   eventCsv += newEvent
