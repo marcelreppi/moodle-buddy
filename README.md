@@ -1,6 +1,6 @@
 # Moodle Buddy
 
-Your university uses Moodle as their learning management platform? </br>
+You are a student and your university uses Moodle as their learning management platform? </br>
 You frequently use that system to access course material?  </br>
 You are tired of downloading every file one at a time?
 
@@ -25,7 +25,7 @@ Alternatively...
 
 ### How to install the plugin for **Chrome**
 
-1. Click [ADD NEW LINK HERE] to visit the plugin's chrome webstore page
+1. Click [here](https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo) to visit the plugin's chrome webstore page
 2. Click "Add to Chrome" and then "Add extension"
 
 ---
@@ -34,7 +34,7 @@ Alternatively...
 
 1. Log into your university's Moodle system
 2. Visit any of the following Moodle webpages:
-    * Moodle Dashboard/Course Overview
+    * Moodle Dashboard/Course Overview (URL ending on /my)
     * Any Moodle course page
 3. Click the Moodle Buddy icon in the extension bar of your browser
 4. Explore all the features Moodle Buddy has to offer

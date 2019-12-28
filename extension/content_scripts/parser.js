@@ -5,7 +5,12 @@ export function parseCourseNameFromCoursePage(document) {
 }
 
 export function parseCourseShortcut(document) {
-  return document.querySelector("a[aria-current='page']").textContent
+  const shortcutNode = document.querySelector("a[aria-current='page']")
+  if (shortcutNode) {
+    return shortcutNode.textContent
+  } else {
+    return ""
+  }
 }
 
 export function parseCourseNameFromCard(cardNode) {
