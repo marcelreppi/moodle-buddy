@@ -1,4 +1,4 @@
-import { scanCourse, downloadResource } from "./crawler.js"
+import { scanCourse, downloadResource, updateCourseResources } from "./crawler.js"
 import { parseCourseNameFromCoursePage, parseCourseShortcut, parseCourseLink } from "./parser.js"
 import { filterMoodleBuddyKeys } from "../shared/helpers.js"
 
@@ -17,8 +17,6 @@ scanCourse(courseLink, document).then(result => {
 // browser.storage.local.clear()
 
 browser.runtime.onMessage.addListener(async message => {
-  const localStorage = await browser.storage.local.get()
-
   if (message.command === "scan") {
     const scanResult = await scanCourse(courseLink, document)
     resourceNodes = scanResult.resourceNodes
@@ -33,24 +31,9 @@ browser.runtime.onMessage.addListener(async message => {
   }
 
   if (message.command === "mark-as-seen") {
-    const storedCourseData = localStorage[courseLink]
+    await updateCourseResources(courseLink)
 
-    // Merge already seen resources with downloaded resources
-    // Use set to remove duplicates
-    const updatedSeenResources = Array.from(
-      new Set(storedCourseData.seenResources.concat(storedCourseData.newResources))
-    )
-    await browser.storage.local.set({
-      [courseLink]: {
-        ...storedCourseData,
-        seenResources: updatedSeenResources,
-      },
-    })
-
-    // Update course
-    await scanCourse(courseLink, document)
-
-    browser.runtime.sendMessage({
+    await browser.runtime.sendMessage({
       command: "set-icon-normal",
     })
 
@@ -67,27 +50,14 @@ browser.runtime.onMessage.addListener(async message => {
       if (message.skipFolders && node.mb_isFolder) continue
       if (message.onlyNewResources && !node.mb_isNewResource) continue
 
-      downloadedResources.push(node)
+      downloadedResources.push(node.href)
 
       await downloadResource(node, courseName, courseShortcut, message)
     }
 
-    const courseData = localStorage[courseLink]
+    await updateCourseResources(courseLink, downloadedResources)
 
-    await browser.storage.local.set({
-      [courseLink]: {
-        ...courseData,
-        seenResources: Array.from(
-          new Set(courseData.seenResources.concat(downloadedResources.map(n => n.href))) // Remove duplicates
-        ),
-        lastDownload: new Date().getTime(),
-      },
-    })
-
-    // Update course
-    await scanCourse(courseLink, document)
-
-    browser.runtime.sendMessage({
+    await browser.runtime.sendMessage({
       command: "set-icon-normal",
     })
 

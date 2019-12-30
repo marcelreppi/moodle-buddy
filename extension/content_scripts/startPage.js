@@ -1,6 +1,6 @@
 import shajs from "sha.js"
 
-import { scanCourse, downloadResource } from "./crawler.js"
+import { scanCourse, downloadResource, updateCourseResources } from "./crawler.js"
 import * as parser from "./parser.js"
 import { filterMoodleBuddyKeys } from "../shared/helpers.js"
 
@@ -127,20 +127,7 @@ browser.runtime.onMessage.addListener(async message => {
     const i = courses.findIndex(c => c.link === message.link)
     const course = courses[i]
 
-    const localStorage = await browser.storage.local.get(course.link)
-    const storedCourseData = localStorage[course.link]
-
-    // Merge already seen resources with downloaded resources
-    // Use set to remove duplicates
-    const updatedSeenResources = Array.from(
-      new Set(storedCourseData.seenResources.concat(storedCourseData.newResources))
-    )
-    await browser.storage.local.set({
-      [course.link]: {
-        ...storedCourseData,
-        seenResources: updatedSeenResources,
-      },
-    })
+    await updateCourseResources(course.link)
 
     // Update course
     const scanResult = await scanCourse(course.link, course.HTMLDocument)
@@ -156,7 +143,7 @@ browser.runtime.onMessage.addListener(async message => {
     const i = courses.findIndex(c => c.link === message.link)
     const course = courses[i]
 
-    const localStorage = await browser.storage.local.get([course.link, "options"])
+    const { options } = await browser.storage.local.get("options")
 
     const courseName = parser.parseCourseNameFromCoursePage(course.HTMLDocument)
     const courseShortcut = parser.parseCourseShortcut(course.HTMLDocument)
@@ -170,23 +157,10 @@ browser.runtime.onMessage.addListener(async message => {
 
       downloadedResources.push(node.href)
 
-      await downloadResource(node, courseName, courseShortcut, localStorage.options)
+      await downloadResource(node, courseName, courseShortcut, options)
     }
 
-    const storedCourseData = localStorage[course.link]
-
-    // Merge already seen resources with downloaded resources
-    // Use set to remove duplicates
-    const updatedSeenResources = Array.from(
-      new Set(storedCourseData.seenResources.concat(downloadedResources))
-    )
-    await browser.storage.local.set({
-      [course.link]: {
-        ...storedCourseData,
-        seenResources: updatedSeenResources,
-        lastDownload: new Date().getTime(),
-      },
-    })
+    await updateCourseResources(course.link, downloadedResources)
 
     // Update course
     const scanResult = await scanCourse(course.link, course.HTMLDocument)

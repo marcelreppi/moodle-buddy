@@ -77,7 +77,6 @@ export async function scanCourse(courseLink, HTMLDocument) {
         ...localStorage[courseLink],
         seenResources: resourceNodes.filter(n => !n.mb_isNewResource).map(n => n.href),
         newResources: resourceNodes.filter(n => n.mb_isNewResource).map(n => n.href),
-        lastScan: new Date().getTime(),
       },
     })
   } else {
@@ -86,7 +85,6 @@ export async function scanCourse(courseLink, HTMLDocument) {
       [courseLink]: {
         seenResources: resourceNodes.filter(n => !n.mb_isNewResource).map(n => n.href),
         newResources: resourceNodes.filter(n => n.mb_isNewResource).map(n => n.href),
-        lastScan: new Date().getTime(),
       },
     })
   }
@@ -107,6 +105,42 @@ export async function scanCourse(courseLink, HTMLDocument) {
     },
     isFirstScan,
   }
+}
+
+export async function updateCourseResources(courseLink, newSeenResources) {
+  const localStorage = await browser.storage.local.get()
+  const storedCourseData = localStorage[courseLink]
+
+  if (!newSeenResources) {
+    newSeenResources = storedCourseData.newResources
+  }
+
+  // Merge already seen resources with new resources
+  // Use set to remove duplicates
+  const updatedSeenResources = Array.from(
+    new Set(storedCourseData.seenResources.concat(newSeenResources))
+  )
+  const updatedNewResources = storedCourseData.newResources.filter(
+    r => !updatedSeenResources.includes(r)
+  )
+
+  if (updatedNewResources.length > 0) {
+    browser.runtime.sendMessage({
+      command: "set-icon-new",
+    })
+  }
+
+  const updatedCourseData = {
+    ...storedCourseData,
+    seenResources: updatedSeenResources,
+    newResources: updatedNewResources,
+  }
+
+  await browser.storage.local.set({
+    [courseLink]: updatedCourseData,
+  })
+
+  return updatedCourseData
 }
 
 export async function downloadResource(HTMLNode, courseName, courseShortcut, options = {}) {
