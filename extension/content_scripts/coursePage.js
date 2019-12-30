@@ -47,6 +47,13 @@ browser.runtime.onMessage.addListener(async message => {
       },
     })
 
+    // Update course
+    await scanCourse(courseLink, document)
+
+    browser.runtime.sendMessage({
+      command: "set-icon-normal",
+    })
+
     return
   }
 
@@ -67,7 +74,7 @@ browser.runtime.onMessage.addListener(async message => {
 
     const courseData = localStorage[courseLink]
 
-    browser.storage.local.set({
+    await browser.storage.local.set({
       [courseLink]: {
         ...courseData,
         seenResources: Array.from(
@@ -75,6 +82,13 @@ browser.runtime.onMessage.addListener(async message => {
         ),
         lastDownload: new Date().getTime(),
       },
+    })
+
+    // Update course
+    await scanCourse(courseLink, document)
+
+    browser.runtime.sendMessage({
+      command: "set-icon-normal",
     })
 
     return

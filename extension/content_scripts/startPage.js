@@ -64,9 +64,27 @@ async function scanOverview() {
   }
 }
 
+function checkForUpdates() {
+  // If there are no further updates reset the icon
+  const noMoreUpdates = courses.every(c => {
+    const { nNewFiles, nNewFolders } = c.resourceCounts
+    return nNewFiles + nNewFolders === 0
+  })
+  if (noMoreUpdates) {
+    browser.runtime.sendMessage({
+      command: "set-icon-normal",
+    })
+  } else {
+    browser.runtime.sendMessage({
+      command: "set-icon-new",
+    })
+  }
+}
+
 scanOverview()
 
 browser.runtime.onMessage.addListener(async message => {
+  // console.log(message)
   if (message.command === "scan") {
     if (scanInProgress) {
       browser.runtime.sendMessage({
@@ -85,6 +103,8 @@ browser.runtime.onMessage.addListener(async message => {
         })
         return
       }
+
+      checkForUpdates()
 
       browser.runtime.sendMessage({
         command: "scan-result",
@@ -128,6 +148,8 @@ browser.runtime.onMessage.addListener(async message => {
       ...course,
       ...scanResult,
     }
+
+    checkForUpdates()
   }
 
   if (message.command === "crawl") {
@@ -172,5 +194,7 @@ browser.runtime.onMessage.addListener(async message => {
       ...course,
       ...scanResult,
     }
+
+    checkForUpdates()
   }
 })

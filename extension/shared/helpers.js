@@ -12,10 +12,17 @@ export function getActiveTab() {
 export const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/
   .source
 
+export const startingPageRegex = new RegExp(validURLRegex + /\/my\//.source, "gi")
+export const coursePageRegex = new RegExp(
+  validURLRegex + /\/course\/view\.php\?id=[0-9]*/.source,
+  "i"
+)
+
 export function filterMoodleBuddyKeys(obj) {
   const moodleBuddyKeys = Object.keys(obj).filter(k => k.startsWith("mb_"))
   const newObj = {}
-  moodleBuddyKeys.forEach(k => (newObj[k] = obj[k]))
+  // Remove moodle buddy key indicator mb_
+  moodleBuddyKeys.forEach(k => (newObj[k.substring(3)] = obj[k]))
   return newObj
 }
 

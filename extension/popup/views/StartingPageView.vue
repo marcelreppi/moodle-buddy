@@ -2,7 +2,7 @@
   <div class="content-container">
     <div v-if="courses === null" class="no-courses">Scanning courses for updates...</div>
     <div v-else-if="courses.length === 0" class="no-courses">No courses in overview</div>
-    <div v-else class="course-container">
+    <div v-else class="course-container scrollbar">
       <course
         v-for="(course, i) in courses"
         :key="i"

@@ -39,17 +39,18 @@ export async function scanCourse(courseLink, HTMLDocument) {
   HTMLDocument.querySelector("#region-main")
     .querySelectorAll("a")
     .forEach(node => {
-      node.mb_isFile = Boolean(node.href.match(fileRegex))
+      node.mb_isFile =
+        Boolean(node.href.match(fileRegex)) || Boolean(node.href.match(pluginfileRegex))
       node.mb_isFolder = Boolean(node.href.match(folderRegex))
       node.mb_isPluginfile = Boolean(node.href.match(pluginfileRegex))
 
-      if (node.mb_isFile || node.mb_isFolder || node.mb_isPluginfile) {
+      if (node.mb_isFile || node.mb_isFolder) {
         resourceNodes.push(node)
       } else {
         return
       }
 
-      if (node.mb_isFile || node.mb_isPluginfile) nFiles++
+      if (node.mb_isFile) nFiles++
       if (node.mb_isFolder) nFolders++
 
       if (previousSeenResources === null || previousSeenResources.includes(node.href)) {
@@ -58,15 +59,15 @@ export async function scanCourse(courseLink, HTMLDocument) {
         // because we're capturing the initial state of the course
         node.mb_isNewResource = false
       } else {
-        if (node.mb_isFile || node.mb_isPluginfile) nNewFiles++
+        if (node.mb_isFile) nNewFiles++
         if (node.mb_isFolder) nNewFolders++
         node.mb_isNewResource = true
       }
 
-      node.mb_filename = parseFilenameFromCourse(node)
-
-      if (!node.mb_filename && node.mb_isPluginfile) {
+      if (node.mb_isPluginfile) {
         node.mb_filename = parseFilenameFromPluginfileURL(node.href)
+      } else {
+        node.mb_filename = parseFilenameFromCourse(node)
       }
     })
 
@@ -87,6 +88,12 @@ export async function scanCourse(courseLink, HTMLDocument) {
         newResources: resourceNodes.filter(n => n.mb_isNewResource).map(n => n.href),
         lastScan: new Date().getTime(),
       },
+    })
+  }
+
+  if (nNewFiles + nNewFolders > 0) {
+    browser.runtime.sendMessage({
+      command: "set-icon-new",
     })
   }
 

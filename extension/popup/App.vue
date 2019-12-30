@@ -6,11 +6,7 @@
     </div>
 
     <div id="popup-content">
-      <StartingPageView
-        v-if="showStartingPageView"
-        :activeTab="activeTab"
-        :options="options"
-      ></StartingPageView>
+      <StartingPageView v-if="showStartingPageView" :activeTab="activeTab" :options="options"></StartingPageView>
       <CourseView v-if="showCourseView" :activeTab="activeTab" :options="options"></CourseView>
       <NoMoodle v-if="showNoMoodle" :openInfoPage="onInfoClick"></NoMoodle>
     </div>
@@ -18,17 +14,19 @@
     <div class="footer">
       <span>
         Inofficial Plugin by
-        <span class="link" @click="() => navigateTo('https://twitter.com/marcelreppi')">
-          marcelreppi
-        </span>
+        <span
+          class="link"
+          @click="() => navigateTo('https://twitter.com/marcelreppi')"
+        >marcelreppi</span>
       </span>
       <span>
         <div class="link" @click="onDonateClick">Donate</div>
       </span>
       <span class="footer-right-section">
-        <div class="link" @click="() => navigateTo('https://github.com/marcelreppi/moodle-buddy')">
-          GitHub
-        </div>
+        <div
+          class="link"
+          @click="() => navigateTo('https://github.com/marcelreppi/moodle-buddy')"
+        >GitHub</div>
         <img class="info-icon" :src="InfoIcon" alt="info" @click="onInfoClick" />
       </span>
     </div>
@@ -36,16 +34,20 @@
 </template>
 
 <script>
-import { sendEvent, getActiveTab, validURLRegex, isFirefox } from "../shared/helpers.js"
+import {
+  sendEvent,
+  getActiveTab,
+  validURLRegex,
+  isFirefox,
+  startingPageRegex,
+  coursePageRegex,
+} from "../shared/helpers.js"
 import StartingPageView from "./views/StartingPageView.vue"
 import CourseView from "./views/CourseView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
 
 import MoodleIcon from "../icons/icon48.png"
 import InfoIcon from "./static/images/information.png"
-
-const startingPageRegex = new RegExp(validURLRegex + /\/my\//.source, "gi")
-const coursePageRegex = new RegExp(validURLRegex + /\/course\/view\.php\?id=[0-9]*/.source, "gi")
 
 export default {
   components: {
@@ -143,6 +145,7 @@ export default {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  position: relative;
 }
 
 .link {
@@ -177,5 +180,25 @@ export default {
 
 .info-icon:hover {
   cursor: pointer;
+}
+
+.scrollbar {
+  --scrollbarBG: #dcdcdc;
+  --thumbBG: #c50e2080;
+  scrollbar-width: thin;
+  scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: 11px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: var(--scrollbarBG);
+}
+.scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--thumbBG);
+  border-radius: 6px;
+  border: 3px solid var(--scrollbarBG);
 }
 </style>

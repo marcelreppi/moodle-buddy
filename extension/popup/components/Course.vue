@@ -2,9 +2,7 @@
   <div class="course-card">
     <div class="course-name">
       <div :class="{ 'update-name': hasUpdates }">{{ course.name }}</div>
-      <div class="course-link action" @click="() => onCourseLinkClick(course.link)">
-        Go to course
-      </div>
+      <div class="course-link action" @click="() => onCourseLinkClick(course.link)">Go to course</div>
     </div>
 
     <div v-if="hasUpdates">
@@ -20,24 +18,25 @@
         </div>
         <div v-if="showDetails" class="detail-container">
           <div v-for="(resource, i) in newResources" :key="i">
-            <span class="filename">- {{ resource.mb_filename }}</span>
-            <span v-if="resource.mb_isFile || resource.mb_isPluginfile">(File)</span>
-            <span v-if="resource.mb_isFolder">(Folder)</span>
+            <span class="filename">- {{ resource.filename }}</span>
+            <span v-if="resource.isFile">(File)</span>
+            <span v-if="resource.isFolder">(Folder)</span>
           </div>
         </div>
       </div>
 
       <div class="download-row">
-        <button v-if="hasUpdates" class="download-button" @click="e => onDownloadClick(e, course)">
-          Download new resources
-        </button>
+        <button
+          v-if="hasUpdates"
+          class="download-button"
+          @click="e => onDownloadClick(e, course)"
+        >Download new resources</button>
         <div class="action" @click="() => onMarkAsSeenClick(course)">Mark as seen</div>
       </div>
     </div>
     <div v-else-if="course.isNew" class="course-details">
       Scanned for the first time.
-      <br />
-      Updates will be shown on your next visit.
+      <br />Updates will be shown on your next visit.
     </div>
     <div v-else class="course-details">No new updates</div>
   </div>
@@ -60,7 +59,7 @@ export default {
   },
   computed: {
     newResources: function() {
-      return this.course.resourceNodes.filter(n => n.mb_isNewResource)
+      return this.course.resourceNodes.filter(n => n.isNewResource)
     },
     hasUpdates: function() {
       return this.course.nNewFiles > 0 || this.course.nNewFolders > 0

@@ -52,6 +52,17 @@
             </label>
           </div>
         </div>
+        <button
+          class="mark-as-seen detail-button"
+          @click="toggleDetails"
+          :disabled="disableDownload"
+        >Show details on selected resources</button>
+
+        <detail-overlay
+          v-if="showDetails"
+          :resources="selectedResources"
+          :toggleDetails="toggleDetails"
+        ></detail-overlay>
       </div>
 
       <div>
@@ -74,9 +85,7 @@
           </label>
         </div>
       </div>
-      <button class="download-button" @click="onDownload" :disabled="disableDownload">
-        Download
-      </button>
+      <button class="download-button" @click="onDownload" :disabled="disableDownload">Download</button>
     </div>
   </div>
 </template>
@@ -84,10 +93,15 @@
 <script>
 import { sendEvent, getActiveTab } from "../../shared/helpers.js"
 
+import DetailOverlay from "../components/DetailOverlay.vue"
+
 export default {
   props: {
     activeTab: Object,
     options: Object,
+  },
+  components: {
+    "detail-overlay": DetailOverlay,
   },
   data: function() {
     return {
@@ -96,6 +110,7 @@ export default {
       nNewFiles: -1,
       nFolders: -1,
       nNewFolders: -1,
+      resourceNodes: null,
       onlyNewResources: false,
       useMoodleFilename: false,
       prependCourseToFilename: false,
@@ -103,6 +118,7 @@ export default {
       downloadFiles: true,
       downloadFolders: true,
       disableDownload: false,
+      showDetails: false,
     }
   },
   computed: {
@@ -128,6 +144,25 @@ export default {
       } else {
         return this.nFolders === 0
       }
+    },
+    selectedResources: function() {
+      return this.resourceNodes.filter(n => {
+        let select = false
+
+        if (n.isFile && this.downloadFiles) {
+          select = true
+        }
+
+        if (n.isFolder && this.downloadFolders) {
+          select = true
+        }
+
+        if (this.onlyNewResources && !n.isNewResource) {
+          select = false
+        }
+
+        return select
+      })
     },
   },
   watch: {
@@ -184,6 +219,9 @@ export default {
         command: "mark-as-seen",
       })
     },
+    toggleDetails: function() {
+      this.showDetails = !this.showDetails
+    },
   },
   created: function() {
     browser.runtime.onMessage.addListener(message => {
@@ -192,6 +230,7 @@ export default {
         this.nNewFiles = message.nNewFiles
         this.nFolders = message.nFolders
         this.nNewFolders = message.nNewFolders
+        this.resourceNodes = message.resourceNodes
 
         if (this.options) {
           if (this.nNewResources > 0) {
@@ -268,6 +307,7 @@ export default {
 
 .mark-as-seen:hover {
   cursor: pointer;
+  color: #c50e20;
 }
 
 .resource-selection {
@@ -282,5 +322,14 @@ export default {
 
 .checkbox-label {
   margin-left: 5px;
+}
+
+.detail-button {
+  margin-top: 10px;
+}
+
+.detail-button:disabled {
+  color: rgb(202, 202, 202);
+  cursor: default;
 }
 </style>

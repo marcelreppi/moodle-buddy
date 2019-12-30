@@ -1,4 +1,4 @@
-import { validURLRegex } from "../shared/helpers.js"
+import { validURLRegex, coursePageRegex } from "../shared/helpers.js"
 
 export function parseCourseNameFromCoursePage(document) {
   return document.querySelector(".page-header-headings").children[0].textContent
@@ -21,9 +21,7 @@ export function parseCourseNameFromCard(cardNode) {
 }
 
 export function parseCourseLink(htmlString) {
-  return htmlString.match(
-    new RegExp(validURLRegex + /\/course\/view\.php\?id=[0-9]*/.source, "i")
-  )[0]
+  return htmlString.match(coursePageRegex)[0]
 }
 
 export function parseFilenameFromCourse(aTag) {
