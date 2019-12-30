@@ -22,3 +22,5 @@ document.querySelector("#donate-link").addEventListener("click", e => {
     event: "donate-click",
   })
 })
+
+document.querySelector("#version").textContent = `(v. ${browser.runtime.getManifest().version})`
