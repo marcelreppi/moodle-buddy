@@ -1,5 +1,9 @@
 import { validURLRegex } from "../shared/helpers.js"
-import { parseFilenameFromCourse, parseFilenameFromPluginfileURL } from "./parser.js"
+import {
+  parseFilenameFromCourse,
+  parseFilenameFromPluginfileURL,
+  isActivityNode,
+} from "./parser.js"
 
 const fileRegex = new RegExp(validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source, "gi")
 
@@ -21,6 +25,9 @@ export async function scanCourse(courseLink, HTMLDocument) {
   let nNewFiles = 0
   let nFolders = 0
   let nNewFolders = 0
+  let nActivities = 0
+  let nNewActivities = 0
+  let activityNodes = []
   let resourceNodes = []
   let isFirstScan = true
 
@@ -35,6 +42,7 @@ export async function scanCourse(courseLink, HTMLDocument) {
   }
 
   const previousSeenResources = storedCourseData.seenResources || null
+  const previousSeenActivities = storedCourseData.seenActivities || null
 
   HTMLDocument.querySelector("#region-main")
     .querySelectorAll("a")
@@ -47,6 +55,18 @@ export async function scanCourse(courseLink, HTMLDocument) {
       if (node.mb_isFile || node.mb_isFolder) {
         resourceNodes.push(node)
       } else {
+        if (isActivityNode(node)) {
+          nActivities++
+          node.mb_isActivity = true
+          activityNodes.push(node)
+
+          if (previousSeenActivities === null || previousSeenActivities.includes(node.href)) {
+            node.mb_isNewActivity = false
+          } else {
+            nNewActivities++
+            node.mb_isNewActivity = true
+          }
+        }
         return
       }
 
@@ -77,6 +97,8 @@ export async function scanCourse(courseLink, HTMLDocument) {
         ...localStorage[courseLink],
         seenResources: resourceNodes.filter(n => !n.mb_isNewResource).map(n => n.href),
         newResources: resourceNodes.filter(n => n.mb_isNewResource).map(n => n.href),
+        seenActivities: activityNodes.filter(n => !n.mb_isNewActivity).map(n => n.href),
+        newActivities: activityNodes.filter(n => n.mb_isNewActivity).map(n => n.href),
       },
     })
   } else {
@@ -85,6 +107,8 @@ export async function scanCourse(courseLink, HTMLDocument) {
       [courseLink]: {
         seenResources: resourceNodes.filter(n => !n.mb_isNewResource).map(n => n.href),
         newResources: resourceNodes.filter(n => n.mb_isNewResource).map(n => n.href),
+        seenActivities: activityNodes.filter(n => !n.mb_isNewActivity).map(n => n.href),
+        newActivities: activityNodes.filter(n => n.mb_isNewActivity).map(n => n.href),
       },
     })
   }
@@ -102,6 +126,8 @@ export async function scanCourse(courseLink, HTMLDocument) {
       nNewFiles,
       nFolders,
       nNewFolders,
+      nActivities,
+      nNewActivities,
     },
     isFirstScan,
   }
@@ -143,18 +169,16 @@ export async function updateCourseResources(courseLink, newSeenResources) {
   return updatedCourseData
 }
 
-export async function downloadResource(HTMLNode, courseName, courseShortcut, options = {}) {
+export async function downloadResource(HTMLNode, courseName, courseShortcut, options) {
   if (HTMLNode.mb_isPluginfile) {
     browser.runtime.sendMessage({
       command: "download-file",
       url: HTMLNode.href,
       filename: parseFilenameFromPluginfileURL(HTMLNode.href),
       moodleFilename: parseFilenameFromPluginfileURL(HTMLNode.href),
-      useMoodleFilename: options.useMoodleFilename,
-      courseName: courseName,
-      prependCourseToFilename: options.prependCourseToFilename,
-      courseShortcut: courseShortcut,
-      prependCourseShortcutToFilename: options.prependCourseShortcutToFilename,
+      courseName,
+      courseShortcut,
+      ...options,
     })
     return
   }
@@ -174,11 +198,9 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
       url: link,
       filename: parseFilenameFromPluginfileURL(link),
       moodleFilename: parseFilenameFromPluginfileURL(link),
-      useMoodleFilename: options.useMoodleFilename,
-      courseName: courseName,
-      prependCourseToFilename: options.prependCourseToFilename,
-      courseShortcut: courseShortcut,
-      prependCourseShortcutToFilename: options.prependCourseShortcutToFilename,
+      courseName,
+      courseShortcut,
+      ...options,
     })
 
     return
@@ -191,11 +213,9 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
       url: res.url,
       filename: parseFilenameFromPluginfileURL(res.url),
       moodleFilename: parseFilenameFromCourse(HTMLNode),
-      useMoodleFilename: options.useMoodleFilename,
-      courseName: courseName,
-      prependCourseToFilename: options.prependCourseToFilename,
-      courseShortcut: courseShortcut,
-      prependCourseShortcutToFilename: options.prependCourseShortcutToFilename,
+      courseName,
+      courseShortcut,
+      ...options,
     })
     return
   }
@@ -226,10 +246,9 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
         command: "download-folder",
         url: downloadURL,
         folderName: parseFilenameFromCourse(HTMLNode),
-        courseName: courseName,
-        prependCourseToFilename: options.prependCourseToFilename,
-        courseShortcut: courseShortcut,
-        prependCourseShortcutToFilename: options.prependCourseShortcutToFilename,
+        courseName,
+        courseShortcut,
+        ...options,
       })
     } else {
       const fileNodes = resHTML.querySelectorAll("a[href$='forcedownload=1'") // All a tags whose href attribute ends with forcedownload=1
@@ -239,10 +258,9 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
           url: fileNode.href,
           filename: parseFilenameFromPluginfileURL(fileNode.href),
           folderName: parseFilenameFromCourse(HTMLNode),
-          courseName: courseName,
-          prependCourseToFilename: options.prependCourseToFilename,
-          courseShortcut: courseShortcut,
-          prependCourseShortcutToFilename: options.prependCourseShortcutToFilename,
+          courseName,
+          courseShortcut,
+          ...options,
         })
       })
     }

@@ -68,7 +68,13 @@
       <div>
         <div>
           <label>
-            <input type="checkbox" ref="useMoodleFilenameCb" v-model="useMoodleFilename" />
+            <input type="checkbox" v-model="saveToFolder" />
+            <span class="checkbox-label">Save resources inside a folder</span>
+          </label>
+        </div>
+        <div>
+          <label>
+            <input type="checkbox" v-model="useMoodleFilename" />
             <span class="checkbox-label">Use Moodle file name as actual file name</span>
           </label>
         </div>
@@ -115,6 +121,7 @@ export default {
       useMoodleFilename: false,
       prependCourseToFilename: false,
       prependCourseShortcutToFilename: false,
+      saveToFolder: true,
       downloadFiles: true,
       downloadFolders: true,
       disableDownload: false,
@@ -202,12 +209,15 @@ export default {
 
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
-        useMoodleFilename: this.useMoodleFilename,
-        prependCourseToFilename: this.prependCourseToFilename,
-        prependCourseShortcutToFilename: this.prependCourseShortcutToFilename,
-        skipFiles: !this.downloadFiles,
-        skipFolders: !this.downloadFolders,
-        onlyNewResources: this.onlyNewResources,
+        options: {
+          skipFiles: !this.downloadFiles,
+          skipFolders: !this.downloadFolders,
+          onlyNewResources: this.onlyNewResources,
+          saveToFolder: this.saveToFolder,
+          useMoodleFilename: this.useMoodleFilename,
+          prependCourseToFilename: this.prependCourseToFilename,
+          prependCourseShortcutToFilename: this.prependCourseShortcutToFilename,
+        },
       })
     },
     onMarkAsSeenClick: function() {
@@ -232,15 +242,14 @@ export default {
         this.nNewFolders = message.nNewFolders
         this.resourceNodes = message.resourceNodes
 
-        if (this.options) {
-          if (this.nNewResources > 0) {
-            this.onlyNewResources = this.options.onlyNewResources
-          }
-
-          this.useMoodleFilename = this.options.useMoodleFilename
-          this.prependCourseToFilename = this.options.prependCourseToFilename
-          this.prependCourseShortcutToFilename = this.options.prependCourseShortcutToFilename
+        if (this.nNewResources > 0) {
+          this.onlyNewResources = this.options.onlyNewResources
         }
+
+        this.saveToFolder = this.options.saveToFolder
+        this.useMoodleFilename = this.options.useMoodleFilename
+        this.prependCourseToFilename = this.options.prependCourseToFilename
+        this.prependCourseShortcutToFilename = this.options.prependCourseShortcutToFilename
 
         this.loading = false
       }

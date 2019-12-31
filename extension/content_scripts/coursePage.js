@@ -41,18 +41,19 @@ browser.runtime.onMessage.addListener(async message => {
   }
 
   if (message.command === "crawl") {
+    const { options } = message
     const downloadedResources = []
 
     for (let i = 0; i < resourceNodes.length; i++) {
       const node = resourceNodes[i]
 
-      if (message.skipFiles && node.mb_isFile) continue
-      if (message.skipFolders && node.mb_isFolder) continue
-      if (message.onlyNewResources && !node.mb_isNewResource) continue
+      if (options.skipFiles && node.mb_isFile) continue
+      if (options.skipFolders && node.mb_isFolder) continue
+      if (options.onlyNewResources && !node.mb_isNewResource) continue
 
       downloadedResources.push(node.href)
 
-      await downloadResource(node, courseName, courseShortcut, message)
+      await downloadResource(node, courseName, courseShortcut, options)
     }
 
     await updateCourseResources(courseLink, downloadedResources)

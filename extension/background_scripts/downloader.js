@@ -28,6 +28,10 @@ browser.runtime.onMessage.addListener(message => {
       filename = `${courseShortcut}_${filename}`
     }
 
+    if (message.saveToFolder) {
+      filename = `${courseName}/${filename}`
+    }
+
     browser.downloads.download({
       url: message.url,
       filename,
@@ -43,6 +47,9 @@ browser.runtime.onMessage.addListener(message => {
     }
     if (message.prependCourseShortcutToFilename) {
       filename = `${courseShortcut}_${filename}`
+    }
+    if (message.saveToFolder) {
+      filename = `${courseName}/${filename}`
     }
     browser.downloads.download({
       url: message.url,
@@ -60,6 +67,9 @@ browser.runtime.onMessage.addListener(message => {
     }
     if (message.prependCourseShortcutToFilename) {
       filename = `${courseShortcut}_${filename}`
+    }
+    if (message.saveToFolder) {
+      filename = `${courseName}/${filename}`
     }
     browser.downloads.download({
       url: message.url,

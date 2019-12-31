@@ -6,6 +6,16 @@ function uuidv4() {
   )
 }
 
+const defaultOptions = {
+  saveToFolder: true,
+  onlyNewResources: false,
+  useMoodleFilename: false,
+  prependCourseShortcutToFilename: false,
+  prependCourseToFilename: false,
+  alwaysShowDetails: false,
+  disableInteractionTracking: false,
+}
+
 browser.runtime.onInstalled.addListener(details => {
   switch (details.reason) {
     case "install":
@@ -13,6 +23,7 @@ browser.runtime.onInstalled.addListener(details => {
       browser.storage.local
         .set({
           browserId: randomId,
+          options: defaultOptions,
         })
         .then(() => {
           sendEvent("install")
@@ -106,7 +117,7 @@ browser.runtime.onMessage.addListener(async message => {
 async function sendEvent(event) {
   const { options, browserId } = await browser.storage.local.get(["options", "browserId"])
 
-  if (options && options.disableInteractionTracking) {
+  if (options.disableInteractionTracking) {
     if (!(event === "install" || event === "update")) {
       // Excluding install and update events
       console.log("Tracking disabled!")

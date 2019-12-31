@@ -108,7 +108,7 @@ export default {
   created: function() {
     browser.storage.local
       .get("options")
-      .then(({ options }) => (this.options = options ? options : null))
+      .then(({ options }) => (this.options = options))
       .then(getActiveTab)
       .then(tab => (this.activeTab = tab))
   },
