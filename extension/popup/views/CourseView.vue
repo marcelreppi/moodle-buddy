@@ -2,24 +2,26 @@
   <div class="content-container">
     <div v-if="loading">Scanning course...</div>
     <div v-else class="content-container">
+      <div v-if="showNewActivityInfo" id="new-activities">
+        <span>The following activites were added to the course:</span>
+        <div class="bold" v-for="(node, i) in newActivities" :key="i">
+          {{ node.activityName }}
+        </div>
+      </div>
       <div class="resource-info">
         <span>
           There
-          <span v-if="nResources === 1">is</span>
-          <span v-else>are</span>
+          <span>{{ nResources === 1 ? "is" : "are" }}</span>
           <span class="bold">{{ nResources }}</span>
-          <span v-if="nResources === 1">resource</span>
-          <span v-else>resources</span>
+          <span class="bold">{{ nResources === 1 ? "resource" : "resources" }}</span>
           available for download
         </span>
         <div v-if="showNewResourceInfo" class="new-resources-info">
           <div>
             Since last visit
             <span class="bold">{{ nNewResources }} new</span>
-            <span v-if="nNewResources === 1">resource</span>
-            <span v-else>resources</span>
-            <span v-if="nNewResources === 1">was</span>
-            <span v-else>were</span>
+            <span class="bold">{{ nNewResources === 1 ? "resource" : "resources" }}</span>
+            <span>{{ nNewResources === 1 ? "was" : "were" }}</span>
             added
           </div>
           <div>
@@ -127,7 +129,10 @@ export default {
       nNewFiles: -1,
       nFolders: -1,
       nNewFolders: -1,
+      nActivities: -1,
+      nNewActivities: -1,
       resourceNodes: null,
+      activityNodes: null,
       onlyNewResources: false,
       useMoodleFilename: false,
       prependCourseToFilename: false,
@@ -144,11 +149,17 @@ export default {
     showNewResourceInfo() {
       return this.nNewFiles > 0 || this.nNewFolders > 0
     },
+    showNewActivityInfo() {
+      return this.nNewActivities > 0
+    },
     nResources() {
       return this.nFiles + this.nFolders
     },
     nNewResources() {
       return this.nNewFiles + this.nNewFolders
+    },
+    newActivities() {
+      return this.activityNodes.filter(n => n.isNewActivity)
     },
     disableFilesCb() {
       if (this.onlyNewResources) {
@@ -243,6 +254,7 @@ export default {
       this.onlyNewResources = false
       this.nNewFiles = 0
       this.nNewFolders = 0
+      this.nNewActivities = 0
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "mark-as-seen",
       })
@@ -266,6 +278,10 @@ export default {
         this.nNewFolders = message.nNewFolders
         this.resourceNodes = message.resourceNodes
 
+        this.nActivities = message.nActivities
+        this.nNewActivities = message.nNewActivities
+        this.activityNodes = message.activityNodes
+
         if (this.nNewResources > 0) {
           this.onlyNewResources = this.options.onlyNewResources
         }
@@ -284,11 +300,23 @@ export default {
     browser.tabs.sendMessage(this.activeTab.id, {
       command: "scan",
     })
+
+    window.addEventListener("unload", () => {
+      browser.tabs.sendMessage(this.activeTab.id, {
+        command: "update-activities",
+      })
+    })
   },
 }
 </script>
 
 <style scoped>
+#new-activities {
+  text-align: center;
+  padding: 0px 30px;
+  margin-bottom: 10px;
+}
+
 .download-button {
   width: 100px;
   padding: 10px 0px;

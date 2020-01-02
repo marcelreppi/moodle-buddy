@@ -1,6 +1,11 @@
 import shajs from "sha.js"
 
-import { scanCourse, downloadResource, updateCourseResources } from "./crawler"
+import {
+  scanCourse,
+  downloadResource,
+  updateCourseResources,
+  updateCourseActivities,
+} from "./crawler"
 import * as parser from "./parser"
 import { filterMoodleBuddyKeys } from "../shared/helpers"
 
@@ -113,7 +118,9 @@ browser.runtime.onMessage.addListener(async message => {
           link: c.link,
           isNew: c.isFirstScan,
           resourceNodes: c.resourceNodes.map(filterMoodleBuddyKeys),
+          activityNodes: c.activityNodes.map(filterMoodleBuddyKeys),
           ...c.resourceCounts,
+          ...c.activityCounts,
         })),
       })
     }
@@ -126,6 +133,7 @@ browser.runtime.onMessage.addListener(async message => {
     const course = courses[i]
 
     await updateCourseResources(course.link)
+    await updateCourseActivities(course.link)
 
     // Update course
     const scanResult = await scanCourse(course.link, course.HTMLDocument)
@@ -154,6 +162,7 @@ browser.runtime.onMessage.addListener(async message => {
     })
 
     await updateCourseResources(course.link, downloadedResourceNodes)
+    await updateCourseActivities(course.link)
 
     // Update course
     const scanResult = await scanCourse(course.link, course.HTMLDocument)

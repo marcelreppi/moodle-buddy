@@ -44,11 +44,19 @@ export default {
       if (message.command === "scan-result") {
         this.courses = message.courses
         this.courses.sort((a, b) => {
-          if (a.nNewFiles > b.nNewFiles || a.nNewFolders > b.nNewFolders) {
+          if (
+            a.nNewFiles > b.nNewFiles ||
+            a.nNewFolders > b.nNewFolders ||
+            a.nNewActivities > b.nNewActivities
+          ) {
             return -1
           }
 
-          if (a.nNewFiles < b.nNewFiles || a.nNewFolders < b.nNewFolders) {
+          if (
+            a.nNewFiles < b.nNewFiles ||
+            a.nNewFolders < b.nNewFolders ||
+            a.nNewActivities < b.nNewActivities
+          ) {
             return 1
           }
 

@@ -24,7 +24,7 @@ export function parseCourseLink(htmlString) {
   return htmlString.match(coursePageRegex)[0]
 }
 
-export function parseFilenameFromCourse(aTag) {
+export function parseFilenameFromNode(aTag) {
   // Files or Folders
   if (aTag.querySelector(".instancename")) {
     return aTag.querySelector(".instancename").firstChild.textContent
@@ -46,6 +46,18 @@ export function parseFilenameFromPluginfileURL(url) {
     .shift() // Take everything before query parameters
 }
 
-export function isActivityNode(node) {
-  return node.parentNode.classList.contains("activityinstance")
+export function parseActivityNameFromNode(node) {
+  if (node.querySelector(".instancename")) {
+    return node.querySelector(".instancename").firstChild.textContent
+  }
+
+  return ""
+}
+
+export function parseActivityTypeFromNode(node) {
+  if (node.querySelector(".accesshide")) {
+    return node.querySelector(".accesshide").firstChild.textContent.trim()
+  }
+
+  return ""
 }

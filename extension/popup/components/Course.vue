@@ -9,29 +9,42 @@
 
     <div v-if="hasUpdates">
       <div class="course-details">
-        <div class="update-details">
+        <div v-if="newResources.length > 0" class="update-details">
           <span>{{ course.nNewFiles + course.nNewFolders }}</span>
           <span v-if="course.nNewFiles + course.nNewFolders === 1">new resource</span>
           <span v-else>new resources</span>
         </div>
+        <div v-if="newActivities.length > 0" class="update-details">
+          <span>{{ course.nNewActivities }}</span>
+          <span v-if="course.nNewActivities === 1">new activity</span>
+          <span v-else>new activities</span>
+        </div>
         <div class="detail-switch" @click="onDetailClick">
           <div ref="arrow" class="arrow" />
-          <div class="switch-text">{{ switchWord }} details</div>
+          <div class="switch-text">{{ showDetails ? "Hide" : "Show" }} details</div>
         </div>
         <div v-if="showDetails" class="detail-container">
-          <div v-for="(resource, i) in newResources" :key="i">
-            <span class="filename">- {{ resource.filename }}</span>
-            <span v-if="resource.isFile">(File)</span>
-            <span v-if="resource.isFolder">(Folder)</span>
+          <div v-for="(node, i) in allNewNodes" :key="i">
+            <span v-if="node.isFile" class="filename">- {{ node.filename }}</span>
+            <span v-if="node.isActivity" class="filename">- {{ node.activityName }}</span>
+            <span v-if="node.isFile">(File)</span>
+            <span v-if="node.isFolder">(Folder)</span>
+            <span v-if="node.isActivity">(Activity)</span>
           </div>
         </div>
       </div>
 
       <div class="download-row">
-        <button v-if="hasUpdates" class="download-button" @click="e => onDownloadClick(e, course)">
+        <div class="action" @click="() => onMarkAsSeenClick(course)">
+          Mark as seen
+        </div>
+        <button
+          v-if="newResources.length > 0"
+          class="download-button"
+          @click="e => onDownloadClick(e, course)"
+        >
           Download new resources
         </button>
-        <div class="action" @click="() => onMarkAsSeenClick(course)">Mark as seen</div>
       </div>
     </div>
     <div v-else-if="course.isNew" class="course-details">
@@ -54,15 +67,22 @@ export default {
   data() {
     return {
       showDetails: false,
-      switchWord: "More",
     }
   },
   computed: {
     newResources() {
       return this.course.resourceNodes.filter(n => n.isNewResource)
     },
+    newActivities() {
+      return this.course.activityNodes.filter(n => n.isNewActivity)
+    },
+    allNewNodes() {
+      return this.newResources.concat(this.newActivities)
+    },
     hasUpdates() {
-      return this.course.nNewFiles > 0 || this.course.nNewFolders > 0
+      return (
+        this.course.nNewFiles > 0 || this.course.nNewFolders > 0 || this.course.nNewActivities > 0
+      )
     },
   },
   watch: {
@@ -70,11 +90,9 @@ export default {
       if (value) {
         this.$refs.arrow.style.marginTop = "-2px"
         this.$refs.arrow.style.transform = "rotate(135deg)"
-        this.switchWord = "Less"
       } else {
         this.$refs.arrow.style.marginTop = "0px"
         this.$refs.arrow.style.transform = "rotate(45deg)"
-        this.switchWord = "More"
       }
     },
   },
@@ -98,6 +116,7 @@ export default {
 
       course.nNewFiles = 0
       course.nNewFolders = 0
+      course.nNewActivities = 0
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "mark-as-seen",
         link: course.link,
@@ -179,6 +198,7 @@ export default {
 .download-row {
   display: flex;
   align-items: center;
+  flex-direction: row-reverse;
   justify-content: space-between;
 }
 

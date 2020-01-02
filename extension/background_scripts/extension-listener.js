@@ -97,7 +97,7 @@ const defaultOptions = {
   prependCourseToFilename: false,
   alwaysShowDetails: false,
   disableInteractionTracking: false,
-  showDownloadOptions: true,
+  showDownloadOptions: false,
 }
 
 browser.runtime.onInstalled.addListener(details => {
@@ -114,9 +114,11 @@ browser.runtime.onInstalled.addListener(details => {
 
       break
     case "update":
-      // browser.storage.local.set({
-      //   options: defaultOptions,
-      // })
+      if (process.env.NODE_ENV === "development") {
+        browser.storage.local.set({
+          options: defaultOptions,
+        })
+      }
       onTabInteraction()
       sendEvent("update")
       break

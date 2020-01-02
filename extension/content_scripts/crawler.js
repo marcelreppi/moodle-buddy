@@ -1,17 +1,22 @@
 import { validURLRegex } from "../shared/helpers"
-import { parseFilenameFromCourse, parseFilenameFromPluginfileURL, isActivityNode } from "./parser"
+import {
+  parseFilenameFromNode,
+  parseFilenameFromPluginfileURL,
+  parseActivityNameFromNode,
+  parseActivityTypeFromNode,
+} from "./parser"
 
-const fileRegex = new RegExp(validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source, "gi")
+const fileRegex = new RegExp(validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source, "i")
 
-const folderRegex = new RegExp(validURLRegex + /\/mod\/folder\/view\.php\?id=[0-9]*/.source, "gi")
+const folderRegex = new RegExp(validURLRegex + /\/mod\/folder\/view\.php\?id=[0-9]*/.source, "i")
 
 const pluginfileRegex = new RegExp(
   validURLRegex + /\/pluginfile\.php([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.source,
   "gi"
 )
 
-const specialResourceViewRegex = new RegExp(
-  validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source,
+const activityRegex = new RegExp(
+  validURLRegex + /\/mod\/(?!resource|folder).*\/view\.php\?id=[0-9]*/.source,
   "i"
 )
 
@@ -48,42 +53,53 @@ export async function scanCourse(courseLink, HTMLDocument) {
       node.mb_isFolder = Boolean(node.href.match(folderRegex))
       node.mb_isPluginfile = Boolean(node.href.match(pluginfileRegex))
 
-      if (node.mb_isFile || node.mb_isFolder) {
+      node.mb_isResource = node.mb_isFile || node.mb_isFolder
+      node.mb_isActivity = Boolean(node.href.match(activityRegex))
+
+      if (node.mb_isResource) {
         resourceNodes.push(node)
-      } else {
-        if (isActivityNode(node)) {
-          nActivities++
-          node.mb_isActivity = true
-          activityNodes.push(node)
 
-          if (previousSeenActivities === null || previousSeenActivities.includes(node.href)) {
-            node.mb_isNewActivity = false
-          } else {
-            nNewActivities++
-            node.mb_isNewActivity = true
-          }
+        // Count resources
+        if (node.mb_isFile) nFiles++
+        if (node.mb_isFolder) nFolders++
+
+        // Check if they are new or not
+        if (previousSeenResources === null || previousSeenResources.includes(node.href)) {
+          // If course has never been scanned previousSeenResources don't exist
+          // Never treat a resource as new when the course is scanned for the first time
+          // because we're capturing the initial state of the course
+          node.mb_isNewResource = false
+        } else {
+          if (node.mb_isFile) nNewFiles++
+          if (node.mb_isFolder) nNewFolders++
+          node.mb_isNewResource = true
         }
-        return
+
+        // Parse the filename
+        if (node.mb_isPluginfile) {
+          node.mb_filename = parseFilenameFromPluginfileURL(node.href)
+        } else {
+          node.mb_filename = parseFilenameFromNode(node)
+        }
       }
 
-      if (node.mb_isFile) nFiles++
-      if (node.mb_isFolder) nFolders++
+      if (node.mb_isActivity) {
+        activityNodes.push(node)
 
-      if (previousSeenResources === null || previousSeenResources.includes(node.href)) {
-        // If course has never been scanned previousSeenResources don't exist
-        // Never treat a resource as new when the course is scanned for the first time
-        // because we're capturing the initial state of the course
-        node.mb_isNewResource = false
-      } else {
-        if (node.mb_isFile) nNewFiles++
-        if (node.mb_isFolder) nNewFolders++
-        node.mb_isNewResource = true
-      }
+        // Count the activities
+        nActivities++
 
-      if (node.mb_isPluginfile) {
-        node.mb_filename = parseFilenameFromPluginfileURL(node.href)
-      } else {
-        node.mb_filename = parseFilenameFromCourse(node)
+        // Check if they are new or not
+        if (previousSeenActivities === null || previousSeenActivities.includes(node.href)) {
+          node.mb_isNewActivity = false
+        } else {
+          nNewActivities++
+          node.mb_isNewActivity = true
+        }
+
+        // Parse their name
+        node.mb_activityName = parseActivityNameFromNode(node)
+        node.mb_activityType = parseActivityTypeFromNode(node)
       }
     })
 
@@ -109,7 +125,7 @@ export async function scanCourse(courseLink, HTMLDocument) {
     })
   }
 
-  if (nNewFiles + nNewFolders > 0) {
+  if (nNewFiles + nNewFolders + nNewActivities > 0) {
     browser.runtime.sendMessage({
       command: "set-icon-new",
     })
@@ -122,6 +138,9 @@ export async function scanCourse(courseLink, HTMLDocument) {
       nNewFiles,
       nFolders,
       nNewFolders,
+    },
+    activityNodes,
+    activityCounts: {
       nActivities,
       nNewActivities,
     },
@@ -154,12 +173,48 @@ export async function updateCourseResources(courseLink, downloadedResourceNodes)
     browser.runtime.sendMessage({
       command: "set-icon-new",
     })
+  } else {
+    browser.runtime.sendMessage({
+      command: "set-icon-normal",
+    })
   }
 
   const updatedCourseData = {
     ...storedCourseData,
     seenResources: updatedSeenResources,
     newResources: updatedNewResources,
+  }
+
+  await browser.storage.local.set({
+    [courseLink]: updatedCourseData,
+  })
+
+  return updatedCourseData
+}
+
+export async function updateCourseActivities(courseLink) {
+  const localStorage = await browser.storage.local.get()
+  const storedCourseData = localStorage[courseLink]
+
+  const updatedSeenActivities = Array.from(
+    new Set(storedCourseData.seenActivities.concat(storedCourseData.newActivities))
+  )
+  const updatedNewActivities = []
+
+  if (storedCourseData.newResources.length > 0) {
+    browser.runtime.sendMessage({
+      command: "set-icon-new",
+    })
+  } else {
+    browser.runtime.sendMessage({
+      command: "set-icon-normal",
+    })
+  }
+
+  const updatedCourseData = {
+    ...storedCourseData,
+    seenActivities: updatedSeenActivities,
+    newActivities: updatedNewActivities,
   }
 
   await browser.storage.local.set({
@@ -186,7 +241,7 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
   // Fetch the href to get the actual download URL
   const res = await fetch(HTMLNode.href)
 
-  if (res.url.match(specialResourceViewRegex)) {
+  if (res.url.match(fileRegex)) {
     const body = await res.text()
     const parser = new DOMParser()
     const resHTML = parser.parseFromString(body, "text/html")
@@ -212,7 +267,7 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
       command: "download-file",
       url: res.url,
       filename: parseFilenameFromPluginfileURL(res.url),
-      moodleFilename: parseFilenameFromCourse(HTMLNode),
+      moodleFilename: parseFilenameFromNode(HTMLNode),
       courseName,
       courseShortcut,
       ...options,
@@ -245,7 +300,7 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
       browser.runtime.sendMessage({
         command: "download-folder",
         url: downloadURL,
-        folderName: parseFilenameFromCourse(HTMLNode),
+        folderName: parseFilenameFromNode(HTMLNode),
         courseName,
         courseShortcut,
         ...options,
@@ -257,7 +312,7 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
           command: "download-folder-file",
           url: fileNode.href,
           filename: parseFilenameFromPluginfileURL(fileNode.href),
-          folderName: parseFilenameFromCourse(HTMLNode),
+          folderName: parseFilenameFromNode(HTMLNode),
           courseName,
           courseShortcut,
           ...options,
