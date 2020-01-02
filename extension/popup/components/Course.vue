@@ -2,7 +2,9 @@
   <div class="course-card">
     <div class="course-name">
       <div :class="{ 'update-name': hasUpdates }">{{ course.name }}</div>
-      <div class="course-link action" @click="() => onCourseLinkClick(course.link)">Go to course</div>
+      <div class="course-link action" @click="() => onCourseLinkClick(course.link)">
+        Go to course
+      </div>
     </div>
 
     <div v-if="hasUpdates">
@@ -26,11 +28,9 @@
       </div>
 
       <div class="download-row">
-        <button
-          v-if="hasUpdates"
-          class="download-button"
-          @click="e => onDownloadClick(e, course)"
-        >Download new resources</button>
+        <button v-if="hasUpdates" class="download-button" @click="e => onDownloadClick(e, course)">
+          Download new resources
+        </button>
         <div class="action" @click="() => onMarkAsSeenClick(course)">Mark as seen</div>
       </div>
     </div>
@@ -51,22 +51,22 @@ export default {
     activeTab: Object,
     options: Object,
   },
-  data: function() {
+  data() {
     return {
       showDetails: false,
       switchWord: "More",
     }
   },
   computed: {
-    newResources: function() {
+    newResources() {
       return this.course.resourceNodes.filter(n => n.isNewResource)
     },
-    hasUpdates: function() {
+    hasUpdates() {
       return this.course.nNewFiles > 0 || this.course.nNewFolders > 0
     },
   },
   watch: {
-    showDetails: function(value) {
+    showDetails(value) {
       if (value) {
         this.$refs.arrow.style.marginTop = "-2px"
         this.$refs.arrow.style.transform = "rotate(135deg)"
@@ -79,13 +79,13 @@ export default {
     },
   },
   methods: {
-    onCourseLinkClick: function(link) {
+    onCourseLinkClick(link) {
       browser.tabs.create({
         url: link,
       })
       window.close()
     },
-    onDownloadClick: function(e, course) {
+    onDownloadClick(e, course) {
       sendEvent("download-start-page")
       e.target.disabled = true
       browser.tabs.sendMessage(this.activeTab.id, {
@@ -93,7 +93,7 @@ export default {
         link: course.link,
       })
     },
-    onMarkAsSeenClick: function(course) {
+    onMarkAsSeenClick(course) {
       sendEvent("mark-as-seen-start-page")
 
       course.nNewFiles = 0
@@ -103,11 +103,11 @@ export default {
         link: course.link,
       })
     },
-    onDetailClick: function() {
+    onDetailClick() {
       this.showDetails = !this.showDetails
     },
   },
-  mounted: function() {
+  mounted() {
     if (!this.options) return
 
     if (this.hasUpdates) {

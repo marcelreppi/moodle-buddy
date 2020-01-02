@@ -1,4 +1,4 @@
-import { coursePageRegex } from "../shared/helpers.js"
+import { coursePageRegex } from "../shared/helpers"
 
 export function parseCourseNameFromCoursePage(document) {
   return document.querySelector(".page-header-headings").children[0].textContent
@@ -8,9 +8,9 @@ export function parseCourseShortcut(document) {
   const shortcutNode = document.querySelector("a[aria-current='page']")
   if (shortcutNode) {
     return shortcutNode.textContent
-  } else {
-    return ""
   }
+
+  return ""
 }
 
 export function parseCourseNameFromCard(cardNode) {
@@ -34,6 +34,8 @@ export function parseFilenameFromCourse(aTag) {
   if (aTag.querySelector(".fp-filename")) {
     return aTag.querySelector(".fp-filename").textContent
   }
+
+  return ""
 }
 
 export function parseFilenameFromPluginfileURL(url) {

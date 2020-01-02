@@ -2,42 +2,49 @@ import { isFirefox, getActiveTab, startingPageRegex, coursePageRegex } from "../
 
 function uuidv4() {
   return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
+    // eslint-disable-next-line no-bitwise
     (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
   )
 }
 
-const defaultOptions = {
-  saveToFolder: true,
-  onlyNewResources: false,
-  useMoodleFilename: false,
-  prependCourseShortcutToFilename: false,
-  prependCourseToFilename: false,
-  alwaysShowDetails: false,
-  disableInteractionTracking: false,
-}
+async function sendEvent(event) {
+  const { options, browserId } = await browser.storage.local.get(["options", "browserId"])
 
-browser.runtime.onInstalled.addListener(details => {
-  switch (details.reason) {
-    case "install":
-      const randomId = uuidv4()
-      browser.storage.local
-        .set({
-          browserId: randomId,
-          options: defaultOptions,
-        })
-        .then(() => {
-          sendEvent("install")
-        })
-
-      break
-    case "update":
-      onTabInteraction()
-      sendEvent("update")
-      break
-    default:
-      break
+  if (options.disableInteractionTracking) {
+    if (!(event === "install" || event === "update")) {
+      // Excluding install and update events
+      console.log("Tracking disabled!")
+      return
+    }
   }
-})
+
+  if (!process.env.API_URL || !process.env.API_KEY) {
+    return
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    console.log({
+      event,
+      browser: isFirefox() ? "firefox" : "chrome",
+      browserId,
+    })
+  }
+
+  fetch(process.env.API_URL, {
+    method: "POST",
+    headers: {
+      "X-API-Key": process.env.API_KEY,
+    },
+    body: JSON.stringify({
+      event,
+      browser: isFirefox() ? "firefox" : "chrome",
+      browserId,
+      dev: process.env.NODE_ENV === "development",
+    }),
+  })
+    // .then(res => console.info(res))
+    .catch(error => console.log(error))
+}
 
 async function onTabInteraction(skipScan) {
   // console.log("check tab")
@@ -82,6 +89,42 @@ async function onTabInteraction(skipScan) {
   }
 }
 
+const defaultOptions = {
+  saveToFolder: true,
+  onlyNewResources: false,
+  useMoodleFilename: false,
+  prependCourseShortcutToFilename: false,
+  prependCourseToFilename: false,
+  alwaysShowDetails: false,
+  disableInteractionTracking: false,
+  showDownloadOptions: true,
+}
+
+browser.runtime.onInstalled.addListener(details => {
+  switch (details.reason) {
+    case "install":
+      browser.storage.local
+        .set({
+          browserId: uuidv4(),
+          options: defaultOptions,
+        })
+        .then(() => {
+          sendEvent("install")
+        })
+
+      break
+    case "update":
+      // browser.storage.local.set({
+      //   options: defaultOptions,
+      // })
+      onTabInteraction()
+      sendEvent("update")
+      break
+    default:
+      break
+  }
+})
+
 browser.tabs.onActivated.addListener(() => onTabInteraction())
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
   const { status, url } = changeInfo
@@ -113,42 +156,3 @@ browser.runtime.onMessage.addListener(async message => {
     })
   }
 })
-
-async function sendEvent(event) {
-  const { options, browserId } = await browser.storage.local.get(["options", "browserId"])
-
-  if (options.disableInteractionTracking) {
-    if (!(event === "install" || event === "update")) {
-      // Excluding install and update events
-      console.log("Tracking disabled!")
-      return
-    }
-  }
-
-  if (!process.env.API_URL || !process.env.API_KEY) {
-    return
-  }
-
-  if (process.env.NODE_ENV === "development") {
-    console.log({
-      event,
-      browser: isFirefox() ? "firefox" : "chrome",
-      browserId,
-    })
-  }
-
-  fetch(process.env.API_URL, {
-    method: "POST",
-    headers: {
-      "X-API-Key": process.env.API_KEY,
-    },
-    body: JSON.stringify({
-      event,
-      browser: isFirefox() ? "firefox" : "chrome",
-      browserId,
-      dev: process.env.NODE_ENV === "development",
-    }),
-  })
-    // .then(res => console.info(res))
-    .catch(error => console.log(error))
-}

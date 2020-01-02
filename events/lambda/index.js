@@ -1,6 +1,6 @@
 const { writeEventToS3, sendBotMessage } = require("./tracker")
 
-exports.handler = async function(event, context) {
+exports.handler = async function(event) {
   if (event.dev) {
     await writeEventToS3(event)
     await sendBotMessage(event)

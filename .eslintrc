@@ -1,0 +1,53 @@
+{
+  "extends": [
+    "airbnb-base",
+    "plugin:prettier/recommended",
+    "plugin:vue/essential"
+  ],
+  "parser": "vue-eslint-parser",
+  "parserOptions": {
+    "parser": "babel-eslint",
+    "ecmaVersion": 2020,
+    "ecmaFeatures": {
+      "impliedStrict": true,
+      "classes": true
+    }
+  },
+  "rules": {
+    "prettier/prettier": [
+      "error",
+      {
+        "trailingComma": "es5",
+        "tabWidth": 2,
+        "semi": false,
+        "singleQuote": false,
+        "printWidth": 100
+      }
+    ],
+    "quotes": [
+      2,
+      "double",
+      {
+        "avoidEscape": true,
+        "allowTemplateLiterals": true
+      }
+    ],
+    "func-names": 0,
+    "no-new": 0,
+    "prefer-destructuring": 1,
+    "no-restricted-globals": 0,
+    "no-plusplus": 0,
+    "no-useless-escape": 0,
+    "no-await-in-loop": 0,
+    "no-console": 0,
+    "no-param-reassign": [
+      2,
+      {
+        "props": false
+      }
+    ]
+  },
+  "globals": {
+    "browser": "readonly"
+  }
+}

@@ -6,7 +6,11 @@
     </div>
 
     <div id="popup-content">
-      <StartingPageView v-if="showStartingPageView" :activeTab="activeTab" :options="options"></StartingPageView>
+      <StartingPageView
+        v-if="showStartingPageView"
+        :activeTab="activeTab"
+        :options="options"
+      ></StartingPageView>
       <CourseView v-if="showCourseView" :activeTab="activeTab" :options="options"></CourseView>
       <NoMoodle v-if="showNoMoodle" :openInfoPage="onInfoClick"></NoMoodle>
     </div>
@@ -14,19 +18,17 @@
     <div class="footer">
       <span>
         Inofficial Plugin by
-        <span
-          class="link"
-          @click="() => navigateTo('https://twitter.com/marcelreppi')"
-        >marcelreppi</span>
+        <span class="link" @click="() => navigateTo('https://twitter.com/marcelreppi')"
+          >marcelreppi</span
+        >
       </span>
       <span>
         <div class="link" @click="onDonateClick">Donate</div>
       </span>
       <span class="footer-right-section">
-        <div
-          class="link"
-          @click="() => navigateTo('https://github.com/marcelreppi/moodle-buddy')"
-        >GitHub</div>
+        <div class="link" @click="() => navigateTo('https://github.com/marcelreppi/moodle-buddy')">
+          GitHub
+        </div>
         <img class="info-icon" :src="InfoIcon" alt="info" @click="onInfoClick" />
       </span>
     </div>
@@ -37,11 +39,10 @@
 import {
   sendEvent,
   getActiveTab,
-  validURLRegex,
   isFirefox,
   startingPageRegex,
   coursePageRegex,
-} from "../shared/helpers.js"
+} from "../shared/helpers"
 import StartingPageView from "./views/StartingPageView.vue"
 import CourseView from "./views/CourseView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
@@ -55,7 +56,7 @@ export default {
     CourseView,
     NoMoodle,
   },
-  data: function() {
+  data() {
     return {
       activeTab: null,
       InfoIcon,
@@ -66,51 +67,53 @@ export default {
   },
   computed: {
     isFirefox,
-    showStartingPageView: function() {
+    showStartingPageView() {
       if (this.activeTab && this.activeTab.url.match(startingPageRegex)) {
         sendEvent("view-start-page")
         return true
-      } else {
-        return false
       }
+      return false
     },
-    showCourseView: function() {
+    showCourseView() {
       if (this.activeTab && this.activeTab.url.match(coursePageRegex)) {
         sendEvent("view-course-page")
         return true
-      } else {
-        return false
       }
+      return false
     },
-    showNoMoodle: function() {
+    showNoMoodle() {
       return !this.showStartingPageView && !this.showCourseView
     },
   },
   methods: {
-    onInfoClick: function() {
+    onInfoClick() {
       browser.tabs.create({
         url: "../pages/information/information.html",
       })
       sendEvent("info-click")
       window.close()
     },
-    onDonateClick: function() {
+    onDonateClick() {
       this.navigateTo("https://paypal.me/marcelreppi")
       sendEvent("donate-click")
     },
-    navigateTo: function(link) {
+    navigateTo(link) {
       browser.tabs.create({
         url: link,
       })
       window.close()
     },
   },
-  created: function() {
+  created() {
     browser.storage.local
       .get("options")
-      .then(({ options }) => (this.options = options))
+      .then(({ options }) => {
+        this.options = options
+      })
       .then(getActiveTab)
-      .then(tab => (this.activeTab = tab))
+      .then(tab => {
+        this.activeTab = tab
+      })
   },
 }
 </script>

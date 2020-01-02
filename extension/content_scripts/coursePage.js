@@ -1,6 +1,6 @@
-import { scanCourse, downloadResource, updateCourseResources } from "./crawler.js"
-import { parseCourseNameFromCoursePage, parseCourseShortcut, parseCourseLink } from "./parser.js"
-import { filterMoodleBuddyKeys } from "../shared/helpers.js"
+import { scanCourse, downloadResource, updateCourseResources } from "./crawler"
+import { parseCourseNameFromCoursePage, parseCourseShortcut, parseCourseLink } from "./parser"
+import { filterMoodleBuddyKeys } from "../shared/helpers"
 
 let resourceNodes = null
 let resourceCounts = null
@@ -42,26 +42,23 @@ browser.runtime.onMessage.addListener(async message => {
 
   if (message.command === "crawl") {
     const { options } = message
-    const downloadedResources = []
 
-    for (let i = 0; i < resourceNodes.length; i++) {
-      const node = resourceNodes[i]
+    const downloadedResourceNodes = resourceNodes.filter(n => {
+      if (options.skipFiles && n.mb_isFile) return false
+      if (options.skipFolders && n.mb_isFolder) return false
+      if (options.onlyNewResources && !n.mb_isNewResource) return false
 
-      if (options.skipFiles && node.mb_isFile) continue
-      if (options.skipFolders && node.mb_isFolder) continue
-      if (options.onlyNewResources && !node.mb_isNewResource) continue
+      return true
+    })
 
-      downloadedResources.push(node.href)
+    downloadedResourceNodes.forEach(node => {
+      downloadResource(node, courseName, courseShortcut, options)
+    })
 
-      await downloadResource(node, courseName, courseShortcut, options)
-    }
-
-    await updateCourseResources(courseLink, downloadedResources)
+    await updateCourseResources(courseLink, downloadedResourceNodes)
 
     await browser.runtime.sendMessage({
       command: "set-icon-normal",
     })
-
-    return
   }
 })

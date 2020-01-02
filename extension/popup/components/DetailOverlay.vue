@@ -25,10 +25,10 @@ export default {
     toggleDetails: Function,
   },
   computed: {
-    files: function() {
+    files() {
       return this.resources.filter(n => n.isFile)
     },
-    folders: function() {
+    folders() {
       return this.resources.filter(n => n.isFolder)
     },
   },

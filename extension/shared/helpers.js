@@ -22,7 +22,9 @@ export function filterMoodleBuddyKeys(obj) {
   const moodleBuddyKeys = Object.keys(obj).filter(k => k.startsWith("mb_"))
   const newObj = {}
   // Remove moodle buddy key indicator mb_
-  moodleBuddyKeys.forEach(k => (newObj[k.substring(3)] = obj[k]))
+  moodleBuddyKeys.forEach(k => {
+    newObj[k.substring(3)] = obj[k]
+  })
   return newObj
 }
 

@@ -5,16 +5,16 @@
   "description": "Moodle Buddy offers additional helpful functionality to the moodle learning management platform.",
   "homepage_url": "https://github.com/marcelreppi/moodle-buddy",
   "icons": {
-    "16": "./icons/icon16.png",
-    "48": "./icons/icon48.png",
-    "128": "./icons/icon128.png"
+    "16": "/icons/icon16.png",
+    "48": "/icons/icon48.png",
+    "128": "/icons/icon128.png"
   },
   "permissions": ["<all_urls>", "tabs", "downloads", "storage"],
   "browser_action": {
     "default_icon": {
-      "16": "./icons/icon16-gray.png",
-      "48": "icons/icon48-gray.png",
-      "128": "./icons/icon128.png"
+      "16": "/icons/icon16-gray.png",
+      "48": "/icons/icon48-gray.png",
+      "128": "/icons/icon128.png"
     },
     "default_title": "Moodle Buddy",
     "default_popup": "./popup/index.html"
@@ -22,25 +22,25 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["./shared/browser-polyfill.js"]
+      "js": ["/shared/browser-polyfill.js"]
     },
     {
       "matches": ["*://*/course/view.php?id=*"],
-      "js": ["./content_scripts/coursePage.js"]
+      "js": ["/content_scripts/coursePage.js"]
     },
     {
       "matches": ["*://*/my*"],
-      "js": ["./content_scripts/startPage.js"]
+      "js": ["/content_scripts/startPage.js"]
     }
   ],
   "background": {
     "scripts": [
-      "./shared/browser-polyfill.js",
-      "./background_scripts/extension-listener.js",
-      "./background_scripts/downloader.js"
+      "/shared/browser-polyfill.js",
+      "/background_scripts/extension-listener.js",
+      "/background_scripts/downloader.js"
     ]
   },
   "options_ui": {
-    "page": "./pages/options/options.html"
+    "page": "/pages/options/options.html"
   }
 }

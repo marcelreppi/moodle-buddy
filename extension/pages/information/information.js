@@ -1,4 +1,4 @@
-document.querySelector("#imprint-link").addEventListener("click", e => {
+document.querySelector("#imprint-link").addEventListener("click", () => {
   browser.runtime.sendMessage({
     command: "event",
     event: "imprint-click",
@@ -8,7 +8,7 @@ document.querySelector("#imprint-link").addEventListener("click", e => {
   })
 })
 
-document.querySelector("#options-link").addEventListener("click", e => {
+document.querySelector("#options-link").addEventListener("click", () => {
   browser.runtime.sendMessage({
     command: "event",
     event: "options-click",
@@ -16,7 +16,7 @@ document.querySelector("#options-link").addEventListener("click", e => {
   browser.runtime.openOptionsPage()
 })
 
-document.querySelector("#donate-link").addEventListener("click", e => {
+document.querySelector("#donate-link").addEventListener("click", () => {
   browser.runtime.sendMessage({
     command: "event",
     event: "donate-click",

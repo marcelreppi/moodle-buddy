@@ -3,7 +3,7 @@
     <div v-if="courses === null" class="no-courses">Scanning courses for updates...</div>
     <div v-else-if="courses.length === 0" class="no-courses">No courses in overview</div>
     <div v-else class="course-container scrollbar">
-      <course
+      <Course
         v-for="(course, i) in courses"
         :key="i"
         :course="course"
@@ -19,18 +19,18 @@ import Course from "../components/Course.vue"
 
 export default {
   components: {
-    course: Course,
+    Course,
   },
   props: {
     activeTab: Object,
     options: Object,
   },
-  data: function() {
+  data() {
     return {
       courses: null,
     }
   },
-  created: function() {
+  created() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "scan-in-progress") {
         setTimeout(() => {
@@ -46,11 +46,13 @@ export default {
         this.courses.sort((a, b) => {
           if (a.nNewFiles > b.nNewFiles || a.nNewFolders > b.nNewFolders) {
             return -1
-          } else if (a.nNewFiles < b.nNewFiles || a.nNewFolders < b.nNewFolders) {
-            return 1
-          } else {
-            return 0
           }
+
+          if (a.nNewFiles < b.nNewFiles || a.nNewFolders < b.nNewFolders) {
+            return 1
+          }
+
+          return 0
         })
       }
     })

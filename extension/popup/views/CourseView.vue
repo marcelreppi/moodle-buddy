@@ -3,7 +3,7 @@
     <div v-if="loading">Scanning course...</div>
     <div v-else class="content-container">
       <div class="resource-info">
-        <div>
+        <span>
           There
           <span v-if="nResources === 1">is</span>
           <span v-else>are</span>
@@ -11,7 +11,7 @@
           <span v-if="nResources === 1">resource</span>
           <span v-else>resources</span>
           available for download
-        </div>
+        </span>
         <div v-if="showNewResourceInfo" class="new-resources-info">
           <div>
             Since last visit
@@ -24,16 +24,16 @@
           </div>
           <div>
             <label>
-              <input type="checkbox" v-model="onlyNewResources" />
+              <input v-model="onlyNewResources" type="checkbox" />
               <span class="checkbox-label">Download only new resources</span>
             </label>
           </div>
-          <div class="mark-as-seen" @click="onMarkAsSeenClick">Mark as seen</div>
+          <div class="action" @click="onMarkAsSeenClick">Mark as seen</div>
         </div>
-        <div class="resource-selection">
+        <div class="marginize">
           <div>
             <label id="files-cb-label">
-              <input type="checkbox" v-model="downloadFiles" :disabled="disableFilesCb" />
+              <input v-model="downloadFiles" type="checkbox" :disabled="disableFilesCb" />
               <span class="checkbox-label">
                 <span v-if="onlyNewResources">{{ nNewFiles }}</span>
                 <span v-else>{{ nFiles }}</span>
@@ -43,7 +43,7 @@
           </div>
           <div>
             <label id="folders-cb-label">
-              <input type="checkbox" v-model="downloadFolders" :disabled="disableFoldersCb" />
+              <input v-model="downloadFolders" type="checkbox" :disabled="disableFoldersCb" />
               <span class="checkbox-label">
                 <span v-if="onlyNewResources">{{ nNewFolders }}</span>
                 <span v-else>{{ nFolders }}</span>
@@ -52,64 +52,75 @@
             </label>
           </div>
         </div>
-        <button
-          class="mark-as-seen detail-button"
-          @click="toggleDetails"
-          :disabled="disableDownload"
-        >Show details on selected resources</button>
+        <button class="action marginize" :disabled="disableDownload" @click="toggleDetails">
+          Show details on selected resources
+        </button>
 
-        <detail-overlay
+        <DetailOverlay
           v-if="showDetails"
           :resources="selectedResources"
-          :toggleDetails="toggleDetails"
-        ></detail-overlay>
+          :toggle-details="toggleDetails"
+        />
+
+        <button class="action marginize" @click="toggleDownloadOptions">
+          {{ showDownloadOptions ? "Hide" : "Show" }} download options
+        </button>
+
+        <div v-if="showDownloadOptions" class="marginize">
+          <div>
+            <label>
+              <input v-model="saveToFolder" type="checkbox" />
+              <span class="checkbox-label">Save resources inside a folder</span>
+            </label>
+          </div>
+          <div>
+            <label>
+              <input v-model="useMoodleFilename" type="checkbox" />
+              <span class="checkbox-label">Use Moodle file name as actual file name</span>
+            </label>
+          </div>
+          <div>
+            <label>
+              <input v-model="prependCourseShortcutToFilename" type="checkbox" />
+              <span class="checkbox-label">Prepend course shortcut to each file name</span>
+            </label>
+          </div>
+          <div>
+            <label>
+              <input v-model="prependCourseToFilename" type="checkbox" />
+              <span class="checkbox-label">Prepend course name to each file name</span>
+            </label>
+          </div>
+        </div>
       </div>
 
-      <div>
-        <div>
-          <label>
-            <input type="checkbox" v-model="saveToFolder" />
-            <span class="checkbox-label">Save resources inside a folder</span>
-          </label>
-        </div>
-        <div>
-          <label>
-            <input type="checkbox" v-model="useMoodleFilename" />
-            <span class="checkbox-label">Use Moodle file name as actual file name</span>
-          </label>
-        </div>
-        <div>
-          <label>
-            <input type="checkbox" v-model="prependCourseShortcutToFilename" />
-            <span class="checkbox-label">Prepend course shortcut to each file name</span>
-          </label>
-        </div>
-        <div>
-          <label>
-            <input type="checkbox" v-model="prependCourseToFilename" />
-            <span class="checkbox-label">Prepend course name to each file name</span>
-          </label>
-        </div>
-      </div>
-      <button class="download-button" @click="onDownload" :disabled="disableDownload">Download</button>
+      <button class="download-button" :disabled="disableDownload" @click="onDownload">
+        Download
+      </button>
     </div>
   </div>
 </template>
 
 <script>
-import { sendEvent, getActiveTab } from "../../shared/helpers.js"
+import { sendEvent } from "../../shared/helpers"
 
 import DetailOverlay from "../components/DetailOverlay.vue"
 
 export default {
-  props: {
-    activeTab: Object,
-    options: Object,
-  },
   components: {
-    "detail-overlay": DetailOverlay,
+    DetailOverlay,
   },
-  data: function() {
+  props: {
+    activeTab: {
+      type: Object,
+      required: true,
+    },
+    options: {
+      type: Object,
+      required: true,
+    },
+  },
+  data() {
     return {
       loading: true,
       nFiles: -1,
@@ -126,33 +137,32 @@ export default {
       downloadFolders: true,
       disableDownload: false,
       showDetails: false,
+      showDownloadOptions: false,
     }
   },
   computed: {
-    showNewResourceInfo: function() {
+    showNewResourceInfo() {
       return this.nNewFiles > 0 || this.nNewFolders > 0
     },
-    nResources: function() {
+    nResources() {
       return this.nFiles + this.nFolders
     },
-    nNewResources: function() {
+    nNewResources() {
       return this.nNewFiles + this.nNewFolders
     },
-    disableFilesCb: function() {
+    disableFilesCb() {
       if (this.onlyNewResources) {
         return this.nNewFiles === 0
-      } else {
-        return this.nFiles === 0
       }
+      return this.nFiles === 0
     },
-    disableFoldersCb: function() {
+    disableFoldersCb() {
       if (this.onlyNewResources) {
         return this.nNewFolders === 0
-      } else {
-        return this.nFolders === 0
       }
+      return this.nFolders === 0
     },
-    selectedResources: function() {
+    selectedResources() {
       return this.resourceNodes.filter(n => {
         let select = false
 
@@ -173,23 +183,31 @@ export default {
     },
   },
   watch: {
-    nResources: function() {
+    nResources() {
       this.handleCheckboxes()
 
       this.disableDownload = this.nResources === 0
     },
-    onlyNewResources: function() {
+    onlyNewResources() {
       this.handleCheckboxes()
     },
-    downloadFiles: function() {
+    downloadFiles() {
       this.disableDownload = !this.downloadFiles && !this.downloadFolders
     },
-    downloadFolders: function() {
+    downloadFolders() {
       this.disableDownload = !this.downloadFiles && !this.downloadFolders
+    },
+    showDownloadOptions() {
+      browser.storage.local.set({
+        options: {
+          ...this.options,
+          showDownloadOptions: this.showDownloadOptions,
+        },
+      })
     },
   },
   methods: {
-    handleCheckboxes: function() {
+    handleCheckboxes() {
       if (this.onlyNewResources) {
         this.downloadFiles = this.nNewFiles !== 0
         this.downloadFolders = this.nNewFolders !== 0
@@ -198,7 +216,7 @@ export default {
         this.downloadFolders = this.nFolders !== 0
       }
     },
-    onDownload: function() {
+    onDownload() {
       if (this.onlyNewResources) {
         sendEvent("download-course-page-only-new")
       } else {
@@ -220,7 +238,7 @@ export default {
         },
       })
     },
-    onMarkAsSeenClick: function() {
+    onMarkAsSeenClick() {
       sendEvent("mark-as-seen-course-page")
       this.onlyNewResources = false
       this.nNewFiles = 0
@@ -229,11 +247,17 @@ export default {
         command: "mark-as-seen",
       })
     },
-    toggleDetails: function() {
+    toggleDetails() {
       this.showDetails = !this.showDetails
     },
+    toggleDownloadOptions() {
+      this.showDownloadOptions = !this.showDownloadOptions
+    },
+    showOptionsPage() {
+      browser.runtime.openOptionsPage()
+    },
   },
-  created: function() {
+  created() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "scan-result") {
         this.nFiles = message.nFiles
@@ -246,14 +270,15 @@ export default {
           this.onlyNewResources = this.options.onlyNewResources
         }
 
-        this.saveToFolder = this.options.saveToFolder
-        this.useMoodleFilename = this.options.useMoodleFilename
-        this.prependCourseToFilename = this.options.prependCourseToFilename
-        this.prependCourseShortcutToFilename = this.options.prependCourseShortcutToFilename
-
         this.loading = false
       }
     })
+
+    this.showDownloadOptions = this.options.showDownloadOptions
+    this.saveToFolder = this.options.saveToFolder
+    this.useMoodleFilename = this.options.useMoodleFilename
+    this.prependCourseToFilename = this.options.prependCourseToFilename
+    this.prependCourseShortcutToFilename = this.options.prependCourseShortcutToFilename
 
     // Scan for resources
     browser.tabs.sendMessage(this.activeTab.id, {
@@ -267,7 +292,7 @@ export default {
 .download-button {
   width: 100px;
   padding: 10px 0px;
-  margin-top: 10px;
+  margin-top: 15px;
   border-radius: 5px;
   border: 0;
   background-color: #c50e20;
@@ -290,7 +315,6 @@ export default {
 }
 
 .resource-info {
-  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -308,19 +332,20 @@ export default {
   align-items: center;
 }
 
-.mark-as-seen {
+.action {
   font-size: 14px;
   text-decoration: underline;
   color: rgb(66, 66, 66);
 }
 
-.mark-as-seen:hover {
+.action:hover {
   cursor: pointer;
   color: #c50e20;
 }
 
-.resource-selection {
-  margin-top: 10px;
+.action:disabled {
+  color: rgb(202, 202, 202);
+  cursor: default;
 }
 
 .download-info {
@@ -333,12 +358,7 @@ export default {
   margin-left: 5px;
 }
 
-.detail-button {
+.marginize {
   margin-top: 10px;
-}
-
-.detail-button:disabled {
-  color: rgb(202, 202, 202);
-  cursor: default;
 }
 </style>

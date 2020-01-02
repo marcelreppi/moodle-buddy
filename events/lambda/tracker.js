@@ -4,6 +4,7 @@ require("dotenv").config({
 })
 
 const AWS = require("aws-sdk")
+
 exports.writeEventToS3 = async event => {
   const s3 = new AWS.S3()
   const bucketName = `moodle-buddy-event-bucket${event.dev ? "-test" : ""}`

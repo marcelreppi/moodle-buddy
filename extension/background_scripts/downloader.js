@@ -1,6 +1,5 @@
-const sanitizeFilename = (filename, connectingString = "") => {
-  return filename.trim().replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString)
-}
+const sanitizeFilename = (filename, connectingString = "") =>
+  filename.trim().replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString)
 
 browser.runtime.onMessage.addListener(message => {
   let courseName = ""
@@ -11,7 +10,7 @@ browser.runtime.onMessage.addListener(message => {
   }
 
   if (message.command === "download-file") {
-    let filename = message.filename
+    let { filename } = message
     const filenameParts = filename.split(".")
     const fileType = filenameParts[filenameParts.length - 1]
 
@@ -60,7 +59,7 @@ browser.runtime.onMessage.addListener(message => {
 
   if (message.command === "download-folder-file") {
     let filename = sanitizeFilename(message.filename)
-    const folderName = sanitizeFilename(folderName)
+    const folderName = sanitizeFilename(message.folderName)
     filename = `${folderName}_${filename}`
     if (message.prependCourseToFilename) {
       filename = `${courseName}_${filename}`
@@ -75,6 +74,5 @@ browser.runtime.onMessage.addListener(message => {
       url: message.url,
       filename,
     })
-    return
   }
 })

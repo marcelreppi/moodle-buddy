@@ -1,9 +1,5 @@
-import { validURLRegex } from "../shared/helpers.js"
-import {
-  parseFilenameFromCourse,
-  parseFilenameFromPluginfileURL,
-  isActivityNode,
-} from "./parser.js"
+import { validURLRegex } from "../shared/helpers"
+import { parseFilenameFromCourse, parseFilenameFromPluginfileURL, isActivityNode } from "./parser"
 
 const fileRegex = new RegExp(validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source, "gi")
 
@@ -27,8 +23,8 @@ export async function scanCourse(courseLink, HTMLDocument) {
   let nNewFolders = 0
   let nActivities = 0
   let nNewActivities = 0
-  let activityNodes = []
-  let resourceNodes = []
+  const activityNodes = []
+  const resourceNodes = []
   let isFirstScan = true
 
   //  Local storage data
@@ -133,12 +129,16 @@ export async function scanCourse(courseLink, HTMLDocument) {
   }
 }
 
-export async function updateCourseResources(courseLink, newSeenResources) {
+export async function updateCourseResources(courseLink, downloadedResourceNodes) {
   const localStorage = await browser.storage.local.get()
   const storedCourseData = localStorage[courseLink]
 
-  if (!newSeenResources) {
-    newSeenResources = storedCourseData.newResources
+  // Default behavior: Merge stored new resources
+  let newSeenResources = storedCourseData.newResources
+
+  // If downloaded resources are provided then only merge those
+  if (downloadedResourceNodes) {
+    newSeenResources = downloadedResourceNodes.map(n => n.href)
   }
 
   // Merge already seen resources with new resources
@@ -264,6 +264,5 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
         })
       })
     }
-    return
   }
 }

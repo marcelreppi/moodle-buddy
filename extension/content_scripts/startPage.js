@@ -1,8 +1,8 @@
 import shajs from "sha.js"
 
-import { scanCourse, downloadResource, updateCourseResources } from "./crawler.js"
-import * as parser from "./parser.js"
-import { filterMoodleBuddyKeys } from "../shared/helpers.js"
+import { scanCourse, downloadResource, updateCourseResources } from "./crawler"
+import * as parser from "./parser"
+import { filterMoodleBuddyKeys } from "../shared/helpers"
 
 let scanInProgress = true
 let courses = []
@@ -37,7 +37,7 @@ async function scanOverview() {
     return
   }
 
-  let courseNodes = overviewNode.querySelectorAll("[data-region='course-content']")
+  const courseNodes = overviewNode.querySelectorAll("[data-region='course-content']")
   if (courseNodes.length === 0) {
     // Check again if courses have not loaded yet
     setTimeout(scanOverview, 200)
@@ -108,15 +108,13 @@ browser.runtime.onMessage.addListener(async message => {
 
       browser.runtime.sendMessage({
         command: "scan-result",
-        courses: courses.map(c => {
-          return {
-            name: c.name,
-            link: c.link,
-            isNew: c.isFirstScan,
-            resourceNodes: c.resourceNodes.map(filterMoodleBuddyKeys),
-            ...c.resourceCounts,
-          }
-        }),
+        courses: courses.map(c => ({
+          name: c.name,
+          link: c.link,
+          isNew: c.isFirstScan,
+          resourceNodes: c.resourceNodes.map(filterMoodleBuddyKeys),
+          ...c.resourceCounts,
+        })),
       })
     }
 
@@ -148,19 +146,14 @@ browser.runtime.onMessage.addListener(async message => {
     const courseName = parser.parseCourseNameFromCoursePage(course.HTMLDocument)
     const courseShortcut = parser.parseCourseShortcut(course.HTMLDocument)
 
-    const downloadedResources = []
+    // Only download new resources
+    const downloadedResourceNodes = course.resourceNodes.filter(node => node.mb_isNewResource)
 
-    for (let i = 0; i < course.resourceNodes.length; i++) {
-      const node = course.resourceNodes[i]
+    downloadedResourceNodes.forEach(node => {
+      downloadResource(node, courseName, courseShortcut, options)
+    })
 
-      if (!node.mb_isNewResource) continue // Only download new resources
-
-      downloadedResources.push(node.href)
-
-      await downloadResource(node, courseName, courseShortcut, options)
-    }
-
-    await updateCourseResources(course.link, downloadedResources)
+    await updateCourseResources(course.link, downloadedResourceNodes)
 
     // Update course
     const scanResult = await scanCourse(course.link, course.HTMLDocument)
