@@ -64,6 +64,7 @@ export default {
   right: 20px;
   font-weight: bold;
   font-size: 16px;
+  padding: 5px;
 }
 
 .x-button:hover {
