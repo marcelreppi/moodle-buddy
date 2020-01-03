@@ -15,7 +15,11 @@ browser.runtime.onMessage.addListener(message => {
     const fileType = fileNameParts[fileNameParts.length - 1]
 
     if (message.useMoodleFileName) {
-      const moodleFileName = sanitizeFileName(message.moodleFileName)
+      let moodleFileName = sanitizeFileName(message.moodleFileName)
+      const moodleFileNameParts = moodleFileName.split(".")
+      if (moodleFileNameParts.length > 1) {
+        moodleFileName = moodleFileNameParts.slice(0, moodleFileNameParts.length - 1).join(".")
+      }
       fileName = `${moodleFileName}.${fileType}`
     }
 
