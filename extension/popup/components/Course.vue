@@ -101,6 +101,7 @@ export default {
       browser.tabs.create({
         url: link,
       })
+      sendEvent("go-to-course")
       window.close()
     },
     onDownloadClick(e, course) {
