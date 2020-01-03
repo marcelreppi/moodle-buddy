@@ -134,9 +134,9 @@ export default {
       resourceNodes: null,
       activityNodes: null,
       onlyNewResources: false,
-      useMoodleFilename: false,
-      prependCourseToFilename: false,
-      prependCourseShortcutToFilename: false,
+      useMoodleFileName: false,
+      prependCourseToFileName: false,
+      prependCourseShortcutToFileName: false,
       saveToFolder: true,
       downloadFiles: true,
       downloadFolders: true,
@@ -243,9 +243,9 @@ export default {
           skipFolders: !this.downloadFolders,
           onlyNewResources: this.onlyNewResources,
           saveToFolder: this.saveToFolder,
-          useMoodleFilename: this.useMoodleFilename,
-          prependCourseToFilename: this.prependCourseToFilename,
-          prependCourseShortcutToFilename: this.prependCourseShortcutToFilename,
+          useMoodleFileName: this.useMoodleFileName,
+          prependCourseToFileName: this.prependCourseToFileName,
+          prependCourseShortcutToFileName: this.prependCourseShortcutToFileName,
         },
       })
     },
@@ -292,9 +292,9 @@ export default {
 
     this.showDownloadOptions = this.options.showDownloadOptions
     this.saveToFolder = this.options.saveToFolder
-    this.useMoodleFilename = this.options.useMoodleFilename
-    this.prependCourseToFilename = this.options.prependCourseToFilename
-    this.prependCourseShortcutToFilename = this.options.prependCourseShortcutToFilename
+    this.useMoodleFileName = this.options.useMoodleFileName
+    this.prependCourseToFileName = this.options.prependCourseToFileName
+    this.prependCourseShortcutToFileName = this.options.prependCourseShortcutToFileName
 
     // Scan for resources
     browser.tabs.sendMessage(this.activeTab.id, {

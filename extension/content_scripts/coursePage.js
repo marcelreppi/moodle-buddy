@@ -5,7 +5,6 @@ import {
   updateCourseActivities,
 } from "./crawler"
 import { parseCourseNameFromCoursePage, parseCourseShortcut, parseCourseLink } from "./parser"
-import { filterMoodleBuddyKeys } from "../shared/helpers"
 
 let resourceNodes = null
 let resourceCounts = null
@@ -35,8 +34,8 @@ browser.runtime.onMessage.addListener(async message => {
 
     browser.runtime.sendMessage({
       command: "scan-result",
-      resourceNodes: resourceNodes.map(filterMoodleBuddyKeys),
-      activityNodes: activityNodes.map(filterMoodleBuddyKeys),
+      resourceNodes,
+      activityNodes,
       ...resourceCounts,
       ...activityCounts,
     })
@@ -58,9 +57,9 @@ browser.runtime.onMessage.addListener(async message => {
     const { options } = message
 
     const downloadedResourceNodes = resourceNodes.filter(n => {
-      if (options.skipFiles && n.mb_isFile) return false
-      if (options.skipFolders && n.mb_isFolder) return false
-      if (options.onlyNewResources && !n.mb_isNewResource) return false
+      if (options.skipFiles && n.isFile) return false
+      if (options.skipFolders && n.isFolder) return false
+      if (options.onlyNewResources && !n.isNewResource) return false
 
       return true
     })

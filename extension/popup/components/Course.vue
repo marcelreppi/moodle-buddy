@@ -25,11 +25,11 @@
         </div>
         <div v-if="showDetails" class="detail-container">
           <div v-for="(node, i) in allNewNodes" :key="i">
-            <span v-if="node.isFile" class="filename">- {{ node.filename }}</span>
-            <span v-if="node.isActivity" class="filename">- {{ node.activityName }}</span>
-            <span v-if="node.isFile">(File)</span>
-            <span v-if="node.isFolder">(Folder)</span>
-            <span v-if="node.isActivity">(Activity)</span>
+            <span v-if="node.isFile" class="filename">- {{ node.fileName }} (File)</span>
+            <span v-if="node.isFolder" class="filename">- {{ node.folderName }} (Folder)</span>
+            <span v-if="node.isActivity" class="filename">
+              - {{ node.activityName }} (Activity)
+            </span>
           </div>
         </div>
       </div>

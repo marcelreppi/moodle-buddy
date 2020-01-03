@@ -7,7 +7,6 @@ import {
   updateCourseActivities,
 } from "./crawler"
 import * as parser from "./parser"
-import { filterMoodleBuddyKeys } from "../shared/helpers"
 
 let scanInProgress = true
 let courses = []
@@ -73,7 +72,8 @@ function checkForUpdates() {
   // If there are no further updates reset the icon
   const noMoreUpdates = courses.every(c => {
     const { nNewFiles, nNewFolders } = c.resourceCounts
-    return nNewFiles + nNewFolders === 0
+    const { nNewActivities } = c.activityCounts
+    return nNewFiles + nNewFolders + nNewActivities === 0
   })
   if (noMoreUpdates) {
     browser.runtime.sendMessage({
@@ -117,8 +117,8 @@ browser.runtime.onMessage.addListener(async message => {
           name: c.name,
           link: c.link,
           isNew: c.isFirstScan,
-          resourceNodes: c.resourceNodes.map(filterMoodleBuddyKeys),
-          activityNodes: c.activityNodes.map(filterMoodleBuddyKeys),
+          resourceNodes: c.resourceNodes,
+          activityNodes: c.activityNodes,
           ...c.resourceCounts,
           ...c.activityCounts,
         })),
@@ -155,7 +155,7 @@ browser.runtime.onMessage.addListener(async message => {
     const courseShortcut = parser.parseCourseShortcut(course.HTMLDocument)
 
     // Only download new resources
-    const downloadedResourceNodes = course.resourceNodes.filter(node => node.mb_isNewResource)
+    const downloadedResourceNodes = course.resourceNodes.filter(node => node.isNewResource)
 
     downloadedResourceNodes.forEach(node => {
       downloadResource(node, courseName, courseShortcut, options)

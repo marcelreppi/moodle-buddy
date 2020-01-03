@@ -92,9 +92,9 @@ async function onTabInteraction(skipScan) {
 const defaultOptions = {
   saveToFolder: true,
   onlyNewResources: false,
-  useMoodleFilename: false,
-  prependCourseShortcutToFilename: false,
-  prependCourseToFilename: false,
+  useMoodleFileName: false,
+  prependCourseShortcutToFileName: false,
+  prependCourseToFileName: false,
   alwaysShowDetails: false,
   disableInteractionTracking: false,
   showDownloadOptions: false,
@@ -137,7 +137,6 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
 })
 
 browser.runtime.onMessage.addListener(async message => {
-  // console.log(message)
   if (message.command === "event") {
     sendEvent(message.event)
   }

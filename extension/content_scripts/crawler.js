@@ -1,24 +1,34 @@
 import { validURLRegex } from "../shared/helpers"
 import {
-  parseFilenameFromNode,
-  parseFilenameFromPluginfileURL,
+  parseFileNameFromNode,
+  parseFileNameFromPluginFileURL,
   parseActivityNameFromNode,
   parseActivityTypeFromNode,
 } from "./parser"
 
-const fileRegex = new RegExp(validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source, "i")
+const urlQuerySelector = location.hostname.replace(/\./g, "\\.")
 
-const folderRegex = new RegExp(validURLRegex + /\/mod\/folder\/view\.php\?id=[0-9]*/.source, "i")
+const fileRegex = new RegExp(validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source, "gi")
+const fileQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/resource]`
 
-const pluginfileRegex = new RegExp(
+// eslint-disable-next-line no-unused-vars
+const folderRegex = new RegExp(validURLRegex + /\/mod\/folder\/view\.php\?id=[0-9]*/.source, "gi")
+const folderQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/folder]`
+
+const pluginFileRegex = new RegExp(
   validURLRegex + /\/pluginfile\.php([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.source,
   "gi"
 )
+const pluginFileQuerySelector = `[href*=${urlQuerySelector}\\/pluginfile]`
 
+// eslint-disable-next-line no-unused-vars
 const activityRegex = new RegExp(
-  validURLRegex + /\/mod\/(?!resource|folder).*\/view\.php\?id=[0-9]*/.source,
-  "i"
+  validURLRegex + /\/mod\/(?!resource|folder)[A-z]*\/view\.php\?id=[0-9]*/.source,
+  "gi"
 )
+
+// Any link with /mod/xxx except /mod/resource and /mod/folder
+const activityQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/]:not(${fileQuerySelector}):not(${folderQuerySelector})`
 
 export async function scanCourse(courseLink, HTMLDocument) {
   // Variable prep
@@ -45,82 +55,117 @@ export async function scanCourse(courseLink, HTMLDocument) {
   const previousSeenResources = storedCourseData.seenResources || null
   const previousSeenActivities = storedCourseData.seenActivities || null
 
-  HTMLDocument.querySelector("#region-main")
-    .querySelectorAll("a")
-    .forEach(node => {
-      node.mb_isFile =
-        Boolean(node.href.match(fileRegex)) || Boolean(node.href.match(pluginfileRegex))
-      node.mb_isFolder = Boolean(node.href.match(folderRegex))
-      node.mb_isPluginfile = Boolean(node.href.match(pluginfileRegex))
+  const mainHTML = HTMLDocument.querySelector("#region-main")
+  const fileNodes = mainHTML.querySelectorAll(fileQuerySelector)
+  const pluginFileNodes = mainHTML.querySelectorAll(pluginFileQuerySelector)
+  const folderNodes = mainHTML.querySelectorAll(folderQuerySelector)
+  const actNodes = mainHTML.querySelectorAll(activityQuerySelector)
 
-      node.mb_isResource = node.mb_isFile || node.mb_isFolder
-      node.mb_isActivity = Boolean(node.href.match(activityRegex))
+  // console.log(fileNodes)
+  // console.log(folderNodes)
+  // console.log(pluginFileNodes)
+  // console.log(actNodes)
 
-      if (node.mb_isResource) {
-        resourceNodes.push(node)
+  nFiles += fileNodes.length
+  fileNodes.forEach(node => {
+    const resourceNode = {
+      href: node.href,
+      isFile: true,
+      isPluginFile: false,
+      fileName: parseFileNameFromNode(node),
+      isNewResource: null,
+    }
 
-        // Count resources
-        if (node.mb_isFile) nFiles++
-        if (node.mb_isFolder) nFolders++
+    if (previousSeenResources === null || previousSeenResources.includes(node.href)) {
+      // If course has never been scanned previousSeenResources don't exist
+      // Never treat a resource as new when the course is scanned for the first time
+      // because we're capturing the initial state of the course
+      resourceNode.isNewResource = false
+    } else {
+      nNewFiles++
+      resourceNode.isNewResource = true
+    }
 
-        // Check if they are new or not
-        if (previousSeenResources === null || previousSeenResources.includes(node.href)) {
-          // If course has never been scanned previousSeenResources don't exist
-          // Never treat a resource as new when the course is scanned for the first time
-          // because we're capturing the initial state of the course
-          node.mb_isNewResource = false
-        } else {
-          if (node.mb_isFile) nNewFiles++
-          if (node.mb_isFolder) nNewFolders++
-          node.mb_isNewResource = true
-        }
+    resourceNodes.push(resourceNode)
+  })
 
-        // Parse the filename
-        if (node.mb_isPluginfile) {
-          node.mb_filename = parseFilenameFromPluginfileURL(node.href)
-        } else {
-          node.mb_filename = parseFilenameFromNode(node)
-        }
-      }
+  nFiles += pluginFileNodes.length
+  pluginFileNodes.forEach(node => {
+    const resourceNode = {
+      href: node.href,
+      isFile: true,
+      isPluginFile: true,
+      fileName: parseFileNameFromPluginFileURL(node.href),
+      isNewResource: null,
+    }
 
-      if (node.mb_isActivity) {
-        activityNodes.push(node)
+    if (previousSeenResources === null || previousSeenResources.includes(node.href)) {
+      resourceNode.isNewResource = false
+    } else {
+      nNewFiles++
+      resourceNode.isNewResource = true
+    }
 
-        // Count the activities
-        nActivities++
+    resourceNodes.push(resourceNode)
+  })
 
-        // Check if they are new or not
-        if (previousSeenActivities === null || previousSeenActivities.includes(node.href)) {
-          node.mb_isNewActivity = false
-        } else {
-          nNewActivities++
-          node.mb_isNewActivity = true
-        }
+  nFolders += folderNodes.length
+  folderNodes.forEach(node => {
+    const resourceNode = {
+      href: node.href,
+      isFolder: true,
+      folderName: parseFileNameFromNode(node),
+      isNewResource: null,
+    }
 
-        // Parse their name
-        node.mb_activityName = parseActivityNameFromNode(node)
-        node.mb_activityType = parseActivityTypeFromNode(node)
-      }
-    })
+    if (previousSeenResources === null || previousSeenResources.includes(node.href)) {
+      resourceNode.isNewResource = false
+    } else {
+      nNewFolders++
+      resourceNode.isNewResource = true
+    }
+
+    resourceNodes.push(resourceNode)
+  })
+
+  nActivities += actNodes.length
+  actNodes.forEach(node => {
+    const activityNode = {
+      href: node.href,
+      isActivity: true,
+      activityName: parseActivityNameFromNode(node),
+      activityType: parseActivityTypeFromNode(node),
+      isNewActivity: null,
+    }
+
+    if (previousSeenActivities === null || previousSeenActivities.includes(node.href)) {
+      activityNode.isNewActivity = false
+    } else {
+      nNewActivities++
+      activityNode.isNewActivity = true
+    }
+
+    activityNodes.push(activityNode)
+  })
 
   if (localStorage[courseLink]) {
     await browser.storage.local.set({
       [courseLink]: {
         ...localStorage[courseLink],
-        seenResources: resourceNodes.filter(n => !n.mb_isNewResource).map(n => n.href),
-        newResources: resourceNodes.filter(n => n.mb_isNewResource).map(n => n.href),
-        seenActivities: activityNodes.filter(n => !n.mb_isNewActivity).map(n => n.href),
-        newActivities: activityNodes.filter(n => n.mb_isNewActivity).map(n => n.href),
+        seenResources: resourceNodes.filter(n => !n.isNewResource).map(n => n.href),
+        newResources: resourceNodes.filter(n => n.isNewResource).map(n => n.href),
+        seenActivities: activityNodes.filter(n => !n.isNewActivity).map(n => n.href),
+        newActivities: activityNodes.filter(n => n.isNewActivity).map(n => n.href),
       },
     })
   } else {
     // First time this course was scanned
     await browser.storage.local.set({
       [courseLink]: {
-        seenResources: resourceNodes.filter(n => !n.mb_isNewResource).map(n => n.href),
-        newResources: resourceNodes.filter(n => n.mb_isNewResource).map(n => n.href),
-        seenActivities: activityNodes.filter(n => !n.mb_isNewActivity).map(n => n.href),
-        newActivities: activityNodes.filter(n => n.mb_isNewActivity).map(n => n.href),
+        seenResources: resourceNodes.filter(n => !n.isNewResource).map(n => n.href),
+        newResources: resourceNodes.filter(n => n.isNewResource).map(n => n.href),
+        seenActivities: activityNodes.filter(n => !n.isNewActivity).map(n => n.href),
+        newActivities: activityNodes.filter(n => n.isNewActivity).map(n => n.href),
       },
     })
   }
@@ -224,13 +269,13 @@ export async function updateCourseActivities(courseLink) {
   return updatedCourseData
 }
 
-export async function downloadResource(HTMLNode, courseName, courseShortcut, options) {
-  if (HTMLNode.mb_isPluginfile) {
+export async function downloadResource(node, courseName, courseShortcut, options) {
+  if (node.isPluginFile) {
     browser.runtime.sendMessage({
       command: "download-file",
-      url: HTMLNode.href,
-      filename: parseFilenameFromPluginfileURL(HTMLNode.href),
-      moodleFilename: parseFilenameFromPluginfileURL(HTMLNode.href),
+      url: node.href,
+      fileName: parseFileNameFromPluginFileURL(node.href),
+      moodleFileName: parseFileNameFromPluginFileURL(node.href),
       courseName,
       courseShortcut,
       ...options,
@@ -239,20 +284,20 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
   }
 
   // Fetch the href to get the actual download URL
-  const res = await fetch(HTMLNode.href)
+  const res = await fetch(node.href)
 
   if (res.url.match(fileRegex)) {
     const body = await res.text()
     const parser = new DOMParser()
     const resHTML = parser.parseFromString(body, "text/html")
     const mainRegionHTML = resHTML.querySelector("#region-main").innerHTML
-    const link = mainRegionHTML.match(pluginfileRegex)[0]
+    const link = mainRegionHTML.match(pluginFileRegex)[0]
 
     browser.runtime.sendMessage({
       command: "download-file",
       url: link,
-      filename: parseFilenameFromPluginfileURL(link),
-      moodleFilename: parseFilenameFromPluginfileURL(link),
+      fileName: parseFileNameFromPluginFileURL(link),
+      moodleFileName: parseFileNameFromPluginFileURL(link),
       courseName,
       courseShortcut,
       ...options,
@@ -261,13 +306,13 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
     return
   }
 
-  if (HTMLNode.mb_isFile) {
+  if (node.isFile) {
     // Content script can't access downloads API -> send msg to background script
     browser.runtime.sendMessage({
       command: "download-file",
       url: res.url,
-      filename: parseFilenameFromPluginfileURL(res.url),
-      moodleFilename: parseFilenameFromNode(HTMLNode),
+      fileName: parseFileNameFromPluginFileURL(res.url),
+      moodleFileName: node.fileName,
       courseName,
       courseShortcut,
       ...options,
@@ -275,7 +320,7 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
     return
   }
 
-  if (HTMLNode.mb_isFolder) {
+  if (node.isFolder) {
     const body = await res.text()
     const parser = new DOMParser()
     const resHTML = parser.parseFromString(body, "text/html")
@@ -300,7 +345,7 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
       browser.runtime.sendMessage({
         command: "download-folder",
         url: downloadURL,
-        folderName: parseFilenameFromNode(HTMLNode),
+        folderName: node.folderName,
         courseName,
         courseShortcut,
         ...options,
@@ -311,8 +356,8 @@ export async function downloadResource(HTMLNode, courseName, courseShortcut, opt
         browser.runtime.sendMessage({
           command: "download-folder-file",
           url: fileNode.href,
-          filename: parseFilenameFromPluginfileURL(fileNode.href),
-          folderName: parseFilenameFromNode(HTMLNode),
+          fileName: parseFileNameFromPluginFileURL(fileNode.href),
+          folderName: node.folderName,
           courseName,
           courseShortcut,
           ...options,

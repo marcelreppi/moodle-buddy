@@ -24,13 +24,13 @@ export function parseCourseLink(htmlString) {
   return htmlString.match(coursePageRegex)[0]
 }
 
-export function parseFilenameFromNode(aTag) {
+export function parseFileNameFromNode(aTag) {
   // Files or Folders
   if (aTag.querySelector(".instancename")) {
     return aTag.querySelector(".instancename").firstChild.textContent
   }
 
-  // Pluginfiles
+  // PluginFiles
   if (aTag.querySelector(".fp-filename")) {
     return aTag.querySelector(".fp-filename").textContent
   }
@@ -38,12 +38,14 @@ export function parseFilenameFromNode(aTag) {
   return ""
 }
 
-export function parseFilenameFromPluginfileURL(url) {
-  return url
+export function parseFileNameFromPluginFileURL(url) {
+  const fileName = url
     .split("/")
     .pop() // Take last part of URL
     .split("?")
     .shift() // Take everything before query parameters
+
+  return decodeURI(fileName)
 }
 
 export function parseActivityNameFromNode(node) {

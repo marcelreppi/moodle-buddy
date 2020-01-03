@@ -18,16 +18,6 @@ export const coursePageRegex = new RegExp(
   "i"
 )
 
-export function filterMoodleBuddyKeys(obj) {
-  const moodleBuddyKeys = Object.keys(obj).filter(k => k.startsWith("mb_"))
-  const newObj = {}
-  // Remove moodle buddy key indicator mb_
-  moodleBuddyKeys.forEach(k => {
-    newObj[k.substring(3)] = obj[k]
-  })
-  return newObj
-}
-
 export function isFirefox() {
   return typeof InstallTrigger !== "undefined"
 }

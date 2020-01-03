@@ -5,13 +5,13 @@
       <div v-if="files.length > 0">
         <div class="detail-section-title">Files</div>
         <div class="details">
-          <div v-for="(file, i) in files" :key="i">- {{ file.filename }}</div>
+          <div v-for="(file, i) in files" :key="i">- {{ file.fileName }}</div>
         </div>
       </div>
       <div v-if="folders.length > 0">
         <div class="detail-section-title">Folders</div>
         <div class="details">
-          <div v-for="(folder, i) in folders" :key="i">- {{ folder.filename }}</div>
+          <div v-for="(folder, i) in folders" :key="i">- {{ folder.folderName }}</div>
         </div>
       </div>
     </div>
@@ -50,11 +50,11 @@ export default {
   opacity: 98%;
   display: flex;
   flex-direction: column;
+  padding: 7px 0px;
 }
 
 .detail-container {
-  margin: 5px 0px;
-  padding: 15px 30px 0px 30px;
+  padding: 15px 30px 15px 30px;
   overflow-y: auto;
 }
 
