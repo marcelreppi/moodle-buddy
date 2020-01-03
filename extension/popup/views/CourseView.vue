@@ -261,6 +261,12 @@ export default {
         }
 
         this.loading = false
+
+        if (this.nNewActivities > 0) {
+          browser.tabs.sendMessage(this.activeTab.id, {
+            command: "update-activities",
+          })
+        }
       }
     })
 
@@ -273,12 +279,6 @@ export default {
     // Scan for resources
     browser.tabs.sendMessage(this.activeTab.id, {
       command: "scan",
-    })
-
-    window.addEventListener("unload", () => {
-      browser.tabs.sendMessage(this.activeTab.id, {
-        command: "update-activities",
-      })
     })
   },
 }

@@ -8,9 +8,9 @@
       <li>on a supported Moodle webpage</li>
     </ul>
     <p>
-      Click
+      See
       <span class="link" @click="openInfoPage">here</span>
-      to see where Moodle Buddy is available.
+      which Moodle pages are supported.
     </p>
   </div>
 </template>

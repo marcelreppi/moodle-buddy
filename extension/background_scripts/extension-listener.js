@@ -139,6 +139,7 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "event") {
     sendEvent(message.event)
+    return
   }
 
   if (message.command === "set-icon-new") {
@@ -147,6 +148,7 @@ browser.runtime.onMessage.addListener(async message => {
         48: "/icons/icon48-blue.png",
       },
     })
+    return
   }
 
   if (message.command === "set-icon-normal") {
@@ -155,5 +157,6 @@ browser.runtime.onMessage.addListener(async message => {
         48: "/icons/icon48.png",
       },
     })
+    return
   }
 })
