@@ -50,31 +50,20 @@ async function onTabInteraction(skipScan) {
   // console.log("check tab")
 
   const activeTab = await getActiveTab()
-  const coursePageMatch = activeTab.url.match(coursePageRegex)
-  const startPageMatch = activeTab.url.match(startingPageRegex)
-  if (coursePageMatch) {
-    // Set to normal active icon
+  const coursePageMatch = Boolean(activeTab.url.match(coursePageRegex))
+  const startPageMatch = Boolean(activeTab.url.match(startingPageRegex))
+  if (coursePageMatch || startPageMatch) {
+    // Set to normal icon
     browser.browserAction.setIcon({
       path: {
         16: "/icons/icon16.png",
         48: "/icons/icon48.png",
       },
     })
+
     if (skipScan) return
-    // Icon will be updated if updates are there
-    browser.tabs.sendMessage(activeTab.id, {
-      command: "scan",
-    })
-  } else if (startPageMatch) {
-    // Set normal icon as default
-    browser.browserAction.setIcon({
-      path: {
-        16: "/icons/icon16.png",
-        48: "/icons/icon48.png",
-      },
-    })
-    if (skipScan) return
-    // Icon will be updated if updates are there
+
+    // Icon will be updated from the crawler if updates are there
     browser.tabs.sendMessage(activeTab.id, {
       command: "scan",
     })
