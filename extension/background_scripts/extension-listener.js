@@ -90,14 +90,14 @@ async function onTabInteraction(skipScan) {
 }
 
 const defaultOptions = {
-  saveToFolder: true,
   onlyNewResources: false,
-  useMoodleFileName: false,
+  saveToFolder: true,
+  useMoodleFileName: true,
+  showDownloadOptions: true,
   prependCourseShortcutToFileName: false,
   prependCourseToFileName: false,
   alwaysShowDetails: false,
   disableInteractionTracking: false,
-  showDownloadOptions: false,
 }
 
 browser.runtime.onInstalled.addListener(details => {

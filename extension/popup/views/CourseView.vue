@@ -3,10 +3,11 @@
     <div v-if="loading">Scanning course...</div>
     <div v-else class="content-container">
       <div v-if="showNewActivityInfo" id="new-activities">
-        <span>The following activites were added to the course:</span>
+        <span>The following activities were added to the course:</span>
         <div class="bold" v-for="(node, i) in newActivities" :key="i">
           {{ node.activityName }}
         </div>
+        <hr />
       </div>
       <div class="resource-info">
         <span>
@@ -64,32 +65,16 @@
           :toggle-details="toggleDetails"
         />
 
-        <button class="action marginize" @click="toggleDownloadOptions">
-          {{ showDownloadOptions ? "Hide" : "Show" }} download options
-        </button>
-
         <div v-if="showDownloadOptions" class="marginize">
           <div>
             <label>
-              <input v-model="saveToFolder" type="checkbox" />
-              <span class="checkbox-label">Save resources inside a folder</span>
-            </label>
-          </div>
-          <div>
-            <label>
-              <input v-model="useMoodleFilename" type="checkbox" />
-              <span class="checkbox-label">Use Moodle file name as actual file name</span>
-            </label>
-          </div>
-          <div>
-            <label>
-              <input v-model="prependCourseShortcutToFilename" type="checkbox" />
+              <input v-model="prependCourseShortcutToFileName" type="checkbox" />
               <span class="checkbox-label">Prepend course shortcut to each file name</span>
             </label>
           </div>
           <div>
             <label>
-              <input v-model="prependCourseToFilename" type="checkbox" />
+              <input v-model="prependCourseToFileName" type="checkbox" />
               <span class="checkbox-label">Prepend course name to each file name</span>
             </label>
           </div>
@@ -142,7 +127,7 @@ export default {
       downloadFolders: true,
       disableDownload: false,
       showDetails: false,
-      showDownloadOptions: false,
+      showDownloadOptions: true,
     }
   },
   computed: {
@@ -208,14 +193,6 @@ export default {
     downloadFolders() {
       this.disableDownload = !this.downloadFiles && !this.downloadFolders
     },
-    showDownloadOptions() {
-      browser.storage.local.set({
-        options: {
-          ...this.options,
-          showDownloadOptions: this.showDownloadOptions,
-        },
-      })
-    },
   },
   methods: {
     handleCheckboxes() {
@@ -261,9 +238,6 @@ export default {
     },
     toggleDetails() {
       this.showDetails = !this.showDetails
-    },
-    toggleDownloadOptions() {
-      this.showDownloadOptions = !this.showDownloadOptions
     },
     showOptionsPage() {
       browser.runtime.openOptionsPage()
@@ -312,9 +286,17 @@ export default {
 
 <style scoped>
 #new-activities {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  padding: 0px 30px;
-  margin-bottom: 10px;
+  padding: 0px 10px;
+}
+
+#new-activities > hr {
+  margin: 10px 0px;
+  color: rgba(240, 240, 240, 0.347);
+  width: 110%;
 }
 
 .download-button {

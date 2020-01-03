@@ -12,18 +12,24 @@
     <form>
       <div class="form-section">Default download options</div>
       <label>
+        <input type="checkbox" id="onlyNewResources" />
+        <span>When new resources are available only download the new ones</span>
+      </label>
+      <label>
         <input type="checkbox" id="saveToFolder" />
         <span>
           Save all downloaded resources inside a folder (course name is used as folder name)
         </span>
       </label>
       <label>
-        <input type="checkbox" id="onlyNewResources" />
-        <span>When new resources are available only download the new ones</span>
-      </label>
-      <label>
         <input type="checkbox" id="useMoodleFileName" />
         <span>Use Moodle file name as actual file name</span>
+      </label>
+      <label>
+        <input type="checkbox" id="showDownloadOptions" />
+        <span>
+          Show the download options to modify the filename
+        </span>
       </label>
       <label>
         <input type="checkbox" id="prependCourseShortcutToFileName" />
