@@ -45,7 +45,8 @@
       {
         "props": false
       }
-    ]
+    ],
+    "no-useless-return": 0
   },
   "globals": {
     "browser": "readonly"
