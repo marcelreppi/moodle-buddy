@@ -1,12 +1,8 @@
 node_modules
 .cache
 build
-excel
-raw
 
 *.rest
-*.csv
 *.zip
 *.txt
-*.stackdump
 *.env
