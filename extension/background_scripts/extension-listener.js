@@ -1,4 +1,4 @@
-import { isFirefox, getActiveTab, startingPageRegex, coursePageRegex } from "../shared/helpers"
+import { isFirefox } from "../shared/helpers"
 
 function uuidv4() {
   return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
@@ -46,38 +46,6 @@ async function sendEvent(event) {
     .catch(error => console.log(error))
 }
 
-async function onTabInteraction(skipScan) {
-  // console.log("check tab")
-
-  const activeTab = await getActiveTab()
-  const coursePageMatch = Boolean(activeTab.url.match(coursePageRegex))
-  const startPageMatch = Boolean(activeTab.url.match(startingPageRegex))
-  if (coursePageMatch || startPageMatch) {
-    // Set to normal icon
-    browser.browserAction.setIcon({
-      path: {
-        16: "/icons/icon16.png",
-        48: "/icons/icon48.png",
-      },
-    })
-
-    if (skipScan) return
-
-    // Icon will be updated from the crawler if updates are there
-    browser.tabs.sendMessage(activeTab.id, {
-      command: "scan",
-    })
-  } else {
-    // Set to unavailable icon
-    browser.browserAction.setIcon({
-      path: {
-        16: "/icons/icon16-gray.png",
-        48: "/icons/icon48-gray.png",
-      },
-    })
-  }
-}
-
 const defaultOptions = {
   onlyNewResources: false,
   saveToFolder: true,
@@ -108,7 +76,6 @@ browser.runtime.onInstalled.addListener(details => {
           options: defaultOptions,
         })
       }
-      onTabInteraction()
       sendEvent("update")
       break
     default:
@@ -116,36 +83,26 @@ browser.runtime.onInstalled.addListener(details => {
   }
 })
 
-browser.tabs.onActivated.addListener(() => onTabInteraction())
-browser.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
-  const { status, url } = changeInfo
-  if (status && status === "loading" && url) {
-    // Skip scan because this update is a navigation anyways
-    onTabInteraction(true)
-  }
-})
-
-browser.runtime.onMessage.addListener(async message => {
+browser.runtime.onMessage.addListener(async (message, sender) => {
   if (message.command === "event") {
     sendEvent(message.event)
     return
   }
 
-  if (message.command === "set-icon-new") {
-    browser.browserAction.setIcon({
-      path: {
-        48: "/icons/icon48-blue.png",
-      },
-    })
-    return
-  }
+  if (message.command === "set-icon") {
+    const iconTypes = {
+      gray: "-gray",
+      normal: "",
+      new: "-blue",
+    }
 
-  if (message.command === "set-icon-normal") {
     browser.browserAction.setIcon({
       path: {
-        48: "/icons/icon48.png",
+        48: `/icons/icon48${iconTypes[message.iconType]}.png`,
       },
+      tabId: sender.tab.id,
     })
+
     return
   }
 })

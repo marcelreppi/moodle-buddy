@@ -77,11 +77,13 @@ function checkForUpdates() {
   })
   if (noMoreUpdates) {
     browser.runtime.sendMessage({
-      command: "set-icon-normal",
+      command: "set-icon",
+      iconType: "normal",
     })
   } else {
     browser.runtime.sendMessage({
-      command: "set-icon-new",
+      command: "set-icon",
+      iconType: "new",
     })
   }
 }

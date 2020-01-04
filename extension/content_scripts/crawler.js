@@ -172,7 +172,8 @@ export async function scanCourse(courseLink, HTMLDocument) {
 
   if (nNewFiles + nNewFolders + nNewActivities > 0) {
     browser.runtime.sendMessage({
-      command: "set-icon-new",
+      command: "set-icon",
+      iconType: "new",
     })
   }
 
@@ -216,11 +217,13 @@ export async function updateCourseResources(courseLink, downloadedResourceNodes)
 
   if (updatedNewResources.length > 0) {
     browser.runtime.sendMessage({
-      command: "set-icon-new",
+      command: "set-icon",
+      iconType: "new",
     })
   } else {
     browser.runtime.sendMessage({
-      command: "set-icon-normal",
+      command: "set-icon",
+      iconType: "normal",
     })
   }
 
@@ -248,11 +251,13 @@ export async function updateCourseActivities(courseLink) {
 
   if (storedCourseData.newResources.length > 0) {
     browser.runtime.sendMessage({
-      command: "set-icon-new",
+      command: "set-icon",
+      iconType: "new",
     })
   } else {
     browser.runtime.sendMessage({
-      command: "set-icon-normal",
+      command: "set-icon",
+      iconType: "normal",
     })
   }
 

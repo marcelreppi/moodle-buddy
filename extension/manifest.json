@@ -9,7 +9,13 @@
     "48": "/icons/icon48.png",
     "128": "/icons/icon128.png"
   },
-  "permissions": ["<all_urls>", "tabs", "downloads", "storage"],
+  "permissions": [
+    "http://*/*",
+    "https://*/*",
+    "activeTab",
+    "downloads",
+    "storage"
+  ],
   "browser_action": {
     "default_icon": {
       "16": "/icons/icon16-gray.png",
@@ -21,16 +27,29 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["/shared/browser-polyfill.js"]
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "/shared/browser-polyfill.js",
+        "/content_scripts/detector.js"
+      ]
     },
     {
-      "matches": ["*://*/course/view.php?id=*"],
-      "js": ["/content_scripts/coursePage.js"]
+      "matches": [
+        "*://*/course/view.php?id=*"
+      ],
+      "js": [
+        "/content_scripts/course-page.js"
+      ]
     },
     {
-      "matches": ["*://*/my*"],
-      "js": ["/content_scripts/startPage.js"]
+      "matches": [
+        "*://*/my*"
+      ],
+      "js": [
+        "/content_scripts/start-page.js"
+      ]
     }
   ],
   "background": {
