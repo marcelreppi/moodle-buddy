@@ -238,6 +238,10 @@ export default {
     },
     toggleDetails() {
       this.showDetails = !this.showDetails
+
+      if (this.showDetails) {
+        sendEvent("show-details-course-page")
+      }
     },
     showOptionsPage() {
       browser.runtime.openOptionsPage()

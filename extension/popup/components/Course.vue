@@ -125,6 +125,10 @@ export default {
     },
     onDetailClick() {
       this.showDetails = !this.showDetails
+
+      if (this.showDetails) {
+        sendEvent("show-details-start-page")
+      }
     },
   },
   mounted() {
