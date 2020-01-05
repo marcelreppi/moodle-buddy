@@ -1,4 +1,4 @@
-import { coursePageRegex } from "../shared/helpers"
+import { coursePageRegex } from "./helpers"
 
 export function parseCourseNameFromCoursePage(document) {
   return document.querySelector(".page-header-headings").children[0].textContent

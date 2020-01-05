@@ -1,32 +1,14 @@
-import { validURLRegex } from "../shared/helpers"
 import {
   parseFileNameFromNode,
   parseFileNameFromPluginFileURL,
   parseActivityNameFromNode,
   parseActivityTypeFromNode,
-} from "./parser"
+} from "../shared/parser"
 
 const urlQuerySelector = location.hostname.replace(/\./g, "\\.")
-
-const fileRegex = new RegExp(validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source, "gi")
 const fileQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/resource]`
-
-// eslint-disable-next-line no-unused-vars
-const folderRegex = new RegExp(validURLRegex + /\/mod\/folder\/view\.php\?id=[0-9]*/.source, "gi")
 const folderQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/folder]`
-
-const pluginFileRegex = new RegExp(
-  validURLRegex + /\/pluginfile\.php([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.source,
-  "gi"
-)
 const pluginFileQuerySelector = `[href*=${urlQuerySelector}\\/pluginfile]`
-
-// eslint-disable-next-line no-unused-vars
-const activityRegex = new RegExp(
-  validURLRegex + /\/mod\/(?!resource|folder)[A-z]*\/view\.php\?id=[0-9]*/.source,
-  "gi"
-)
-
 // Any link with /mod/xxx except /mod/resource and /mod/folder
 const activityQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/]:not(${fileQuerySelector}):not(${folderQuerySelector})`
 
@@ -272,102 +254,4 @@ export async function updateCourseActivities(courseLink) {
   })
 
   return updatedCourseData
-}
-
-export async function downloadResource(node, courseName, courseShortcut, options) {
-  if (node.isPluginFile) {
-    browser.runtime.sendMessage({
-      command: "download-file",
-      url: node.href,
-      fileName: parseFileNameFromPluginFileURL(node.href),
-      moodleFileName: parseFileNameFromPluginFileURL(node.href),
-      courseName,
-      courseShortcut,
-      ...options,
-    })
-    return
-  }
-
-  // Fetch the href to get the actual download URL
-  const res = await fetch(node.href)
-
-  if (res.url.match(fileRegex)) {
-    const body = await res.text()
-    const parser = new DOMParser()
-    const resHTML = parser.parseFromString(body, "text/html")
-    const mainRegionHTML = resHTML.querySelector("#region-main").innerHTML
-    const link = mainRegionHTML.match(pluginFileRegex)[0]
-
-    browser.runtime.sendMessage({
-      command: "download-file",
-      url: link,
-      fileName: parseFileNameFromPluginFileURL(link),
-      moodleFileName: parseFileNameFromPluginFileURL(link),
-      courseName,
-      courseShortcut,
-      ...options,
-    })
-
-    return
-  }
-
-  if (node.isFile) {
-    // Content script can't access downloads API -> send msg to background script
-    browser.runtime.sendMessage({
-      command: "download-file",
-      url: res.url,
-      fileName: parseFileNameFromPluginFileURL(res.url),
-      moodleFileName: node.fileName,
-      courseName,
-      courseShortcut,
-      ...options,
-    })
-    return
-  }
-
-  if (node.isFolder) {
-    const body = await res.text()
-    const parser = new DOMParser()
-    const resHTML = parser.parseFromString(body, "text/html")
-
-    // Two options here
-    // 1. "Download Folder" button is shown --> Download zip via button
-    // 2. "Download Folder" button is hidden --> Download all files separately
-
-    const downloadButtonVisible =
-      resHTML.querySelector(
-        `form[action="https://${window.location.hostname}/mod/folder/download_folder.php"]`
-      ) !== null
-
-    if (downloadButtonVisible) {
-      const downloadIDTag = resHTML.querySelector("input[name='id']")
-
-      if (downloadIDTag === null) return
-
-      const downloadURL = `https://${
-        window.location.hostname
-      }/mod/folder/download_folder.php?id=${downloadIDTag.getAttribute("value")}`
-      browser.runtime.sendMessage({
-        command: "download-folder",
-        url: downloadURL,
-        folderName: node.folderName,
-        courseName,
-        courseShortcut,
-        ...options,
-      })
-    } else {
-      const fileNodes = resHTML.querySelectorAll("a[href$='forcedownload=1'") // All a tags whose href attribute ends with forcedownload=1
-      fileNodes.forEach(fileNode => {
-        browser.runtime.sendMessage({
-          command: "download-folder-file",
-          url: fileNode.href,
-          fileName: parseFileNameFromPluginFileURL(fileNode.href),
-          folderName: node.folderName,
-          courseName,
-          courseShortcut,
-          ...options,
-        })
-      })
-    }
-  }
 }

@@ -46,7 +46,8 @@
         "props": false
       }
     ],
-    "no-useless-return": 0
+    "no-useless-return": 0,
+    "no-restricted-syntax": 0
   },
   "globals": {
     "browser": "readonly"

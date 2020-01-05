@@ -1,10 +1,9 @@
+import { scanCourse, updateCourseResources, updateCourseActivities } from "./crawler"
 import {
-  scanCourse,
-  downloadResource,
-  updateCourseResources,
-  updateCourseActivities,
-} from "./crawler"
-import { parseCourseNameFromCoursePage, parseCourseShortcut, parseCourseLink } from "./parser"
+  parseCourseNameFromCoursePage,
+  parseCourseShortcut,
+  parseCourseLink,
+} from "../shared/parser"
 
 let resourceNodes = null
 let resourceCounts = null
@@ -56,7 +55,7 @@ browser.runtime.onMessage.addListener(async message => {
   if (message.command === "crawl") {
     const { options } = message
 
-    const downloadedResourceNodes = resourceNodes.filter(n => {
+    const downloadNodes = resourceNodes.filter(n => {
       if (options.skipFiles && n.isFile) return false
       if (options.skipFolders && n.isFolder) return false
       if (options.onlyNewResources && !n.isNewResource) return false
@@ -64,10 +63,14 @@ browser.runtime.onMessage.addListener(async message => {
       return true
     })
 
-    downloadedResourceNodes.forEach(node => {
-      downloadResource(node, courseName, courseShortcut, options)
+    browser.runtime.sendMessage({
+      command: "download",
+      resources: downloadNodes,
+      courseName,
+      courseShortcut,
+      options,
     })
 
-    await updateCourseResources(courseLink, downloadedResourceNodes)
+    await updateCourseResources(courseLink, downloadNodes)
   }
 })

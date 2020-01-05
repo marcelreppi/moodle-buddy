@@ -1,12 +1,7 @@
 import shajs from "sha.js"
 
-import {
-  scanCourse,
-  downloadResource,
-  updateCourseResources,
-  updateCourseActivities,
-} from "./crawler"
-import * as parser from "./parser"
+import { scanCourse, updateCourseResources, updateCourseActivities } from "./crawler"
+import * as parser from "../shared/parser"
 
 let scanInProgress = true
 let courses = []
@@ -157,13 +152,17 @@ browser.runtime.onMessage.addListener(async message => {
     const courseShortcut = parser.parseCourseShortcut(course.HTMLDocument)
 
     // Only download new resources
-    const downloadedResourceNodes = course.resourceNodes.filter(node => node.isNewResource)
+    const downloadNodes = course.resourceNodes.filter(node => node.isNewResource)
 
-    downloadedResourceNodes.forEach(node => {
-      downloadResource(node, courseName, courseShortcut, options)
+    browser.runtime.sendMessage({
+      command: "download",
+      resources: downloadNodes,
+      courseName,
+      courseShortcut,
+      options,
     })
 
-    await updateCourseResources(course.link, downloadedResourceNodes)
+    await updateCourseResources(course.link, downloadNodes)
     await updateCourseActivities(course.link)
 
     // Update course
