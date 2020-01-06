@@ -27,6 +27,7 @@ async function sendEvent(event) {
       event,
       browser: isFirefox() ? "firefox" : "chrome",
       browserId,
+      dev: process.env.NODE_ENV === "development",
     })
   }
 

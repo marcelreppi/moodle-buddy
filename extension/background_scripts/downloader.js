@@ -2,6 +2,7 @@ const { parseFileNameFromPluginFileURL } = require("../shared/parser")
 const { fileRegex, pluginFileRegex, validURLRegex } = require("../shared/helpers")
 
 const inProgressDownloads = new Set()
+const finishedDownloads = new Set()
 let downloadFileCount = 0
 let downloadByteCount = 0
 
@@ -125,20 +126,60 @@ async function downloadFolder(node, courseName, courseShortcut, options) {
   }
 }
 
+async function sendDownloadData(data) {
+  const { options } = await browser.storage.local.get("options")
+
+  if (options.disableInteractionTracking) {
+    console.log("Tracking disabled!")
+    return
+  }
+
+  if (!process.env.API_URL || !process.env.API_KEY) {
+    return
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    console.log({
+      event: "download-data",
+      fileCount: data.fileCount,
+      byteCount: data.byteCount,
+      dev: process.env.NODE_ENV === "development",
+    })
+  }
+
+  fetch(process.env.API_URL, {
+    method: "POST",
+    headers: {
+      "X-API-Key": process.env.API_KEY,
+    },
+    body: JSON.stringify({
+      event: "download-data",
+      fileCount: data.fileCount,
+      byteCount: data.byteCount,
+      dev: process.env.NODE_ENV === "development",
+    }),
+  })
+    // .then(res => console.info(res))
+    .catch(error => console.log(error))
+}
+
 browser.downloads.onChanged.addListener(async downloadDelta => {
   const { state } = downloadDelta
   if (state && state.current === "complete") {
-    console.log(inProgressDownloads.has(downloadDelta.id))
     const downloadItem = await browser.downloads.search({ id: downloadDelta.id })
-    downloadFileCount++
     downloadByteCount += downloadItem[0].fileSize
     inProgressDownloads.delete(downloadDelta.id)
+    finishedDownloads.add(downloadDelta.id)
 
-    if (inProgressDownloads.size === 0) {
-      console.log(downloadFileCount)
-      console.log(downloadByteCount)
+    if (finishedDownloads.size === downloadFileCount) {
+      sendDownloadData({
+        fileCount: downloadFileCount,
+        byteCount: downloadByteCount,
+      })
+
       downloadFileCount = 0
       downloadByteCount = 0
+      finishedDownloads.clear()
     }
   }
 })
@@ -149,6 +190,7 @@ browser.runtime.onMessage.addListener(async message => {
     const courseShortcut = sanitizeFileName(message.courseShortcut, "_")
 
     for (const node of message.resources) {
+      downloadFileCount++
       if (node.isPluginFile) {
         downloadPluginFile(node, courseName, courseShortcut, message.options)
       } else if (node.isFile) {
