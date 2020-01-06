@@ -47,7 +47,14 @@
       }
     ],
     "no-useless-return": 0,
-    "no-restricted-syntax": 0
+    "no-restricted-syntax": 0,
+    "no-unused-vars": [
+      1,
+      {
+        "ignoreSiblings": true,
+        "argsIgnorePattern": "res|next|^err|reject|event"
+      }
+    ]
   },
   "globals": {
     "browser": "readonly"
