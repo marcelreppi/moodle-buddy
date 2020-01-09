@@ -13,7 +13,7 @@ export function isFirefox() {
   return typeof InstallTrigger !== "undefined"
 }
 
-export function updateIcon(...courses) {
+export function updateIconFromCourses(...courses) {
   const courseList = courses.flat()
   const nUpdates = courseList.reduce((sum, c) => {
     const { nNewFiles, nNewFolders } = c.resourceCounts

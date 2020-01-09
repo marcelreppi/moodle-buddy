@@ -97,9 +97,6 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
       new: "-blue",
     }
 
-    // const currentBadgeText = await browser.browserAction.getBadgeText({
-    //   tabId: sender.tab.id,
-    // })
     const currentBadgeText = ""
     browser.browserAction.setBadgeText({
       text: `${

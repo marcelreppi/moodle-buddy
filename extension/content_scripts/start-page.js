@@ -1,7 +1,7 @@
 import shajs from "sha.js"
 
 import { parseCourseLink } from "../shared/parser"
-import { updateIcon } from "../shared/helpers"
+import { updateIconFromCourses } from "../shared/helpers"
 import Course from "../models/Course"
 
 let scanInProgress = true
@@ -57,7 +57,7 @@ async function scanOverview() {
       courses.push(course)
     }
 
-    updateIcon(courses)
+    updateIconFromCourses(courses)
     scanInProgress = false
   }
 }
@@ -110,7 +110,7 @@ browser.runtime.onMessage.addListener(async message => {
     await course.updateStoredResources()
     await course.updateStoredActivities()
     await course.scan()
-    updateIcon(courses)
+    updateIconFromCourses(courses)
   }
 
   if (message.command === "crawl") {
@@ -134,6 +134,6 @@ browser.runtime.onMessage.addListener(async message => {
     await course.updateStoredResources(downloadNodes)
     await course.updateStoredActivities()
     await course.scan()
-    updateIcon(courses)
+    updateIconFromCourses(courses)
   }
 })

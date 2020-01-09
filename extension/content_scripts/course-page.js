@@ -1,5 +1,5 @@
 import { parseCourseLink } from "../shared/parser"
-import { updateIcon } from "../shared/helpers"
+import { updateIconFromCourses } from "../shared/helpers"
 import Course from "../models/Course"
 
 const courseLink = parseCourseLink(location.href)
@@ -9,13 +9,13 @@ const course = new Course(courseLink, document)
 
 // Initial scan
 course.scan().then(() => {
-  updateIcon(course)
+  updateIconFromCourses(course)
 })
 
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "scan") {
     await course.scan()
-    updateIcon(course)
+    updateIconFromCourses(course)
 
     browser.runtime.sendMessage({
       command: "scan-result",
@@ -31,14 +31,14 @@ browser.runtime.onMessage.addListener(async message => {
     await course.updateStoredResources()
     await course.updateStoredActivities()
     await course.scan()
-    updateIcon(course)
+    updateIconFromCourses(course)
     return
   }
 
   if (message.command === "update-activities") {
     await course.updateStoredActivities()
     await course.scan()
-    updateIcon(course)
+    updateIconFromCourses(course)
     return
   }
 
@@ -64,6 +64,6 @@ browser.runtime.onMessage.addListener(async message => {
     console.log(await course.updateStoredResources(downloadNodes))
     await course.scan()
     console.log(course)
-    updateIcon(course)
+    updateIconFromCourses(course)
   }
 })
