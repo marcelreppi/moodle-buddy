@@ -97,6 +97,23 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
       new: "-blue",
     }
 
+    // const currentBadgeText = await browser.browserAction.getBadgeText({
+    //   tabId: sender.tab.id,
+    // })
+    const currentBadgeText = ""
+    browser.browserAction.setBadgeText({
+      text: `${
+        currentBadgeText === "" ? message.text : parseFloat(currentBadgeText) + message.text
+      }`,
+      tabId: sender.tab.id,
+    })
+    browser.browserAction.setBadgeBackgroundColor({
+      color: "#555555",
+      tabId: sender.tab.id,
+    })
+
+    if (message.iconType === "new") return
+
     browser.browserAction.setIcon({
       path: {
         48: `/icons/icon48${iconTypes[message.iconType]}.png`,

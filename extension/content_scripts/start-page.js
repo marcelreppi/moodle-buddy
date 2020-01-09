@@ -1,7 +1,8 @@
 import shajs from "sha.js"
 
-import { scanCourse, updateCourseResources, updateCourseActivities } from "./crawler"
-import * as parser from "../shared/parser"
+import { parseCourseLink } from "../shared/parser"
+import { updateIcon } from "../shared/helpers"
+import Course from "../models/Course"
 
 let scanInProgress = true
 let courses = []
@@ -46,40 +47,18 @@ async function scanOverview() {
     const domParser = new DOMParser()
     for (let i = 0; i < courseNodes.length; i++) {
       const node = courseNodes[i]
-      const courseLink = parser.parseCourseLink(node.innerHTML)
+      const courseLink = parseCourseLink(node.innerHTML)
       const res = await fetch(courseLink)
       const resBody = await res.text()
       const HTMLDocument = domParser.parseFromString(resBody, "text/html")
-      const scanResult = await scanCourse(courseLink, HTMLDocument)
-      courses.push({
-        name: parser.parseCourseNameFromCard(node),
-        link: courseLink,
-        HTMLDocument,
-        ...scanResult,
-      })
+
+      const course = new Course(courseLink, HTMLDocument)
+      await course.scan()
+      courses.push(course)
     }
 
+    updateIcon(courses)
     scanInProgress = false
-  }
-}
-
-function checkForUpdates() {
-  // If there are no further updates reset the icon
-  const noMoreUpdates = courses.every(c => {
-    const { nNewFiles, nNewFolders } = c.resourceCounts
-    const { nNewActivities } = c.activityCounts
-    return nNewFiles + nNewFolders + nNewActivities === 0
-  })
-  if (noMoreUpdates) {
-    browser.runtime.sendMessage({
-      command: "set-icon",
-      iconType: "normal",
-    })
-  } else {
-    browser.runtime.sendMessage({
-      command: "set-icon",
-      iconType: "new",
-    })
   }
 }
 
@@ -106,8 +85,6 @@ browser.runtime.onMessage.addListener(async message => {
         return
       }
 
-      checkForUpdates()
-
       browser.runtime.sendMessage({
         command: "scan-result",
         courses: courses.map(c => ({
@@ -129,17 +106,11 @@ browser.runtime.onMessage.addListener(async message => {
     const i = courses.findIndex(c => c.link === message.link)
     const course = courses[i]
 
-    await updateCourseResources(course.link)
-    await updateCourseActivities(course.link)
-
     // Update course
-    const scanResult = await scanCourse(course.link, course.HTMLDocument)
-    courses[i] = {
-      ...course,
-      ...scanResult,
-    }
-
-    checkForUpdates()
+    await course.updateStoredResources()
+    await course.updateStoredActivities()
+    await course.scan()
+    updateIcon(courses)
   }
 
   if (message.command === "crawl") {
@@ -148,30 +119,21 @@ browser.runtime.onMessage.addListener(async message => {
 
     const { options } = await browser.storage.local.get("options")
 
-    const courseName = parser.parseCourseNameFromCoursePage(course.HTMLDocument)
-    const courseShortcut = parser.parseCourseShortcut(course.HTMLDocument)
-
     // Only download new resources
     const downloadNodes = course.resourceNodes.filter(node => node.isNewResource)
 
     browser.runtime.sendMessage({
       command: "download",
       resources: downloadNodes,
-      courseName,
-      courseShortcut,
+      courseName: course.name,
+      courseShortcut: course.shortcut,
       options,
     })
 
-    await updateCourseResources(course.link, downloadNodes)
-    await updateCourseActivities(course.link)
-
     // Update course
-    const scanResult = await scanCourse(course.link, course.HTMLDocument)
-    courses[i] = {
-      ...course,
-      ...scanResult,
-    }
-
-    checkForUpdates()
+    await course.updateStoredResources(downloadNodes)
+    await course.updateStoredActivities()
+    await course.scan()
+    updateIcon(courses)
   }
 })

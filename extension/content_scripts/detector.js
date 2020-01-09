@@ -7,5 +7,6 @@ if (urlIsSupported) {
   browser.runtime.sendMessage({
     command: "set-icon",
     iconType: "normal",
+    text: "",
   })
 }
