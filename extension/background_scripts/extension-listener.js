@@ -22,12 +22,14 @@ async function sendEvent(event) {
     return
   }
 
-  if (process.env.NODE_ENV === "development") {
+  const isDev = process.env.NODE_ENV === "development"
+
+  if (isDev) {
     console.log({
       event,
       browser: isFirefox() ? "firefox" : "chrome",
       browserId,
-      dev: process.env.NODE_ENV === "development",
+      dev: isDev,
     })
   }
 
@@ -40,7 +42,7 @@ async function sendEvent(event) {
       event,
       browser: isFirefox() ? "firefox" : "chrome",
       browserId,
-      dev: process.env.NODE_ENV === "development",
+      dev: isDev,
     }),
   })
     // .then(res => console.info(res))
