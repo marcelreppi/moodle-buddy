@@ -18,7 +18,7 @@ async function sendEvent(event) {
     }
   }
 
-  if (!process.env.API_URL || !process.env.API_KEY) {
+  if (!process.env.API_URL) {
     return
   }
 
@@ -33,10 +33,11 @@ async function sendEvent(event) {
     })
   }
 
-  fetch(process.env.API_URL, {
+  fetch(`${process.env.API_URL}/event`, {
     method: "POST",
     headers: {
-      "X-API-Key": process.env.API_KEY,
+      "User-Agent": navigator.userAgent,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       event,

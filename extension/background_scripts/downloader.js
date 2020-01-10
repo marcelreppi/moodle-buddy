@@ -134,29 +134,32 @@ async function sendDownloadData(data) {
     return
   }
 
-  if (!process.env.API_URL || !process.env.API_KEY) {
+  if (!process.env.API_URL) {
     return
   }
 
-  if (process.env.NODE_ENV === "development") {
+  const isDev = process.env.NODE_ENV === "development"
+
+  if (isDev) {
     console.log({
       event: "download-data",
       fileCount: data.fileCount,
       byteCount: data.byteCount,
-      dev: process.env.NODE_ENV === "development",
+      dev: isDev,
     })
   }
 
-  fetch(process.env.API_URL, {
+  fetch(`${process.env.API_URL}/download`, {
     method: "POST",
     headers: {
-      "X-API-Key": process.env.API_KEY,
+      "User-Agent": navigator.userAgent,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       event: "download-data",
       fileCount: data.fileCount,
       byteCount: data.byteCount,
-      dev: process.env.NODE_ENV === "development",
+      dev: isDev,
     }),
   })
     // .then(res => console.info(res))
