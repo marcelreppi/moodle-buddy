@@ -26,9 +26,6 @@
         <div class="link" @click="onDonateClick">Donate</div>
       </span>
       <span class="footer-right-section">
-        <div class="link" @click="() => navigateTo('https://github.com/marcelreppi/moodle-buddy')">
-          GitHub
-        </div>
         <img class="info-icon" :src="InfoIcon" alt="info" @click="onInfoClick" />
       </span>
     </div>

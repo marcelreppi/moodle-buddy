@@ -24,13 +24,19 @@ function restore() {
   }, onError)
 }
 
-function save(e) {
+async function save(e) {
   e.preventDefault()
   const updatedOptions = {}
   const inputs = document.querySelectorAll("input")
   inputs.forEach(input => {
     updatedOptions[input.id] = input.checked
   })
+  if (updatedOptions.disableInteractionTracking) {
+    await browser.runtime.sendMessage({
+      command: "event",
+      event: "disable-tracking",
+    })
+  }
   browser.storage.local
     .set({
       options: updatedOptions,
