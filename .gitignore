@@ -4,5 +4,4 @@ build
 
 *.rest
 *.zip
-*.txt
 *.env
