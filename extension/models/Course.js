@@ -6,6 +6,7 @@ const folderQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/folder]`
 const pluginFileQuerySelector = `[href*=${urlQuerySelector}\\/pluginfile]`
 // Any link with /mod/xxx except /mod/resource and /mod/folder
 const activityQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/]:not(${fileQuerySelector}):not(${folderQuerySelector})`
+const videoSelector = `video source[src*=${urlQuerySelector}\\/pluginfile]`
 
 function Course(link, HTMLDocument) {
   this.name = parser.parseCourseNameFromCoursePage(HTMLDocument)
@@ -59,6 +60,7 @@ function Course(link, HTMLDocument) {
     const mainHTML = this.HTMLDocument.querySelector("#region-main")
     const fileNodes = mainHTML.querySelectorAll(fileQuerySelector)
     const pluginFileNodes = mainHTML.querySelectorAll(pluginFileQuerySelector)
+    const videoNodes = mainHTML.querySelectorAll(videoSelector)
     const folderNodes = mainHTML.querySelectorAll(folderQuerySelector)
     const activityNodes = mainHTML.querySelectorAll(activityQuerySelector)
 
@@ -66,6 +68,7 @@ function Course(link, HTMLDocument) {
     // console.log(folderNodes)
     // console.log(pluginFileNodes)
     // console.log(actNodes)
+    // console.log(videoNodes)
 
     this.resourceCounts.nFiles += fileNodes.length
     fileNodes.forEach(node => {
@@ -101,6 +104,26 @@ function Course(link, HTMLDocument) {
       }
 
       if (previousSeenResources === null || previousSeenResources.includes(node.href)) {
+        resourceNode.isNewResource = false
+      } else {
+        this.resourceCounts.nNewFiles++
+        resourceNode.isNewResource = true
+      }
+
+      this.resourceNodes.push(resourceNode)
+    })
+
+    this.resourceCounts.nFiles += videoNodes.length
+    videoNodes.forEach(node => {
+      const resourceNode = {
+        href: node.src,
+        isFile: true,
+        isPluginFile: true,
+        fileName: parser.parseFileNameFromPluginFileURL(node.src),
+        isNewResource: null,
+      }
+
+      if (previousSeenResources === null || previousSeenResources.includes(node.src)) {
         resourceNode.isNewResource = false
       } else {
         this.resourceCounts.nNewFiles++

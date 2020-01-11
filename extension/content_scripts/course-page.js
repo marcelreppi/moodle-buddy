@@ -61,9 +61,7 @@ browser.runtime.onMessage.addListener(async message => {
       options,
     })
 
-    console.log(await course.updateStoredResources(downloadNodes))
     await course.scan()
-    console.log(course)
     updateIconFromCourses(course)
   }
 })
