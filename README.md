@@ -14,19 +14,11 @@ Furthermore, Moodle Buddy scans your courses for any updates and shows them to y
 
 ### How to install the plugin for **Firefox**
 
-1. Download the plugin [here](https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/) or check the [dist](https://github.com/marcelreppi/moodle-buddy/tree/master/dist) directory for the newest version
-2. If you download the file from the `dist` directory execute the file with Firefox
-
-Alternatively...
-
-1. Type "about:addons" into the URL bar
-2. Click on the dropdown menu with the settings icon
-3. Click "Install Add-on From File..." and select the .xpi file
+1. Click [here](https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/)
 
 ### How to install the plugin for **Chrome**
 
-1. Click [here](https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo) to visit the plugin's chrome webstore page
-2. Click "Add to Chrome" and then "Add extension"
+1. Click [here](https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo)
 
 ---
 
@@ -51,11 +43,11 @@ Submit an issue in this repository or reach me on [Twitter](https://twitter.com/
 
 UI when you open the plugin on the Moodle Dashboard
 
-![StartPreview](https://raw.githubusercontent.com/marcelreppi/moodle-buddy/master/screenshots/startpage.png "Plugin Preview")
+![StartPreview](https://moodle-buddy-screenshots.s3.eu-central-1.amazonaws.com/startpage.png)
 
 UI when you open the plugin on any Moodle course page
 
-![Preview](https://raw.githubusercontent.com/marcelreppi/moodle-buddy/master/screenshots/coursepage.png "Plugin Preview")
+![Preview](https://moodle-buddy-screenshots.s3.eu-central-1.amazonaws.com/coursepage.png)
 
 # For Developers
 

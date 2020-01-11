@@ -1,3 +1,5 @@
+cd ..
+
 rm moodle-buddy.zip
 rm moodle-buddy-code.zip
 
