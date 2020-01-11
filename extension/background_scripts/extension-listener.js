@@ -61,23 +61,25 @@ const defaultOptions = {
   disableInteractionTracking: false,
 }
 
-browser.runtime.onInstalled.addListener(details => {
+browser.runtime.onInstalled.addListener(async details => {
+  const { browserId } = await browser.storage.local.get("browserId")
   switch (details.reason) {
     case "install":
-      browser.storage.local
-        .set({
-          browserId: uuidv4(),
-          options: defaultOptions,
-        })
-        .then(() => {
-          sendEvent("install")
-        })
-
+      await browser.storage.local.set({
+        browserId: uuidv4(),
+        options: defaultOptions,
+      })
+      sendEvent("install")
       break
     case "update":
       if (process.env.NODE_ENV === "development") {
-        browser.storage.local.set({
+        await browser.storage.local.set({
           options: defaultOptions,
+        })
+      }
+      if (browserId === undefined) {
+        await browser.storage.local.set({
+          browserId: uuidv4(),
         })
       }
       sendEvent("update")
