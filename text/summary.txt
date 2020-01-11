@@ -1,0 +1,1 @@
+Moodle Buddy offers additional helpful functionality to the moodle learning management platform. Students see updates to their courses immediately and can download all learning materials with just one click.
