@@ -1,4 +1,4 @@
-import { isFirefox } from "../shared/helpers"
+import { isFirefox, getActiveTab, validURLRegex } from "../shared/helpers"
 
 function uuidv4() {
   return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
@@ -24,13 +24,23 @@ async function sendEvent(event) {
 
   const isDev = process.env.NODE_ENV === "development"
 
+  let url = ""
+  const activeTab = await getActiveTab()
+  if (event.startsWith("view") || event.startsWith("download")) {
+    // eslint-disable-next-line prefer-destructuring
+    url = activeTab.url.match(new RegExp(validURLRegex, "g"))[0]
+  }
+
+  const body = {
+    event,
+    browser: isFirefox() ? "firefox" : "chrome",
+    browserId,
+    url,
+    dev: isDev,
+  }
+
   if (isDev) {
-    console.log({
-      event,
-      browser: isFirefox() ? "firefox" : "chrome",
-      browserId,
-      dev: isDev,
-    })
+    console.log(body)
   }
 
   fetch(`${process.env.API_URL}/event`, {
@@ -39,12 +49,7 @@ async function sendEvent(event) {
       "User-Agent": navigator.userAgent,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      event,
-      browser: isFirefox() ? "firefox" : "chrome",
-      browserId,
-      dev: isDev,
-    }),
+    body: JSON.stringify(body),
   })
     // .then(res => console.info(res))
     .catch(error => console.log(error))
