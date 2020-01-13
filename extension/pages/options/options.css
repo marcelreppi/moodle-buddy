@@ -16,8 +16,8 @@ input {
 
 button[type=submit] {
   width: 75px;
-  padding: 7px 5px;
   margin-top: 15px;
+  height: 30px;
   border-radius: 5px;
   border: 0;
   background-color: #c50e20;
@@ -38,6 +38,10 @@ p {
   margin-bottom: 5px;
 }
 
+.url-input {
+  width: 400px;
+}
+
 .form-section {
   font-weight: bold;
   margin-bottom: 7px;
@@ -56,42 +60,31 @@ p {
   display: flex;
 }
 
-.success {
-  opacity: 0;
-  padding: 10px 20px;
+.button-row div {
+  padding: 0px 15px;
   margin-top: 15px;
   margin-left: 30px;
   border-radius: 5px;
   border: 0;
-  background-color: #1b6e3c;
   color: white;
   font-weight: bold;
-  text-align: center;
   letter-spacing: 0.5px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   transition: all 0.5s ease-in;
+}
+
+.success {
+  display: none;
+  background-color: #1b6e3c;
 }
 
 .error {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  max-width: 200px;
-  overflow-y: scroll;
-  opacity: 0;
-  padding: 10px 20px;
-  margin-top: 15px;
-  border-radius: 5px;
-  border: 0;
+  display: none;
   background-color: #000000;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  letter-spacing: 0.5px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  transition: all 0.5s ease-in;
 }
 
 .show {
-  opacity: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

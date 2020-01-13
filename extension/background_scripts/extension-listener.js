@@ -64,6 +64,7 @@ const defaultOptions = {
   prependCourseToFileName: false,
   alwaysShowDetails: false,
   disableInteractionTracking: false,
+  defaultMoodleURL: "",
 }
 
 browser.runtime.onInstalled.addListener(async details => {
