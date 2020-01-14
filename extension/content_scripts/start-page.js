@@ -8,8 +8,6 @@ let scanInProgress = true
 let courses = []
 let lastOverviewHash = ""
 
-// browser.storage.local.clear()
-
 function getOverviewNode() {
   return document.querySelector("[data-region='myoverview']")
 }
@@ -56,6 +54,10 @@ async function scanOverview() {
       await course.scan()
       courses.push(course)
     }
+
+    browser.storage.local.set({
+      overviewCourseLinks: courses.map(c => c.link),
+    })
 
     updateIconFromCourses(courses)
     scanInProgress = false

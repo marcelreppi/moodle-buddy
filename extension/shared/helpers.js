@@ -13,52 +13,57 @@ export function isFirefox() {
   return typeof InstallTrigger !== "undefined"
 }
 
-export function updateIconFromCourses(...courses) {
+export function getUpdatesFromCourses(...courses) {
   const courseList = courses.flat()
   const nUpdates = courseList.reduce((sum, c) => {
     const { nNewFiles, nNewFolders } = c.resourceCounts
     const { nNewActivities } = c.activityCounts
     return sum + nNewFiles + nNewFolders + nNewActivities
   }, 0)
+  return nUpdates
+}
+
+export function updateIconFromCourses(courses) {
+  const nUpdates = getUpdatesFromCourses(courses)
 
   // If there are no further updates reset the icon
   if (nUpdates === 0) {
     browser.runtime.sendMessage({
       command: "set-icon",
-      iconType: "normal",
+      type: "normal",
       text: "",
     })
   } else {
     browser.runtime.sendMessage({
       command: "set-icon",
-      iconType: "new",
+      type: "update",
       text: nUpdates,
     })
   }
 }
 
-export const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/
-  .source
+export const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/gi
 
-export const startingPageRegex = new RegExp(validURLRegex + /\/my\//.source, "gi")
+export const loginURLRegex = new RegExp(validURLRegex.source + /\/login\/index.php/.source, "gi")
+export const startingPageRegex = new RegExp(validURLRegex.source + /\/my/.source, "gi")
 export const coursePageRegex = new RegExp(
-  validURLRegex + /\/course\/view\.php\?id=[0-9]*/.source,
+  validURLRegex.source + /\/course\/view\.php\?id=[0-9]*/.source,
   "i"
 )
 
 export const fileRegex = new RegExp(
-  validURLRegex + /\/mod\/resource\/view\.php\?id=[0-9]*/.source,
+  validURLRegex.source + /\/mod\/resource\/view\.php\?id=[0-9]*/.source,
   "gi"
 )
 export const folderRegex = new RegExp(
-  validURLRegex + /\/mod\/folder\/view\.php\?id=[0-9]*/.source,
+  validURLRegex.source + /\/mod\/folder\/view\.php\?id=[0-9]*/.source,
   "gi"
 )
 export const pluginFileRegex = new RegExp(
-  validURLRegex + /\/pluginfile\.php([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.source,
+  validURLRegex.source + /\/pluginfile\.php([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.source,
   "gi"
 )
 export const activityRegex = new RegExp(
-  validURLRegex + /\/mod\/(?!resource|folder)[A-z]*\/view\.php\?id=[0-9]*/.source,
+  validURLRegex.source + /\/mod\/(?!resource|folder)[A-z]*\/view\.php\?id=[0-9]*/.source,
   "gi"
 )

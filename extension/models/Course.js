@@ -1,12 +1,38 @@
 import * as parser from "../shared/parser"
 
-const urlQuerySelector = location.hostname.replace(/\./g, "\\.")
-const fileQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/resource]`
-const folderQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/folder]`
-const pluginFileQuerySelector = `[href*=${urlQuerySelector}\\/pluginfile]`
-// Any link with /mod/xxx except /mod/resource and /mod/folder
-const activityQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/]:not(${fileQuerySelector}):not(${folderQuerySelector})`
-const videoSelector = `video source[src*=${urlQuerySelector}\\/pluginfile]`
+function getQuerySelector(type) {
+  const urlQuerySelector = "" // location.hostname.replace(/\./g, "\\.")
+  const fileQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/resource]`
+  const folderQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/folder]`
+  const pluginFileQuerySelector = `[href*=${urlQuerySelector}\\/pluginfile]`
+  // Any link with /mod/xxx except /mod/resource and /mod/folder
+  const activityQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/]:not(${fileQuerySelector}):not(${folderQuerySelector})`
+  const videoSelector = `video source[src*=${urlQuerySelector}\\/pluginfile]`
+
+  let selector = null
+  switch (type) {
+    case "file":
+      selector = fileQuerySelector
+      break
+    case "folder":
+      selector = folderQuerySelector
+      break
+    case "pluginfile":
+      selector = pluginFileQuerySelector
+      break
+    case "activity":
+      selector = activityQuerySelector
+      break
+    case "video":
+      selector = videoSelector
+      break
+    default:
+      break
+  }
+
+  selector = `${selector}:not(.helplinkpopup)`
+  return selector
+}
 
 function Course(link, HTMLDocument) {
   this.name = parser.parseCourseNameFromCoursePage(HTMLDocument)
@@ -58,11 +84,11 @@ function Course(link, HTMLDocument) {
     } = storedCourseData
 
     const mainHTML = this.HTMLDocument.querySelector("#region-main")
-    const fileNodes = mainHTML.querySelectorAll(fileQuerySelector)
-    const pluginFileNodes = mainHTML.querySelectorAll(pluginFileQuerySelector)
-    const videoNodes = mainHTML.querySelectorAll(videoSelector)
-    const folderNodes = mainHTML.querySelectorAll(folderQuerySelector)
-    const activityNodes = mainHTML.querySelectorAll(activityQuerySelector)
+    const fileNodes = mainHTML.querySelectorAll(getQuerySelector("file"))
+    const pluginFileNodes = mainHTML.querySelectorAll(getQuerySelector("pluginfile"))
+    const videoNodes = mainHTML.querySelectorAll(getQuerySelector("video"))
+    const folderNodes = mainHTML.querySelectorAll(getQuerySelector("folder"))
+    const activityNodes = mainHTML.querySelectorAll(getQuerySelector("activity"))
 
     // console.log(fileNodes)
     // console.log(folderNodes)

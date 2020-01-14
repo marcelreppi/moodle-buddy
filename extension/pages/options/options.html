@@ -14,6 +14,33 @@
       <label>
         <input class="url-input" type="text" id="defaultMoodleURL">
       </label>
+      <div class="form-section">Background Scanning</div>
+      <div>
+        When background scanning is enabled Moodle Buddy will periodically crawl your Moodle course overview page for
+        any updates and notify you when there is anything new.
+        <br />
+        If you wish to enable it you must do the following:
+        <ul>
+          <li>
+            Set your Moodle URL above to: <i>&lt;Your Moodle base URL&gt;/my</i>
+            <br />
+            (e.g. https://mymoodle.com/my)
+          </li>
+          <li>Log into your Moodle account and make sure to be <b>remembered</b></li>
+          <li>Customize your overview to show all the courses that you want to have checked</li>
+          <li>
+            Tick the checkbox below
+          </li>
+        </ul>
+      </div>
+      <label class="interval-label">
+        <span>Scan interval (minutes)</span>
+        <input type="number" id="backgroundScanInterval" min="15" step="5" value="30">
+      </label>
+      <label>
+        <input type="checkbox" id="enableBackgroundScanning">
+        <span>Enable background scanning</span>
+      </label>
       <div class="form-section">Default download options</div>
       <label>
         <input type="checkbox" id="onlyNewResources" />
@@ -53,23 +80,18 @@
       <div class="form-section">Anonymized usage data</div>
       <div>
         <p>
-          I track a few interactions when the plugin is used such as when the plugin is
+          A few interactions are tracked when the plugin is used such as when the plugin is
           installed or the "Download" button is clicked.
         </p>
-
         <p>
-          I collect the following data: event name, date, time, browser type, random browser ID, location (city
-          granularity).
+          The following data is collected: event name, date, time, browser type, random browser ID, base URL where
+          Moodle Buddy was used, location (city granularity).
         </p>
-
         <p>
-          I use this data to measure the usage and improve the features.
+          I use this data to monitor the usage and improve the features.
         </p>
-
-        <p>I would really appreciate your allowance to monitor the usage. It really helps me a lot!</p>
-
+        <p>I would really appreciate it if you don't disable it! It really helps me a lot!</p>
         <p>If you still wish to turn it off you can do it here:</p>
-
         <label>
           <input type="checkbox" id="disableInteractionTracking" />
           <span>Disable anonymized usage monitoring</span>

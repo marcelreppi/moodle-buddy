@@ -55,7 +55,8 @@
     "scripts": [
       "/shared/browser-polyfill.js",
       "/background_scripts/extension-listener.js",
-      "/background_scripts/downloader.js"
+      "/background_scripts/downloader.js",
+      "/background_scripts/background-scanner.js"
     ]
   },
   "options_ui": {

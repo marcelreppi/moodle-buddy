@@ -27,6 +27,7 @@ module.exports = {
     "content_scripts/detector": contentEntry("detector.js"),
     "background_scripts/downloader": backgroundEntry("downloader.js"),
     "background_scripts/extension-listener": backgroundEntry("extension-listener.js"),
+    "background_scripts/background-scanner": backgroundEntry("background-scanner.js"),
   },
   output: {
     path: join(__dirname, "build"),

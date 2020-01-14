@@ -1,7 +1,9 @@
 html, body {
-  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
-  font-weight: 300;
+  --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  font-family: var(--font);
+  font-weight: 500;
   font-size: 14px;
+  min-width: 500px;
 }
 
 form {
@@ -12,6 +14,7 @@ form {
 
 input {
   margin-right: 10px;
+  font-family: var(--font);
 }
 
 button[type=submit] {
@@ -24,7 +27,7 @@ button[type=submit] {
   color: white;
   font-weight: bold;
   text-align: center;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
@@ -36,6 +39,18 @@ button[type=submit]:hover {
 p {
   margin-top: 0;
   margin-bottom: 5px;
+}
+
+label.interval-label {
+  margin-bottom: 10px;
+}
+
+label.interval-label span {
+  margin-right: 15px;
+}
+
+label.interval-label input {
+  width: 50px;
 }
 
 .url-input {
@@ -61,14 +76,15 @@ p {
 }
 
 .button-row div {
-  padding: 0px 15px;
+  max-width: 400px;
+  padding: 5px 15px;
   margin-top: 15px;
   margin-left: 30px;
   border-radius: 5px;
   border: 0;
   color: white;
   font-weight: bold;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   transition: all 0.5s ease-in;
 }

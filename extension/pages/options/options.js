@@ -1,4 +1,5 @@
-const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/
+const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/gi
+const backgroundScanURLRegex = new RegExp(validURLRegex.source + /\/my$/.source, "gi")
 
 function onError(error) {
   const errorNode = document.querySelector(".error")
@@ -6,7 +7,7 @@ function onError(error) {
   errorNode.classList.add("show")
   setTimeout(() => {
     document.querySelector(".error").classList.remove("show")
-  }, 3000)
+  }, 5000)
 }
 
 function onSuccess() {
@@ -21,13 +22,11 @@ function restore() {
     const inputs = document.querySelectorAll("input")
     inputs.forEach(input => {
       switch (input.type) {
-        case "text":
-          input.value = options[input.id]
-          break
         case "checkbox":
           input.checked = options[input.id]
           break
         default:
+          input.value = options[input.id]
           break
       }
     })
@@ -36,29 +35,32 @@ function restore() {
 
 async function save(e) {
   e.preventDefault()
-  let error = false
   const updatedOptions = {}
   const inputs = document.querySelectorAll("input")
   inputs.forEach(input => {
     switch (input.type) {
-      case "text":
-        if (input.id === "defaultMoodleURL") {
-          if (input.value !== "" && !input.value.match(validURLRegex)) {
-            error = true
-            onError("Invalid URL")
-          }
-        }
-        updatedOptions[input.id] = input.value
-        break
       case "checkbox":
         updatedOptions[input.id] = input.checked
         break
+      case "number":
+        updatedOptions[input.id] = parseFloat(input.value)
+        break
       default:
+        updatedOptions[input.id] = input.value
         break
     }
   })
 
-  if (error) return
+  const { defaultMoodleURL, enableBackgroundScanning } = updatedOptions
+  if (defaultMoodleURL !== "" && !defaultMoodleURL.match(validURLRegex)) {
+    onError("Invalid URL")
+    return
+  }
+
+  if (enableBackgroundScanning && !defaultMoodleURL.match(backgroundScanURLRegex)) {
+    onError("Background scanning requires the default Moodle URL to end on /my")
+    return
+  }
 
   if (updatedOptions.disableInteractionTracking) {
     await browser.runtime.sendMessage({

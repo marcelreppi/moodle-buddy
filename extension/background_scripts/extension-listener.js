@@ -1,59 +1,4 @@
-import { isFirefox, getActiveTab, validURLRegex } from "../shared/helpers"
-
-function uuidv4() {
-  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-    // eslint-disable-next-line no-bitwise
-    (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
-  )
-}
-
-async function sendEvent(event) {
-  const { options, browserId } = await browser.storage.local.get(["options", "browserId"])
-
-  if (options.disableInteractionTracking) {
-    if (!(event === "install" || event === "update")) {
-      // Excluding install and update events
-      console.log("Tracking disabled!")
-      return
-    }
-  }
-
-  if (!process.env.API_URL) {
-    return
-  }
-
-  const isDev = process.env.NODE_ENV === "development"
-
-  let url = ""
-  const activeTab = await getActiveTab()
-  if (event.startsWith("view") || event.startsWith("download")) {
-    // eslint-disable-next-line prefer-destructuring
-    url = activeTab.url.match(new RegExp(validURLRegex, "g"))[0]
-  }
-
-  const body = {
-    event,
-    browser: isFirefox() ? "firefox" : "chrome",
-    browserId,
-    url,
-    dev: isDev,
-  }
-
-  if (isDev) {
-    console.log(body)
-  }
-
-  fetch(`${process.env.API_URL}/event`, {
-    method: "POST",
-    headers: {
-      "User-Agent": navigator.userAgent,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  })
-    // .then(res => console.info(res))
-    .catch(error => console.log(error))
-}
+import { sendEvent, uuidv4, setIcon } from "./helpers"
 
 const defaultOptions = {
   onlyNewResources: false,
@@ -65,6 +10,13 @@ const defaultOptions = {
   alwaysShowDetails: false,
   disableInteractionTracking: false,
   defaultMoodleURL: "",
+  backgroundScanInterval: 30,
+  enableBackgroundScanning: false,
+}
+
+const initialStorage = {
+  options: defaultOptions,
+  overviewCourseLinks: [],
 }
 
 browser.runtime.onInstalled.addListener(async details => {
@@ -73,7 +25,7 @@ browser.runtime.onInstalled.addListener(async details => {
     case "install":
       await browser.storage.local.set({
         browserId: uuidv4(),
-        options: defaultOptions,
+        ...initialStorage,
       })
       sendEvent("install")
       break
@@ -102,33 +54,7 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
   }
 
   if (message.command === "set-icon") {
-    const iconTypes = {
-      gray: "-gray",
-      normal: "",
-      new: "-blue",
-    }
-
-    const currentBadgeText = ""
-    browser.browserAction.setBadgeText({
-      text: `${
-        currentBadgeText === "" ? message.text : parseFloat(currentBadgeText) + message.text
-      }`,
-      tabId: sender.tab.id,
-    })
-    browser.browserAction.setBadgeBackgroundColor({
-      color: "#555555",
-      tabId: sender.tab.id,
-    })
-
-    if (message.iconType === "new") return
-
-    browser.browserAction.setIcon({
-      path: {
-        48: `/icons/icon48${iconTypes[message.iconType]}.png`,
-      },
-      tabId: sender.tab.id,
-    })
-
+    setIcon(message.type, message.text, sender.tab.id)
     return
   }
 })
