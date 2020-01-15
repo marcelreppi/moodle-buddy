@@ -19,18 +19,12 @@
     <div v-else class="link" @click="navigateToMoodle">
       Go to my Moodle
     </div>
-
     <p>Make sure you are...</p>
     <ul>
       <li>on your university's Moodle page</li>
       <li>logged in</li>
-      <li>on a supported Moodle webpage</li>
+      <li>on a <span class="link" @click="openInfoPage">supported</span> Moodle webpage</li>
     </ul>
-    <p>
-      See
-      <span class="link" @click="openInfoPage">here</span>
-      which Moodle pages are supported.
-    </p>
   </div>
 </template>
 

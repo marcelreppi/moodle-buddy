@@ -14,8 +14,8 @@ course.scan().then(() => {
 
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "scan") {
-    await course.scan()
-    updateIconFromCourses(course)
+    // await course.scan()
+    // updateIconFromCourses(course)
 
     browser.runtime.sendMessage({
       command: "scan-result",

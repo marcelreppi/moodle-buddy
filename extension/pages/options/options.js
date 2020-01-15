@@ -1,5 +1,4 @@
 const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/gi
-const backgroundScanURLRegex = new RegExp(validURLRegex.source + /\/my$/.source, "gi")
 
 function onError(error) {
   const errorNode = document.querySelector(".error")
@@ -51,14 +50,9 @@ async function save(e) {
     }
   })
 
-  const { defaultMoodleURL, enableBackgroundScanning } = updatedOptions
+  const { defaultMoodleURL } = updatedOptions
   if (defaultMoodleURL !== "" && !defaultMoodleURL.match(validURLRegex)) {
     onError("Invalid URL")
-    return
-  }
-
-  if (enableBackgroundScanning && !defaultMoodleURL.match(backgroundScanURLRegex)) {
-    onError("Background scanning requires the default Moodle URL to end on /my")
     return
   }
 

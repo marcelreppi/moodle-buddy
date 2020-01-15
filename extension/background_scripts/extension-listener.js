@@ -11,7 +11,7 @@ const defaultOptions = {
   disableInteractionTracking: false,
   defaultMoodleURL: "",
   backgroundScanInterval: 30,
-  enableBackgroundScanning: false,
+  enableBackgroundScanning: true,
 }
 
 const initialStorage = {
