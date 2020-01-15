@@ -30,8 +30,11 @@ browser.runtime.onInstalled.addListener(async details => {
       sendEvent("install")
       break
     case "update":
-      // if (process.env.NODE_ENV === "development") {
-      // }
+      if (process.env.NODE_ENV === "development") {
+        await browser.storage.local.set({
+          options: defaultOptions,
+        })
+      }
       if (browserId === undefined) {
         await browser.storage.local.set({
           browserId: uuidv4(),
