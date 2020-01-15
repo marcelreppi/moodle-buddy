@@ -29,14 +29,12 @@ export function updateIconFromCourses(courses) {
   // If there are no further updates reset the icon
   if (nUpdates === 0) {
     browser.runtime.sendMessage({
-      command: "set-icon",
-      type: "normal",
+      command: "set-badge",
       text: "",
     })
   } else {
     browser.runtime.sendMessage({
-      command: "set-icon",
-      type: "update",
+      command: "set-badge",
       text: nUpdates,
     })
   }

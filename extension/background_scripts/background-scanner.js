@@ -1,5 +1,5 @@
 import { loginURLRegex, getUpdatesFromCourses } from "../shared/helpers"
-import { setIcon } from "./helpers"
+import { setIcon, setBadgeText } from "./helpers"
 import Course from "../models/Course"
 
 // browser.storage.local.clear()
@@ -38,9 +38,9 @@ async function backgroundScan() {
 
   // If there are no further updates reset the icon
   if (nUpdates === 0) {
-    setIcon("normal", "")
+    setBadgeText("")
   } else {
-    setIcon("update", nUpdates)
+    setBadgeText(nUpdates)
   }
 }
 

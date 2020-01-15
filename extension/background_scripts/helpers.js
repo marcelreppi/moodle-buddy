@@ -58,7 +58,7 @@ export function uuidv4() {
 browser.browserAction.setBadgeBackgroundColor({ color: "#555555" })
 browser.browserAction.setBadgeText({ text: "" })
 
-export async function setIcon(type, text, tabId) {
+export async function setIcon(type, tabId) {
   const iconTypes = {
     normal: "",
     update: "",
@@ -72,7 +72,9 @@ export async function setIcon(type, text, tabId) {
       tabId,
     })
   }
+}
 
+export async function setBadgeText(text, tabId) {
   // Detector is the only one who sends no text
   // Make no changes no existings badge texts
   if (text === undefined) return

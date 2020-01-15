@@ -1,4 +1,4 @@
-import { sendEvent, uuidv4, setIcon } from "./helpers"
+import { sendEvent, uuidv4, setIcon, setBadgeText } from "./helpers"
 
 const defaultOptions = {
   onlyNewResources: false,
@@ -16,31 +16,51 @@ const defaultOptions = {
 
 const initialStorage = {
   options: defaultOptions,
-  overviewCourseLinks: [],
+  browserId: uuidv4(),
+  overviewCourseLinks: [], // Used for background scanning
+  nUpdates: 0, // Used for storing updates from background scan
+}
+
+async function onInstall() {
+  await browser.storage.local.set({
+    ...initialStorage,
+  })
+  sendEvent("install")
+}
+
+async function onUpdate() {
+  const { options, browserId, overviewCourseLinks, nUpdates } = await browser.storage.local.get()
+
+  if (process.env.NODE_ENV === "development") {
+    await browser.storage.local.set({
+      options: defaultOptions,
+    })
+  }
+
+  // Merge existing options
+  let updatedOptions = { ...defaultOptions }
+  if (options) {
+    updatedOptions = { ...updatedOptions, ...options }
+  }
+
+  // Merge existing storage data
+  await browser.storage.local.set({
+    options: updatedOptions,
+    browserId: browserId || initialStorage.browserId,
+    overviewCourseLinks: overviewCourseLinks || initialStorage.overviewCourseLinks,
+    nUpdates: nUpdates || initialStorage.nUpdates,
+  })
+
+  sendEvent("update")
 }
 
 browser.runtime.onInstalled.addListener(async details => {
-  const { browserId } = await browser.storage.local.get("browserId")
   switch (details.reason) {
     case "install":
-      await browser.storage.local.set({
-        browserId: uuidv4(),
-        ...initialStorage,
-      })
-      sendEvent("install")
+      onInstall()
       break
     case "update":
-      if (process.env.NODE_ENV === "development") {
-        await browser.storage.local.set({
-          options: defaultOptions,
-        })
-      }
-      if (browserId === undefined) {
-        await browser.storage.local.set({
-          browserId: uuidv4(),
-        })
-      }
-      sendEvent("update")
+      onUpdate()
       break
     default:
       break
@@ -48,13 +68,17 @@ browser.runtime.onInstalled.addListener(async details => {
 })
 
 browser.runtime.onMessage.addListener(async (message, sender) => {
-  if (message.command === "event") {
-    sendEvent(message.event)
-    return
-  }
-
-  if (message.command === "set-icon") {
-    setIcon(message.type, message.text, sender.tab.id)
-    return
+  switch (message.command) {
+    case "event":
+      sendEvent(message.event)
+      break
+    case "set-icon":
+      setIcon(message.type, sender.tab.id)
+      break
+    case "set-badge":
+      setBadgeText(message.text, sender.tab.id)
+      break
+    default:
+      break
   }
 })
