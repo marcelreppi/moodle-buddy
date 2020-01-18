@@ -10,6 +10,7 @@ const defaultOptions = {
   alwaysShowDetails: false,
   disableInteractionTracking: false,
   defaultMoodleURL: "",
+  autoSetMoodleURL: true,
   backgroundScanInterval: 30,
   enableBackgroundScanning: true,
 }
