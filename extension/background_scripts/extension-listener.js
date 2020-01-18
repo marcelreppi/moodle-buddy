@@ -26,6 +26,11 @@ async function onInstall() {
   await browser.storage.local.set({
     ...initialStorage,
   })
+
+  browser.tabs.create({
+    url: "/pages/install/install.html",
+  })
+
   sendEvent("install", false)
 }
 
