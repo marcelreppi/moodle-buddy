@@ -50,7 +50,7 @@ import CourseView from "./views/CourseView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
 
 import MoodleIcon from "../icons/48.png"
-import InfoIcon from "./static/images/information.png"
+import InfoIcon from "../static/images/information.png"
 
 export default {
   components: {
@@ -124,7 +124,6 @@ export default {
 
 <style>
 .app {
-  font-weight: 300;
   font-size: 16px;
   padding: 25px 10px 5px 10px;
 }
@@ -171,6 +170,7 @@ export default {
 hr {
   margin: 10px 0px;
   color: rgba(240, 240, 240, 0.347);
+  border-color: rgba(240, 240, 240, 0.347);
 }
 
 .footer {
@@ -179,7 +179,6 @@ hr {
   align-items: center;
   margin-top: 30px;
   font-size: 12px;
-  font-weight: 500;
   color: #8f8f8f;
 }
 
