@@ -72,14 +72,14 @@ export default {
     isFirefox,
     showStartingPageView() {
       if (this.activeTab && this.activeTab.url.match(startingPageRegex)) {
-        sendEvent("view-start-page")
+        sendEvent("view-start-page", true)
         return true
       }
       return false
     },
     showCourseView() {
       if (this.activeTab && this.activeTab.url.match(coursePageRegex)) {
-        sendEvent("view-course-page")
+        sendEvent("view-course-page", true)
         return true
       }
       return false
@@ -93,12 +93,12 @@ export default {
       browser.tabs.create({
         url: "../pages/information/information.html",
       })
-      sendEvent("info-click")
+      sendEvent("info-click", false)
       window.close()
     },
     onDonateClick() {
       this.navigateTo("https://paypal.me/marcelreppi")
-      sendEvent("donate-click")
+      sendEvent("donate-click", false)
     },
     navigateTo(link) {
       browser.tabs.create({

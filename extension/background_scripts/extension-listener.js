@@ -26,7 +26,7 @@ async function onInstall() {
   await browser.storage.local.set({
     ...initialStorage,
   })
-  sendEvent("install")
+  sendEvent("install", false)
 }
 
 async function onUpdate() {
@@ -52,7 +52,7 @@ async function onUpdate() {
     nUpdates: nUpdates || initialStorage.nUpdates,
   })
 
-  sendEvent("update")
+  sendEvent("update", false)
 }
 
 browser.runtime.onInstalled.addListener(async details => {
@@ -71,7 +71,7 @@ browser.runtime.onInstalled.addListener(async details => {
 browser.runtime.onMessage.addListener(async (message, sender) => {
   switch (message.command) {
     case "event":
-      sendEvent(message.event)
+      sendEvent(message.event, message.saveURL)
       break
     case "set-icon":
       setIcon(sender.tab.id)

@@ -206,9 +206,9 @@ export default {
     },
     onDownload() {
       if (this.onlyNewResources) {
-        sendEvent("download-course-page-only-new")
+        sendEvent("download-course-page-only-new", true)
       } else {
-        sendEvent("download-course-page")
+        sendEvent("download-course-page", true)
       }
 
       this.disableDownload = true
@@ -227,7 +227,7 @@ export default {
       })
     },
     onMarkAsSeenClick() {
-      sendEvent("mark-as-seen-course-page")
+      sendEvent("mark-as-seen-course-page", true)
       this.onlyNewResources = false
       this.nNewFiles = 0
       this.nNewFolders = 0
@@ -240,7 +240,7 @@ export default {
       this.showDetails = !this.showDetails
 
       if (this.showDetails) {
-        sendEvent("show-details-course-page")
+        sendEvent("show-details-course-page", true)
       }
     },
     showOptionsPage() {

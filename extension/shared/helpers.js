@@ -1,7 +1,8 @@
-export function sendEvent(event) {
+export function sendEvent(event, saveURL) {
   browser.runtime.sendMessage({
     command: "event",
     event,
+    saveURL,
   })
 }
 

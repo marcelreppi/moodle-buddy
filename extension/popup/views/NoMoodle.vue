@@ -75,7 +75,7 @@ export default {
       browser.tabs.create({
         url: this.options.defaultMoodleURL,
       })
-      sendEvent("go-to-moodle")
+      sendEvent("go-to-moodle", false)
       window.close()
     },
   },

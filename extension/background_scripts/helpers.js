@@ -1,6 +1,6 @@
 import { isFirefox, getActiveTab, validURLRegex } from "../shared/helpers"
 
-export async function sendEvent(event) {
+export async function sendEvent(event, saveURL) {
   const { options, browserId } = await browser.storage.local.get(["options", "browserId"])
 
   if (options.disableInteractionTracking) {
@@ -18,8 +18,8 @@ export async function sendEvent(event) {
   const isDev = process.env.NODE_ENV === "development"
 
   let url = ""
-  const activeTab = await getActiveTab()
-  if (event.startsWith("view") || event.startsWith("download")) {
+  if (saveURL) {
+    const activeTab = await getActiveTab()
     // eslint-disable-next-line prefer-destructuring
     url = activeTab.url.match(validURLRegex)[0]
   }
