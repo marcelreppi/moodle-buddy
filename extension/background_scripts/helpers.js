@@ -58,7 +58,7 @@ export function uuidv4() {
 browser.browserAction.setBadgeBackgroundColor({ color: "#555555" })
 browser.browserAction.setBadgeText({ text: "" })
 
-export async function setIcon(type, tabId) {
+export async function setIcon(tabId) {
   if (tabId) {
     browser.browserAction.setIcon({
       path: {

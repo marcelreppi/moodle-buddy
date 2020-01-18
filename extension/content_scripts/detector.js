@@ -20,7 +20,6 @@ const urlIsSupported =
 if (urlIsSupported) {
   browser.runtime.sendMessage({
     command: "set-icon",
-    type: "normal",
   })
 
   setDefaultMoodleURL()

@@ -74,7 +74,7 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
       sendEvent(message.event)
       break
     case "set-icon":
-      setIcon(message.type, sender.tab.id)
+      setIcon(sender.tab.id)
       break
     case "set-badge":
       setBadgeText(message.text, sender.tab.id)
