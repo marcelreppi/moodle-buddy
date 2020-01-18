@@ -1,7 +1,14 @@
 <template>
   <div class="content-container">
-    <div class="marginize">This is an unsupported webpage.</div>
-    <div v-if="showDefaultURLInput" class="content-container">
+    <div v-if="nUpdates > 0" class="marginize">
+      There {{ nUpdates === 1 ? "is" : "are" }}
+      <span class="bold">
+        {{ nUpdates }}
+        {{ nUpdates === 1 ? "update" : "updates" }}
+      </span>
+      to your courses
+    </div>
+    <div v-if="showDefaultURLInput" class="content-container marginize">
       <div>
         Want to navigate to your Moodle from here?
       </div>
@@ -16,10 +23,12 @@
         <div v-if="showInvalidURL" class="invalid-url">Invalid URL!</div>
       </transition>
     </div>
-    <div v-else class="link" @click="navigateToMoodle">
+    <div v-else class="marginize link" @click="navigateToMoodle">
       Go to my Moodle
     </div>
-    <p>Make sure you are...</p>
+    <hr />
+    <div>This is an unsupported webpage.</div>
+    <div class="hints">Make sure you are...</div>
     <ul>
       <li>on your university's Moodle page</li>
       <li>logged in</li>
@@ -35,6 +44,7 @@ export default {
   props: {
     openInfoPage: Function,
     options: Object,
+    nUpdates: Number,
   },
   data() {
     return {
@@ -62,7 +72,6 @@ export default {
       })
     },
     navigateToMoodle() {
-      console.log(this.options.defaultMoodleURL)
       browser.tabs.create({
         url: this.options.defaultMoodleURL,
       })
@@ -126,14 +135,14 @@ ul {
   margin: 0;
 }
 
-p {
+hr {
+  width: 85%;
+}
+
+.hints {
   margin: 17px 0px 5px 0px;
   /* padding: 0px 60px; */
   text-align: center;
-}
-
-p:last-of-type {
-  margin-bottom: 0px;
 }
 
 .marginize {

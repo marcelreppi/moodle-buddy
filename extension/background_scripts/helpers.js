@@ -59,15 +59,12 @@ browser.browserAction.setBadgeBackgroundColor({ color: "#555555" })
 browser.browserAction.setBadgeText({ text: "" })
 
 export async function setIcon(type, tabId) {
-  const iconTypes = {
-    normal: "",
-    update: "",
-  }
-
   if (tabId) {
     browser.browserAction.setIcon({
       path: {
-        48: `/icons/icon48${iconTypes[type]}.png`,
+        16: "/icons/16.png",
+        48: "/icons/48.png",
+        128: "/icons/128.png",
       },
       tabId,
     })
@@ -75,20 +72,11 @@ export async function setIcon(type, tabId) {
 }
 
 export async function setBadgeText(text, tabId) {
-  // Detector is the only one who sends no text
-  // Make no changes no existings badge texts
-  if (text === undefined) return
-
-  if (text === "") {
-    await browser.browserAction.setBadgeText({ text: "" }) // Reset global badge text
-    await browser.browserAction.setBadgeText({ text: "", tabId }) // Revert tabs badge text to global badge text
-    return
-  }
-
   if (tabId) {
     // If tabId is given reset global and only set the local one
     await browser.browserAction.setBadgeText({ text: "" }) // Reset global badge text
-    await browser.browserAction.setBadgeText({ text: `${text}`, tabId })
+    await browser.browserAction.setBadgeText({ text: `${text}`, tabId }) // Set local badge text
+    await browser.storage.local.set({ nUpdates: 0 }) // Reset background update counter
   } else {
     await browser.browserAction.setBadgeText({ text: `${text}` })
   }

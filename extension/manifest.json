@@ -4,9 +4,9 @@
   "version": "1.2",
   "description": "Moodle Buddy offers additional helpful functionality to the moodle learning management platform. Students see updates to their courses immediately and can download all learning materials with just one click.",
   "icons": {
-    "16": "/icons/icon16.png",
-    "48": "/icons/icon48.png",
-    "128": "/icons/icon128.png"
+    "16": "/icons/16.png",
+    "48": "/icons/48.png",
+    "128": "/icons/128.png"
   },
   "permissions": [
     "http://*/*",
@@ -17,9 +17,9 @@
   ],
   "browser_action": {
     "default_icon": {
-      "16": "/icons/icon16-gray.png",
-      "48": "/icons/icon48-gray.png",
-      "128": "/icons/icon128.png"
+      "16": "/icons/16-gray.png",
+      "48": "/icons/48-gray.png",
+      "128": "/icons/128-gray.png"
     },
     "default_title": "Moodle Buddy",
     "default_popup": "./popup/index.html"

@@ -298,8 +298,6 @@ export default {
 }
 
 #new-activities > hr {
-  margin: 10px 0px;
-  color: rgba(240, 240, 240, 0.347);
   width: 110%;
 }
 
@@ -332,10 +330,6 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.bold {
-  font-weight: 600;
 }
 
 .new-resources-info {

@@ -12,7 +12,12 @@
         :options="options"
       ></StartingPageView>
       <CourseView v-if="showCourseView" :activeTab="activeTab" :options="options"></CourseView>
-      <NoMoodle v-if="showNoMoodle" :openInfoPage="onInfoClick" :options="options"></NoMoodle>
+      <NoMoodle
+        v-if="showNoMoodle"
+        :openInfoPage="onInfoClick"
+        :options="options"
+        :nUpdates="nUpdates"
+      ></NoMoodle>
     </div>
 
     <div class="footer">
@@ -44,7 +49,7 @@ import StartingPageView from "./views/StartingPageView.vue"
 import CourseView from "./views/CourseView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
 
-import MoodleIcon from "../icons/icon48.png"
+import MoodleIcon from "../icons/48.png"
 import InfoIcon from "./static/images/information.png"
 
 export default {
@@ -60,6 +65,7 @@ export default {
       MoodleIcon,
       currentURL: "",
       options: null,
+      nUpdates: 0,
     }
   },
   computed: {
@@ -103,8 +109,9 @@ export default {
   },
   created() {
     browser.storage.local
-      .get("options")
-      .then(({ options }) => {
+      .get(["options", "nUpdates"])
+      .then(({ options, nUpdates }) => {
+        this.nUpdates = nUpdates
         this.options = options
       })
       .then(getActiveTab)
@@ -155,6 +162,15 @@ export default {
 
 .link:hover {
   cursor: pointer;
+}
+
+.bold {
+  font-weight: 600;
+}
+
+hr {
+  margin: 10px 0px;
+  color: rgba(240, 240, 240, 0.347);
 }
 
 .footer {

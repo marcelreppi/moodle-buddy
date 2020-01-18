@@ -5,7 +5,6 @@ import Course from "../models/Course"
 // browser.storage.local.clear()
 
 async function backgroundScan() {
-  console.log("Scanning in background")
   const { options, overviewCourseLinks } = await browser.storage.local.get([
     "options",
     "overviewCourseLinks",
@@ -33,8 +32,9 @@ async function backgroundScan() {
     courses.push(course)
   }
 
-  console.log("Background scan done")
   const nUpdates = getUpdatesFromCourses(courses)
+
+  browser.storage.local.set({ nUpdates })
 
   // If there are no further updates reset the icon
   if (nUpdates === 0) {
