@@ -12,7 +12,7 @@ html, body {
   justify-content: center;
   align-items: center;
   padding: 5px 20px; 
-  width: 600px
+  width: 700px
 }
 
 .title {
@@ -36,13 +36,22 @@ html, body {
 }
 
 .section-title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: bold;
-  text-decoration: underline;
 }
 
 .section-content {
   margin-bottom: 15px;
+}
+
+.feature-section {
+  font-weight: bold;
+  margin-bottom: 5px;
+  margin-left: -30px;
+}
+
+.feature-section:nth-of-type(n+2) {
+  margin-top: 15px;
 }
 
 .footer {
@@ -70,12 +79,6 @@ html, body {
 .footer-right-section {
   display: flex;
   align-items: center;
-}
-
-.feedback-title {
-  font-weight: bold;
-  text-decoration: underline;
-  margin-bottom: 5px;
 }
 
 .center {
