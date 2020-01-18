@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Moodle Buddy",
   "version": "1.3",
-  "description": "Moodle Buddy offers additional helpful functionality to the moodle learning management platform. Students see updates to their courses immediately and can download all learning materials with just one click.",
+  "description": "Moodle Buddy offers additional helpful functionality to the moodle learning management platform.",
   "icons": {
     "16": "/icons/16.png",
     "48": "/icons/48.png",
