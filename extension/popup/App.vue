@@ -179,7 +179,7 @@ hr {
   align-items: center;
   margin-top: 30px;
   font-size: 12px;
-  color: #8f8f8f;
+  color: #6f6f6f;
 }
 
 .footer-right-section {
