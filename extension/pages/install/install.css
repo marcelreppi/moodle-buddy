@@ -52,6 +52,14 @@ html, body {
   margin-bottom: 15px;
 }
 
+.screenshot-container {
+  display: flex;
+  flex-direction: row;
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+
 .footer {
   display: flex;
   flex-direction: column;

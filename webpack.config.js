@@ -94,6 +94,7 @@ module.exports = {
       { from: "./extension/pages", to: "./pages" },
       { from: "./extension/shared", to: "./shared" },
       { from: "./extension/icons", to: "./icons" },
+      { from: "./screenshots", to: "./screenshots" },
     ]),
     new webpack.EnvironmentPlugin(["NODE_ENV"]), // Make process.env.NODE_ENV available in code
     new DotenvPlugin(), // Load environment variables from .env file

@@ -44,6 +44,13 @@ html, body {
   margin-bottom: 15px;
 }
 
+.screenshot-container {
+  display: flex;
+  flex-direction: row;
+  margin-top: 20px;
+  font-weight: bold;
+}
+
 .feature-section {
   font-weight: bold;
   margin-bottom: 5px;
