@@ -50,7 +50,7 @@ import CourseView from "./views/CourseView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
 
 import MoodleIcon from "../icons/48.png"
-import InfoIcon from "../static/images/information.png"
+import InfoIcon from "../static/information.png"
 
 export default {
   components: {
