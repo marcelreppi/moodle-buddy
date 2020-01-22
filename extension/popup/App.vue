@@ -135,7 +135,7 @@ export default {
 .title {
   font-size: 24px;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .title-icon {

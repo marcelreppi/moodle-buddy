@@ -2,7 +2,7 @@
   <div class="detailed-selection">
     <input type="text" v-model="searchInput" placeholder="Search..." />
     <div
-      class="selection"
+      class="selection scrollbar"
       @mousedown="() => setMouseDown(true)"
       @mouseup="() => setMouseDown(false)"
     >
@@ -14,7 +14,7 @@
         @mousemove="onMouseOver"
         @input="onCheck"
       >
-        <span>{{ r.fileName }}</span>
+        <span>{{ r.fileName || r.folderName }}</span>
         <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
         <div>
           <input :ref="`cb${i}`" type="checkbox" :checked="r.selected" />
@@ -48,7 +48,14 @@ export default {
       }
 
       return this.resources.filter(r => {
-        const isMatch = r.fileName.match(new RegExp(this.searchInput, "gi"))
+        let isMatch = false
+        if (r.isFile) {
+          isMatch = r.fileName.match(new RegExp(this.searchInput, "gi"))
+        }
+
+        if (r.isFolder) {
+          isMatch = r.folderName.match(new RegExp(this.searchInput, "gi"))
+        }
 
         if (this.onlyNewResources) {
           return r.isNewResource && isMatch
@@ -109,6 +116,9 @@ input[type="text"] {
   font-size: 13px;
   margin-top: 5px;
   width: 100%;
+  height: 150px;
+  overflow-y: scroll;
+  padding-right: 10px;
 }
 
 label {

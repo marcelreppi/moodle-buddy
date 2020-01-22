@@ -351,10 +351,10 @@ export default {
 .tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 40px;
+  height: 35px;
   width: 80%;
-  margin: 10px 0px;
-  font-size: 16px;
+  margin: 5px 0px;
+  font-size: 14px;
   color: #545454;
 }
 
