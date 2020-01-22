@@ -30,6 +30,7 @@ export default {
     resources: Array,
     setResourceSelected: Function,
     onlyNewResources: Boolean,
+    checkDisableDownload: Function,
   },
   data() {
     return {
@@ -73,6 +74,7 @@ export default {
 
         const { href } = e.target.parentElement.dataset
         this.setResourceSelected(href, true)
+        this.checkDisableDownload()
       }
     },
     setMouseDown(isDown) {
@@ -81,6 +83,7 @@ export default {
     onCheck(e) {
       const { href } = e.currentTarget.dataset
       this.setResourceSelected(href, e.target.checked)
+      this.checkDisableDownload()
     },
     onLinkClick(e) {
       browser.tabs.create({

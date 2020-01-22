@@ -86,6 +86,7 @@
         :resources="resourceNodes"
         :setResourceSelected="setResourceSelected"
         :onlyNewResources="onlyNewResources"
+        :checkDisableDownload="checkDisableDownload"
       />
     </div>
 
@@ -224,10 +225,10 @@ export default {
       this.handleCheckboxes()
     },
     downloadFiles() {
-      this.disableDownload = !this.downloadFiles && !this.downloadFolders
+      this.checkDisableDownload()
     },
     downloadFolders() {
-      this.disableDownload = !this.downloadFiles && !this.downloadFolders
+      this.checkDisableDownload()
     },
   },
   methods: {
@@ -303,6 +304,18 @@ export default {
       const resource = this.resourceNodes.find(r => r.href === href)
       resource.selected = value
     },
+    setDisableDownload(value) {
+      this.disableDownload = value
+    },
+    checkDisableDownload() {
+      if (this.activeSelectionTab === "simple") {
+        this.disableDownload = !this.downloadFiles && !this.downloadFolders
+      }
+
+      if (this.activeSelectionTab === "detailed") {
+        this.disableDownload = this.resourceNodes.every(r => !r.selected)
+      }
+    },
   },
   created() {
     browser.runtime.onMessage.addListener(message => {
@@ -343,6 +356,9 @@ export default {
     browser.tabs.sendMessage(this.activeTab.id, {
       command: "scan",
     })
+  },
+  updated() {
+    this.checkDisableDownload()
   },
 }
 </script>
