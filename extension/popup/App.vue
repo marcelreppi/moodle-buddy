@@ -124,7 +124,7 @@ export default {
 
 <style>
 .app {
-  font-size: 16px;
+  font-size: 15px;
   padding: 25px 10px 5px 10px;
 }
 
