@@ -43,25 +43,17 @@ browser.runtime.onMessage.addListener(async message => {
   }
 
   if (message.command === "crawl") {
-    const { options } = message
-
-    const downloadNodes = course.resourceNodes.filter(n => {
-      if (options.skipFiles && n.isFile) return false
-      if (options.skipFolders && n.isFolder) return false
-      if (options.onlyNewResources && !n.isNewResource) return false
-
-      return true
-    })
+    const { options, selectedResources } = message
 
     browser.runtime.sendMessage({
       command: "download",
-      resources: downloadNodes,
+      resources: selectedResources,
       courseName: course.name,
       courseShortcut: course.shortcut,
       options,
     })
 
-    await course.updateStoredResources(downloadNodes)
+    await course.updateStoredResources(selectedResources)
     await course.scan()
     updateIconFromCourses(course)
   }

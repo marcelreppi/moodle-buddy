@@ -33,7 +33,27 @@
           </div>
           <div class="action" @click="onMarkAsSeenClick">Mark as seen</div>
         </div>
-        <div class="marginize">
+      </div>
+
+      <div class="tabs">
+        <div
+          class="tab"
+          :class="{ 'active-tab': showSimpleSelection }"
+          @click="() => setSelectionTab('simple')"
+        >
+          Simple
+        </div>
+        <div
+          class="tab"
+          :class="{ 'active-tab': !showSimpleSelection }"
+          @click="() => setSelectionTab('detailed')"
+        >
+          Detailed
+        </div>
+      </div>
+
+      <div v-if="showSimpleSelection" class="resource-info">
+        <div>
           <div>
             <label id="files-cb-label">
               <input v-model="downloadFiles" type="checkbox" :disabled="disableFilesCb" />
@@ -55,36 +75,46 @@
             </label>
           </div>
         </div>
+
         <button class="action marginize" :disabled="disableDownload" @click="toggleDetails">
           Show details on selected resources
         </button>
-
-        <DetailOverlay
-          v-if="showDetails"
-          :resources="selectedResources"
-          :toggle-details="toggleDetails"
-        />
-
-        <div v-if="showDownloadOptions" class="marginize">
-          <div>
-            <label>
-              <input v-model="prependCourseShortcutToFileName" type="checkbox" />
-              <span class="checkbox-label">Prepend course shortcut to each file name</span>
-            </label>
-          </div>
-          <div>
-            <label>
-              <input v-model="prependCourseToFileName" type="checkbox" />
-              <span class="checkbox-label">Prepend course name to each file name</span>
-            </label>
-          </div>
-        </div>
       </div>
 
-      <button class="download-button" :disabled="disableDownload" @click="onDownload">
-        Download
-      </button>
+      <detailed-selection
+        v-else
+        :resources="resourceNodes"
+        :setResourceSelected="setResourceSelected"
+        :onlyNewResources="onlyNewResources"
+      />
     </div>
+
+    <detail-overlay
+      v-if="showDetails"
+      :resources="selectedResources"
+      :toggle-details="toggleDetails"
+    />
+
+    <!-- <button class="action marginize">Switch to detailed selection</button> -->
+
+    <div v-if="showDownloadOptions" style="margin-top: 20px;">
+      <div>
+        <label>
+          <input v-model="prependCourseShortcutToFileName" type="checkbox" />
+          <span class="checkbox-label">Prepend course shortcut to each file name</span>
+        </label>
+      </div>
+      <div>
+        <label>
+          <input v-model="prependCourseToFileName" type="checkbox" />
+          <span class="checkbox-label">Prepend course name to each file name</span>
+        </label>
+      </div>
+    </div>
+
+    <button class="download-button" :disabled="disableDownload" @click="onDownload">
+      Download
+    </button>
   </div>
 </template>
 
@@ -92,10 +122,12 @@
 import { sendEvent } from "../../shared/helpers"
 
 import DetailOverlay from "../components/DetailOverlay.vue"
+import DetailedSelection from "../components/DetailedSelection.vue"
 
 export default {
   components: {
     DetailOverlay,
+    DetailedSelection,
   },
   props: {
     activeTab: {
@@ -128,9 +160,13 @@ export default {
       disableDownload: false,
       showDetails: false,
       showDownloadOptions: true,
+      activeSelectionTab: "simple",
     }
   },
   computed: {
+    showSimpleSelection() {
+      return this.activeSelectionTab === "simple"
+    },
     showNewResourceInfo() {
       return this.nNewFiles > 0 || this.nNewFolders > 0
     },
@@ -195,6 +231,9 @@ export default {
     },
   },
   methods: {
+    setSelectionTab(tab) {
+      this.activeSelectionTab = tab
+    },
     handleCheckboxes() {
       if (this.onlyNewResources) {
         this.downloadFiles = this.nNewFiles !== 0
@@ -213,12 +252,26 @@ export default {
 
       this.disableDownload = true
 
+      const selectedResources = this.resourceNodes.filter(n => {
+        if (this.activeSelectionTab === "simple") {
+          if (!this.downloadFiles && n.isFile) return false
+          if (!this.downloadFolders && n.isFolder) return false
+          if (this.onlyNewResources && !n.isNewResource) return false
+
+          return true
+        }
+
+        if (this.activeSelectionTab === "detailed") {
+          return n.selected
+        }
+
+        return false
+      })
+
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
+        selectedResources,
         options: {
-          skipFiles: !this.downloadFiles,
-          skipFolders: !this.downloadFolders,
-          onlyNewResources: this.onlyNewResources,
           saveToFolder: this.saveToFolder,
           useMoodleFileName: this.useMoodleFileName,
           prependCourseToFileName: this.prependCourseToFileName,
@@ -246,6 +299,10 @@ export default {
     showOptionsPage() {
       browser.runtime.openOptionsPage()
     },
+    setResourceSelected(href, value) {
+      const resource = this.resourceNodes.find(r => r.href === href)
+      resource.selected = value
+    },
   },
   created() {
     browser.runtime.onMessage.addListener(message => {
@@ -254,7 +311,9 @@ export default {
         this.nNewFiles = message.nNewFiles
         this.nFolders = message.nFolders
         this.nNewFolders = message.nNewFolders
-        this.resourceNodes = message.resourceNodes
+        this.resourceNodes = message.resourceNodes.map(r => {
+          return { ...r, selected: false }
+        })
 
         this.nActivities = message.nActivities
         this.nNewActivities = message.nNewActivities
@@ -289,6 +348,32 @@ export default {
 </script>
 
 <style scoped>
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 40px;
+  width: 80%;
+  margin: 10px 0px;
+  font-size: 16px;
+  color: #545454;
+}
+
+.tab {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 3px solid #dcdcdc;
+}
+
+.tab:hover {
+  cursor: pointer;
+}
+
+.active-tab {
+  border-bottom: 3px solid #c50e20;
+  color: black;
+}
+
 #new-activities {
   display: flex;
   flex-direction: column;
@@ -330,6 +415,8 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: 10px;
+  box-sizing: border-box;
 }
 
 .new-resources-info {
