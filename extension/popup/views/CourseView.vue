@@ -55,7 +55,7 @@
       <div v-if="showSimpleSelection" class="resource-info">
         <div>
           <div>
-            <label id="files-cb-label">
+            <label>
               <input v-model="downloadFiles" type="checkbox" :disabled="disableFilesCb" />
               <span class="checkbox-label">
                 <span v-if="onlyNewResources">{{ nNewFiles }}</span>
@@ -65,7 +65,7 @@
             </label>
           </div>
           <div>
-            <label id="folders-cb-label">
+            <label>
               <input v-model="downloadFolders" type="checkbox" :disabled="disableFoldersCb" />
               <span class="checkbox-label">
                 <span v-if="onlyNewResources">{{ nNewFolders }}</span>
@@ -76,7 +76,12 @@
           </div>
         </div>
 
-        <button class="action marginize" :disabled="disableDownload" @click="toggleDetails">
+        <button
+          class="action"
+          style="margin-top: 10px"
+          :disabled="disableDownload"
+          @click="toggleDetails"
+        >
           Show details on selected resources
         </button>
       </div>
@@ -95,8 +100,6 @@
       :resources="selectedResources"
       :toggle-details="toggleDetails"
     />
-
-    <!-- <button class="action marginize">Switch to detailed selection</button> -->
 
     <div v-if="showDownloadOptions" style="margin-top: 20px;">
       <div>
@@ -162,6 +165,7 @@ export default {
       showDetails: false,
       showDownloadOptions: true,
       activeSelectionTab: "simple",
+      downloadStarted: false,
     }
   },
   computed: {
@@ -197,21 +201,19 @@ export default {
     },
     selectedResources() {
       return this.resourceNodes.filter(n => {
-        let select = false
+        if (this.activeSelectionTab === "simple") {
+          if (!this.downloadFiles && n.isFile) return false
+          if (!this.downloadFolders && n.isFolder) return false
+          if (this.onlyNewResources && !n.isNewResource) return false
 
-        if (n.isFile && this.downloadFiles) {
-          select = true
+          return true
         }
 
-        if (n.isFolder && this.downloadFolders) {
-          select = true
+        if (this.activeSelectionTab === "detailed") {
+          return n.selected
         }
 
-        if (this.onlyNewResources && !n.isNewResource) {
-          select = false
-        }
-
-        return select
+        return false
       })
     },
   },
@@ -245,33 +247,18 @@ export default {
       }
     },
     onDownload() {
+      const eventParts = ["download-course-page", this.activeSelectionTab]
       if (this.onlyNewResources) {
-        sendEvent("download-course-page-only-new", true)
-      } else {
-        sendEvent("download-course-page", true)
+        eventParts.push("only-new")
       }
+      sendEvent(eventParts.join("-"), true)
 
-      this.disableDownload = true
-
-      const selectedResources = this.resourceNodes.filter(n => {
-        if (this.activeSelectionTab === "simple") {
-          if (!this.downloadFiles && n.isFile) return false
-          if (!this.downloadFolders && n.isFolder) return false
-          if (this.onlyNewResources && !n.isNewResource) return false
-
-          return true
-        }
-
-        if (this.activeSelectionTab === "detailed") {
-          return n.selected
-        }
-
-        return false
-      })
+      this.downloadStarted = true
+      this.checkDisableDownload()
 
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
-        selectedResources,
+        selectedResources: this.selectedResources,
         options: {
           saveToFolder: this.saveToFolder,
           useMoodleFileName: this.useMoodleFileName,
@@ -308,6 +295,11 @@ export default {
       this.disableDownload = value
     },
     checkDisableDownload() {
+      if (this.downloadStarted) {
+        this.disableDownload = true
+        return
+      }
+
       if (this.activeSelectionTab === "simple") {
         this.disableDownload = !this.downloadFiles && !this.downloadFolders
       }
@@ -459,17 +451,7 @@ export default {
   cursor: default;
 }
 
-.download-info {
-  width: 300px;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
 .checkbox-label {
   margin-left: 5px;
-}
-
-.marginize {
-  margin-top: 10px;
 }
 </style>
