@@ -168,22 +168,28 @@ async function sendDownloadData(data) {
 
 browser.downloads.onChanged.addListener(async downloadDelta => {
   const { state } = downloadDelta
+
+  if (state && state.current === "interrupted") {
+    inProgressDownloads.delete(downloadDelta.id)
+    downloadFileCount--
+  }
+
   if (state && state.current === "complete") {
     const downloadItem = await browser.downloads.search({ id: downloadDelta.id })
     downloadByteCount += downloadItem[0].fileSize
     inProgressDownloads.delete(downloadDelta.id)
     finishedDownloads.add(downloadDelta.id)
+  }
 
-    if (finishedDownloads.size === downloadFileCount) {
-      sendDownloadData({
-        fileCount: downloadFileCount,
-        byteCount: downloadByteCount,
-      })
+  if (downloadFileCount > 0 && finishedDownloads.size === downloadFileCount) {
+    sendDownloadData({
+      fileCount: downloadFileCount,
+      byteCount: downloadByteCount,
+    })
 
-      downloadFileCount = 0
-      downloadByteCount = 0
-      finishedDownloads.clear()
-    }
+    downloadFileCount = 0
+    downloadByteCount = 0
+    finishedDownloads.clear()
   }
 })
 
