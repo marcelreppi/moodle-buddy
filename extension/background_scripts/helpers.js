@@ -41,8 +41,49 @@ export async function sendEvent(event, saveURL) {
     headers: {
       "User-Agent": navigator.userAgent,
       "Content-Type": "application/json",
+      "X-API-Key": process.env.API_KEY,
     },
     body: JSON.stringify(body),
+  })
+    // .then(res => console.info(res))
+    .catch(error => console.log(error))
+}
+
+export async function sendDownloadData(data) {
+  const { options } = await browser.storage.local.get("options")
+
+  if (options.disableInteractionTracking) {
+    console.log("Tracking disabled!")
+    return
+  }
+
+  if (!process.env.API_URL) {
+    return
+  }
+
+  const isDev = process.env.NODE_ENV === "development"
+
+  if (isDev) {
+    console.log({
+      event: "download-data",
+      fileCount: data.fileCount,
+      byteCount: data.byteCount,
+      dev: isDev,
+    })
+  }
+
+  fetch(`${process.env.API_URL}/download`, {
+    method: "POST",
+    headers: {
+      "User-Agent": navigator.userAgent,
+      "Content-Type": "application/json",
+      "X-API-Key": process.env.API_KEY,
+    },
+    body: JSON.stringify({
+      fileCount: data.fileCount,
+      byteCount: data.byteCount,
+      dev: isDev,
+    }),
   })
     // .then(res => console.info(res))
     .catch(error => console.log(error))
