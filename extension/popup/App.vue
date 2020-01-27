@@ -23,9 +23,12 @@
     <div class="footer">
       <span>
         Inofficial Plugin by
-        <span class="link" @click="() => navigateTo('https://twitter.com/marcelreppi')"
-          >marcelreppi</span
-        >
+        <span class="link" @click="() => navigateTo('https://twitter.com/marcelreppi')">
+          marcelreppi
+        </span>
+      </span>
+      <span>
+        <div class="link" @click="() => navigateTo(rateLink)">Rate</div>
       </span>
       <span>
         <div class="link" @click="onDonateClick">Donate</div>
@@ -86,6 +89,11 @@ export default {
     },
     showNoMoodle() {
       return !this.showStartingPageView && !this.showCourseView
+    },
+    rateLink() {
+      return this.isFirefox
+        ? "https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/"
+        : "https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo"
     },
   },
   methods: {
