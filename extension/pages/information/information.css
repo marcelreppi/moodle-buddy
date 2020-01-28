@@ -51,6 +51,10 @@ html, body {
   font-weight: bold;
 }
 
+.screenshot-container > div > div {
+  margin-bottom: 10px;
+}
+
 .feature-section {
   font-weight: bold;
   margin-bottom: 5px;
