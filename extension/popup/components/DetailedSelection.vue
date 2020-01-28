@@ -8,20 +8,67 @@
       ref="selectionContainer"
       :style="selectionContainerStyle"
     >
-      <label
-        v-for="(r, i) in filteredResources"
-        :key="i"
-        :id="`cb${i}`"
-        :data-href="r.href"
-        @mousemove="onMouseOver"
-        @input="onCheck"
-      >
-        <span>{{ r.fileName || r.folderName }}</span>
-        <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
-        <div>
-          <input :ref="`cb${i}`" type="checkbox" :checked="r.selected" />
-        </div>
-      </label>
+      <div v-if="filteredResources.length > 0">
+        <label class="category" @input="e => onCategoryClick(e, 'all')">
+          <span>All</span>
+          <div>
+            <input ref="allCb" type="checkbox" />
+          </div>
+        </label>
+      </div>
+
+      <div v-if="fileResources.length > 0">
+        <label class="category" @input="e => onCategoryClick(e, 'file')">
+          <span>Files</span>
+          <div>
+            <input ref="filesCb" type="checkbox" />
+          </div>
+        </label>
+        <label
+          v-for="(r, i) in fileResources"
+          :key="`fileCb${i}`"
+          :id="`fileCb${i}`"
+          :data-href="r.href"
+          class="resource"
+          @mousemove="onMouseOver"
+          @input="onCheck"
+        >
+          <span class="resource">{{ r.fileName || r.folderName }}</span>
+          <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
+          <div>
+            <input :data-href="r.href" :ref="`fileCb${i}`" type="checkbox" :checked="r.selected" />
+          </div>
+        </label>
+      </div>
+
+      <div v-if="folderResources.length > 0">
+        <label class="category" @input="e => onCategoryClick(e, 'folder')">
+          <span>Folders</span>
+          <div>
+            <input ref="foldersCb" type="checkbox" />
+          </div>
+        </label>
+        <label
+          v-for="(r, i) in folderResources"
+          :key="`folderCb${i}`"
+          :id="`folderCb${i}`"
+          :data-href="r.href"
+          class="resource"
+          @mousemove="onMouseOver"
+          @input="onCheck"
+        >
+          <span class="resource">{{ r.fileName || r.folderName }}</span>
+          <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
+          <div>
+            <input
+              :data-href="r.href"
+              :ref="`folderCb${i}`"
+              type="checkbox"
+              :checked="r.selected"
+            />
+          </div>
+        </label>
+      </div>
     </div>
   </div>
 </template>
@@ -71,6 +118,12 @@ export default {
         return isMatch
       })
     },
+    fileResources() {
+      return this.filteredResources.filter(r => r.isFile)
+    },
+    folderResources() {
+      return this.filteredResources.filter(r => r.isFolder)
+    },
   },
   methods: {
     onMouseOver(e) {
@@ -90,12 +143,52 @@ export default {
       const { href } = e.currentTarget.dataset
       this.setResourceSelected(href, e.target.checked)
       this.checkDisableDownload()
+
+      if (!e.target.checked) {
+        this.$refs.allCb.checked = false
+      }
     },
     onLinkClick(e) {
       browser.tabs.create({
         url: e.target.href,
       })
       window.close()
+    },
+    onCategoryClick(e, category) {
+      if (category === "all") {
+        Object.keys(this.$refs)
+          .filter(ref => ref.match(/.*Cb/))
+          .forEach(ref => {
+            if (Array.isArray(this.$refs[ref])) {
+              // These are the actual checkboxes for the individual resources
+
+              if (this.$refs[ref].length === 0) return // User has filtered while clicking so some refs are undefined
+
+              const { href } = this.$refs[ref][0].dataset
+              this.setResourceSelected(href, e.target.checked)
+            } else {
+              // This is one of the other category checkboxes
+              if (this.$refs[ref] === undefined) return // User has filtered while clicking so some refs are undefined
+
+              this.$refs[ref].checked = e.target.checked
+            }
+          })
+      } else {
+        Object.keys(this.$refs)
+          .filter(ref => ref.match(new RegExp(`${category}Cb`)))
+          .forEach(ref => {
+            if (this.$refs[ref].length === 0) return // User has filtered while clicking so some refs are undefined
+
+            const { href } = this.$refs[ref][0].dataset
+            this.setResourceSelected(href, e.target.checked)
+          })
+
+        if (!e.target.checked) {
+          this.$refs.allCb.checked = false
+        }
+      }
+
+      this.checkDisableDownload()
     },
   },
   mounted() {
@@ -135,14 +228,19 @@ input[type="text"] {
   font-size: 13px;
   margin-top: 5px;
   width: 100%;
-  height: 150px;
-  overflow-y: scroll;
   padding-right: 10px;
 }
 
-label {
+label.resource {
   display: grid;
   grid-template-columns: 10fr 1fr 1fr;
+}
+
+label.category {
+  display: grid;
+  grid-template-columns: 10fr 1fr;
+  font-weight: 500;
+  padding: 5px 0px;
 }
 
 label:hover {
@@ -150,8 +248,9 @@ label:hover {
   background-color: #dcdcdc53;
 }
 
-label span {
+label span.resource {
   text-align: left;
+  padding-left: 10px;
 }
 
 label a {
