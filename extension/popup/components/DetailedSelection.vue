@@ -5,6 +5,8 @@
       class="selection scrollbar"
       @mousedown="() => setMouseDown(true)"
       @mouseup="() => setMouseDown(false)"
+      ref="selectionContainer"
+      :style="selectionContainerStyle"
     >
       <label
         v-for="(r, i) in filteredResources"
@@ -36,6 +38,10 @@ export default {
     return {
       mouseDown: false,
       searchInput: "",
+      selectionContainerStyle: {
+        height: "auto",
+        "overflow-y": "hidden",
+      },
     }
   },
   computed: {
@@ -91,6 +97,16 @@ export default {
       })
       window.close()
     },
+  },
+  mounted() {
+    const height = this.$refs.selectionContainer.clientHeight
+
+    if (height > 150) {
+      this.selectionContainerStyle.height = "150px"
+      this.selectionContainerStyle["overflow-y"] = "scroll"
+    } else {
+      this.selectionContainerStyle.height = `${height}px`
+    }
   },
 }
 </script>
