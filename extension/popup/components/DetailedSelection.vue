@@ -251,6 +251,7 @@ label:hover {
 label span.resource {
   text-align: left;
   padding-left: 10px;
+  padding-right: 5px;
 }
 
 label a {
