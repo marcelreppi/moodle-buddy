@@ -392,6 +392,7 @@ export default {
 
 #new-activities > hr {
   width: 110%;
+  margin-bottom: 0px;
 }
 
 .download-button {
