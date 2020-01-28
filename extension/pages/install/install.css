@@ -59,6 +59,9 @@ html, body {
   font-weight: bold;
 }
 
+.screenshot-container > div > div {
+  margin-bottom: 10px;
+}
 
 .footer {
   display: flex;
