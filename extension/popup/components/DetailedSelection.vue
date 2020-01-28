@@ -239,7 +239,7 @@ label.resource {
 label.category {
   display: grid;
   grid-template-columns: 10fr 1fr;
-  font-weight: 500;
+  font-weight: 600;
   padding: 5px 0px;
 }
 
