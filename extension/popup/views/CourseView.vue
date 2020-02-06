@@ -398,7 +398,7 @@ export default {
 .download-button {
   width: 100px;
   padding: 10px 0px;
-  margin-top: 15px;
+  margin-top: 20px;
   border-radius: 5px;
   border: 0;
   background-color: #c50e20;

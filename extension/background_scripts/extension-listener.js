@@ -4,7 +4,7 @@ const defaultOptions = {
   onlyNewResources: false,
   saveToFolder: true,
   useMoodleFileName: true,
-  showDownloadOptions: true,
+  showDownloadOptions: false,
   prependCourseShortcutToFileName: false,
   prependCourseToFileName: false,
   alwaysShowDetails: false,
