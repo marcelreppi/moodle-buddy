@@ -159,6 +159,11 @@ browser.runtime.onMessage.addListener(async message => {
     const courseName = sanitizeFileName(message.courseName)
     const courseShortcut = sanitizeFileName(message.courseShortcut, "_")
 
+    inProgressDownloads.clear()
+    finishedDownloads.clear()
+    downloadFileCount = 0
+    downloadByteCount = 0
+
     for (const node of message.resources) {
       downloadFileCount++
       if (node.isPluginFile) {
