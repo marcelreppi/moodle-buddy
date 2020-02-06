@@ -22,10 +22,9 @@
 
     <div class="footer">
       <span>
-        Inofficial Plugin by
-        <span class="link" @click="() => navigateTo('https://twitter.com/marcelreppi')">
-          marcelreppi
-        </span>
+        <div class="link" @click="() => navigateTo('/pages/contact/contact.html')">
+          Report a bug
+        </div>
       </span>
       <span>
         <div class="link" @click="() => navigateTo(rateLink)">Rate</div>
@@ -98,11 +97,8 @@ export default {
   },
   methods: {
     onInfoClick() {
-      browser.tabs.create({
-        url: "../pages/information/information.html",
-      })
+      this.navigateTo("/pages/information/information.html")
       sendEvent("info-click", false)
-      window.close()
     },
     onDonateClick() {
       this.navigateTo("https://paypal.me/marcelreppi")

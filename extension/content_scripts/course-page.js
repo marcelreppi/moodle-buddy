@@ -10,7 +10,10 @@ const course = new Course(courseLink, document)
 // Initial scan
 course.scan().then(() => {
   updateIconFromCourses(course)
-  // console.log(course)
+
+  if (process.env.NODE_ENV === "debug") {
+    console.log(course)
+  }
 })
 
 browser.runtime.sendMessage({

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <link rel="stylesheet" href="./contact.css" />
+  <title>Moodle Buddy</title>
+</head>
+
+<body>
+  <div class="container">
+    <div class="title">
+      Moodle Buddy
+      <img class="title-icon" src="../../icons/48.png" />
+    </div>
+
+    <div class="content-container">
+      <div class="section-title">Report a bug or submit a feature request</div>
+      <div class="section-content">
+        <div class="form-container">
+          <p class="center">Send an email to <a href="mailto:hello@moodlebuddy.com">hello@moodlebuddy.com</a></p>
+          <div class="center">or</div>
+          <p class="center">Submit the form below</p>
+          <div class="form">
+            <div>Subject</div>
+            <input type="text" id="form-subject">
+            <div>Content</div>
+            <textarea id="form-content" cols="60" rows="10"></textarea>
+
+            <div>
+              <button id="form-button">Submit</button>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="success">
+          <div>Success!</div>
+          <div>Thank you very much for your feedback!</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-row">
+        <span>
+          Inofficial Plugin made by
+          <a href="https://twitter.com/marcelreppi">marcelreppi</a>
+        </span>
+        <span class="footer-right-section">
+          <span id="version"></span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <script src="/shared/browser-polyfill.js"></script>
+  <script src="contact.js"></script>
+</body>
+
+</html>

@@ -2,6 +2,26 @@ import { isFirefox, getActiveTab, validURLRegex } from "../shared/helpers"
 
 const isDev = process.env.NODE_ENV !== "production"
 
+async function sendToLambda(path, body) {
+  if (isDev) {
+    console.log({ ...body, dev: isDev })
+  }
+
+  if (!process.env.API_URL) return
+
+  fetch(`${process.env.API_URL}${path}`, {
+    method: "POST",
+    headers: {
+      "User-Agent": navigator.userAgent,
+      "Content-Type": "application/json",
+      "X-API-Key": process.env.API_KEY,
+    },
+    body: JSON.stringify({ ...body, dev: isDev }),
+  })
+    // .then(res => console.info(res))
+    .catch(error => console.log(error))
+}
+
 export async function sendEvent(event, saveURL) {
   const { options, browserId } = await browser.storage.local.get(["options", "browserId"])
 
@@ -13,10 +33,6 @@ export async function sendEvent(event, saveURL) {
     }
   }
 
-  if (!process.env.API_URL) {
-    return
-  }
-
   let url = ""
   if (saveURL) {
     const activeTab = await getActiveTab()
@@ -24,29 +40,12 @@ export async function sendEvent(event, saveURL) {
     url = activeTab.url.match(validURLRegex)[0]
   }
 
-  const body = {
+  sendToLambda("/event", {
     event,
     browser: isFirefox() ? "firefox" : "chrome",
     browserId,
     url,
-    dev: isDev,
-  }
-
-  if (isDev) {
-    console.log(body)
-  }
-
-  fetch(`${process.env.API_URL}/event`, {
-    method: "POST",
-    headers: {
-      "User-Agent": navigator.userAgent,
-      "Content-Type": "application/json",
-      "X-API-Key": process.env.API_KEY,
-    },
-    body: JSON.stringify(body),
   })
-    // .then(res => console.info(res))
-    .catch(error => console.log(error))
 }
 
 export async function sendDownloadData(data) {
@@ -57,64 +56,15 @@ export async function sendDownloadData(data) {
     return
   }
 
-  if (!process.env.API_URL) {
-    return
-  }
-
-  if (isDev) {
-    console.log({
-      event: "download-data",
-      fileCount: data.fileCount,
-      byteCount: data.byteCount,
-      dev: isDev,
-    })
-  }
-
-  fetch(`${process.env.API_URL}/download`, {
-    method: "POST",
-    headers: {
-      "User-Agent": navigator.userAgent,
-      "Content-Type": "application/json",
-      "X-API-Key": process.env.API_KEY,
-    },
-    body: JSON.stringify({
-      fileCount: data.fileCount,
-      byteCount: data.byteCount,
-      dev: isDev,
-    }),
-  })
-    // .then(res => console.info(res))
-    .catch(error => console.log(error))
+  sendToLambda("/download", { fileCount: data.fileCount, byteCount: data.byteCount })
 }
 
 export async function sendPageData(HTMLString, page) {
-  if (!process.env.API_URL) {
-    return
-  }
+  sendToLambda("/page", { HTMLString, page })
+}
 
-  if (isDev) {
-    console.log({
-      HTMLString,
-      page,
-      dev: isDev,
-    })
-  }
-
-  fetch(`${process.env.API_URL}/page`, {
-    method: "POST",
-    headers: {
-      "User-Agent": navigator.userAgent,
-      "Content-Type": "application/json",
-      "X-API-Key": process.env.API_KEY,
-    },
-    body: JSON.stringify({
-      HTMLString,
-      page,
-      dev: isDev,
-    }),
-  })
-    // .then(res => console.info(res))
-    .catch(error => console.log(error))
+export async function sendFeedback(subject, content) {
+  sendToLambda("/feedback", { subject, content })
 }
 
 export function uuidv4() {
