@@ -1,4 +1,4 @@
-import { sendEvent, uuidv4, setIcon, setBadgeText } from "./helpers"
+import { sendEvent, sendPageData, uuidv4, setIcon, setBadgeText } from "./helpers"
 
 const defaultOptions = {
   onlyNewResources: false,
@@ -78,11 +78,19 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
     case "event":
       sendEvent(message.event, message.saveURL)
       break
+    case "page-data":
+      sendPageData(message.HTMLString, message.page)
+      break
     case "set-icon":
       setIcon(sender.tab.id)
       break
     case "set-badge":
       setBadgeText(message.text, sender.tab.id)
+      break
+    case "debug":
+      browser.tabs.executeScript({
+        file: "../content_scripts/course-page.js",
+      })
       break
     default:
       break

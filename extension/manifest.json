@@ -9,8 +9,7 @@
     "128": "/icons/128.png"
   },
   "permissions": [
-    "http://*/*",
-    "https://*/*",
+    "<all_urls>",
     "activeTab",
     "downloads",
     "storage"

@@ -1,5 +1,7 @@
 import { isFirefox, getActiveTab, validURLRegex } from "../shared/helpers"
 
+const isDev = process.env.NODE_ENV !== "production"
+
 export async function sendEvent(event, saveURL) {
   const { options, browserId } = await browser.storage.local.get(["options", "browserId"])
 
@@ -14,8 +16,6 @@ export async function sendEvent(event, saveURL) {
   if (!process.env.API_URL) {
     return
   }
-
-  const isDev = process.env.NODE_ENV === "development"
 
   let url = ""
   if (saveURL) {
@@ -61,8 +61,6 @@ export async function sendDownloadData(data) {
     return
   }
 
-  const isDev = process.env.NODE_ENV === "development"
-
   if (isDev) {
     console.log({
       event: "download-data",
@@ -82,6 +80,36 @@ export async function sendDownloadData(data) {
     body: JSON.stringify({
       fileCount: data.fileCount,
       byteCount: data.byteCount,
+      dev: isDev,
+    }),
+  })
+    // .then(res => console.info(res))
+    .catch(error => console.log(error))
+}
+
+export async function sendPageData(HTMLString, page) {
+  if (!process.env.API_URL) {
+    return
+  }
+
+  if (isDev) {
+    console.log({
+      HTMLString,
+      page,
+      dev: isDev,
+    })
+  }
+
+  fetch(`${process.env.API_URL}/page`, {
+    method: "POST",
+    headers: {
+      "User-Agent": navigator.userAgent,
+      "Content-Type": "application/json",
+      "X-API-Key": process.env.API_KEY,
+    },
+    body: JSON.stringify({
+      HTMLString,
+      page,
       dev: isDev,
     }),
   })

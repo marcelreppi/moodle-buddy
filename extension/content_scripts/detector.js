@@ -3,7 +3,6 @@ import { startingPageRegex, coursePageRegex, validURLRegex } from "../shared/hel
 async function setDefaultMoodleURL() {
   const { options } = await browser.storage.local.get("options")
 
-  console.log(options)
   if (!options.autoSetMoodleURL) return
 
   const baseURL = location.href.match(validURLRegex)[0]
@@ -23,4 +22,10 @@ if (urlIsSupported) {
   })
 
   setDefaultMoodleURL()
+}
+
+if (process.env.NODE_ENV === "debug") {
+  browser.runtime.sendMessage({
+    command: "debug",
+  })
 }

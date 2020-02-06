@@ -10,6 +10,13 @@ const course = new Course(courseLink, document)
 // Initial scan
 course.scan().then(() => {
   updateIconFromCourses(course)
+  // console.log(course)
+})
+
+browser.runtime.sendMessage({
+  command: "page-data",
+  page: "course",
+  HTMLString: document.querySelector("html").outerHTML,
 })
 
 browser.runtime.onMessage.addListener(async message => {

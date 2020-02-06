@@ -21,7 +21,8 @@ export function parseCourseNameFromCard(cardNode) {
 }
 
 export function parseCourseLink(htmlString) {
-  return htmlString.match(coursePageRegex)[0]
+  const match = htmlString.match(coursePageRegex)
+  return match ? match[0] : htmlString
 }
 
 export function parseFileNameFromNode(aTag) {

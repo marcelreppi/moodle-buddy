@@ -66,6 +66,12 @@ async function scanOverview() {
 
 scanOverview()
 
+browser.runtime.sendMessage({
+  command: "page-data",
+  page: "dashboard",
+  HTMLString: document.querySelector("html").outerHTML,
+})
+
 browser.runtime.onMessage.addListener(async message => {
   // console.log(message)
   if (message.command === "scan") {
