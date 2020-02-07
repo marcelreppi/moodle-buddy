@@ -140,6 +140,12 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
       byteCount: downloadByteCount,
     })
   }
+
+  browser.runtime.sendMessage({
+    command: "download-progress",
+    completed: finishedDownloads.length,
+    total: downloadFileCount,
+  })
 })
 
 browser.runtime.onMessage.addListener(async message => {

@@ -116,6 +116,13 @@
       </div>
     </div>
 
+    <div v-if="downloadStarted" class="progress-bar-container">
+      <div class="progress-bar-label">{{ downloadProgressText }}</div>
+      <div class="progress-bar">
+        <vue-progress-bar></vue-progress-bar>
+      </div>
+    </div>
+
     <button class="download-button" :disabled="disableDownload" @click="onDownload">
       Download
     </button>
@@ -166,6 +173,7 @@ export default {
       showDownloadOptions: true,
       activeSelectionTab: "simple",
       downloadStarted: false,
+      downloadProgressText: "",
     }
   },
   computed: {
@@ -254,6 +262,8 @@ export default {
       sendEvent(eventParts.join("-"), true)
 
       this.downloadStarted = true
+      this.setDownloadProgressText(0, this.selectedResources.length)
+      this.$Progress.set(1) // Set a small number to make something visible
       this.checkDisableDownload()
 
       browser.tabs.sendMessage(this.activeTab.id, {
@@ -291,9 +301,6 @@ export default {
       const resource = this.resourceNodes.find(r => r.href === href)
       resource.selected = value
     },
-    setDisableDownload(value) {
-      this.disableDownload = value
-    },
     checkDisableDownload() {
       if (this.downloadStarted) {
         this.disableDownload = true
@@ -307,6 +314,18 @@ export default {
       if (this.activeSelectionTab === "detailed") {
         this.disableDownload = this.resourceNodes.every(r => !r.selected)
       }
+    },
+    setDownloadProgressText(completed, total) {
+      if (completed === total) {
+        this.downloadProgressText = "Done!"
+        setTimeout(() => {
+          this.downloadStarted = false
+          this.checkDisableDownload()
+        }, 3000)
+        return
+      }
+
+      this.downloadProgressText = `Downloading... ${completed}/${total}`
     },
   },
   created() {
@@ -335,6 +354,13 @@ export default {
             command: "update-activities",
           })
         }
+      }
+
+      if (message.command === "download-progress") {
+        const { completed, total } = message
+        const progress = Math.ceil((completed / total) * 100)
+        this.setDownloadProgressText(completed, total)
+        this.$Progress.set(progress)
       }
     })
 
@@ -393,6 +419,21 @@ export default {
 #new-activities > hr {
   width: 110%;
   margin-bottom: 0px;
+}
+
+.progress-bar-container {
+  margin-top: 20px;
+  width: 80%;
+}
+
+.progress-bar-label {
+  font-size: 13px;
+}
+
+.progress-bar {
+  margin-top: 3px;
+  border: 1px solid #dcdcdc;
+  width: 100%;
 }
 
 .download-button {
