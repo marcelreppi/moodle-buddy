@@ -60,12 +60,10 @@ async function downloadFile(node, courseName, courseShortcut, options) {
     const fileType = fileName.split(".").pop()
 
     if (options.useMoodleFileName) {
-      let moodleFileName = sanitizeFileName(node.fileName)
-      const moodleFileNameParts = moodleFileName.split(".")
-      if (moodleFileNameParts.length > 1) {
-        moodleFileName = moodleFileNameParts.slice(0, moodleFileNameParts.length - 1).join(".")
+      const moodleFileName = sanitizeFileName(node.fileName)
+      if (moodleFileName !== "") {
+        fileName = `${moodleFileName}.${fileType}`
       }
-      fileName = `${moodleFileName}.${fileType}`
     }
 
     fileName = applyOptionsToFileName(fileName, courseName, courseShortcut, options)
@@ -154,6 +152,12 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
   }
 })
 
+const sleep = async duration => {
+  return new Promise(resolve => {
+    setTimeout(resolve, duration)
+  })
+}
+
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "download") {
     const courseName = sanitizeFileName(message.courseName)
@@ -173,6 +177,7 @@ browser.runtime.onMessage.addListener(async message => {
       } else if (node.isFolder) {
         downloadFolder(node, courseName, courseShortcut, message.options)
       }
+      await sleep(2000)
     }
   }
 })
