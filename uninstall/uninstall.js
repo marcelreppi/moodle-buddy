@@ -29,14 +29,14 @@ if (search !== "") {
     event: "uninstall",
     browser: isFirefox() ? "firefox" : "chrome",
     browserId: queryObject.browserId ? queryObject.browserId : "unknown",
-    dev: true,
+    dev: false,
   })
 } else {
   sendToLambda("/event", {
     event: "uninstall",
     browser: isFirefox() ? "firefox" : "chrome",
     browserId: "unknown",
-    dev: true,
+    dev: false,
   })
 }
 
