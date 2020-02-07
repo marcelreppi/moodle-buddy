@@ -105,6 +105,18 @@ async function downloadFolder(node, courseName, courseShortcut, options) {
     })
   } else {
     const fileNodes = resHTML.querySelectorAll("a[href$='forcedownload=1'") // All a tags whose href attribute ends with forcedownload=1
+
+    // Handle empty folders
+    if (fileNodes.length === 0) {
+      downloadFileCount--
+      browser.runtime.sendMessage({
+        command: "download-progress",
+        completed: finishedDownloads.length,
+        total: downloadFileCount,
+      })
+      return
+    }
+
     for (const fileNode of fileNodes) {
       let fileName = sanitizeFileName(parseFileNameFromPluginFileURL(fileNode.href))
       const folderName = sanitizeFileName(node.folderName)

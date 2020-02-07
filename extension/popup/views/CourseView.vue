@@ -91,7 +91,6 @@
         :resources="resourceNodes"
         :setResourceSelected="setResourceSelected"
         :onlyNewResources="onlyNewResources"
-        :checkDisableDownload="checkDisableDownload"
       />
     </div>
 
@@ -168,7 +167,6 @@ export default {
       saveToFolder: true,
       downloadFiles: true,
       downloadFolders: true,
-      disableDownload: false,
       showDetails: false,
       showDownloadOptions: true,
       activeSelectionTab: "simple",
@@ -224,21 +222,32 @@ export default {
         return false
       })
     },
+    disableDownload() {
+      if (this.downloadStarted) {
+        return true
+      }
+
+      if (this.nResources === 0) {
+        return true
+      }
+
+      if (this.activeSelectionTab === "simple") {
+        return !this.downloadFiles && !this.downloadFolders
+      }
+
+      if (this.activeSelectionTab === "detailed") {
+        return this.resourceNodes.every(r => !r.selected)
+      }
+
+      return false
+    },
   },
   watch: {
     nResources() {
       this.handleCheckboxes()
-
-      this.disableDownload = this.nResources === 0
     },
     onlyNewResources() {
       this.handleCheckboxes()
-    },
-    downloadFiles() {
-      this.checkDisableDownload()
-    },
-    downloadFolders() {
-      this.checkDisableDownload()
     },
   },
   methods: {
@@ -264,7 +273,6 @@ export default {
       this.downloadStarted = true
       this.setDownloadProgressText(0, this.selectedResources.length)
       this.$Progress.set(1) // Set a small number to make something visible
-      this.checkDisableDownload()
 
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
@@ -301,26 +309,11 @@ export default {
       const resource = this.resourceNodes.find(r => r.href === href)
       resource.selected = value
     },
-    checkDisableDownload() {
-      if (this.downloadStarted) {
-        this.disableDownload = true
-        return
-      }
-
-      if (this.activeSelectionTab === "simple") {
-        this.disableDownload = !this.downloadFiles && !this.downloadFolders
-      }
-
-      if (this.activeSelectionTab === "detailed") {
-        this.disableDownload = this.resourceNodes.every(r => !r.selected)
-      }
-    },
     setDownloadProgressText(completed, total) {
       if (completed === total) {
         this.downloadProgressText = "Done!"
         setTimeout(() => {
           this.downloadStarted = false
-          this.checkDisableDownload()
         }, 3000)
         return
       }
@@ -358,6 +351,14 @@ export default {
 
       if (message.command === "download-progress") {
         const { completed, total } = message
+
+        if (total === 0) {
+          // Handle edge case where folders might be empty and nothing is downloaded
+          this.setDownloadProgressText(0, 0)
+          this.$Progress.set(100)
+          return
+        }
+
         const progress = Math.ceil((completed / total) * 100)
         this.setDownloadProgressText(completed, total)
         this.$Progress.set(progress)
@@ -374,9 +375,6 @@ export default {
     browser.tabs.sendMessage(this.activeTab.id, {
       command: "scan",
     })
-  },
-  updated() {
-    this.checkDisableDownload()
   },
 }
 </script>
