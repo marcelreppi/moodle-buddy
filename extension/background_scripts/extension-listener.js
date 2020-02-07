@@ -63,14 +63,19 @@ async function onUpdate() {
 browser.runtime.onInstalled.addListener(async details => {
   switch (details.reason) {
     case "install":
-      onInstall()
+      await onInstall()
       break
     case "update":
-      onUpdate()
+      await onUpdate()
       break
     default:
       break
   }
+
+  const { browserId } = await browser.storage.local.get("browserId")
+  browser.runtime.setUninstallURL(
+    `http://moodle-buddy-uninstall-page.s3-website.eu-central-1.amazonaws.com?browserId=${browserId}`
+  )
 })
 
 browser.runtime.onMessage.addListener(async (message, sender) => {
