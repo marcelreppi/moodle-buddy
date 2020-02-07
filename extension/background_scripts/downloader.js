@@ -1,19 +1,10 @@
-const { default: PQueue } = require("p-queue")
-
-// Download only one item at a time
-const pqueue = new PQueue({ concurrency: 1 })
-// Pause as soon as an item has started
-// We start the queue again when the download has finished
-pqueue.on("active", () => pqueue.pause())
-
 const { parseFileNameFromPluginFileURL } = require("../shared/parser")
 const { fileRegex, pluginFileRegex, validURLRegex } = require("../shared/helpers")
 const { sendDownloadData } = require("./helpers")
 
-const inProgressDownloads = new Set()
-const finishedDownloads = new Set()
 let downloadFileCount = 0
 let downloadByteCount = 0
+let finishedDownloads = []
 
 const sanitizeFileName = (fileName, connectingString = "") =>
   fileName.trim().replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString)
@@ -37,12 +28,9 @@ const applyOptionsToFileName = (fileName, courseName, courseShortcut, options) =
 
 async function downloadPluginFile(node, courseName, courseShortcut, options) {
   const fileName = applyOptionsToFileName(node.fileName, courseName, courseShortcut, options)
-  pqueue.add(async () => {
-    const downloadItemId = await browser.downloads.download({
-      url: node.href,
-      filename: fileName,
-    })
-    inProgressDownloads.add(downloadItemId)
+  await browser.downloads.download({
+    url: node.href,
+    filename: fileName,
   })
 }
 
@@ -60,12 +48,9 @@ async function downloadFile(node, courseName, courseShortcut, options) {
 
     let fileName = parseFileNameFromPluginFileURL(link)
     fileName = applyOptionsToFileName(fileName, courseName, courseShortcut, options)
-    pqueue.add(async () => {
-      const downloadItemId = await browser.downloads.download({
-        url: link,
-        filename: fileName,
-      })
-      inProgressDownloads.add(downloadItemId)
+    await browser.downloads.download({
+      url: link,
+      filename: fileName,
     })
   } else {
     let fileName = parseFileNameFromPluginFileURL(res.url)
@@ -79,13 +64,9 @@ async function downloadFile(node, courseName, courseShortcut, options) {
     }
 
     fileName = applyOptionsToFileName(fileName, courseName, courseShortcut, options)
-
-    pqueue.add(async () => {
-      const downloadItemId = await browser.downloads.download({
-        url: res.url,
-        filename: fileName,
-      })
-      inProgressDownloads.add(downloadItemId)
+    await browser.downloads.download({
+      url: res.url,
+      filename: fileName,
     })
   }
 }
@@ -118,12 +99,9 @@ async function downloadFolder(node, courseName, courseShortcut, options) {
     const folderName = sanitizeFileName(node.folderName)
     let fileName = `${folderName}.zip`
     fileName = applyOptionsToFileName(fileName, courseName, courseShortcut, options)
-    pqueue.add(async () => {
-      const downloadItemId = await browser.downloads.download({
-        url: downloadURL,
-        filename: fileName,
-      })
-      inProgressDownloads.add(downloadItemId)
+    await browser.downloads.download({
+      url: downloadURL,
+      filename: fileName,
     })
   } else {
     const fileNodes = resHTML.querySelectorAll("a[href$='forcedownload=1'") // All a tags whose href attribute ends with forcedownload=1
@@ -132,12 +110,9 @@ async function downloadFolder(node, courseName, courseShortcut, options) {
       const folderName = sanitizeFileName(node.folderName)
       fileName = `${folderName}_Folder_${fileName}`
       fileName = applyOptionsToFileName(fileName, courseName, courseShortcut, options)
-      pqueue.add(async () => {
-        const downloadItemId = await browser.downloads.download({
-          url: fileNode.href,
-          filename: fileName,
-        })
-        inProgressDownloads.add(downloadItemId)
+      await browser.downloads.download({
+        url: fileNode.href,
+        filename: fileName,
       })
     }
   }
@@ -146,21 +121,19 @@ async function downloadFolder(node, courseName, courseShortcut, options) {
 browser.downloads.onChanged.addListener(async downloadDelta => {
   const { state } = downloadDelta
 
-  if (state && state.current === "interrupted") {
-    inProgressDownloads.delete(downloadDelta.id)
+  if (state === undefined) return
+
+  if (state.current === "interrupted") {
     downloadFileCount--
-    pqueue.start()
   }
 
-  if (state && state.current === "complete") {
+  if (state.current === "complete") {
     const downloadItem = await browser.downloads.search({ id: downloadDelta.id })
     downloadByteCount += downloadItem[0].fileSize
-    inProgressDownloads.delete(downloadDelta.id)
-    finishedDownloads.add(downloadDelta.id)
-    pqueue.start()
+    finishedDownloads.push(downloadDelta.id)
   }
 
-  if (downloadFileCount > 0 && finishedDownloads.size === downloadFileCount) {
+  if (downloadFileCount > 0 && finishedDownloads.length === downloadFileCount) {
     // All downloads have finished
     sendDownloadData({
       fileCount: downloadFileCount,
@@ -174,11 +147,9 @@ browser.runtime.onMessage.addListener(async message => {
     const courseName = sanitizeFileName(message.courseName)
     const courseShortcut = sanitizeFileName(message.courseShortcut, "_")
 
-    inProgressDownloads.clear()
-    finishedDownloads.clear()
+    finishedDownloads = []
     downloadFileCount = 0
     downloadByteCount = 0
-    pqueue.clear()
 
     for (const node of message.resources) {
       downloadFileCount++
