@@ -1,4 +1,4 @@
-import { isFirefox, getActiveTab, validURLRegex } from "../shared/helpers"
+import { isFirefox, getActiveTab } from "../shared/helpers"
 
 const isDev = process.env.NODE_ENV !== "production"
 
