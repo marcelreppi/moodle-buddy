@@ -105,7 +105,7 @@ export default {
       window.close()
     },
     onDownloadClick(e, course) {
-      sendEvent("download-start-page", true)
+      sendEvent("download-dashboard-page", true)
       e.target.disabled = true
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
@@ -113,7 +113,7 @@ export default {
       })
     },
     onMarkAsSeenClick(course) {
-      sendEvent("mark-as-seen-start-page", true)
+      sendEvent("mark-as-seen-dashboard-page", true)
 
       course.nNewFiles = 0
       course.nNewFolders = 0
@@ -127,7 +127,7 @@ export default {
       this.showDetails = !this.showDetails
 
       if (this.showDetails) {
-        sendEvent("show-details-start-page", true)
+        sendEvent("show-details-dashboard-page", true)
       }
     },
   },

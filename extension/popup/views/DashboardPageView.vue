@@ -1,10 +1,16 @@
 <template>
   <div class="content-container">
-    <div v-if="courses === null" class="no-courses">
+    <div v-if="overviewHidden" style="width: 60%;" class="no-courses">
+      <div>Moodle Buddy currently doesn't support this Moodle layout.</div>
+      <div>Sorry!</div>
+    </div>
+    <div v-else-if="courses === null" class="no-courses">
       <div>Scanning courses for updates...</div>
       <progress-bar action="Scanning" ref="progressBar"></progress-bar>
     </div>
-    <div v-else-if="courses.length === 0" class="no-courses">No courses in overview</div>
+    <div v-else-if="courses.length === 0" class="no-courses">
+      <div>No courses in overview</div>
+    </div>
     <div v-else class="course-container scrollbar">
       <CourseCard
         v-for="(course, i) in courses"
@@ -18,6 +24,8 @@
 </template>
 
 <script>
+import { sendEvent } from "../../shared/helpers"
+
 import CourseCard from "../components/CourseCard.vue"
 import ProgressBar from "../components/ProgressBar.vue"
 
@@ -33,6 +41,7 @@ export default {
   data() {
     return {
       courses: null,
+      overviewHidden: false,
     }
   },
   created() {
@@ -50,6 +59,12 @@ export default {
       }
 
       if (message.command === "scan-result") {
+        this.overviewHidden = message.overviewHidden
+
+        if (this.overviewHidden) {
+          sendEvent("overview-hidden", true)
+        }
+
         this.courses = message.courses
         this.courses.sort((a, b) => {
           if (

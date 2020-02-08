@@ -4,6 +4,7 @@ import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { updateIconFromCourses } from "../shared/helpers"
 import Course from "../models/Course"
 
+let overviewHidden = false
 let scanInProgress = true
 let scanTotal = 0
 let scanCompleted = 0
@@ -34,6 +35,7 @@ async function scanOverview() {
 
   if (!overviewNode) {
     // Overview is hidden
+    overviewHidden = true
     scanInProgress = false
     return
   }
@@ -113,6 +115,7 @@ browser.runtime.onMessage.addListener(async message => {
 
       browser.runtime.sendMessage({
         command: "scan-result",
+        overviewHidden,
         courses: courses.map(c => ({
           name: c.name,
           link: c.link,

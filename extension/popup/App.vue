@@ -40,11 +40,7 @@
 </template>
 
 <script>
-import {
-  sendEvent,
-  getActiveTab,
-  isFirefox,
-} from "../shared/helpers"
+import { sendEvent, getActiveTab, isFirefox } from "../shared/helpers"
 import DashboardPageView from "./views/DashboardPageView.vue"
 import CourseView from "./views/CourseView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
@@ -74,7 +70,7 @@ export default {
     isFirefox,
     showDashboardPageView() {
       if (this.isSupportedPage && this.isDashboardPage) {
-        sendEvent("view-start-page", true)
+        sendEvent("view-dashboard-page", true)
         return true
       }
       return false
