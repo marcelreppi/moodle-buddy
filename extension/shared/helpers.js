@@ -47,7 +47,7 @@ export const loginURLRegex = new RegExp(validURLRegex.source + /\/login\/index.p
 export const dashboardPageRegex = new RegExp(validURLRegex.source + /\/my/.source, "gi")
 export const coursePageRegex = new RegExp(
   validURLRegex.source + /\/course\/view\.php\?id=[0-9]*/.source,
-  "i"
+  "gi"
 )
 
 export const fileRegex = new RegExp(

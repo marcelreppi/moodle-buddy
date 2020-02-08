@@ -1,15 +1,15 @@
 <template>
   <div class="content-container">
-    <div v-if="overviewHidden" style="width: 60%;" class="no-courses">
-      <div>Moodle Buddy currently doesn't support this Moodle layout.</div>
-      <div>Sorry!</div>
-    </div>
-    <div v-else-if="courses === null" class="no-courses">
+    <div v-if="courses === null" class="no-courses">
       <div>Scanning courses for updates...</div>
       <progress-bar action="Scanning" ref="progressBar"></progress-bar>
     </div>
-    <div v-else-if="courses.length === 0" class="no-courses">
-      <div>No courses in overview</div>
+    <div v-else-if="unknownLayout && courses.length === 0" style="width: 60%;" class="no-courses">
+      <div>Moodle Buddy currently doesn't support this Moodle layout.</div>
+      <div>Sorry!</div>
+    </div>
+    <div v-else-if="!unknownLayout && courses.length === 0" class="no-courses">
+      <div>No courses found</div>
     </div>
     <div v-else class="course-container scrollbar">
       <CourseCard
@@ -41,7 +41,7 @@ export default {
   data() {
     return {
       courses: null,
-      overviewHidden: false,
+      unknownLayout: false,
     }
   },
   created() {
@@ -59,13 +59,17 @@ export default {
       }
 
       if (message.command === "scan-result") {
-        this.overviewHidden = message.overviewHidden
+        this.unknownLayout = message.unknownLayout
+        this.courses = message.courses
 
-        if (this.overviewHidden) {
-          sendEvent("overview-hidden", true)
+        if (message.overviewHidden) {
+          sendEvent("no-overview", true)
         }
 
-        this.courses = message.courses
+        if (this.unknownLayout) {
+          sendEvent("unknown-layout", true)
+        }
+
         this.courses.sort((a, b) => {
           if (
             a.nNewFiles > b.nNewFiles ||

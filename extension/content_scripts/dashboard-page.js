@@ -1,9 +1,10 @@
 import shajs from "sha.js"
 
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
-import { updateIconFromCourses } from "../shared/helpers"
+import { coursePageRegex, updateIconFromCourses } from "../shared/helpers"
 import Course from "../models/Course"
 
+let unknownLayout = false
 let overviewHidden = false
 let scanInProgress = true
 let scanTotal = 0
@@ -26,6 +27,8 @@ async function scanOverview() {
   scanCompleted = 0
   courses = []
 
+  let courseLinks = []
+
   // Save hash of settings to check for changes
   lastSettingsHash = shajs("sha224")
     .update(JSON.stringify(getOverviewSettings()))
@@ -33,49 +36,71 @@ async function scanOverview() {
 
   const overviewNode = document.querySelector("[data-region='myoverview']")
 
-  if (!overviewNode) {
-    // Overview is hidden
-    overviewHidden = true
-    scanInProgress = false
-    return
-  }
-
-  const emptyCourseList = overviewNode.querySelector("[data-region='empty-message']")
-  if (emptyCourseList) {
-    // There are no courses shown
-    scanInProgress = false
-    return
-  }
-
-  const courseNodes = overviewNode.querySelectorAll("[data-region='course-content']")
-  if (courseNodes.length === 0) {
-    // Check again if courses have not loaded yet
-    setTimeout(scanOverview, 200)
-  } else {
-    // Overview page has fully loaded
-    // console.log(courseNodes)
-    scanTotal = courseNodes.length
-    const domParser = new DOMParser()
-    for (let i = 0; i < courseNodes.length; i++) {
-      const node = courseNodes[i]
-      const courseLink = parseCourseLink(node.innerHTML)
-      const res = await fetch(courseLink)
-      const resBody = await res.text()
-      const HTMLDocument = domParser.parseFromString(resBody, "text/html")
-
-      const course = new Course(courseLink, HTMLDocument)
-      await course.scan()
-      courses.push(course)
-      scanCompleted++
+  if (overviewNode) {
+    const emptyCourseList = overviewNode.querySelector("[data-region='empty-message']")
+    if (emptyCourseList) {
+      // There are no courses shown
+      scanInProgress = false
+      return
     }
 
-    browser.storage.local.set({
-      overviewCourseLinks: courses.map(c => c.link),
-    })
+    const courseNodes = overviewNode.querySelectorAll("[data-region='course-content']")
 
-    updateIconFromCourses(courses)
-    scanInProgress = false
+    if (courseNodes.length === 0) {
+      // Check again if courses have not loaded yet
+      setTimeout(scanOverview, 200)
+      return
+    }
+
+    // Overview page has fully loaded
+    scanTotal = courseNodes.length
+    courseLinks = Array.from(courseNodes).map(n => parseCourseLink(n.innerHTML))
+  } else {
+    overviewHidden = true
+    // Sleep some time to wait for full page load
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
+    // Overview is hidden
+    const uniqueLinksInMain = new Set(
+      document.querySelector("#region-main").innerHTML.match(coursePageRegex)
+    )
+
+    if (process.env.NODE_ENV === "debug") {
+      console.log(uniqueLinksInMain)
+    }
+
+    if (uniqueLinksInMain.size === 0) {
+      unknownLayout = true
+      scanInProgress = false
+      return
+    }
+
+    courseLinks = Array.from(uniqueLinksInMain)
   }
+
+  if (process.env.NODE_ENV === "debug") {
+    console.log(courseLinks)
+    return
+  }
+
+  const domParser = new DOMParser()
+  for (const link of courseLinks) {
+    const res = await fetch(link)
+    const resBody = await res.text()
+    const HTMLDocument = domParser.parseFromString(resBody, "text/html")
+
+    const course = new Course(link, HTMLDocument)
+    await course.scan()
+    courses.push(course)
+    scanCompleted++
+  }
+
+  browser.storage.local.set({
+    overviewCourseLinks: courses.map(c => c.link),
+  })
+
+  updateIconFromCourses(courses)
+  scanInProgress = false
 }
 
 const isMoodlePage = checkForMoodle()
@@ -91,7 +116,6 @@ if (isMoodlePage) {
 }
 
 browser.runtime.onMessage.addListener(async message => {
-  // console.log(message)
   if (message.command === "scan") {
     if (scanInProgress) {
       browser.runtime.sendMessage({
@@ -115,6 +139,7 @@ browser.runtime.onMessage.addListener(async message => {
 
       browser.runtime.sendMessage({
         command: "scan-result",
+        unknownLayout,
         overviewHidden,
         courses: courses.map(c => ({
           name: c.name,

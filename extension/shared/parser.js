@@ -6,7 +6,12 @@ export function checkForMoodle() {
 }
 
 export function parseCourseNameFromCoursePage(document) {
-  return document.querySelector(".page-header-headings").children[0].textContent
+  const header = document.querySelector(".page-header-headings")
+  if (header && header.children.length > 0) {
+    return header.children[0].textContent
+  }
+
+  return "Unknown"
 }
 
 export function parseCourseShortcut(document) {
