@@ -9,8 +9,7 @@
     "build": "npm run nuke && cross-env NODE_ENV=production webpack",
     "nuke": "rm -rf build",
     "lint": "eslint --ext .js,.vue .",
-    "lint:fix": "eslint --ext .js,.vue . --fix",
-    "publish": "sh scripts/build.sh"
+    "lint:fix": "eslint --ext .js,.vue . --fix"
   },
   "repository": {
     "type": "git",
