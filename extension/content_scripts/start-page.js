@@ -5,22 +5,32 @@ import { updateIconFromCourses } from "../shared/helpers"
 import Course from "../models/Course"
 
 let scanInProgress = true
+let scanTotal = 0
+let scanCompleted = 0
 let courses = []
-let lastOverviewHash = ""
+let lastSettingsHash = ""
 
-function getOverviewNode() {
-  return document.querySelector("[data-region='myoverview']")
+function getOverviewSettings() {
+  const settingsDiv = document.querySelector("[data-region='courses-view'")
+  if (settingsDiv) {
+    return settingsDiv.dataset
+  }
+
+  return null
 }
 
 async function scanOverview() {
   scanInProgress = true
+  scanTotal = 0
+  scanCompleted = 0
   courses = []
 
-  const overviewNode = getOverviewNode()
-  // Save hash to check for changes
-  lastOverviewHash = shajs("sha224")
-    .update(overviewNode.innerHTML)
+  // Save hash of settings to check for changes
+  lastSettingsHash = shajs("sha224")
+    .update(JSON.stringify(getOverviewSettings()))
     .digest("hex")
+
+  const overviewNode = document.querySelector("[data-region='myoverview']")
 
   if (!overviewNode) {
     // Overview is hidden
@@ -42,6 +52,7 @@ async function scanOverview() {
   } else {
     // Overview page has fully loaded
     // console.log(courseNodes)
+    scanTotal = courseNodes.length
     const domParser = new DOMParser()
     for (let i = 0; i < courseNodes.length; i++) {
       const node = courseNodes[i]
@@ -53,6 +64,7 @@ async function scanOverview() {
       const course = new Course(courseLink, HTMLDocument)
       await course.scan()
       courses.push(course)
+      scanCompleted++
     }
 
     browser.storage.local.set({
@@ -82,13 +94,15 @@ browser.runtime.onMessage.addListener(async message => {
     if (scanInProgress) {
       browser.runtime.sendMessage({
         command: "scan-in-progress",
+        completed: scanCompleted,
+        total: scanTotal,
       })
     } else {
-      const currentOverviewHash = shajs("sha224")
-        .update(getOverviewNode().innerHTML)
+      const currentSettingsHash = shajs("sha224")
+        .update(JSON.stringify(getOverviewSettings()))
         .digest("hex")
 
-      if (currentOverviewHash !== lastOverviewHash) {
+      if (currentSettingsHash !== lastSettingsHash) {
         // User has modified the overview -> Repeat the scan
         scanOverview()
         browser.runtime.sendMessage({

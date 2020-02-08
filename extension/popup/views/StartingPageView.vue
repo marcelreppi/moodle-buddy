@@ -1,6 +1,9 @@
 <template>
   <div class="content-container">
-    <div v-if="courses === null" class="no-courses">Scanning courses for updates...</div>
+    <div v-if="courses === null" class="no-courses">
+      <div>Scanning courses for updates...</div>
+      <progress-bar action="Scanning" ref="progressBar"></progress-bar>
+    </div>
     <div v-else-if="courses.length === 0" class="no-courses">No courses in overview</div>
     <div v-else class="course-container scrollbar">
       <Course
@@ -16,10 +19,12 @@
 
 <script>
 import Course from "../components/Course.vue"
+import ProgressBar from "../components/ProgressBar.vue"
 
 export default {
   components: {
     Course,
+    ProgressBar,
   },
   props: {
     activeTab: Object,
@@ -33,6 +38,9 @@ export default {
   created() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "scan-in-progress") {
+        if (message.total !== 0) {
+          this.$refs.progressBar.setProgress(message.completed, message.total)
+        }
         setTimeout(() => {
           browser.tabs.sendMessage(this.activeTab.id, {
             command: "scan",
