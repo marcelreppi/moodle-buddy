@@ -1,5 +1,10 @@
 import { coursePageRegex } from "./helpers"
 
+export function checkForMoodle() {
+  // Check for unique moodle DOM element
+  return Boolean(document.querySelector("section#region-main"))
+}
+
 export function parseCourseNameFromCoursePage(document) {
   return document.querySelector(".page-header-headings").children[0].textContent
 }

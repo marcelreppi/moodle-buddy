@@ -62,10 +62,12 @@ export default {
   },
   data() {
     return {
-      activeTab: null,
       InfoIcon,
       MoodleIcon,
-      currentURL: "",
+      activeTab: null,
+      isSupportedPage: false,
+      isStartingPage: false,
+      isCoursePage: false,
       options: null,
       nUpdates: 0,
     }
@@ -73,14 +75,14 @@ export default {
   computed: {
     isFirefox,
     showStartingPageView() {
-      if (this.activeTab && this.activeTab.url.match(startingPageRegex)) {
+      if (this.isSupportedPage && this.isStartingPage) {
         sendEvent("view-start-page", true)
         return true
       }
       return false
     },
     showCourseView() {
-      if (this.activeTab && this.activeTab.url.match(coursePageRegex)) {
+      if (this.isSupportedPage && this.isCoursePage) {
         sendEvent("view-course-page", true)
         return true
       }
@@ -112,16 +114,23 @@ export default {
     },
   },
   created() {
-    browser.storage.local
-      .get(["options", "nUpdates"])
-      .then(({ options, nUpdates }) => {
-        this.nUpdates = nUpdates
-        this.options = options
+    browser.runtime.onMessage.addListener(message => {
+      if (message.command === "state") {
+        this.isSupportedPage = message.isSupportedPage
+        this.isStartingPage = message.isStartingPage
+        this.isCoursePage = message.isCoursePage
+        this.options = message.options
+        this.nUpdates = message.nUpdates
+      }
+    })
+
+    getActiveTab().then(tab => {
+      this.activeTab = tab
+      // Get state on load from detector
+      browser.tabs.sendMessage(this.activeTab.id, {
+        command: "get-state",
       })
-      .then(getActiveTab)
-      .then(tab => {
-        this.activeTab = tab
-      })
+    })
   },
 }
 </script>

@@ -1,6 +1,6 @@
 import shajs from "sha.js"
 
-import { parseCourseLink } from "../shared/parser"
+import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { updateIconFromCourses } from "../shared/helpers"
 import Course from "../models/Course"
 
@@ -64,13 +64,17 @@ async function scanOverview() {
   }
 }
 
-scanOverview()
+const isMoodlePage = checkForMoodle()
 
-browser.runtime.sendMessage({
-  command: "page-data",
-  page: "dashboard",
-  HTMLString: document.querySelector("html").outerHTML,
-})
+if (isMoodlePage) {
+  scanOverview()
+
+  browser.runtime.sendMessage({
+    command: "page-data",
+    page: "dashboard",
+    HTMLString: document.querySelector("html").outerHTML,
+  })
+}
 
 browser.runtime.onMessage.addListener(async message => {
   // console.log(message)

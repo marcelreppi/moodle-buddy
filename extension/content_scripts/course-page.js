@@ -1,26 +1,32 @@
-import { parseCourseLink } from "../shared/parser"
+import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { updateIconFromCourses } from "../shared/helpers"
 import Course from "../models/Course"
 
-const courseLink = parseCourseLink(location.href)
-const course = new Course(courseLink, document)
+let courseLink = ""
+let course = null
 
 // browser.storage.local.clear()
 
-// Initial scan
-course.scan().then(() => {
-  updateIconFromCourses(course)
+const isMoodlePage = checkForMoodle()
+if (isMoodlePage) {
+  courseLink = parseCourseLink(location.href)
+  course = new Course(courseLink, document)
 
-  if (process.env.NODE_ENV === "debug") {
-    console.log(course)
-  }
-})
+  // Initial scan
+  course.scan().then(() => {
+    updateIconFromCourses(course)
 
-browser.runtime.sendMessage({
-  command: "page-data",
-  page: "course",
-  HTMLString: document.querySelector("html").outerHTML,
-})
+    if (process.env.NODE_ENV === "debug") {
+      console.log(course)
+    }
+  })
+
+  browser.runtime.sendMessage({
+    command: "page-data",
+    page: "course",
+    HTMLString: document.querySelector("html").outerHTML,
+  })
+}
 
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "scan") {
