@@ -1,4 +1,4 @@
-import { startingPageRegex, coursePageRegex, validURLRegex } from "../shared/helpers"
+import { dashboardPageRegex, coursePageRegex, validURLRegex } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"
 
 async function setDefaultMoodleURL(options) {
@@ -14,9 +14,9 @@ async function setDefaultMoodleURL(options) {
 }
 
 async function runDetector() {
-  const isStartingPage = Boolean(location.href.match(startingPageRegex))
+  const isDashboardPage = Boolean(location.href.match(dashboardPageRegex))
   const isCoursePage = Boolean(location.href.match(coursePageRegex))
-  const urlIsSupported = isStartingPage || isCoursePage
+  const urlIsSupported = isDashboardPage || isCoursePage
   const isMoodlePage = checkForMoodle()
   const isSupportedPage = urlIsSupported && isMoodlePage
 
@@ -35,7 +35,7 @@ async function runDetector() {
       browser.runtime.sendMessage({
         command: "state",
         isSupportedPage,
-        isStartingPage,
+        isDashboardPage,
         isCoursePage,
         options,
         nUpdates,

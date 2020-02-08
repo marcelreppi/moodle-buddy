@@ -46,7 +46,7 @@
         "*://*/my*"
       ],
       "js": [
-        "/content_scripts/start-page.js"
+        "/content_scripts/dashboard-page.js"
       ]
     }
   ],

@@ -23,7 +23,7 @@ module.exports = {
   entry: {
     "popup/app.bundle": join(__dirname, "extension", "popup", "index.js"),
     "content_scripts/course-page": contentEntry("course-page.js"),
-    "content_scripts/start-page": contentEntry("start-page.js"),
+    "content_scripts/dashboard-page": contentEntry("dashboard-page.js"),
     "content_scripts/detector": contentEntry("detector.js"),
     "background_scripts/downloader": backgroundEntry("downloader.js"),
     "background_scripts/extension-listener": backgroundEntry("extension-listener.js"),

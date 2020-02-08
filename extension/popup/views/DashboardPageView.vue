@@ -6,7 +6,7 @@
     </div>
     <div v-else-if="courses.length === 0" class="no-courses">No courses in overview</div>
     <div v-else class="course-container scrollbar">
-      <Course
+      <CourseCard
         v-for="(course, i) in courses"
         :key="i"
         :course="course"
@@ -18,12 +18,12 @@
 </template>
 
 <script>
-import Course from "../components/Course.vue"
+import CourseCard from "../components/CourseCard.vue"
 import ProgressBar from "../components/ProgressBar.vue"
 
 export default {
   components: {
-    Course,
+    CourseCard,
     ProgressBar,
   },
   props: {

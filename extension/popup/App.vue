@@ -6,11 +6,11 @@
     </div>
 
     <div id="popup-content">
-      <StartingPageView
-        v-if="showStartingPageView"
+      <DashboardPageView
+        v-if="showDashboardPageView"
         :activeTab="activeTab"
         :options="options"
-      ></StartingPageView>
+      ></DashboardPageView>
       <CourseView v-if="showCourseView" :activeTab="activeTab" :options="options"></CourseView>
       <NoMoodle
         v-if="showNoMoodle"
@@ -44,10 +44,8 @@ import {
   sendEvent,
   getActiveTab,
   isFirefox,
-  startingPageRegex,
-  coursePageRegex,
 } from "../shared/helpers"
-import StartingPageView from "./views/StartingPageView.vue"
+import DashboardPageView from "./views/DashboardPageView.vue"
 import CourseView from "./views/CourseView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
 
@@ -56,7 +54,7 @@ import InfoIcon from "../static/information.png"
 
 export default {
   components: {
-    StartingPageView,
+    DashboardPageView,
     CourseView,
     NoMoodle,
   },
@@ -66,7 +64,7 @@ export default {
       MoodleIcon,
       activeTab: null,
       isSupportedPage: false,
-      isStartingPage: false,
+      isDashboardPage: false,
       isCoursePage: false,
       options: null,
       nUpdates: 0,
@@ -74,8 +72,8 @@ export default {
   },
   computed: {
     isFirefox,
-    showStartingPageView() {
-      if (this.isSupportedPage && this.isStartingPage) {
+    showDashboardPageView() {
+      if (this.isSupportedPage && this.isDashboardPage) {
         sendEvent("view-start-page", true)
         return true
       }
@@ -89,7 +87,7 @@ export default {
       return false
     },
     showNoMoodle() {
-      return !this.showStartingPageView && !this.showCourseView
+      return !this.showDashboardPageView && !this.showCourseView
     },
     rateLink() {
       return this.isFirefox
@@ -117,7 +115,7 @@ export default {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "state") {
         this.isSupportedPage = message.isSupportedPage
-        this.isStartingPage = message.isStartingPage
+        this.isDashboardPage = message.isDashboardPage
         this.isCoursePage = message.isCoursePage
         this.options = message.options
         this.nUpdates = message.nUpdates

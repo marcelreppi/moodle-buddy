@@ -44,7 +44,7 @@ export function updateIconFromCourses(courses) {
 export const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/gi
 
 export const loginURLRegex = new RegExp(validURLRegex.source + /\/login\/index.php/.source, "gi")
-export const startingPageRegex = new RegExp(validURLRegex.source + /\/my/.source, "gi")
+export const dashboardPageRegex = new RegExp(validURLRegex.source + /\/my/.source, "gi")
 export const coursePageRegex = new RegExp(
   validURLRegex.source + /\/course\/view\.php\?id=[0-9]*/.source,
   "i"
