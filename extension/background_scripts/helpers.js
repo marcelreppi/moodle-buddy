@@ -37,7 +37,7 @@ export async function sendEvent(event, saveURL) {
   if (saveURL) {
     const activeTab = await getActiveTab()
     // eslint-disable-next-line prefer-destructuring
-    url = activeTab.url.match(validURLRegex)[0]
+    url = activeTab.url
   }
 
   sendToLambda("/event", {
@@ -60,7 +60,12 @@ export async function sendDownloadData(data) {
 }
 
 export async function sendPageData(HTMLString, page) {
-  sendToLambda("/page", { HTMLString, page })
+  if (!isDev) {
+    sendToLambda("/page", { HTMLString, page })
+  } else {
+    // console.log(page)
+    // console.log(HTMLString)
+  }
 }
 
 export async function sendFeedback(subject, content) {

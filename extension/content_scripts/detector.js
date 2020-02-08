@@ -44,8 +44,16 @@ async function runDetector() {
   })
 
   if (process.env.NODE_ENV === "debug") {
+    const filename = location.href.split("/").pop()
+    let page = "course"
+
+    if (filename.includes("dashboard")) {
+      page = "dashboard"
+    }
+
     browser.runtime.sendMessage({
       command: "debug",
+      page,
     })
   }
 }
