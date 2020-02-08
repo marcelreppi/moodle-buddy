@@ -1,5 +1,5 @@
 import { loginURLRegex, getUpdatesFromCourses } from "../shared/helpers"
-import { setIcon, setBadgeText } from "./helpers"
+import { setBadgeText } from "./helpers"
 import Course from "../models/Course"
 
 // browser.storage.local.clear()

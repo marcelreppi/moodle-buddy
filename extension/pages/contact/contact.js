@@ -1,4 +1,4 @@
-document.querySelector("#form-button").addEventListener("click", e => {
+document.querySelector("#form-button").addEventListener("click", () => {
   const subject = document.querySelector("#form-subject").value
   const content = document.querySelector("#form-content").value
 

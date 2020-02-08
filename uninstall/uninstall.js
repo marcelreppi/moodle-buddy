@@ -44,7 +44,7 @@ async function sendFeedback(subject, content) {
   sendToLambda("/feedback", { subject, content })
 }
 
-document.querySelector("#form-button").addEventListener("click", e => {
+document.querySelector("#form-button").addEventListener("click", () => {
   const content = document.querySelector("#form-content").value
 
   if (content !== "") {
