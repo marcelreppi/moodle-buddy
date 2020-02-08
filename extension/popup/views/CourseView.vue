@@ -115,12 +115,14 @@
       </div>
     </div>
 
-    <div v-if="downloadStarted" class="progress-bar-container">
-      <div class="progress-bar-label">{{ downloadProgressText }}</div>
-      <div class="progress-bar">
-        <vue-progress-bar></vue-progress-bar>
-      </div>
-    </div>
+    <progress-bar
+      v-if="downloadStarted"
+      ref="progressBar"
+      :total="selectedResources.length"
+      action="Downloading"
+      :onDone="onDownloadFinished"
+      style="width: 80%;"
+    ></progress-bar>
 
     <button class="download-button" :disabled="disableDownload" @click="onDownload">
       Download
@@ -133,11 +135,13 @@ import { sendEvent } from "../../shared/helpers"
 
 import DetailOverlay from "../components/DetailOverlay.vue"
 import DetailedSelection from "../components/DetailedSelection.vue"
+import ProgressBar from "../components/ProgressBar.vue"
 
 export default {
   components: {
     DetailOverlay,
     DetailedSelection,
+    ProgressBar,
   },
   props: {
     activeTab: {
@@ -271,8 +275,6 @@ export default {
       sendEvent(eventParts.join("-"), true)
 
       this.downloadStarted = true
-      this.setDownloadProgressText(0, this.selectedResources.length)
-      this.$Progress.set(1) // Set a small number to make something visible
 
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
@@ -284,6 +286,11 @@ export default {
           prependCourseShortcutToFileName: this.prependCourseShortcutToFileName,
         },
       })
+    },
+    onDownloadFinished() {
+      setTimeout(() => {
+        this.downloadStarted = false
+      }, 3000)
     },
     onMarkAsSeenClick() {
       sendEvent("mark-as-seen-course-page", true)
@@ -308,17 +315,6 @@ export default {
     setResourceSelected(href, value) {
       const resource = this.resourceNodes.find(r => r.href === href)
       resource.selected = value
-    },
-    setDownloadProgressText(completed, total) {
-      if (completed === total) {
-        this.downloadProgressText = "Done!"
-        setTimeout(() => {
-          this.downloadStarted = false
-        }, 3000)
-        return
-      }
-
-      this.downloadProgressText = `Downloading... ${completed}/${total}`
     },
   },
   created() {
@@ -351,17 +347,7 @@ export default {
 
       if (message.command === "download-progress") {
         const { completed, total } = message
-
-        if (total === 0) {
-          // Handle edge case where folders might be empty and nothing is downloaded
-          this.setDownloadProgressText(0, 0)
-          this.$Progress.set(100)
-          return
-        }
-
-        const progress = Math.ceil((completed / total) * 100)
-        this.setDownloadProgressText(completed, total)
-        this.$Progress.set(progress)
+        this.$refs.progressBar.setProgress(completed, total)
       }
     })
 
@@ -417,21 +403,6 @@ export default {
 #new-activities > hr {
   width: 110%;
   margin-bottom: 0px;
-}
-
-.progress-bar-container {
-  margin-top: 20px;
-  width: 80%;
-}
-
-.progress-bar-label {
-  font-size: 13px;
-}
-
-.progress-bar {
-  margin-top: 3px;
-  border: 1px solid #dcdcdc;
-  width: 100%;
 }
 
 .download-button {
