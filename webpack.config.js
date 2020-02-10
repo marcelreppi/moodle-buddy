@@ -86,6 +86,15 @@ module.exports = {
       },
     ],
   },
+  node: {
+    global: false,
+  },
+  resolve: {
+    alias: {
+      vue$: "vue/dist/vue.esm.js",
+    },
+    extensions: ["*", ".js", ".vue", ".json"],
+  },
   plugins: [
     new VueLoaderPlugin(),
     new CopyPlugin([
@@ -98,6 +107,9 @@ module.exports = {
     ]),
     new webpack.EnvironmentPlugin(["NODE_ENV"]), // Make process.env.NODE_ENV available in code
     new DotenvPlugin(), // Load environment variables from .env file
+    new webpack.DefinePlugin({
+      global: "window", // Placeholder for global used in any node_modules
+    }),
   ],
   optimization: {
     minimize: isProd,
