@@ -115,6 +115,16 @@ export default {
         this.isCoursePage = message.isCoursePage
         this.options = message.options
         this.nUpdates = message.nUpdates
+
+        if (process.env.NODE_ENV === "debug") {
+          this.isSupportedPage = true
+          const filename = this.activeTab.url.split("/").pop()
+          if (filename.includes("course")) {
+            this.isCoursePage = true
+          } else {
+            this.isDashboardPage = true
+          }
+        }
       }
     })
 
