@@ -46,7 +46,7 @@ export function parseFileNameFromNode(aTag) {
     return aTag.querySelector(".fp-filename").textContent
   }
 
-  return ""
+  return aTag.textContent
 }
 
 export function parseFileNameFromPluginFileURL(url) {
