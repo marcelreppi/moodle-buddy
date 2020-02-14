@@ -34,7 +34,7 @@ module.exports = {
     filename: "[name].js",
   },
   mode: isProd ? "production" : "development",
-  devtool: isProd ? "source-map" : "inline-source-map",
+  devtool: isProd ? undefined : "inline-source-map",
   module: {
     rules: [
       {
