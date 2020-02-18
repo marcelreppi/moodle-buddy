@@ -228,7 +228,7 @@ input[type="text"] {
 
 label.resource {
   display: grid;
-  grid-template-columns: 10fr 1fr 1fr;
+  grid-template-columns: minmax(0, 10fr) 1fr 1fr;
 }
 
 label.category {
@@ -245,6 +245,7 @@ label:hover {
 
 label span.resource {
   text-align: left;
+  word-wrap: break-word;
   padding-left: 10px;
   padding-right: 5px;
 }
