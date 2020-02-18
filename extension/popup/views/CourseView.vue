@@ -347,7 +347,9 @@ export default {
 
       if (message.command === "download-progress") {
         const { completed, total } = message
-        this.$refs.progressBar.setProgress(completed, total)
+        if (this.$refs.progressBar) {
+          this.$refs.progressBar.setProgress(completed, total)
+        }
       }
     })
 
