@@ -272,7 +272,7 @@ export default {
       if (this.onlyNewResources) {
         eventParts.push("only-new")
       }
-      sendEvent(eventParts.join("-"), true)
+      sendEvent(eventParts.join("-"), true, { numberOfFiles: this.selectedResources.length })
 
       this.downloadStarted = true
 

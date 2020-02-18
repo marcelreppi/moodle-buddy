@@ -35,14 +35,14 @@ async function sendToLambda(path, body) {
     .catch(error => console.log(error))
 }
 
-export async function sendEvent(event, saveURL) {
+export async function sendEvent(event, saveURL, eventData) {
   let url = ""
   if (saveURL) {
     const activeTab = await getActiveTab()
     url = activeTab.url
   }
 
-  sendToLambda("/event", { event, url })
+  sendToLambda("/event", { event, url, eventData })
 }
 
 export async function sendDownloadData(data) {

@@ -81,7 +81,7 @@ browser.runtime.onInstalled.addListener(async details => {
 browser.runtime.onMessage.addListener(async (message, sender) => {
   switch (message.command) {
     case "event":
-      sendEvent(message.event, message.saveURL)
+      sendEvent(message.event, message.saveURL, message.eventData)
       break
     case "page-data":
       sendPageData(message.HTMLString, message.page)
