@@ -14,7 +14,7 @@ cd ..
 mkdir tmp
 # cp .env.example tmp/.env
 cp .env tmp/.env
-cp -r extension screenshots webpack.config.js package.json package-lock.json tmp
+cp -r extension screenshots webpack.config.js package.json package-lock.json README.md tmp
 cd tmp
 # Make zip of all the code for updating the extension
 zip -r ../moodle-buddy-code .
