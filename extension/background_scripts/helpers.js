@@ -22,17 +22,21 @@ async function sendToLambda(path, body) {
 
   if (!process.env.API_URL) return
 
-  fetch(`${process.env.API_URL}/${isDev ? "dev" : "prod"}${path}`, {
-    method: "POST",
-    headers: {
-      "User-Agent": navigator.userAgent,
-      "Content-Type": "application/json",
-      "X-API-Key": process.env.API_KEY,
-    },
-    body: JSON.stringify(requestBody),
-  })
-    // .then(res => console.info(res))
-    .catch(error => console.log(error))
+  try {
+    fetch(`${process.env.API_URL}/${isDev ? "dev" : "prod"}${path}`, {
+      method: "POST",
+      headers: {
+        "User-Agent": navigator.userAgent,
+        "Content-Type": "application/json",
+        "X-API-Key": process.env.API_KEY,
+      },
+      body: JSON.stringify(requestBody),
+    })
+  } catch (error) {
+    setTimeout(() => {
+      sendLog(error.message)
+    }, 5000)
+  }
 }
 
 export async function sendEvent(event, saveURL, eventData) {
