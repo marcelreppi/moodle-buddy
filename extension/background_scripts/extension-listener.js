@@ -1,4 +1,12 @@
-import { sendEvent, sendPageData, sendFeedback, uuidv4, setIcon, setBadgeText } from "./helpers"
+import {
+  sendEvent,
+  sendPageData,
+  sendFeedback,
+  uuidv4,
+  setIcon,
+  setBadgeText,
+  sendLog,
+} from "./helpers"
 
 const defaultOptions = {
   onlyNewResources: false,
@@ -94,6 +102,9 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
       break
     case "set-badge":
       setBadgeText(message.text, sender.tab.id)
+      break
+    case "log":
+      sendLog(message.log)
       break
     case "debug":
       browser.tabs.executeScript({

@@ -22,85 +22,95 @@ function getOverviewSettings() {
 }
 
 async function scanOverview() {
-  scanInProgress = true
-  scanTotal = 0
-  scanCompleted = 0
-  courses = []
+  try {
+    scanInProgress = true
+    scanTotal = 0
+    scanCompleted = 0
+    courses = []
 
-  let courseLinks = []
+    let courseLinks = []
 
-  // Save hash of settings to check for changes
-  lastSettingsHash = shajs("sha224")
-    .update(JSON.stringify(getOverviewSettings()))
-    .digest("hex")
+    // Save hash of settings to check for changes
+    lastSettingsHash = shajs("sha224")
+      .update(JSON.stringify(getOverviewSettings()))
+      .digest("hex")
 
-  const overviewNode = document.querySelector("[data-region='myoverview']")
+    const overviewNode = document.querySelector("[data-region='myoverview']")
 
-  if (overviewNode) {
-    const emptyCourseList = overviewNode.querySelector("[data-region='empty-message']")
-    if (emptyCourseList) {
-      // There are no courses shown
-      scanInProgress = false
-      return
+    if (overviewNode) {
+      const emptyCourseList = overviewNode.querySelector("[data-region='empty-message']")
+      if (emptyCourseList) {
+        // There are no courses shown
+        scanInProgress = false
+        return
+      }
+
+      const courseNodes = overviewNode.querySelectorAll("[data-region='course-content']")
+
+      if (courseNodes.length === 0) {
+        // Check again if courses have not loaded yet
+        setTimeout(scanOverview, 200)
+        return
+      }
+
+      // Overview page has fully loaded
+      scanTotal = courseNodes.length
+      courseLinks = Array.from(courseNodes).map(n => parseCourseLink(n.innerHTML))
+    } else {
+      overviewHidden = true
+      // Sleep some time to wait for full page load
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // Overview is hidden
+      const uniqueLinksInMain = new Set(
+        document.querySelector("#region-main").innerHTML.match(coursePageRegex)
+      )
+
+      if (process.env.NODE_ENV === "debug") {
+        console.log(uniqueLinksInMain)
+      }
+
+      if (uniqueLinksInMain.size === 0) {
+        unknownLayout = true
+        scanInProgress = false
+        return
+      }
+
+      courseLinks = Array.from(uniqueLinksInMain)
     }
-
-    const courseNodes = overviewNode.querySelectorAll("[data-region='course-content']")
-
-    if (courseNodes.length === 0) {
-      // Check again if courses have not loaded yet
-      setTimeout(scanOverview, 200)
-      return
-    }
-
-    // Overview page has fully loaded
-    scanTotal = courseNodes.length
-    courseLinks = Array.from(courseNodes).map(n => parseCourseLink(n.innerHTML))
-  } else {
-    overviewHidden = true
-    // Sleep some time to wait for full page load
-    await new Promise(resolve => setTimeout(resolve, 2000))
-
-    // Overview is hidden
-    const uniqueLinksInMain = new Set(
-      document.querySelector("#region-main").innerHTML.match(coursePageRegex)
-    )
 
     if (process.env.NODE_ENV === "debug") {
-      console.log(uniqueLinksInMain)
-    }
-
-    if (uniqueLinksInMain.size === 0) {
-      unknownLayout = true
-      scanInProgress = false
+      console.log(courseLinks)
       return
     }
 
-    courseLinks = Array.from(uniqueLinksInMain)
+    const domParser = new DOMParser()
+    for (const link of courseLinks) {
+      const res = await fetch(link)
+      const resBody = await res.text()
+      const HTMLDocument = domParser.parseFromString(resBody, "text/html")
+
+      const course = new Course(link, HTMLDocument)
+      await course.scan()
+      courses.push(course)
+      scanCompleted++
+    }
+
+    browser.storage.local.set({
+      overviewCourseLinks: courses.map(c => c.link),
+    })
+
+    updateIconFromCourses(courses)
+    scanInProgress = false
+  } catch (error) {
+    browser.runtime.sendMessage({
+      command: "log",
+      log: {
+        errorMessage: error.message,
+        url: location.href,
+      },
+    })
   }
-
-  if (process.env.NODE_ENV === "debug") {
-    console.log(courseLinks)
-    return
-  }
-
-  const domParser = new DOMParser()
-  for (const link of courseLinks) {
-    const res = await fetch(link)
-    const resBody = await res.text()
-    const HTMLDocument = domParser.parseFromString(resBody, "text/html")
-
-    const course = new Course(link, HTMLDocument)
-    await course.scan()
-    courses.push(course)
-    scanCompleted++
-  }
-
-  browser.storage.local.set({
-    overviewCourseLinks: courses.map(c => c.link),
-  })
-
-  updateIconFromCourses(courses)
-  scanInProgress = false
 }
 
 const isMoodlePage = checkForMoodle()
