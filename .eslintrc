@@ -54,7 +54,8 @@
         "ignoreSiblings": true,
         "argsIgnorePattern": "res|next|^err|reject|event"
       }
-    ]
+    ],
+    "no-use-before-define": 0
   },
   "globals": {
     "browser": "readonly"
