@@ -106,7 +106,7 @@ async function downloadFolder(node, downloadFunc) {
 }
 
 browser.downloads.onChanged.addListener(async downloadDelta => {
-  const { state } = downloadDelta
+  const { state, id } = downloadDelta
 
   if (state === undefined) return
 
@@ -115,9 +115,9 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
   }
 
   if (state.current === "complete") {
-    const downloadItem = await browser.downloads.search({ id: downloadDelta.id })
+    const downloadItem = await browser.downloads.search({ id })
     downloadByteCount += downloadItem[0].fileSize
-    finishedDownloads.push(downloadDelta.id)
+    finishedDownloads.push(id)
   }
 
   if (downloadFileCount > 0 && finishedDownloads.length === downloadFileCount) {
