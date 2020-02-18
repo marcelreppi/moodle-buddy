@@ -15,8 +15,9 @@ async function sendToLambda(path, body) {
     .catch(error => console.log(error))
 }
 
-const search = location.search.substring(1)
+let browserId = "unknown"
 
+const search = location.search.substring(1)
 if (search !== "") {
   const queryObject = JSON.parse(
     `{"${decodeURI(search)
@@ -25,30 +26,28 @@ if (search !== "") {
       .replace(/=/g, '":"')}"}`
   )
 
+  if (queryObject.browserId) {
+    browserId = queryObject.browserId
+  }
+}
+
+function sendEvent(event) {
   sendToLambda("/event", {
-    event: "uninstall",
+    event,
     browser: isFirefox() ? "firefox" : "chrome",
-    browserId: queryObject.browserId ? queryObject.browserId : "unknown",
-    dev: false,
-  })
-} else {
-  sendToLambda("/event", {
-    event: "uninstall",
-    browser: isFirefox() ? "firefox" : "chrome",
-    browserId: "unknown",
+    browserId,
     dev: false,
   })
 }
 
-async function sendFeedback(subject, content) {
-  sendToLambda("/feedback", { subject, content })
-}
+sendEvent("uninstall")
 
 document.querySelector("#form-button").addEventListener("click", () => {
   const content = document.querySelector("#form-content").value
 
   if (content !== "") {
-    sendFeedback("Uninstall", content)
+    sendToLambda("/feedback", { subject: "Uninstall", content })
+    sendEvent("feedback")
 
     document.querySelector(".form-container").style.display = "none"
     document.querySelector(".success").style.display = "flex"
