@@ -107,16 +107,16 @@ const isMoodlePage = checkForMoodle()
 
 if (isMoodlePage) {
   scanOverview()
-
-  browser.runtime.sendMessage({
-    command: "page-data",
-    page: "dashboard",
-    HTMLString: document.querySelector("html").outerHTML,
-  })
 }
 
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "scan") {
+    browser.runtime.sendMessage({
+      command: "page-data",
+      page: "dashboard",
+      HTMLString: document.querySelector("html").outerHTML,
+    })
+
     if (scanInProgress) {
       browser.runtime.sendMessage({
         command: "scan-in-progress",

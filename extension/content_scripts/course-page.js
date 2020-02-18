@@ -20,18 +20,18 @@ if (isMoodlePage) {
       console.log(course)
     }
   })
-
-  browser.runtime.sendMessage({
-    command: "page-data",
-    page: "course",
-    HTMLString: document.querySelector("html").outerHTML,
-  })
 }
 
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "scan") {
     // await course.scan()
     // updateIconFromCourses(course)
+
+    browser.runtime.sendMessage({
+      command: "page-data",
+      page: "course",
+      HTMLString: document.querySelector("html").outerHTML,
+    })
 
     browser.runtime.sendMessage({
       command: "scan-result",
