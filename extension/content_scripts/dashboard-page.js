@@ -1,7 +1,7 @@
 import shajs from "sha.js"
 
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
-import { coursePageRegex, updateIconFromCourses } from "../shared/helpers"
+import { coursePageRegex, updateIconFromCourses, sendLog } from "../shared/helpers"
 import Course from "../models/Course"
 
 let unknownLayout = false
@@ -103,13 +103,7 @@ async function scanOverview() {
     updateIconFromCourses(courses)
     scanInProgress = false
   } catch (error) {
-    browser.runtime.sendMessage({
-      command: "log",
-      log: {
-        errorMessage: error.message,
-        url: location.href,
-      },
-    })
+    sendLog({ errorMessage: error.message, url: location.href })
   }
 }
 

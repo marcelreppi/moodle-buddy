@@ -7,6 +7,13 @@ export function sendEvent(event, saveURL, eventData) {
   })
 }
 
+export function sendLog(log) {
+  browser.runtime.sendMessage({
+    command: "log",
+    log,
+  })
+}
+
 export function getActiveTab() {
   return browser.tabs.query({ active: true, currentWindow: true }).then(tabs => tabs[0])
 }

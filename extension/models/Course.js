@@ -1,4 +1,5 @@
 import * as parser from "../shared/parser"
+import { sendLog } from "../shared/helpers"
 
 function getQuerySelector(type) {
   const urlQuerySelector = "" // location.hostname.replace(/\./g, "\\.")
@@ -221,13 +222,7 @@ function Course(link, HTMLDocument) {
         })
       }
     } catch (error) {
-      browser.runtime.sendMessage({
-        command: "log",
-        log: {
-          errorMessage: error.message,
-          url: location.href,
-        },
-      })
+      sendLog({ errorMessage: error.message, url: location.href })
     }
   }
 
