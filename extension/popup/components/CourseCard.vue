@@ -98,14 +98,14 @@ export default {
   },
   methods: {
     onCourseLinkClick(link) {
+      sendEvent("go-to-course", true)
       browser.tabs.create({
         url: link,
       })
-      sendEvent("go-to-course", true)
       window.close()
     },
     onDownloadClick(e, course) {
-      sendEvent("download-dashboard-page", true)
+      sendEvent("download-dashboard-page", true, { numberOfFiles: this.newResources.length })
       e.target.disabled = true
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
@@ -114,7 +114,6 @@ export default {
     },
     onMarkAsSeenClick(course) {
       sendEvent("mark-as-seen-dashboard-page", true)
-
       course.nNewFiles = 0
       course.nNewFolders = 0
       course.nNewActivities = 0
