@@ -22,7 +22,7 @@ async function sendToLambda(path, body) {
 
   if (!process.env.API_URL) return
 
-  fetch(`${process.env.API_URL}${path}`, {
+  fetch(`${process.env.API_URL}/${isDev ? "dev" : "prod"}${path}`, {
     method: "POST",
     headers: {
       "User-Agent": navigator.userAgent,
