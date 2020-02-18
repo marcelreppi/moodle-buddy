@@ -3,8 +3,21 @@ import { isFirefox, getActiveTab } from "../shared/helpers"
 const isDev = process.env.NODE_ENV !== "production"
 
 async function sendToLambda(path, body) {
+  const { options, browserId } = await browser.storage.local.get(["options", "browserId"])
+
+  if (options.disableInteractionTracking) {
+    console.log("Tracking disabled!")
+  }
+
+  const requestBody = {
+    ...body,
+    browser: isFirefox() ? "firefox" : "chrome",
+    browserId,
+    dev: isDev,
+  }
+
   if (isDev) {
-    console.log({ ...body, dev: isDev })
+    console.log(requestBody)
   }
 
   if (!process.env.API_URL) return
@@ -16,46 +29,23 @@ async function sendToLambda(path, body) {
       "Content-Type": "application/json",
       "X-API-Key": process.env.API_KEY,
     },
-    body: JSON.stringify({ ...body, dev: isDev }),
+    body: JSON.stringify(requestBody),
   })
     // .then(res => console.info(res))
     .catch(error => console.log(error))
 }
 
 export async function sendEvent(event, saveURL) {
-  const { options, browserId } = await browser.storage.local.get(["options", "browserId"])
-
-  if (options.disableInteractionTracking) {
-    if (!(event === "install" || event === "update")) {
-      // Excluding install and update events
-      console.log("Tracking disabled!")
-      return
-    }
-  }
-
   let url = ""
   if (saveURL) {
     const activeTab = await getActiveTab()
-    // eslint-disable-next-line prefer-destructuring
     url = activeTab.url
   }
 
-  sendToLambda("/event", {
-    event,
-    browser: isFirefox() ? "firefox" : "chrome",
-    browserId,
-    url,
-  })
+  sendToLambda("/event", { event, url })
 }
 
 export async function sendDownloadData(data) {
-  const { options } = await browser.storage.local.get("options")
-
-  if (options.disableInteractionTracking) {
-    console.log("Tracking disabled!")
-    return
-  }
-
   sendToLambda("/download", { fileCount: data.fileCount, byteCount: data.byteCount })
 }
 
@@ -69,6 +59,7 @@ export async function sendPageData(HTMLString, page) {
 }
 
 export async function sendFeedback(subject, content) {
+  sendEvent("feedback", false)
   sendToLambda("/feedback", { subject, content })
 }
 
