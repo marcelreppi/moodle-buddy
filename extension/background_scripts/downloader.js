@@ -1,6 +1,6 @@
 const { parseFileNameFromPluginFileURL } = require("../shared/parser")
 const { fileRegex, pluginFileRegex, validURLRegex } = require("../shared/helpers")
-const { sendDownloadData } = require("./helpers")
+const { sendDownloadData, sendLog } = require("./helpers")
 
 let downloadFileCount = 0
 let downloadByteCount = 0
@@ -26,15 +26,11 @@ const applyOptionsToFileName = (fileName, courseName, courseShortcut, options) =
   return updatedFileName
 }
 
-async function downloadPluginFile(node, courseName, courseShortcut, options) {
-  const fileName = applyOptionsToFileName(node.fileName, courseName, courseShortcut, options)
-  await browser.downloads.download({
-    url: node.href,
-    filename: fileName,
-  })
+async function downloadPluginFile(node, downloadFunc) {
+  await downloadFunc(node.href, node.fileName)
 }
 
-async function downloadFile(node, courseName, courseShortcut, options) {
+async function downloadFile(node, downloadFunc, options) {
   // Fetch the href to get the actual download URL
   const res = await fetch(node.href)
 
@@ -46,32 +42,21 @@ async function downloadFile(node, courseName, courseShortcut, options) {
     const mainRegionHTML = resHTML.querySelector("#region-main").innerHTML
     const link = mainRegionHTML.match(pluginFileRegex)[0]
 
-    let fileName = parseFileNameFromPluginFileURL(link)
-    fileName = applyOptionsToFileName(fileName, courseName, courseShortcut, options)
-    await browser.downloads.download({
-      url: link,
-      filename: fileName,
-    })
+    const fileName = parseFileNameFromPluginFileURL(link)
+    downloadFunc(link, fileName)
   } else {
     let fileName = parseFileNameFromPluginFileURL(res.url)
     const fileType = fileName.split(".").pop()
 
-    if (options.useMoodleFileName) {
-      const moodleFileName = sanitizeFileName(node.fileName)
-      if (moodleFileName !== "") {
-        fileName = `${moodleFileName}.${fileType}`
-      }
+    if (options.useMoodleFileName && node.fileName !== "") {
+      fileName = `${node.fileName}.${fileType}`
     }
 
-    fileName = applyOptionsToFileName(fileName, courseName, courseShortcut, options)
-    await browser.downloads.download({
-      url: res.url,
-      filename: fileName,
-    })
+    await downloadFunc(res.url, fileName)
   }
 }
 
-async function downloadFolder(node, courseName, courseShortcut, options) {
+async function downloadFolder(node, downloadFunc) {
   // Fetch the href to get the actual download URL
   const res = await fetch(node.href)
   const body = await res.text()
@@ -96,13 +81,8 @@ async function downloadFolder(node, courseName, courseShortcut, options) {
       "value"
     )}`
 
-    const folderName = sanitizeFileName(node.folderName)
-    let fileName = `${folderName}.zip`
-    fileName = applyOptionsToFileName(fileName, courseName, courseShortcut, options)
-    await browser.downloads.download({
-      url: downloadURL,
-      filename: fileName,
-    })
+    const fileName = `${node.folderName}.zip`
+    await downloadFunc(downloadURL, fileName)
   } else {
     const fileNodes = resHTML.querySelectorAll("a[href$='forcedownload=1'") // All a tags whose href attribute ends with forcedownload=1
 
@@ -118,14 +98,9 @@ async function downloadFolder(node, courseName, courseShortcut, options) {
     }
 
     for (const fileNode of fileNodes) {
-      let fileName = sanitizeFileName(parseFileNameFromPluginFileURL(fileNode.href))
-      const folderName = sanitizeFileName(node.folderName)
-      fileName = `${folderName}_Folder_${fileName}`
-      fileName = applyOptionsToFileName(fileName, courseName, courseShortcut, options)
-      await browser.downloads.download({
-        url: fileNode.href,
-        filename: fileName,
-      })
+      const URLFileName = parseFileNameFromPluginFileURL(fileNode.href)
+      const fileName = `${node.folderName}_Folder_${URLFileName}`
+      await downloadFunc(fileNode.href, fileName)
     }
   }
 }
@@ -160,23 +135,43 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
   })
 })
 
+function getDownloadFunction(courseName, courseShortcut, options) {
+  return async (url, currentFileName) => {
+    const fileName = applyOptionsToFileName(
+      sanitizeFileName(currentFileName),
+      sanitizeFileName(courseName, "_"),
+      sanitizeFileName(courseShortcut, "_"),
+      options
+    )
+
+    try {
+      await browser.downloads.download({ url, filename: fileName })
+    } catch (error) {
+      sendLog({ errorMessage: error.message, url, fileName })
+    }
+  }
+}
+
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "download") {
-    const courseName = sanitizeFileName(message.courseName)
-    const courseShortcut = sanitizeFileName(message.courseShortcut, "_")
-
     finishedDownloads = []
     downloadFileCount = 0
     downloadByteCount = 0
 
+    const downloadFunc = getDownloadFunction(
+      message.courseName,
+      message.courseShortcut,
+      message.options
+    )
+
     for (const node of message.resources) {
       downloadFileCount++
       if (node.isPluginFile) {
-        downloadPluginFile(node, courseName, courseShortcut, message.options)
+        downloadPluginFile(node, downloadFunc)
       } else if (node.isFile) {
-        downloadFile(node, courseName, courseShortcut, message.options)
+        downloadFile(node, downloadFunc, message.options)
       } else if (node.isFolder) {
-        downloadFolder(node, courseName, courseShortcut, message.options)
+        downloadFolder(node, downloadFunc)
       }
     }
   }
