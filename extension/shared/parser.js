@@ -11,7 +11,12 @@ export function parseCourseNameFromCoursePage(document) {
     return header.children[0].textContent
   }
 
-  return "Unknown"
+  const shortcutNode = document.querySelector("a[aria-current='page']")
+  if (shortcutNode) {
+    return shortcutNode.title
+  }
+
+  return "Unknown Course"
 }
 
 export function parseCourseShortcut(document) {
@@ -20,7 +25,7 @@ export function parseCourseShortcut(document) {
     return shortcutNode.textContent
   }
 
-  return ""
+  return "Unknown Shortcut"
 }
 
 export function parseCourseNameFromCard(cardNode) {
@@ -64,7 +69,7 @@ export function parseActivityNameFromNode(node) {
     return node.querySelector(".instancename").firstChild.textContent
   }
 
-  return ""
+  return "Unknown Activity"
 }
 
 export function parseActivityTypeFromNode(node) {
@@ -72,5 +77,5 @@ export function parseActivityTypeFromNode(node) {
     return node.querySelector(".accesshide").firstChild.textContent.trim()
   }
 
-  return ""
+  return "Unkown Activity Type"
 }
