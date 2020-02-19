@@ -21,6 +21,12 @@ function getOverviewSettings() {
   return null
 }
 
+function hasHiddenParent(element) {
+  if (element === document) return false
+  if (getComputedStyle(element).display === "none" || element.hidden) return true
+  return element.parentNode && hasHiddenParent(element.parentNode)
+}
+
 async function scanOverview() {
   try {
     scanInProgress = true
@@ -61,22 +67,31 @@ async function scanOverview() {
       // Sleep some time to wait for full page load
       await new Promise(resolve => setTimeout(resolve, 2000))
 
-      // Overview is hidden
-      const uniqueLinksInMain = new Set(
-        document.querySelector("#region-main").innerHTML.match(coursePageRegex)
-      )
+      // Some moodle platforms have this data block as overview
+      let searchRoot = document.querySelector("[data-block='course_overview_campus'")
 
-      if (process.env.NODE_ENV === "debug") {
-        console.log(uniqueLinksInMain)
+      if (!searchRoot) {
+        // Fallback to more general (outer) element
+        searchRoot = document.querySelector("#region-main")
       }
 
-      if (uniqueLinksInMain.size === 0) {
+      courseLinks = Array.from(
+        new Set(
+          Array.from(searchRoot.querySelectorAll("a"))
+            .filter(n => n.href.match(coursePageRegex) && !hasHiddenParent(n))
+            .map(n => n.href)
+        )
+      )
+
+      if (courseLinks.length === 0) {
+        if (process.env.NODE_ENV === "debug") {
+          console.log(courseLinks)
+        }
+
         unknownLayout = true
         scanInProgress = false
         return
       }
-
-      courseLinks = Array.from(uniqueLinksInMain)
     }
 
     if (process.env.NODE_ENV === "debug") {
