@@ -139,7 +139,7 @@ function getDownloadFunction(courseName, courseShortcut, options) {
   return async (url, currentFileName) => {
     const fileName = applyOptionsToFileName(
       sanitizeFileName(currentFileName),
-      sanitizeFileName(courseName, "_"),
+      sanitizeFileName(courseName, ""),
       sanitizeFileName(courseShortcut, "_"),
       options
     )
