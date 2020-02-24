@@ -54,7 +54,11 @@ export default {
   },
   computed: {
     showDefaultURLInput() {
-      return this.options && this.options.defaultMoodleURL === ""
+      if (this.options) {
+        return this.options.defaultMoodleURL === ""
+      }
+
+      return true
     },
   },
   methods: {
