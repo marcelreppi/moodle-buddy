@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Moodle Buddy",
-  "version": "1.15",
+  "version": "1.16",
   "description": "Moodle Buddy offers additional helpful functionality to the moodle learning management platform.",
   "icons": {
     "16": "/icons/16.png",
