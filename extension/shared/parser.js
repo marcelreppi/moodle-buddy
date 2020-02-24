@@ -13,7 +13,13 @@ export function parseCourseNameFromCoursePage(document) {
 
   const shortcutNode = document.querySelector("a[aria-current='page']")
   if (shortcutNode) {
-    return shortcutNode.title
+    if (shortcutNode.title !== "") {
+      return shortcutNode.title
+    }
+
+    if (shortcutNode.textContent !== "") {
+      return shortcutNode.textContent
+    }
   }
 
   return "Unknown Course"
@@ -22,7 +28,9 @@ export function parseCourseNameFromCoursePage(document) {
 export function parseCourseShortcut(document) {
   const shortcutNode = document.querySelector("a[aria-current='page']")
   if (shortcutNode) {
-    return shortcutNode.textContent
+    if (shortcutNode.textContent !== "") {
+      return shortcutNode.textContent
+    }
   }
 
   return "Unknown Shortcut"
@@ -51,7 +59,11 @@ export function parseFileNameFromNode(aTag) {
     return aTag.querySelector(".fp-filename").textContent
   }
 
-  return aTag.textContent
+  if (aTag.textContent !== "") {
+    return aTag.textContent
+  }
+
+  return "Unknown Filename"
 }
 
 export function parseFileNameFromPluginFileURL(url) {
@@ -66,7 +78,8 @@ export function parseFileNameFromPluginFileURL(url) {
 
 export function parseActivityNameFromNode(node) {
   if (node.querySelector(".instancename")) {
-    return node.querySelector(".instancename").firstChild.textContent
+    const activityName = node.querySelector(".instancename").firstChild.textContent
+    if (activityName !== "") return activityName
   }
 
   return "Unknown Activity"
@@ -74,7 +87,8 @@ export function parseActivityNameFromNode(node) {
 
 export function parseActivityTypeFromNode(node) {
   if (node.querySelector(".accesshide")) {
-    return node.querySelector(".accesshide").firstChild.textContent.trim()
+    const activityType = node.querySelector(".accesshide").firstChild.textContent.trim()
+    if (activityType !== "") return activityType
   }
 
   return "Unkown Activity Type"
