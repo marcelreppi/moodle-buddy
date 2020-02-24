@@ -55,7 +55,8 @@
         "argsIgnorePattern": "res|next|^err|reject|event"
       }
     ],
-    "no-use-before-define": 0
+    "no-use-before-define": 0,
+    "no-inner-declarations": 0,
   },
   "globals": {
     "browser": "readonly"
