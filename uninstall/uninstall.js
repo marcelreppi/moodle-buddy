@@ -1,6 +1,4 @@
-function isFirefox() {
-  return typeof InstallTrigger !== "undefined"
-}
+const isFirefox = typeof InstallTrigger !== "undefined"
 
 async function sendToLambda(path, body) {
   fetch(`https://v9366xhaf6.execute-api.eu-central-1.amazonaws.com/prod${path}`, {
@@ -34,7 +32,7 @@ if (search !== "") {
 function sendEvent(event) {
   sendToLambda("/event", {
     event,
-    browser: isFirefox() ? "firefox" : "chrome",
+    browser: isFirefox ? "firefox" : "chrome",
     browserId,
     dev: false,
   })
@@ -53,3 +51,19 @@ document.querySelector("#form-button").addEventListener("click", () => {
     document.querySelector(".success").style.display = "flex"
   }
 })
+
+document.querySelector("#addon-store").textContent = isFirefox
+  ? "Firefox Add-on Store"
+  : "Chrome Web Store"
+
+document
+  .querySelector(".rating")
+  .querySelector("button")
+  .addEventListener("click", () => {
+    sendEvent("rate-click")
+    window.open(
+      isFirefox
+        ? "https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/"
+        : "https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo"
+    )
+  })
