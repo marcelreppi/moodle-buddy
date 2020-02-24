@@ -28,7 +28,7 @@
         </div>
 
         <div style="margin-top: 20px;">
-          <button @click="() => navigateTo(rateLink)">Rate Moodle Buddy</button>
+          <button @click="onRateClick">Rate Moodle Buddy</button>
           <div class="disappoint" @click="onDisappointClick">I will have to disappoint you...</div>
         </div>
       </div>
@@ -41,7 +41,7 @@
         </div>
       </span>
       <span>
-        <div class="link" @click="() => navigateTo(rateLink)">Rate</div>
+        <div class="link" @click="onRateClick">Rate</div>
       </span>
       <span>
         <div class="link" @click="onDonateClick">Donate</div>
@@ -119,6 +119,14 @@ export default {
       this.navigateTo("https://paypal.me/marcelreppi")
       sendEvent("donate-click", false)
     },
+    onRateClick() {
+      this.userHasRated = true
+      browser.tabs.sendMessage(this.activeTab.id, {
+        command: "rate-click",
+      })
+      this.navigateTo(this.rateLink)
+      sendEvent("rate-click")
+    },
     navigateTo(link) {
       browser.tabs.create({
         url: link,
@@ -128,8 +136,9 @@ export default {
     onDisappointClick() {
       this.userHasRated = true
       browser.tabs.sendMessage(this.activeTab.id, {
-        command: "rate-hint",
+        command: "rate-click",
       })
+      sendEvent("avoid-rating-hint")
     },
   },
   created() {

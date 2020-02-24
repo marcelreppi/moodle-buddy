@@ -49,7 +49,7 @@ async function runDetector() {
       })
     }
 
-    if (message.command === "rate-hint") {
+    if (message.command === "rate-click") {
       await browser.storage.local.set({
         userHasRated: true,
       })
