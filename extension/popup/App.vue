@@ -169,9 +169,19 @@ export default {
     getActiveTab().then(tab => {
       this.activeTab = tab
       // Get state on load from detector
-      browser.tabs.sendMessage(this.activeTab.id, {
-        command: "get-state",
-      })
+      browser.tabs
+        .sendMessage(this.activeTab.id, {
+          command: "get-state",
+        })
+        .catch(() => {
+          // When detector is not available fetch state from storage manually
+          browser.storage.local.get().then(localStorage => {
+            this.options = localStorage.options
+            this.nUpdates = localStorage.nUpdates
+            this.userHasRated = localStorage.userHasRated
+            this.totalDownloadedFiles = localStorage.totalDownloadedFiles
+          })
+        })
     })
   },
 }
