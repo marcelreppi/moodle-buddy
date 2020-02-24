@@ -39,7 +39,7 @@ export default {
 .detail-overlay {
   position: absolute;
   box-sizing: border-box;
-  --top-overlap: 10px;
+  --top-overlap: 7px;
   top: calc(var(--top-overlap) * -1);
   left: 0px;
   width: 100%;
