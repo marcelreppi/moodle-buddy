@@ -20,7 +20,12 @@ async function runDetector() {
   const isMoodlePage = checkForMoodle()
   const isSupportedPage = urlIsSupported && isMoodlePage
 
-  const { options, nUpdates } = await browser.storage.local.get(["options", "nUpdates"])
+  const {
+    options,
+    nUpdates,
+    userHasRated,
+    totalDownloadedFiles,
+  } = await browser.storage.local.get()
 
   if (isSupportedPage) {
     browser.runtime.sendMessage({
@@ -39,22 +44,37 @@ async function runDetector() {
         isCoursePage,
         options,
         nUpdates,
+        userHasRated,
+        totalDownloadedFiles,
       })
+    }
+
+    if (message.command === "rate-hint") {
+      await browser.storage.local.set({
+        userHasRated: true,
+      })
+      runDetector()
     }
   })
 
   if (process.env.NODE_ENV === "debug") {
     const filename = location.href.split("/").pop()
-    let page = "course"
+    let page = ""
+
+    if (filename.includes("course")) {
+      page = "course"
+    }
 
     if (filename.includes("dashboard")) {
       page = "dashboard"
     }
 
-    browser.runtime.sendMessage({
-      command: "debug",
-      page,
-    })
+    if (page !== "") {
+      browser.runtime.sendMessage({
+        command: "debug",
+        page,
+      })
+    }
   }
 }
 

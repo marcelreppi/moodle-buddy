@@ -28,6 +28,8 @@ const initialStorage = {
   browserId: uuidv4(),
   overviewCourseLinks: [], // Used for background scanning
   nUpdates: 0, // Used for storing updates from background scan
+  userHasRated: false,
+  totalDownloadedFiles: 0,
 }
 
 async function onInstall() {
@@ -43,27 +45,29 @@ async function onInstall() {
 }
 
 async function onUpdate() {
-  const { options, browserId, overviewCourseLinks, nUpdates } = await browser.storage.local.get()
-
-  if (process.env.NODE_ENV === "development") {
-    await browser.storage.local.set({
-      options: defaultOptions,
-    })
-  }
+  const localStorage = await browser.storage.local.get()
+  const localOptions = localStorage.options
 
   // Merge existing options
   let updatedOptions = { ...defaultOptions }
-  if (options) {
-    updatedOptions = { ...updatedOptions, ...options }
+  if (localOptions) {
+    updatedOptions = { ...updatedOptions, ...localOptions }
   }
 
   // Merge existing storage data
   await browser.storage.local.set({
+    ...initialStorage,
+    ...localStorage,
     options: updatedOptions,
-    browserId: browserId || initialStorage.browserId,
-    overviewCourseLinks: overviewCourseLinks || initialStorage.overviewCourseLinks,
-    nUpdates: nUpdates || initialStorage.nUpdates,
   })
+
+  if (process.env.NODE_ENV === "development") {
+    await browser.storage.local.set({
+      ...initialStorage,
+      options: defaultOptions,
+      browserId: localStorage.browserId,
+    })
+  }
 
   sendEvent("update", false)
 }

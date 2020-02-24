@@ -5,7 +5,7 @@
       <img class="title-icon" :src="MoodleIcon" alt="logo" />
     </div>
 
-    <div id="popup-content">
+    <div class="popup-content">
       <DashboardPageView
         v-if="showDashboardPageView"
         :activeTab="activeTab"
@@ -18,6 +18,20 @@
         :options="options"
         :nUpdates="nUpdates"
       ></NoMoodle>
+
+      <div v-if="showRatingHint" class="rating-hint">
+        <div>You have downloaded more than 100 files 🎉</div>
+        <div>Thank you very much! 😄👌</div>
+        <div>
+          I would really appreciate your rating and review <br />
+          in the {{ isFirefox ? "Firefox Add-on Store" : "Chrome Web Store" }} 🙏
+        </div>
+
+        <div style="margin-top: 20px;">
+          <button @click="() => navigateTo(rateLink)">Rate Moodle Buddy</button>
+          <div class="disappoint" @click="onDisappointClick">I will have to disappoint you...</div>
+        </div>
+      </div>
     </div>
 
     <div class="footer">
@@ -64,6 +78,8 @@ export default {
       isCoursePage: false,
       options: null,
       nUpdates: 0,
+      userHasRated: false,
+      totalDownloadedFiles: 0,
     }
   },
   computed: {
@@ -84,6 +100,9 @@ export default {
     },
     showNoMoodle() {
       return !this.showDashboardPageView && !this.showCourseView
+    },
+    showRatingHint() {
+      return this.showCourseView && !this.userHasRated && this.totalDownloadedFiles > 100
     },
     rateLink() {
       return this.isFirefox
@@ -106,6 +125,12 @@ export default {
       })
       window.close()
     },
+    onDisappointClick() {
+      this.userHasRated = true
+      browser.tabs.sendMessage(this.activeTab.id, {
+        command: "rate-hint",
+      })
+    },
   },
   created() {
     browser.runtime.onMessage.addListener(message => {
@@ -115,13 +140,17 @@ export default {
         this.isCoursePage = message.isCoursePage
         this.options = message.options
         this.nUpdates = message.nUpdates
+        this.userHasRated = message.userHasRated
+        this.totalDownloadedFiles = message.totalDownloadedFiles
 
         if (process.env.NODE_ENV === "debug") {
           this.isSupportedPage = true
           const filename = this.activeTab.url.split("/").pop()
           if (filename.includes("course")) {
             this.isCoursePage = true
-          } else {
+          }
+
+          if (filename.includes("dashboard")) {
             this.isDashboardPage = true
           }
         }
@@ -171,6 +200,11 @@ export default {
   position: relative;
 }
 
+.popup-content {
+  width: 100%;
+  position: relative;
+}
+
 .link {
   color: blue;
   text-decoration: underline;
@@ -188,6 +222,46 @@ hr {
   margin: 10px 0px;
   color: rgba(240, 240, 240, 0.347);
   border-color: rgba(240, 240, 240, 0.347);
+}
+
+.rating-hint {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0px 30px;
+  text-align: center;
+  background: white;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.rating-hint > div:nth-of-type(n + 1) {
+  margin-top: 5px;
+}
+
+.rating-hint button {
+  padding: 10px 10px;
+  border-radius: 5px;
+  border: 0;
+  background-color: #c50e20;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.disappoint {
+  font-size: 12px;
+  color: #6f6f6f;
+  margin-top: 10px;
+  cursor: pointer;
 }
 
 .footer {
