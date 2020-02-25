@@ -91,26 +91,32 @@ browser.runtime.onMessage.addListener(async message => {
       // Fetch the href to get the actual download URL
       const res = await fetch(node.href)
 
-      // Sometimes (e.g. for images) moodle returns an HTML with the file embedded
+      let downloadURL = res.url
+
+      // Sometimes (e.g. for images) Moodle returns HTML with the file embedded
       if (res.url.match(fileRegex)) {
         const body = await res.text()
         const parser = new DOMParser()
         const resHTML = parser.parseFromString(body, "text/html")
         const mainRegionHTML = resHTML.querySelector("#region-main").innerHTML
-        const link = mainRegionHTML.match(pluginFileRegex)[0]
-
-        const fileName = parseFileNameFromPluginFileURL(link)
-        download(link, fileName)
-      } else {
-        let fileName = parseFileNameFromPluginFileURL(res.url)
-        const fileType = fileName.split(".").pop()
-
-        if (options.useMoodleFileName && node.fileName !== "") {
-          fileName = `${node.fileName}.${fileType}`
-        }
-
-        await download(res.url, fileName)
+        downloadURL = mainRegionHTML.match(pluginFileRegex).shift()
       }
+
+      let fileName = parseFileNameFromPluginFileURL(downloadURL)
+      const fileParts = fileName.split(".")
+      let fileType = fileParts.pop()
+      while (fileType === "") {
+        fileType = fileParts.pop()
+        if (fileParts.length === 0) {
+          break
+        }
+      }
+
+      if (options.useMoodleFileName && node.fileName !== "" && fileType !== "") {
+        fileName = `${node.fileName}.${fileType}`
+      }
+
+      await download(downloadURL, fileName)
     }
 
     async function downloadFolder(node) {
