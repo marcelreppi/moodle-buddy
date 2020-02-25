@@ -20,7 +20,7 @@
       ></NoMoodle>
 
       <div v-if="showRatingHint" class="rating-hint">
-        <div>You have downloaded more than 100 files 🎉</div>
+        <div>You have downloaded more than {{ rateHintLevels[rateHintLevel] }} files 🎉</div>
         <div>Thank you very much! 😄👌</div>
         <div>
           I would really appreciate your rating and review <br />
@@ -29,7 +29,7 @@
 
         <div style="margin-top: 20px;">
           <button @click="onRateClick">Rate Moodle Buddy</button>
-          <div class="disappoint" @click="onDisappointClick">I will have to disappoint you...</div>
+          <div class="avoid-rate" @click="onAvoidRateClick">I will have to disappoint you...</div>
         </div>
       </div>
     </div>
@@ -80,6 +80,15 @@ export default {
       nUpdates: 0,
       userHasRated: false,
       totalDownloadedFiles: 0,
+      rateHintLevel: 1,
+      rateHintLevels: {
+        1: 50,
+        2: 100,
+        3: 250,
+        4: 500,
+        5: 1000,
+        6: 1500,
+      },
     }
   },
   computed: {
@@ -102,7 +111,8 @@ export default {
       return !this.showDashboardPageView && !this.showCourseView
     },
     showRatingHint() {
-      return this.showCourseView && !this.userHasRated && this.totalDownloadedFiles > 100
+      const fileThreshold = this.rateHintLevels[this.rateHintLevel] || Infinity
+      return this.showCourseView && !this.userHasRated && this.totalDownloadedFiles > fileThreshold
     },
     rateLink() {
       return this.isFirefox
@@ -133,12 +143,20 @@ export default {
       })
       window.close()
     },
-    onDisappointClick() {
+    onAvoidRateClick() {
       this.userHasRated = true
       browser.tabs.sendMessage(this.activeTab.id, {
-        command: "rate-click",
+        command: "avoid-rate-click",
       })
       sendEvent("avoid-rating-hint")
+    },
+    saveStorageData(data) {
+      const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = data
+      this.options = options
+      this.nUpdates = nUpdates
+      this.userHasRated = userHasRated
+      this.totalDownloadedFiles = totalDownloadedFiles
+      this.rateHintLevel = rateHintLevel
     },
   },
   created() {
@@ -147,10 +165,7 @@ export default {
         this.isSupportedPage = message.isSupportedPage
         this.isDashboardPage = message.isDashboardPage
         this.isCoursePage = message.isCoursePage
-        this.options = message.options
-        this.nUpdates = message.nUpdates
-        this.userHasRated = message.userHasRated
-        this.totalDownloadedFiles = message.totalDownloadedFiles
+        this.saveStorageData(message)
 
         if (process.env.NODE_ENV === "debug") {
           this.isSupportedPage = true
@@ -175,12 +190,7 @@ export default {
         })
         .catch(() => {
           // When detector is not available fetch state from storage manually
-          browser.storage.local.get().then(localStorage => {
-            this.options = localStorage.options
-            this.nUpdates = localStorage.nUpdates
-            this.userHasRated = localStorage.userHasRated
-            this.totalDownloadedFiles = localStorage.totalDownloadedFiles
-          })
+          browser.storage.local.get().then(this.saveStorageData)
         })
     })
   },
@@ -276,7 +286,7 @@ hr {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
-.disappoint {
+.avoid-rate {
   font-size: 12px;
   color: #6f6f6f;
   margin-top: 10px;

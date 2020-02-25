@@ -25,6 +25,7 @@ async function runDetector() {
     nUpdates,
     userHasRated,
     totalDownloadedFiles,
+    rateHintLevel,
   } = await browser.storage.local.get()
 
   if (isSupportedPage) {
@@ -46,12 +47,20 @@ async function runDetector() {
         nUpdates,
         userHasRated,
         totalDownloadedFiles,
+        rateHintLevel,
       })
     }
 
     if (message.command === "rate-click") {
       await browser.storage.local.set({
         userHasRated: true,
+      })
+      runDetector()
+    }
+
+    if (message.command === "avoid-rate-click") {
+      await browser.storage.local.set({
+        rateHintLevel: rateHintLevel + 1,
       })
       runDetector()
     }

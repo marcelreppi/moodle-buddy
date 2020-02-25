@@ -30,6 +30,7 @@ const initialStorage = {
   nUpdates: 0, // Used for storing updates from background scan
   userHasRated: false,
   totalDownloadedFiles: 0,
+  rateHintLevel: 1,
 }
 
 async function onInstall() {
