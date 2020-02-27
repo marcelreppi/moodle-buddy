@@ -23,4 +23,10 @@ document.querySelector("#donate-link").addEventListener("click", () => {
   })
 })
 
+document.querySelector("#contact").addEventListener("click", () => {
+  browser.tabs.create({
+    url: "/pages/contact/contact.html",
+  })
+})
+
 document.querySelector("#version").textContent = `(v. ${browser.runtime.getManifest().version})`
