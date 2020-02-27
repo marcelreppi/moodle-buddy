@@ -62,7 +62,14 @@ async function save(e) {
       event: "disable-tracking",
     })
   }
-  browser.storage.local
+
+  await browser.runtime.sendMessage({
+    command: "event",
+    event: "options-save",
+    eventData: { options: updatedOptions },
+  })
+
+  await browser.storage.local
     .set({
       options: updatedOptions,
     })
