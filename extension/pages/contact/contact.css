@@ -60,7 +60,7 @@ html, body {
 
 .form > input[type="text"] {
   padding: 5px;
-  width: 75%;
+  width: 100%;
   font-family: inherit;
   font-weight: 350;
 }
@@ -71,6 +71,7 @@ html, body {
   font-weight: 350;
   resize: none;
   font-size: inherit;
+  width: 100%;
 }
 
 .form button {
