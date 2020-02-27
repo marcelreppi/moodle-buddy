@@ -7,10 +7,19 @@ async function sendToLambda(path, body) {
 
   if (options.disableInteractionTracking) {
     // console.log("Moodle Buddy Tracking disabled!")
-    const exceptions = ["install", "update"]
-    if (body.event && !exceptions.includes(body.event)) {
+    const pathExceptions = ["/event", "/feedback", "/log"]
+    if (!pathExceptions.includes(path)) {
       return
     }
+
+    if (path === "/event") {
+      const eventExceptions = ["install", "update"]
+      if (!eventExceptions.includes(body.event)) {
+        return
+      }
+    }
+
+    // Feeback and logs are always sent
   }
 
   const requestBody = {
