@@ -6,7 +6,11 @@ async function sendToLambda(path, body) {
   const { options, browserId } = await browser.storage.local.get(["options", "browserId"])
 
   if (options.disableInteractionTracking) {
-    console.log("Tracking disabled!")
+    // console.log("Moodle Buddy Tracking disabled!")
+    const exceptions = ["install", "update"]
+    if (body.event && !exceptions.includes(body.event)) {
+      return
+    }
   }
 
   const requestBody = {
