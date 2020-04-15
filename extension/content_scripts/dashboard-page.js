@@ -101,14 +101,18 @@ async function scanOverview() {
 
     const domParser = new DOMParser()
     for (const link of courseLinks) {
-      const res = await fetch(link)
-      const resBody = await res.text()
-      const HTMLDocument = domParser.parseFromString(resBody, "text/html")
+      try {
+        const res = await fetch(link)
+        const resBody = await res.text()
+        const HTMLDocument = domParser.parseFromString(resBody, "text/html")
 
-      const course = new Course(link, HTMLDocument)
-      await course.scan()
-      courses.push(course)
-      scanCompleted++
+        const course = new Course(link, HTMLDocument)
+        await course.scan()
+        courses.push(course)
+        scanCompleted++
+      } catch (error) {
+        sendLog({ errorMessage: error.message, url: link })
+      }
     }
 
     browser.storage.local.set({
