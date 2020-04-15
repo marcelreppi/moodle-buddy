@@ -116,11 +116,12 @@
     </div>
 
     <progress-bar
-      v-if="downloadStarted"
+      v-if="downloadInProgress"
       ref="progressBar"
       :total="selectedResources.length"
-      action="Downloading"
+      type="download"
       :onDone="onDownloadFinished"
+      :onCancel="onCancel"
       style="width: 80%;"
     ></progress-bar>
 
@@ -174,7 +175,7 @@ export default {
       showDetails: false,
       showDownloadOptions: true,
       activeSelectionTab: "simple",
-      downloadStarted: false,
+      downloadInProgress: false,
       downloadProgressText: "",
     }
   },
@@ -227,7 +228,7 @@ export default {
       })
     },
     disableDownload() {
-      if (this.downloadStarted) {
+      if (this.downloadInProgress) {
         return true
       }
 
@@ -274,7 +275,7 @@ export default {
       }
       sendEvent(eventParts.join("-"), true, { numberOfFiles: this.selectedResources.length })
 
-      this.downloadStarted = true
+      this.downloadInProgress = true
 
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
@@ -289,7 +290,7 @@ export default {
     },
     onDownloadFinished() {
       setTimeout(() => {
-        this.downloadStarted = false
+        this.downloadInProgress = false
       }, 3000)
     },
     onMarkAsSeenClick() {
@@ -315,6 +316,13 @@ export default {
     setResourceSelected(href, value) {
       const resource = this.resourceNodes.find(r => r.href === href)
       resource.selected = value
+    },
+    onCancel() {
+      browser.runtime.sendMessage({
+        command: "cancel-download",
+      })
+      this.downloadInProgress = false
+      sendEvent("cancel-download", true)
     },
   },
   created() {

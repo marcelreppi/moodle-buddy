@@ -1,6 +1,11 @@
 <template>
   <div class="progress-bar-container">
-    <div class="progress-bar-label">{{ progressText }}</div>
+    <div class="progress-bar-label">
+      <div style="text-align: left">{{ progressText }}</div>
+      <div v-if="cancelable.indexOf(type) !== -1" class="cancel-button">
+        <button v-if="!done" class="link" @click="onCancel">Cancel</button>
+      </div>
+    </div>
     <div class="progress-bar">
       <vue-progress-bar></vue-progress-bar>
     </div>
@@ -8,9 +13,14 @@
 </template>
 
 <script>
+const actionByType = {
+  scan: "Scanning",
+  download: "Downloading",
+}
+
 export default {
   props: {
-    action: {
+    type: {
       type: String,
       required: true,
     },
@@ -24,11 +34,18 @@ export default {
       required: false,
       default: () => {},
     },
+    onCancel: {
+      type: Function,
+      required: false,
+      default: () => {},
+    },
   },
   data() {
     return {
       currentTotal: this.$props.total,
-      progressText: `${this.action}... 0/${this.$props.total || "?"}`,
+      progressText: `${actionByType[this.type]}... 0/${this.$props.total || "?"}`,
+      done: false,
+      cancelable: ["download"],
     }
   },
   methods: {
@@ -48,11 +65,12 @@ export default {
 
       if (completed === this.currentTotal) {
         this.progressText = "Done!"
+        this.done = true
         this.onDone()
         return
       }
 
-      this.progressText = `${this.action}... ${completed}/${this.currentTotal}`
+      this.progressText = `${actionByType[this.type]}... ${completed}/${this.currentTotal}`
     },
   },
   created() {
@@ -71,8 +89,15 @@ export default {
 }
 
 .progress-bar-label {
-  align-self: flex-start;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   font-size: 13px;
+  width: 100%;
+}
+
+.cancel-button {
+  display: flex;
+  flex-direction: row-reverse;
 }
 
 .progress-bar {

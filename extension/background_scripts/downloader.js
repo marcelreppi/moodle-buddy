@@ -4,7 +4,9 @@ const { sendDownloadData, sendLog } = require("./helpers")
 
 let downloadFileCount = 0
 let downloadByteCount = 0
+const inProgressDownloads = new Set()
 let finishedDownloads = []
+let cancel = false
 
 browser.downloads.onChanged.addListener(async downloadDelta => {
   const { state, id } = downloadDelta
@@ -18,6 +20,7 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
   if (state.current === "complete") {
     const downloadItem = await browser.downloads.search({ id })
     downloadByteCount += downloadItem[0].fileSize
+    inProgressDownloads.delete(id)
     finishedDownloads.push(id)
   }
 
@@ -45,14 +48,25 @@ function sanitizeFileName(fileName, connectingString = "") {
 }
 
 browser.runtime.onMessage.addListener(async message => {
+  if (message.command === "cancel-download") {
+    cancel = true
+    for (const id of inProgressDownloads) {
+      browser.downloads.cancel(id)
+    }
+  }
+
   if (message.command === "download") {
+    inProgressDownloads.clear()
     finishedDownloads = []
     downloadFileCount = 0
     downloadByteCount = 0
+    cancel = false
 
     const { courseName, courseShortcut, options } = message
 
     async function download(url, fileName) {
+      if (cancel) return
+
       // Remove illegal characters from possible filename parts
       const cleanCourseName = sanitizeFileName(courseName, "")
       const cleanCourseShortcut = sanitizeFileName(courseShortcut, "_")
@@ -77,17 +91,22 @@ browser.runtime.onMessage.addListener(async message => {
       }
 
       try {
-        await browser.downloads.download({ url, filename: cleanFileName })
+        const id = await browser.downloads.download({ url, filename: cleanFileName })
+        inProgressDownloads.add(id)
       } catch (error) {
         sendLog({ errorMessage: error.message, url, fileName: cleanFileName })
       }
     }
 
     async function downloadPluginFile(node) {
+      if (cancel) return
+
       await download(node.href, node.fileName)
     }
 
     async function downloadFile(node) {
+      if (cancel) return
+
       // Fetch the href to get the actual download URL
       const res = await fetch(node.href)
 
@@ -120,6 +139,8 @@ browser.runtime.onMessage.addListener(async message => {
     }
 
     async function downloadFolder(node) {
+      if (cancel) return
+
       // Fetch the href to get the actual download URL
       const res = await fetch(node.href)
       const body = await res.text()
@@ -173,6 +194,8 @@ browser.runtime.onMessage.addListener(async message => {
     }
 
     for (const node of message.resources) {
+      if (cancel) return
+
       downloadFileCount++
       if (node.isPluginFile) {
         downloadPluginFile(node)

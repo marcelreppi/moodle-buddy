@@ -2,7 +2,7 @@
   <div class="content-container">
     <div v-if="courses === null" class="no-courses">
       <div>Scanning courses for updates...</div>
-      <progress-bar action="Scanning" ref="progressBar"></progress-bar>
+      <progress-bar type="scan" ref="progressBar"></progress-bar>
     </div>
     <div v-else-if="unknownLayout && courses.length === 0" style="width: 60%;" class="no-courses">
       <div>Moodle Buddy currently doesn't support this Moodle layout.</div>
