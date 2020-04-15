@@ -2,7 +2,7 @@
   <div class="progress-bar-container">
     <div class="progress-bar-label">
       <div style="text-align: left">{{ progressText }}</div>
-      <div v-if="cancelable.indexOf(type) !== -1" class="cancel-button">
+      <div v-if="cancelable.includes(type)" class="cancel-button">
         <button v-if="!done" class="link" @click="onCancel">Cancel</button>
       </div>
     </div>
