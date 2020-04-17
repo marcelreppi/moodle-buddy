@@ -1,9 +1,0 @@
-You are a student and your university uses Moodle as their learning management platform?
-You frequently use Moodle to access course material?
-You are tired of missing updates and downloading every file one at a time?
-
-This browser plugin will save you a lot of time! It will scan your Moodle course for all available resources (PDF
-documents, etc.) and allow you to download them all at once.
-
-Furthermore, Moodle Buddy scans your courses for any updates and shows them to you. You can immediately download new
-resources from your Moodle Dashboard via the plugin.
