@@ -21,6 +21,8 @@ The plugin is available for both **Firefox** and **Chrome**.
 
 ## Full Feature List
 
+![Screenshots](screenshots/combined.png "Course page (simple) | Course page (detailed) | Dashboard page")
+
 **Course Page**
 * Download all course resources with one click
 * Scans single Moodle courses for new resources
