@@ -6,9 +6,9 @@ Moodle Buddy is a browser plugin that offers additional helpful functionality to
 
 The plugin is available for both **Firefox** and **Chrome**.
 
-### Click [here](https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/) for **Firefox**
+### [Click here for **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/)
 
-### Click [here](https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo) for **Chrome**
+### [Click here for **Chrome**](https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo)
 
 ## Usage
 
