@@ -1,12 +1,13 @@
 {
   "manifest_version": 2,
   "name": "Moodle Buddy",
-  "version": "1.20",
+  "version": "1.21",
   "description": "Moodle Buddy offers mass download and notification functionality to the moodle learning management platform.",
   "icons": {
-    "16": "/icons/16.png",
-    "48": "/icons/48.png",
-    "128": "/icons/128.png"
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
   },
   "permissions": [
     "<all_urls>",
@@ -16,12 +17,13 @@
   ],
   "browser_action": {
     "default_icon": {
-      "16": "/icons/16-gray.png",
-      "48": "/icons/48-gray.png",
-      "128": "/icons/128-gray.png"
+      "16": "icons/16-gray.png",
+      "32": "icons/32-gray.png",
+      "48": "icons/48-gray.png",
+      "128": "icons/128-gray.png"
     },
     "default_title": "Moodle Buddy",
-    "default_popup": "./popup/index.html"
+    "default_popup": "popup/index.html"
   },
   "content_scripts": [
     {
@@ -29,8 +31,8 @@
         "<all_urls>"
       ],
       "js": [
-        "/shared/browser-polyfill.js",
-        "/content_scripts/detector.js"
+        "shared/browser-polyfill.js",
+        "content_scripts/detector.js"
       ]
     },
     {
@@ -38,7 +40,7 @@
         "*://*/course/view.php?id=*"
       ],
       "js": [
-        "/content_scripts/course-page.js"
+        "content_scripts/course-page.js"
       ]
     },
     {
@@ -46,19 +48,19 @@
         "*://*/my*"
       ],
       "js": [
-        "/content_scripts/dashboard-page.js"
+        "content_scripts/dashboard-page.js"
       ]
     }
   ],
   "background": {
     "scripts": [
-      "/shared/browser-polyfill.js",
-      "/background_scripts/extension-listener.js",
-      "/background_scripts/downloader.js",
-      "/background_scripts/background-scanner.js"
+      "shared/browser-polyfill.js",
+      "background_scripts/extension-listener.js",
+      "background_scripts/downloader.js",
+      "background_scripts/background-scanner.js"
     ]
   },
   "options_ui": {
-    "page": "/pages/options/options.html"
+    "page": "pages/options/options.html"
   }
 }
