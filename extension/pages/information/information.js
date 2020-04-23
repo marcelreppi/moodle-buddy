@@ -8,6 +8,16 @@ document.querySelector("#imprint-link").addEventListener("click", () => {
   })
 })
 
+document.querySelector("#privacy-link").addEventListener("click", () => {
+  browser.runtime.sendMessage({
+    command: "event",
+    event: "privacy-click",
+  })
+  browser.tabs.create({
+    url: "/pages/legal/legal.html",
+  })
+})
+
 document.querySelector("#options-link").addEventListener("click", () => {
   browser.runtime.sendMessage({
     command: "event",
