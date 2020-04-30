@@ -53,6 +53,12 @@ label.interval-label input {
   width: 50px;
 }
 
+.form-subsection {
+  margin: 7px 0px 7px 5px;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
 .url-input {
   width: 400px;
   margin-bottom: 10px;

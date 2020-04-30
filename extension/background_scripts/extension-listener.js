@@ -10,7 +10,6 @@ import {
 
 const defaultOptions = {
   onlyNewResources: false,
-  saveToFolder: true,
   useMoodleFileName: true,
   showDownloadOptions: false,
   prependCourseShortcutToFileName: false,
@@ -21,6 +20,9 @@ const defaultOptions = {
   autoSetMoodleURL: true,
   backgroundScanInterval: 30,
   enableBackgroundScanning: true,
+  downloadFolderAsZip: true,
+  saveToMoodleFolder: false,
+  folderStructure: "CourseFile",
 }
 
 const initialStorage = {

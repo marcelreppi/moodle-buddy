@@ -24,6 +24,9 @@ function restore() {
         case "checkbox":
           input.checked = options[input.id]
           break
+        case "radio":
+          input.checked = input.value === options[input.name]
+          break
         default:
           input.value = options[input.id]
           break
@@ -43,6 +46,11 @@ async function save(e) {
         break
       case "number":
         updatedOptions[input.id] = parseFloat(input.value)
+        break
+      case "radio":
+        if (input.checked) {
+          updatedOptions[input.name] = input.value
+        }
         break
       default:
         updatedOptions[input.id] = input.value

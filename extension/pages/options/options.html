@@ -10,7 +10,9 @@
 <body>
   <div class="container">
     <form>
+
       <div class="form-section">Your personal Moodle URL</div>
+
       <label>
         <input class="url-input" type="text" id="defaultMoodleURL">
       </label>
@@ -18,7 +20,9 @@
         <input type="checkbox" id="autoSetMoodleURL">
         <span>Automatically detect Moodle URL</span>
       </label>
+
       <div class="form-section">Background Scanning</div>
+
       <div>
         When background scanning is enabled Moodle Buddy will periodically crawl your Moodle course overview page for
         any updates and notify you when there is anything new.
@@ -50,17 +54,34 @@
         <input type="checkbox" id="enableBackgroundScanning">
         <span>Enable background scanning</span>
       </label>
+
       <div class="form-section">Default download options</div>
+
       <label>
         <input type="checkbox" id="onlyNewResources" />
         <span>When new resources are available only download the new ones</span>
       </label>
       <label>
-        <input type="checkbox" id="saveToFolder" />
-        <span>
-          Save all downloaded resources inside a folder (course name is used as folder name)
-        </span>
+        <input type="checkbox" id="downloadFolderAsZip" />
+        <span>Download Moodle folders as ZIP files whenever possible</span>
       </label>
+
+      <div class="form-subsection">Download organization</div>
+      <label>
+        <input type="checkbox" id="saveToMoodleFolder" />
+        <span>Download everything into a "Moodle" subfolder</span>
+      </label>
+      <label style="margin-top: 10px;">
+        <div style="margin-left: 5px;">Possible subfolder structures:</div>
+        <input type="radio" id="fs1" name="folderStructure" value="CourseFile">
+        <label for="fs1">Course name / File</label><br>
+        <input type="radio" id="fs2" name="folderStructure" value="CourseSectionFile">
+        <label for="fs2">Course name / Section name / File</label><br>
+        <input type="radio" id="fs3" name="folderStructure" value="None">
+        <label for="fs3">No subfolders</label><br>
+      </label>
+
+      <div class="form-subsection">File name</div>
       <label>
         <input type="checkbox" id="useMoodleFileName" />
         <span>Use Moodle file name as actual file name</span>
@@ -81,12 +102,14 @@
       </label>
 
       <div class="form-section">Course overview page options</div>
+
       <label>
         <input type="checkbox" id="alwaysShowDetails" />
         <span>Always show details on new resources</span>
       </label>
 
       <div class="form-section">Anonymized usage data</div>
+
       <div>
         <p>
           A few interactions are tracked when the plugin is used such as when the plugin is

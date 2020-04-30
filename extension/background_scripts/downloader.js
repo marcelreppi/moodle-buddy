@@ -44,7 +44,16 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
 })
 
 function sanitizeFileName(fileName, connectingString = "") {
-  return fileName.trim().replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString)
+  return fileName
+    .trim()
+    .replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString)
+    .trim()
+}
+
+function sanitizeFolderName(folderName, connectingString = "") {
+  return sanitizeFileName(folderName)
+    .replace(/\./gi, connectingString)
+    .trim()
 }
 
 browser.runtime.onMessage.addListener(async message => {
@@ -62,46 +71,70 @@ browser.runtime.onMessage.addListener(async message => {
     downloadByteCount = 0
     cancel = false
 
-    const { courseName, courseShortcut, options } = message
+    const { options: storageOptions } = await browser.storage.local.get("options")
 
-    async function download(url, fileName) {
+    const { courseName, courseShortcut, options: userOptions } = message
+
+    const options = { ...storageOptions, ...userOptions }
+
+    async function download(url, fileName, section = "") {
       if (cancel) return
 
       // Remove illegal characters from possible filename parts
-      const cleanCourseName = sanitizeFileName(courseName, "")
-      const cleanCourseShortcut = sanitizeFileName(courseShortcut, "_")
-      let cleanFileName = sanitizeFileName(fileName)
+      const cleanCourseName = sanitizeFolderName(courseName, "")
+      const cleanCourseShortcut = sanitizeFolderName(courseShortcut, "_")
+      const cleanSectionName = sanitizeFolderName(section)
+      const cleanFileName = sanitizeFileName(fileName).replace("{slash}", "/")
+
+      let filePath = cleanFileName
       // Apply all options to filename
       if (options.prependCourseToFileName) {
-        cleanFileName = `${cleanCourseName}_${cleanFileName}`
+        filePath = `${cleanCourseName}_${filePath}`
       }
 
       if (options.prependCourseShortcutToFileName) {
-        cleanFileName = `${cleanCourseShortcut}_${cleanFileName}`
+        filePath = `${cleanCourseShortcut}_${filePath}`
       }
 
-      if (options.saveToFolder) {
-        cleanFileName = `${cleanCourseName}/${cleanFileName}`
+      switch (options.folderStructure) {
+        case "CourseFile":
+          filePath = `${cleanCourseName}/${filePath}`
+          break
+        case "CourseSectionFile":
+          if (section !== "") {
+            filePath = `${cleanCourseName}/${cleanSectionName}/${filePath}`
+          } else {
+            filePath = `${cleanCourseName}/${filePath}`
+          }
+          break
+        case "None":
+          break
+        default:
+          break
+      }
+
+      if (options.saveToMoodleFolder) {
+        filePath = `Moodle/${filePath}`
       }
 
       if (process.env.NODE_ENV === "debug") {
-        console.log(cleanFileName)
+        console.log(filePath)
         console.log(url)
         return
       }
 
       try {
-        const id = await browser.downloads.download({ url, filename: cleanFileName })
+        const id = await browser.downloads.download({ url, filename: filePath })
         inProgressDownloads.add(id)
       } catch (error) {
-        sendLog({ errorMessage: error.message, url, fileName: cleanFileName })
+        sendLog({ errorMessage: error.message, url, fileName: filePath })
       }
     }
 
     async function downloadPluginFile(node) {
       if (cancel) return
 
-      await download(node.href, node.fileName)
+      await download(node.href, node.fileName, node.section)
     }
 
     async function downloadFile(node) {
@@ -135,7 +168,7 @@ browser.runtime.onMessage.addListener(async message => {
         fileName = `${node.fileName}.${fileType}`
       }
 
-      await download(downloadURL, fileName)
+      await download(downloadURL, fileName, node.section)
     }
 
     async function downloadFolder(node) {
@@ -156,7 +189,7 @@ browser.runtime.onMessage.addListener(async message => {
       const downloadButtonVisible =
         resHTML.querySelector(`form[action="${baseURL}/mod/folder/download_folder.php"]`) !== null
 
-      if (downloadButtonVisible) {
+      if (options.downloadFolderAsZip && downloadButtonVisible) {
         const downloadIDTag = resHTML.querySelector("input[name='id']")
 
         if (downloadIDTag === null) return
@@ -166,7 +199,7 @@ browser.runtime.onMessage.addListener(async message => {
         )}`
 
         const fileName = `${node.folderName}.zip`
-        await download(downloadURL, fileName)
+        await download(downloadURL, fileName, node.section)
       } else {
         const fileNodes = resHTML.querySelectorAll("a[href$='forcedownload=1'") // All a tags whose href attribute ends with forcedownload=1
 
@@ -185,10 +218,18 @@ browser.runtime.onMessage.addListener(async message => {
           return
         }
 
+        downloadFileCount += fileNodes.length - 1
+        browser.runtime.sendMessage({
+          command: "download-progress",
+          completed: finishedDownloads.length,
+          total: downloadFileCount,
+        })
+
+        const cleanFolderName = sanitizeFolderName(node.folderName)
         for (const fileNode of fileNodes) {
           const URLFileName = parseFileNameFromPluginFileURL(fileNode.href)
-          const fileName = `${node.folderName}_Folder_${URLFileName}`
-          await download(fileNode.href, fileName)
+          const fileName = `${cleanFolderName}{slash}${URLFileName}`
+          await download(fileNode.href, fileName, node.section)
         }
       }
     }
