@@ -67,13 +67,41 @@ export function parseFileNameFromNode(aTag) {
 }
 
 export function parseFileNameFromPluginFileURL(url) {
-  const fileName = url
+  let fileName = url
     .split("/")
     .pop() // Take last part of URL
     .split("?")
     .shift() // Take everything before query parameters
 
-  return decodeURI(fileName)
+  fileName = decodeURIComponent(fileName)
+
+  const specialCharacters = {
+    "%21": "!",
+    "%23": "#",
+    "%24": "$",
+    "%25": "%",
+    "%26": "&",
+    "%27": "'",
+    "%28": "(",
+    "%29": ")",
+    "%2A": "*",
+    "%2B": "+",
+    "%2C": ",",
+    "%2F": "/",
+    "%3A": ":",
+    "%3B": ";",
+    "%3D": "=",
+    "%3F": "?",
+    "%40": "@",
+    "%5B": "[",
+    "%5D": "]",
+  }
+
+  for (const percentChar of Object.keys(specialCharacters)) {
+    fileName = fileName.replace(percentChar, specialCharacters[percentChar])
+  }
+
+  return fileName
 }
 
 export function parseActivityNameFromNode(node) {
