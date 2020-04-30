@@ -1,6 +1,6 @@
 # Moodle Buddy
 
-Moodle Buddy is a browser plugin that offers additional helpful functionality to the moodle learning management platform. Students can download all learning materials with just one click and see updates to their courses immediately.
+Moodle Buddy offers mass download and notification functionality for the moodle learning management platform. Students can download all learning materials with just one click and see updates to their courses immediately.
 
 ## Installation
 
