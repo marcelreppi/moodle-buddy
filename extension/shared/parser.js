@@ -194,9 +194,18 @@ export function parseActivityTypeFromNode(node) {
 }
 
 export function parseSectionName(node) {
-  const section = node.closest("li[id^='section-']")
+  let section = node.closest("li[id^='section-']")
   if (section && section.attributes["aria-label"]) {
     return section.attributes["aria-label"].value
+  }
+
+  section = node.closest("div[id^='section-']")
+  if (section && section.attributes["aria-labelledby"]) {
+    const labelledBy = section.attributes["aria-labelledby"].value
+    const label = document.getElementById(labelledBy)
+    if (label) {
+      return label.textContent
+    }
   }
 
   return ""
