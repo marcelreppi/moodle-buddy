@@ -61,7 +61,7 @@ export default {
         return
       }
 
-      this.$Progress.set(Math.ceil((completed / this.currentTotal) * 100))
+      this.$Progress.set(Math.ceil((completed / this.currentTotal) * 100) || 1)
 
       if (completed === this.currentTotal) {
         this.progressText = "Done!"
