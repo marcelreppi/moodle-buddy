@@ -2,11 +2,13 @@
 
 ### Chrome
 
+![Version](https://img.shields.io/chrome-web-store/v/nomahjpllnbcpbggnpiehiecfbjmcaeo)
 ![Users](https://img.shields.io/chrome-web-store/users/nomahjpllnbcpbggnpiehiecfbjmcaeo)
 ![Ratings](https://img.shields.io/chrome-web-store/rating/nomahjpllnbcpbggnpiehiecfbjmcaeo)
 
 ### Firefox
 
+![Version](https://img.shields.io/amo/v/moodle-buddy) 
 ![Users](https://img.shields.io/amo/users/moodle-buddy) 
 ![Ratings](https://img.shields.io/amo/rating/moodle-buddy)
 
