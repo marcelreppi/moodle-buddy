@@ -121,3 +121,12 @@ export function parseActivityTypeFromNode(node) {
 
   return "Unkown Activity Type"
 }
+
+export function parseSectionName(node) {
+  const section = node.closest("li[id^='section-']")
+  if (section && section.attributes["aria-label"]) {
+    return section.attributes["aria-label"].value
+  }
+
+  return ""
+}

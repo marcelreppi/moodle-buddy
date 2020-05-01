@@ -85,13 +85,13 @@ function Course(link, HTMLDocument) {
         seenActivities: previousSeenActivities = null,
       } = storedCourseData
 
-      const addFileNodes = (fileNodes, section = "") => {
+      const addFileNodes = fileNodes => {
         this.resourceCounts.nFiles += fileNodes.length
         fileNodes.forEach(node => {
           const resourceNode = {
             href: node.href,
             fileName: parser.parseFileNameFromNode(node),
-            section,
+            section: parser.parseSectionName(node),
             isFile: true,
             isPluginFile: false,
             isNewResource: null,
@@ -111,13 +111,13 @@ function Course(link, HTMLDocument) {
         })
       }
 
-      const addPluginFileNodes = (pluginFileNodes, section = "") => {
+      const addPluginFileNodes = pluginFileNodes => {
         this.resourceCounts.nFiles += pluginFileNodes.length
         pluginFileNodes.forEach(node => {
           const resourceNode = {
             href: node.href,
             fileName: parser.parseFileNameFromPluginFileURL(node.href),
-            section,
+            section: parser.parseSectionName(node),
             isFile: true,
             isPluginFile: true,
             isNewResource: null,
@@ -134,13 +134,13 @@ function Course(link, HTMLDocument) {
         })
       }
 
-      const addVideoNodes = (videoNodes, section = "") => {
+      const addVideoNodes = videoNodes => {
         this.resourceCounts.nFiles += videoNodes.length
         videoNodes.forEach(node => {
           const resourceNode = {
             href: node.src,
             fileName: parser.parseFileNameFromPluginFileURL(node.src),
-            section,
+            section: parser.parseSectionName(node),
             isFile: true,
             isPluginFile: true,
             isNewResource: null,
@@ -157,13 +157,13 @@ function Course(link, HTMLDocument) {
         })
       }
 
-      const addFolderNodes = (folderNodes, section = "") => {
+      const addFolderNodes = folderNodes => {
         this.resourceCounts.nFolders += folderNodes.length
         folderNodes.forEach(node => {
           const resourceNode = {
             href: node.href,
             folderName: parser.parseFileNameFromNode(node),
-            section,
+            section: parser.parseSectionName(node),
             isFolder: true,
             isNewResource: null,
           }
@@ -179,14 +179,14 @@ function Course(link, HTMLDocument) {
         })
       }
 
-      const addActivityNodes = (activityNodes, section = "") => {
+      const addActivityNodes = activityNodes => {
         this.activityCounts.nActivities += activityNodes.length
         activityNodes.forEach(node => {
           const activityNode = {
             href: node.href,
             activityName: parser.parseActivityNameFromNode(node),
             activityType: parser.parseActivityTypeFromNode(node),
-            section,
+            section: parser.parseSectionName(node),
             isActivity: true,
             isNewActivity: null,
           }
@@ -203,39 +203,18 @@ function Course(link, HTMLDocument) {
       }
 
       const mainHTML = this.HTMLDocument.querySelector("#region-main")
-      const sections = mainHTML.querySelectorAll("li[id^='section-']")
 
-      if (sections && sections.length !== 0) {
-        for (const sectionNode of sections) {
-          let sectionName = ""
-          if (sectionNode.attributes["aria-label"]) {
-            sectionName = sectionNode.attributes["aria-label"].textContent
-          }
-          const fileNodes = sectionNode.querySelectorAll(getQuerySelector("file"))
-          const pluginFileNodes = sectionNode.querySelectorAll(getQuerySelector("pluginfile"))
-          const videoNodes = sectionNode.querySelectorAll(getQuerySelector("video"))
-          const folderNodes = sectionNode.querySelectorAll(getQuerySelector("folder"))
-          const activityNodes = sectionNode.querySelectorAll(getQuerySelector("activity"))
+      const fileNodes = mainHTML.querySelectorAll(getQuerySelector("file"))
+      const pluginFileNodes = mainHTML.querySelectorAll(getQuerySelector("pluginfile"))
+      const videoNodes = mainHTML.querySelectorAll(getQuerySelector("video"))
+      const folderNodes = mainHTML.querySelectorAll(getQuerySelector("folder"))
+      const activityNodes = mainHTML.querySelectorAll(getQuerySelector("activity"))
 
-          addFileNodes(fileNodes, sectionName)
-          addPluginFileNodes(pluginFileNodes, sectionName)
-          addVideoNodes(videoNodes, sectionName)
-          addFolderNodes(folderNodes, sectionName)
-          addActivityNodes(activityNodes, sectionName)
-        }
-      } else {
-        const fileNodes = mainHTML.querySelectorAll(getQuerySelector("file"))
-        const pluginFileNodes = mainHTML.querySelectorAll(getQuerySelector("pluginfile"))
-        const videoNodes = mainHTML.querySelectorAll(getQuerySelector("video"))
-        const folderNodes = mainHTML.querySelectorAll(getQuerySelector("folder"))
-        const activityNodes = mainHTML.querySelectorAll(getQuerySelector("activity"))
-
-        addFileNodes(fileNodes)
-        addPluginFileNodes(pluginFileNodes)
-        addVideoNodes(videoNodes)
-        addFolderNodes(folderNodes)
-        addActivityNodes(activityNodes)
-      }
+      addFileNodes(fileNodes)
+      addPluginFileNodes(pluginFileNodes)
+      addVideoNodes(videoNodes)
+      addFolderNodes(folderNodes)
+      addActivityNodes(activityNodes)
 
       if (localStorage[this.link]) {
         await browser.storage.local.set({
