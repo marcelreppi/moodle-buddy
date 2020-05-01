@@ -1,4 +1,14 @@
-# Moodle Buddy
+# Moodle Buddy ![Icon](extension/icons/32.png)
+
+### Chrome
+
+![Users](https://img.shields.io/chrome-web-store/users/nomahjpllnbcpbggnpiehiecfbjmcaeo)
+![Ratings](https://img.shields.io/chrome-web-store/rating/nomahjpllnbcpbggnpiehiecfbjmcaeo)
+
+### Firefox
+
+![Users](https://img.shields.io/amo/users/moodle-buddy) 
+![Ratings](https://img.shields.io/amo/rating/moodle-buddy)
 
 Moodle Buddy offers mass download and notification functionality for the moodle learning management platform. Students can download all learning materials with just one click and see updates to their courses immediately.
 
