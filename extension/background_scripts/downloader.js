@@ -1,4 +1,9 @@
-const { parseFileNameFromPluginFileURL } = require("../shared/parser")
+const {
+  parseFileNameFromPluginFileURL,
+  getDownloadButton,
+  getDownloadIdTag,
+  getQuerySelector,
+} = require("../shared/parser")
 const { fileRegex, pluginFileRegex, validURLRegex } = require("../shared/helpers")
 const { sendDownloadData, sendLog } = require("./helpers")
 
@@ -9,6 +14,7 @@ let finishedDownloads = []
 let cancel = false
 
 browser.downloads.onChanged.addListener(async downloadDelta => {
+  console.log(downloadDelta)
   const { state, id } = downloadDelta
 
   if (state === undefined) return
@@ -134,7 +140,13 @@ browser.runtime.onMessage.addListener(async message => {
     async function downloadPluginFile(node) {
       if (cancel) return
 
-      await download(node.href, node.fileName, node.section)
+      let { fileName } = node
+      if (node.partOfFolder !== "") {
+        const folderName = sanitizeFolderName(node.partOfFolder)
+        fileName = `${folderName}{slash}${fileName}`
+      }
+
+      await download(node.href, fileName, node.section)
     }
 
     async function downloadFile(node) {
@@ -174,6 +186,12 @@ browser.runtime.onMessage.addListener(async message => {
     async function downloadFolder(node) {
       if (cancel) return
 
+      if (node.isInline) {
+        const fileName = `${node.folderName}.zip`
+        await download(node.href, fileName, node.section)
+        return
+      }
+
       // Fetch the href to get the actual download URL
       const res = await fetch(node.href)
       const body = await res.text()
@@ -186,22 +204,19 @@ browser.runtime.onMessage.addListener(async message => {
       // 1. "Download Folder" button is shown --> Download zip via button
       // 2. "Download Folder" button is hidden --> Download all files separately
 
-      const downloadButtonVisible =
-        resHTML.querySelector(`form[action="${baseURL}/mod/folder/download_folder.php"]`) !== null
+      const downloadButton = getDownloadButton(resHTML)
 
-      if (options.downloadFolderAsZip && downloadButtonVisible) {
-        const downloadIDTag = resHTML.querySelector("input[name='id']")
+      if (options.downloadFolderAsZip && downloadButton !== null) {
+        const downloadIdTag = getDownloadIdTag(resHTML)
 
-        if (downloadIDTag === null) return
-
-        const downloadURL = `${baseURL}/mod/folder/download_folder.php?id=${downloadIDTag.getAttribute(
-          "value"
-        )}`
+        if (downloadIdTag === null) return
+        const downloadId = downloadIdTag.getAttribute("value")
+        const downloadURL = `${baseURL}/mod/folder/download_folder.php?id=${downloadId}`
 
         const fileName = `${node.folderName}.zip`
         await download(downloadURL, fileName, node.section)
       } else {
-        const fileNodes = resHTML.querySelectorAll("a[href$='forcedownload=1'") // All a tags whose href attribute ends with forcedownload=1
+        const fileNodes = resHTML.querySelectorAll(getQuerySelector("pluginfile"))
 
         // Handle empty folders
         if (fileNodes.length === 0) {

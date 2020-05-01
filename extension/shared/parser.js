@@ -48,19 +48,80 @@ export function parseCourseLink(htmlString) {
   return match ? match[0] : htmlString
 }
 
-export function parseFileNameFromNode(aTag) {
+export function getQuerySelector(type) {
+  const urlQuerySelector = "" // location.hostname.replace(/\./g, "\\.")
+  const fileQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/resource]`
+  const folderQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/folder]`
+  const pluginFileQuerySelector = `[href*=${urlQuerySelector}\\/pluginfile]`
+  // Any link with /mod/xxx except /mod/resource and /mod/folder
+  const activityQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/]:not(${fileQuerySelector}):not(${folderQuerySelector})`
+  const videoSelector = `video source[src*=${urlQuerySelector}\\/pluginfile]`
+
+  let selector = null
+  switch (type) {
+    case "file":
+      selector = fileQuerySelector
+      break
+    case "folder":
+      selector = folderQuerySelector
+      break
+    case "pluginfile":
+      selector = pluginFileQuerySelector
+      break
+    case "activity":
+      selector = activityQuerySelector
+      break
+    case "video":
+      selector = videoSelector
+      break
+    default:
+      break
+  }
+
+  selector = `${selector}:not(.helplinkpopup)`
+  return selector
+}
+
+export function parseURLFromNode(node, type) {
+  if (type === "pluginfile") {
+    const aTag = node.querySelector(getQuerySelector("pluginfile"))
+    if (aTag) {
+      return aTag.href
+    }
+
+    const sourceTag = node.querySelector(getQuerySelector("video"))
+    if (sourceTag) {
+      return sourceTag.src
+    }
+
+    if (node.href) {
+      return node.href
+    }
+
+    return ""
+  }
+
+  const aTag = node.querySelector(getQuerySelector(type))
+  if (aTag) {
+    return aTag.href
+  }
+
+  return ""
+}
+
+export function parseFileNameFromNode(node) {
   // Files or Folders
-  if (aTag.querySelector(".instancename")) {
-    return aTag.querySelector(".instancename").firstChild.textContent
+  if (node.querySelector(".instancename")) {
+    return node.querySelector(".instancename").firstChild.textContent.trim()
   }
 
   // PluginFiles
-  if (aTag.querySelector(".fp-filename")) {
-    return aTag.querySelector(".fp-filename").textContent
+  if (node.querySelector(".fp-filename")) {
+    return node.querySelector(".fp-filename").textContent.trim()
   }
 
-  if (aTag.textContent !== "") {
-    return aTag.textContent
+  if (node.textContent !== "") {
+    return node.textContent.trim()
   }
 
   return "Unknown Filename"
@@ -107,13 +168,23 @@ export function parseFileNameFromPluginFileURL(url) {
 export function parseActivityNameFromNode(node) {
   if (node.querySelector(".instancename")) {
     const activityName = node.querySelector(".instancename").firstChild.textContent
-    if (activityName !== "") return activityName
+    if (activityName !== "") {
+      return activityName.trim()
+    }
   }
 
   return "Unknown Activity"
 }
 
 export function parseActivityTypeFromNode(node) {
+  const modtypeClassResult = node.className.match(/modtype.*(?= )/gi)
+  if (modtypeClassResult) {
+    const activityType = modtypeClassResult[0].split("_")[1]
+    if (activityType) {
+      return activityType
+    }
+  }
+
   if (node.querySelector(".accesshide")) {
     const activityType = node.querySelector(".accesshide").firstChild.textContent.trim()
     if (activityType !== "") return activityType
@@ -129,4 +200,12 @@ export function parseSectionName(node) {
   }
 
   return ""
+}
+
+export function getDownloadButton(node) {
+  return node.querySelector("form[action$=\\/mod\\/folder\\/download_folder\\.php]")
+}
+
+export function getDownloadIdTag(node) {
+  return node.querySelector("input[name='id']")
 }

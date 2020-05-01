@@ -1,39 +1,5 @@
 import * as parser from "../shared/parser"
-import { sendLog } from "../shared/helpers"
-
-function getQuerySelector(type) {
-  const urlQuerySelector = "" // location.hostname.replace(/\./g, "\\.")
-  const fileQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/resource]`
-  const folderQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/folder]`
-  const pluginFileQuerySelector = `[href*=${urlQuerySelector}\\/pluginfile]`
-  // Any link with /mod/xxx except /mod/resource and /mod/folder
-  const activityQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/]:not(${fileQuerySelector}):not(${folderQuerySelector})`
-  const videoSelector = `video source[src*=${urlQuerySelector}\\/pluginfile]`
-
-  let selector = null
-  switch (type) {
-    case "file":
-      selector = fileQuerySelector
-      break
-    case "folder":
-      selector = folderQuerySelector
-      break
-    case "pluginfile":
-      selector = pluginFileQuerySelector
-      break
-    case "activity":
-      selector = activityQuerySelector
-      break
-    case "video":
-      selector = videoSelector
-      break
-    default:
-      break
-  }
-
-  selector = `${selector}:not(.helplinkpopup)`
-  return selector
-}
+import { sendLog, validURLRegex } from "../shared/helpers"
 
 function Course(link, HTMLDocument) {
   this.name = parser.parseCourseNameFromCoursePage(HTMLDocument)
@@ -73,7 +39,7 @@ function Course(link, HTMLDocument) {
       //  Local storage data
       let storedCourseData = {}
 
-      const localStorage = await browser.storage.local.get(this.link)
+      const localStorage = await browser.storage.local.get()
 
       if (localStorage[this.link]) {
         this.isFirstScan = false
@@ -85,136 +51,150 @@ function Course(link, HTMLDocument) {
         seenActivities: previousSeenActivities = null,
       } = storedCourseData
 
-      const addFileNodes = fileNodes => {
-        this.resourceCounts.nFiles += fileNodes.length
-        fileNodes.forEach(node => {
-          const resourceNode = {
-            href: node.href,
-            fileName: parser.parseFileNameFromNode(node),
-            section: parser.parseSectionName(node),
-            isFile: true,
-            isPluginFile: false,
-            isNewResource: null,
-          }
+      const addFileNode = node => {
+        const href = parser.parseURLFromNode(node, "file")
+        if (href === "") return
 
-          if (previousSeenResources === null || previousSeenResources.includes(node.href)) {
-            // If course has never been scanned previousSeenResources don't exist
-            // Never treat a resource as new when the course is scanned for the first time
-            // because we're capturing the initial state of the course
-            resourceNode.isNewResource = false
-          } else {
-            this.resourceCounts.nNewFiles++
-            resourceNode.isNewResource = true
-          }
+        this.resourceCounts.nFiles++
+        const resourceNode = {
+          href,
+          fileName: parser.parseFileNameFromNode(node),
+          section: parser.parseSectionName(node),
+          isFile: true,
+          isPluginFile: false,
+          isNewResource: null,
+        }
 
-          this.resourceNodes.push(resourceNode)
-        })
+        if (previousSeenResources === null || previousSeenResources.includes(href)) {
+          // If course has never been scanned previousSeenResources don't exist
+          // Never treat a resource as new when the course is scanned for the first time
+          // because we're capturing the initial state of the course
+          resourceNode.isNewResource = false
+        } else {
+          this.resourceCounts.nNewFiles++
+          resourceNode.isNewResource = true
+        }
+
+        this.resourceNodes.push(resourceNode)
       }
 
-      const addPluginFileNodes = pluginFileNodes => {
-        this.resourceCounts.nFiles += pluginFileNodes.length
-        pluginFileNodes.forEach(node => {
-          const resourceNode = {
-            href: node.href,
-            fileName: parser.parseFileNameFromPluginFileURL(node.href),
-            section: parser.parseSectionName(node),
-            isFile: true,
-            isPluginFile: true,
-            isNewResource: null,
-          }
+      const addPluginFileNode = (node, partOfFolder = "") => {
+        const href = parser.parseURLFromNode(node, "pluginfile")
+        if (href === "") return
 
-          if (previousSeenResources === null || previousSeenResources.includes(node.href)) {
-            resourceNode.isNewResource = false
-          } else {
-            this.resourceCounts.nNewFiles++
-            resourceNode.isNewResource = true
-          }
+        this.resourceCounts.nFiles++
+        const resourceNode = {
+          href,
+          fileName: parser.parseFileNameFromPluginFileURL(href),
+          section: parser.parseSectionName(node),
+          partOfFolder,
+          isFile: true,
+          isPluginFile: true,
+          isNewResource: null,
+        }
 
-          this.resourceNodes.push(resourceNode)
-        })
+        if (previousSeenResources === null || previousSeenResources.includes(href)) {
+          resourceNode.isNewResource = false
+        } else {
+          this.resourceCounts.nNewFiles++
+          resourceNode.isNewResource = true
+        }
+
+        this.resourceNodes.push(resourceNode)
       }
 
-      const addVideoNodes = videoNodes => {
-        this.resourceCounts.nFiles += videoNodes.length
-        videoNodes.forEach(node => {
-          const resourceNode = {
-            href: node.src,
-            fileName: parser.parseFileNameFromPluginFileURL(node.src),
-            section: parser.parseSectionName(node),
-            isFile: true,
-            isPluginFile: true,
-            isNewResource: null,
-          }
+      const addFolderNode = node => {
+        const href = parser.parseURLFromNode(node, "folder")
+        const resourceNode = {
+          href,
+          folderName: parser.parseFileNameFromNode(node),
+          section: parser.parseSectionName(node),
+          isFolder: true,
+          isInline: false,
+          isNewResource: null,
+        }
 
-          if (previousSeenResources === null || previousSeenResources.includes(node.src)) {
-            resourceNode.isNewResource = false
+        if (href === "") {
+          // Folder could be displayed inline
+          const downloadButtonVisible = parser.getDownloadButton(node) !== null
+          const { downloadFolderAsZip } = localStorage.options
+
+          if (downloadFolderAsZip && downloadButtonVisible) {
+            const downloadIdTag = parser.getDownloadIdTag(node)
+            if (downloadIdTag === null) return
+
+            const baseURL = this.link.match(validURLRegex)
+            const downloadId = downloadIdTag.getAttribute("value")
+            const downloadURL = `${baseURL}/mod/folder/download_folder.php?id=${downloadId}`
+
+            resourceNode.href = downloadURL
+            resourceNode.isInline = true
           } else {
-            this.resourceCounts.nNewFiles++
-            resourceNode.isNewResource = true
+            // Not downloading via button as ZIP
+            // Download folder as individual pluginfiles
+            // Look for any pluginfiles
+            const folderFiles = node.querySelectorAll(parser.getQuerySelector("pluginfile"))
+            for (const pluginFile of folderFiles) {
+              addPluginFileNode(pluginFile, resourceNode.folderName)
+            }
+            return
           }
+        }
 
-          this.resourceNodes.push(resourceNode)
-        })
+        this.resourceCounts.nFolders++
+
+        if (previousSeenResources === null || previousSeenResources.includes(href)) {
+          resourceNode.isNewResource = false
+        } else {
+          this.resourceCounts.nNewFolders++
+          resourceNode.isNewResource = true
+        }
+
+        this.resourceNodes.push(resourceNode)
       }
 
-      const addFolderNodes = folderNodes => {
-        this.resourceCounts.nFolders += folderNodes.length
-        folderNodes.forEach(node => {
-          const resourceNode = {
-            href: node.href,
-            folderName: parser.parseFileNameFromNode(node),
-            section: parser.parseSectionName(node),
-            isFolder: true,
-            isNewResource: null,
-          }
+      const addActivityNode = node => {
+        const href = parser.parseURLFromNode(node, "activity")
+        if (href === "") return
 
-          if (previousSeenResources === null || previousSeenResources.includes(node.href)) {
-            resourceNode.isNewResource = false
-          } else {
-            this.resourceCounts.nNewFolders++
-            resourceNode.isNewResource = true
-          }
+        this.activityCounts.nActivities++
+        const activityNode = {
+          href,
+          activityName: parser.parseActivityNameFromNode(node),
+          activityType: parser.parseActivityTypeFromNode(node),
+          section: parser.parseSectionName(node),
+          isActivity: true,
+          isNewActivity: null,
+        }
 
-          this.resourceNodes.push(resourceNode)
-        })
-      }
+        if (previousSeenActivities === null || previousSeenActivities.includes(href)) {
+          activityNode.isNewActivity = false
+        } else {
+          this.activityCounts.nNewActivities++
+          activityNode.isNewActivity = true
+        }
 
-      const addActivityNodes = activityNodes => {
-        this.activityCounts.nActivities += activityNodes.length
-        activityNodes.forEach(node => {
-          const activityNode = {
-            href: node.href,
-            activityName: parser.parseActivityNameFromNode(node),
-            activityType: parser.parseActivityTypeFromNode(node),
-            section: parser.parseSectionName(node),
-            isActivity: true,
-            isNewActivity: null,
-          }
-
-          if (previousSeenActivities === null || previousSeenActivities.includes(node.href)) {
-            activityNode.isNewActivity = false
-          } else {
-            this.activityCounts.nNewActivities++
-            activityNode.isNewActivity = true
-          }
-
-          this.activityNodes.push(activityNode)
-        })
+        this.activityNodes.push(activityNode)
       }
 
       const mainHTML = this.HTMLDocument.querySelector("#region-main")
 
-      const fileNodes = mainHTML.querySelectorAll(getQuerySelector("file"))
-      const pluginFileNodes = mainHTML.querySelectorAll(getQuerySelector("pluginfile"))
-      const videoNodes = mainHTML.querySelectorAll(getQuerySelector("video"))
-      const folderNodes = mainHTML.querySelectorAll(getQuerySelector("folder"))
-      const activityNodes = mainHTML.querySelectorAll(getQuerySelector("activity"))
+      const modules = mainHTML.querySelectorAll("li[id^='module-']")
+      for (const node of modules) {
+        const isFile = node.classList.contains("resource")
+        const isPluginFile = node.classList.contains("label")
+        const isFolder = node.classList.contains("folder")
 
-      addFileNodes(fileNodes)
-      addPluginFileNodes(pluginFileNodes)
-      addVideoNodes(videoNodes)
-      addFolderNodes(folderNodes)
-      addActivityNodes(activityNodes)
+        if (isFile) {
+          addFileNode(node)
+        } else if (isPluginFile) {
+          addPluginFileNode(node)
+        } else if (isFolder) {
+          addFolderNode(node)
+        } else {
+          addActivityNode(node)
+        }
+      }
 
       if (localStorage[this.link]) {
         await browser.storage.local.set({
