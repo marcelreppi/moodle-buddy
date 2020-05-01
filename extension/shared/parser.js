@@ -196,7 +196,7 @@ export function parseActivityTypeFromNode(node) {
 export function parseSectionName(node) {
   let section = node.closest("li[id^='section-']")
   if (section && section.attributes["aria-label"]) {
-    return section.attributes["aria-label"].value
+    return section.attributes["aria-label"].value.trim()
   }
 
   section = node.closest("div[id^='section-']")
@@ -204,7 +204,7 @@ export function parseSectionName(node) {
     const labelledBy = section.attributes["aria-labelledby"].value
     const label = document.getElementById(labelledBy)
     if (label) {
-      return label.textContent
+      return label.textContent.trim()
     }
   }
 
