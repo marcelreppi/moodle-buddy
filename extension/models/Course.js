@@ -203,11 +203,14 @@ function Course(link, HTMLDocument) {
       }
 
       const mainHTML = this.HTMLDocument.querySelector("#region-main")
-      const sections = mainHTML.querySelectorAll("[id^='section-']")
+      const sections = mainHTML.querySelectorAll("li[id^='section-']")
 
-      if (sections !== null && sections.length !== 0) {
+      if (sections && sections.length !== 0) {
         for (const sectionNode of sections) {
-          const sectionName = sectionNode.attributes["aria-label"].textContent
+          let sectionName = ""
+          if (sectionNode.attributes["aria-label"]) {
+            sectionName = sectionNode.attributes["aria-label"].textContent
+          }
           const fileNodes = sectionNode.querySelectorAll(getQuerySelector("file"))
           const pluginFileNodes = sectionNode.querySelectorAll(getQuerySelector("pluginfile"))
           const videoNodes = sectionNode.querySelectorAll(getQuerySelector("video"))
