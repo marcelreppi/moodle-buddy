@@ -91,7 +91,7 @@ export function getQuerySelector(type, options) {
       if (options.includeAudio) {
         mediaSelectors.push(audioSelector)
       }
-      if (options.includeImages) {
+      if (options.includeImage) {
         mediaSelectors.push(imageSelector)
       }
       selector = mediaSelectors.join(",") || "pleasedontmatchanything"
