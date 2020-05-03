@@ -186,6 +186,10 @@ function Course(link, HTMLDocument) {
 
       const mainHTML = this.HTMLDocument.querySelector("#region-main")
 
+      if (!mainHTML) {
+        return
+      }
+
       const modules = mainHTML.querySelectorAll("li[id^='module-']")
       if (modules && modules.length !== 0) {
         for (const node of modules) {
