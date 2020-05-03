@@ -14,7 +14,6 @@ let finishedDownloads = []
 let cancel = false
 
 browser.downloads.onChanged.addListener(async downloadDelta => {
-  console.log(downloadDelta)
   const { state, id } = downloadDelta
 
   if (state === undefined) return
