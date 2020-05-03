@@ -12,7 +12,7 @@ async function backgroundScan() {
 
   if (!options.enableBackgroundScanning) {
     console.log("Background scanning disabled")
-    // return
+    return
   }
 
   const courses = []
