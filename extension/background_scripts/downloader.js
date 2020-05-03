@@ -161,8 +161,10 @@ browser.runtime.onMessage.addListener(async message => {
         const body = await res.text()
         const parser = new DOMParser()
         const resHTML = parser.parseFromString(body, "text/html")
-        const mainRegionHTML = resHTML.querySelector("#region-main").innerHTML
-        downloadURL = mainRegionHTML.match(pluginFileRegex).shift()
+        const mainRegionHTML = resHTML.querySelector("#region-main")
+        if (mainRegionHTML) {
+          downloadURL = mainRegionHTML.innerHTML.match(pluginFileRegex).shift()
+        }
       }
 
       let fileName = parseFileNameFromPluginFileURL(downloadURL)
