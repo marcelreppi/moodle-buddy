@@ -208,9 +208,6 @@ function Course(link, HTMLDocument) {
         const mediaFileNodes = mainHTML.querySelectorAll(parser.getQuerySelector("media", options))
         pluginFileNodes.forEach(n => addPluginFileNode(n))
         mediaFileNodes.forEach(n => addPluginFileNode(n))
-
-        console.log(pluginFileNodes)
-        console.log(mediaFileNodes)
       } else {
         // Backup solution that is a little more brute force
         const fileNodes = mainHTML.querySelectorAll(parser.getQuerySelector("file", options))
