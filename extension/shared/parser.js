@@ -48,11 +48,11 @@ export function parseCourseLink(htmlString) {
   return match ? match[0] : htmlString
 }
 
-export function getQuerySelector(type) {
+export function getQuerySelector(type, options) {
   const baseURL = "" // location.hostname.replace(/\./g, "\\.")
   const fileSelector = `[href*=${baseURL}\\/mod\\/resource]`
   const folderSelector = `[href*=${baseURL}\\/mod\\/folder]`
-  const pluginFileSelector = `[href*=${baseURL}\\/pluginfile]`
+  const pluginFileSelector = `[href*=${baseURL}\\/pluginfile]:not(.mediafallbacklink)`
   const videoSelector = `video source[src*=${baseURL}\\/pluginfile]`
   const audioSelector = `audio source[src*=${baseURL}\\/pluginfile]`
   const imageSelector = `img[src*=${baseURL}\\/pluginfile]`
@@ -68,7 +68,7 @@ export function getQuerySelector(type) {
       selector = folderSelector
       break
     case "pluginfile":
-      selector = [pluginFileSelector, videoSelector, audioSelector].join(",")
+      selector = pluginFileSelector
       break
     case "activity":
       selector = activityQuerySelector
@@ -83,7 +83,18 @@ export function getQuerySelector(type) {
       selector = imageSelector
       break
     case "media":
-      selector = [videoSelector, audioSelector].join(",")
+      // eslint-disable-next-line no-case-declarations
+      const mediaSelectors = []
+      if (options.includeVideo) {
+        mediaSelectors.push(videoSelector)
+      }
+      if (options.includeAudio) {
+        mediaSelectors.push(audioSelector)
+      }
+      if (options.includeImages) {
+        mediaSelectors.push(imageSelector)
+      }
+      selector = mediaSelectors.join(",") || "pleasedontmatchanything"
       break
     default:
       break
@@ -93,8 +104,8 @@ export function getQuerySelector(type) {
   return selector
 }
 
-export function parseURLFromNode(node, type) {
-  const aTag = node.querySelector(getQuerySelector(type))
+export function parseURLFromNode(node, type, options) {
+  const aTag = node.querySelector(getQuerySelector(type, options))
   if (aTag) {
     return aTag.href
   }
@@ -105,12 +116,12 @@ export function parseURLFromNode(node, type) {
 
   if (type === "pluginfile") {
     // Videos are also pluginfiles but have a different selector
-    const sourceTag = node.querySelector(getQuerySelector("media"))
+    const sourceTag = node.querySelector(getQuerySelector("media", options))
     if (sourceTag) {
       return sourceTag.src
     }
 
-    if (node.tagName === "SOURCE") {
+    if (node.tagName === "SOURCE" || node.tagName === "IMG") {
       return node.src
     }
   }

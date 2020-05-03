@@ -216,7 +216,7 @@ browser.runtime.onMessage.addListener(async message => {
         const fileName = `${node.folderName}.zip`
         await download(downloadURL, fileName, node.section)
       } else {
-        const fileNodes = resHTML.querySelectorAll(getQuerySelector("pluginfile"))
+        const fileNodes = resHTML.querySelectorAll(getQuerySelector("pluginfile", options))
 
         // Handle empty folders
         if (fileNodes.length === 0) {

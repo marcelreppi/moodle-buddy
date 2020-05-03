@@ -23,6 +23,9 @@ const defaultOptions = {
   downloadFolderAsZip: true,
   saveToMoodleFolder: false,
   folderStructure: "CourseFile",
+  includeVideo: true,
+  includeAudio: true,
+  includeImage: false,
 }
 
 const initialStorage = {
