@@ -131,13 +131,15 @@ export function parseURLFromNode(node, type, options) {
 
 export function parseFileNameFromNode(node) {
   // Files or Folders
-  if (node.querySelector(".instancename")) {
-    return node.querySelector(".instancename").firstChild.textContent.trim()
+  let contentNode = node.querySelector(".instancename")
+  if (contentNode) {
+    return contentNode.firstChild.textContent.trim()
   }
 
   // PluginFiles
-  if (node.querySelector(".fp-filename")) {
-    return node.querySelector(".fp-filename").textContent.trim()
+  contentNode = node.querySelector(".fp-filename")
+  if (contentNode) {
+    return contentNode.textContent.trim()
   }
 
   if (node.textContent !== "") {
