@@ -49,30 +49,41 @@ export function parseCourseLink(htmlString) {
 }
 
 export function getQuerySelector(type) {
-  const urlQuerySelector = "" // location.hostname.replace(/\./g, "\\.")
-  const fileQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/resource]`
-  const folderQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/folder]`
-  const pluginFileQuerySelector = `[href*=${urlQuerySelector}\\/pluginfile]`
+  const baseURL = "" // location.hostname.replace(/\./g, "\\.")
+  const fileSelector = `[href*=${baseURL}\\/mod\\/resource]`
+  const folderSelector = `[href*=${baseURL}\\/mod\\/folder]`
+  const pluginFileSelector = `[href*=${baseURL}\\/pluginfile]`
+  const videoSelector = `video source[src*=${baseURL}\\/pluginfile]`
+  const audioSelector = `audio source[src*=${baseURL}\\/pluginfile]`
+  const imageSelector = `img[src*=${baseURL}\\/pluginfile]`
   // Any link with /mod/xxx except /mod/resource and /mod/folder
-  const activityQuerySelector = `[href*=${urlQuerySelector}\\/mod\\/]:not(${fileQuerySelector}):not(${folderQuerySelector})`
-  const videoSelector = `video source[src*=${urlQuerySelector}\\/pluginfile]`
+  const activityQuerySelector = `[href*=${baseURL}\\/mod\\/]:not(${fileSelector}):not(${folderSelector})`
 
   let selector = null
   switch (type) {
     case "file":
-      selector = fileQuerySelector
+      selector = fileSelector
       break
     case "folder":
-      selector = folderQuerySelector
+      selector = folderSelector
       break
     case "pluginfile":
-      selector = pluginFileQuerySelector
+      selector = [pluginFileSelector, videoSelector, audioSelector].join(",")
       break
     case "activity":
       selector = activityQuerySelector
       break
     case "video":
       selector = videoSelector
+      break
+    case "audio":
+      selector = audioSelector
+      break
+    case "image":
+      selector = imageSelector
+      break
+    case "media":
+      selector = [videoSelector, audioSelector].join(",")
       break
     default:
       break
@@ -83,27 +94,25 @@ export function getQuerySelector(type) {
 }
 
 export function parseURLFromNode(node, type) {
-  if (type === "pluginfile") {
-    const aTag = node.querySelector(getQuerySelector("pluginfile"))
-    if (aTag) {
-      return aTag.href
-    }
+  const aTag = node.querySelector(getQuerySelector(type))
+  if (aTag) {
+    return aTag.href
+  }
 
-    const sourceTag = node.querySelector(getQuerySelector("video"))
+  if (node.tagName === "A") {
+    return node.href
+  }
+
+  if (type === "pluginfile") {
+    // Videos are also pluginfiles but have a different selector
+    const sourceTag = node.querySelector(getQuerySelector("media"))
     if (sourceTag) {
       return sourceTag.src
     }
 
-    if (node.href) {
-      return node.href
+    if (node.tagName === "SOURCE") {
+      return node.src
     }
-
-    return ""
-  }
-
-  const aTag = node.querySelector(getQuerySelector(type))
-  if (aTag) {
-    return aTag.href
   }
 
   return ""

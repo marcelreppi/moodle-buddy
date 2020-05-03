@@ -82,6 +82,10 @@ function Course(link, HTMLDocument) {
         const href = parser.parseURLFromNode(node, "pluginfile")
         if (href === "") return
 
+        // Avoid duplicates
+        const detectedURLs = this.resourceNodes.map(n => n.href)
+        if (detectedURLs.includes(href)) return
+
         this.resourceCounts.nFiles++
         const resourceNode = {
           href,
@@ -180,20 +184,34 @@ function Course(link, HTMLDocument) {
       const mainHTML = this.HTMLDocument.querySelector("#region-main")
 
       const modules = mainHTML.querySelectorAll("li[id^='module-']")
-      for (const node of modules) {
-        const isFile = node.classList.contains("resource")
-        const isPluginFile = node.classList.contains("label")
-        const isFolder = node.classList.contains("folder")
+      if (modules && modules.length !== 0) {
+        for (const node of modules) {
+          const isFile = node.classList.contains("resource")
+          const isFolder = node.classList.contains("folder")
 
-        if (isFile) {
-          addFileNode(node)
-        } else if (isPluginFile) {
-          addPluginFileNode(node)
-        } else if (isFolder) {
-          addFolderNode(node)
-        } else {
-          addActivityNode(node)
+          if (isFile) {
+            addFileNode(node)
+          } else if (isFolder) {
+            addFolderNode(node)
+          } else {
+            addActivityNode(node)
+          }
         }
+
+        // Check for pluginfiles that could be anywhere on the page
+        const pluginFileNodes = mainHTML.querySelectorAll(parser.getQuerySelector("pluginfile"))
+        pluginFileNodes.forEach(n => addPluginFileNode(n))
+      } else {
+        // Backup solution that is a little more brute force
+        const fileNodes = mainHTML.querySelectorAll(parser.getQuerySelector("file"))
+        const pluginFileNodes = mainHTML.querySelectorAll(parser.getQuerySelector("pluginfile"))
+        const folderNodes = mainHTML.querySelectorAll(parser.getQuerySelector("folder"))
+        const activityNodes = mainHTML.querySelectorAll(parser.getQuerySelector("activity"))
+
+        fileNodes.forEach(n => addFileNode(n))
+        pluginFileNodes.forEach(n => addPluginFileNode(n))
+        folderNodes.forEach(n => addFolderNode(n))
+        activityNodes.forEach(n => addActivityNode(n))
       }
 
       if (localStorage[this.link]) {
