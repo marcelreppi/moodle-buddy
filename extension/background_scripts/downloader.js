@@ -7,10 +7,15 @@ const {
 const { fileRegex, pluginFileRegex, validURLRegex } = require("../shared/helpers")
 const { sendDownloadData, sendLog } = require("./helpers")
 
-let downloadFileCount = 0
-let downloadByteCount = 0
-const inProgressDownloads = new Set()
-let finishedDownloads = []
+function DownloadTracker() {
+  this.fileCount = 0
+  this.byteCount = 0
+  this.inProgress = new Set()
+  this.finished = []
+}
+
+const downloadTrackers = {}
+
 let cancel = false
 
 browser.downloads.onChanged.addListener(async downloadDelta => {
@@ -18,34 +23,58 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
 
   if (state === undefined) return
 
+  const mostRecent = Math.max(...Object.keys(downloadTrackers))
+  let downloadTracker = null
+  let trackerTime = null
+  for (const [time, tracker] of Object.entries(downloadTrackers)) {
+    if (tracker.inProgress.has(id)) {
+      downloadTracker = tracker
+      trackerTime = parseFloat(time)
+    }
+  }
+  const isMostRecent = trackerTime === mostRecent
+
+  if (!downloadTracker) {
+    sendLog("Download tracker was null")
+    return
+  }
+
   if (state.current === "interrupted") {
-    downloadFileCount--
+    downloadTracker.fileCount--
   }
 
   if (state.current === "complete") {
     const downloadItem = await browser.downloads.search({ id })
-    downloadByteCount += downloadItem[0].fileSize
-    inProgressDownloads.delete(id)
-    finishedDownloads.push(id)
+    downloadTracker.byteCount += downloadItem[0].fileSize
+    downloadTracker.inProgress.delete(id)
+    downloadTracker.finished.push(id)
   }
 
-  if (downloadFileCount > 0 && finishedDownloads.length === downloadFileCount) {
+  if (
+    downloadTracker.fileCount > 0 &&
+    downloadTracker.finished.length === downloadTracker.fileCount
+  ) {
     // All downloads have finished
     sendDownloadData({
-      fileCount: downloadFileCount,
-      byteCount: downloadByteCount,
+      fileCount: downloadTracker.fileCount,
+      byteCount: downloadTracker.byteCount,
     })
     const { totalDownloadedFiles } = await browser.storage.local.get("totalDownloadedFiles")
     await browser.storage.local.set({
-      totalDownloadedFiles: totalDownloadedFiles + downloadFileCount,
+      totalDownloadedFiles: totalDownloadedFiles + downloadTracker.fileCount,
     })
+    delete downloadTrackers[trackerTime]
   }
 
-  browser.runtime.sendMessage({
-    command: "download-progress",
-    completed: finishedDownloads.length,
-    total: downloadFileCount,
-  })
+  // Check if view needs to be updated
+  // Only update view with most recent tracker information
+  if (isMostRecent) {
+    browser.runtime.sendMessage({
+      command: "download-progress",
+      completed: downloadTracker.finished.length,
+      total: downloadTracker.fileCount,
+    })
+  }
 })
 
 function sanitizeFileName(fileName, connectingString = "") {
@@ -64,16 +93,17 @@ function sanitizeFolderName(folderName, connectingString = "") {
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "cancel-download") {
     cancel = true
-    for (const id of inProgressDownloads) {
-      browser.downloads.cancel(id)
+    for (const tracker of Object.values(downloadTrackers)) {
+      for (const id of tracker.inProgress) {
+        browser.downloads.cancel(id)
+      }
     }
   }
 
   if (message.command === "download") {
-    inProgressDownloads.clear()
-    finishedDownloads = []
-    downloadFileCount = 0
-    downloadByteCount = 0
+    const downloadTracker = new DownloadTracker()
+    const downloadTime = new Date().getTime()
+    downloadTrackers[downloadTime] = downloadTracker
     cancel = false
 
     const { options: storageOptions } = await browser.storage.local.get("options")
@@ -130,7 +160,7 @@ browser.runtime.onMessage.addListener(async message => {
 
       try {
         const id = await browser.downloads.download({ url, filename: filePath })
-        inProgressDownloads.add(id)
+        downloadTracker.inProgress.add(id)
       } catch (error) {
         sendLog({ errorMessage: error.message, url, fileName: filePath })
       }
@@ -217,16 +247,22 @@ browser.runtime.onMessage.addListener(async message => {
         const fileName = `${node.folderName}.zip`
         await download(downloadURL, fileName, node.section)
       } else {
+        // Downloading folder content as individual files
         const fileNodes = resHTML.querySelectorAll(getQuerySelector("pluginfile", options))
+        downloadTracker.fileCount--
 
         // Handle empty folders
         if (fileNodes.length === 0) {
-          downloadFileCount--
-          browser.runtime.sendMessage({
-            command: "download-progress",
-            completed: finishedDownloads.length,
-            total: downloadFileCount,
-          })
+          // Check if view needs to be updated
+          // Only update view if the current download is the most recent one
+          const mostRecent = Math.max(...Object.keys(downloadTrackers))
+          if (downloadTime === mostRecent) {
+            browser.runtime.sendMessage({
+              command: "download-progress",
+              completed: downloadTracker.finished.length,
+              total: downloadTracker.fileCount,
+            })
+          }
 
           if (process.env.NODE_ENV === "debug") {
             await download("Debugging folder download", node.folderName)
@@ -234,12 +270,18 @@ browser.runtime.onMessage.addListener(async message => {
           return
         }
 
-        downloadFileCount += fileNodes.length - 1
-        browser.runtime.sendMessage({
-          command: "download-progress",
-          completed: finishedDownloads.length,
-          total: downloadFileCount,
-        })
+        downloadTracker.fileCount += fileNodes.length
+
+        // Check if view needs to be updated
+        // Only update view if the current download is the most recent one
+        const mostRecent = Math.max(...Object.keys(downloadTrackers))
+        if (downloadTime === mostRecent) {
+          browser.runtime.sendMessage({
+            command: "download-progress",
+            completed: downloadTracker.finished.length,
+            total: downloadTracker.fileCount,
+          })
+        }
 
         const cleanFolderName = sanitizeFolderName(node.folderName)
         for (const fileNode of fileNodes) {
@@ -253,7 +295,7 @@ browser.runtime.onMessage.addListener(async message => {
     for (const node of message.resources) {
       if (cancel) return
 
-      downloadFileCount++
+      downloadTracker.fileCount++
       if (node.isPluginFile) {
         downloadPluginFile(node)
       } else if (node.isFile) {
