@@ -294,6 +294,18 @@ browser.runtime.onMessage.addListener(async message => {
       }
     }
 
+    async function downloadVideoServiceVideo(node) {
+      const res = await fetch(node.href)
+      const body = await res.text()
+      const parser = new DOMParser()
+      const resHTML = parser.parseFromString(body, "text/html")
+      console.log(node.href)
+      console.log(resHTML.body.innerHTML)
+      console.log(resHTML.querySelector("video"))
+      // const videoNode = resHTML.querySelector(getQuerySelector("videoservice"))
+      // await download(videoNode.src, node.fileName)
+    }
+
     for (const node of message.resources) {
       if (cancel) return
 
@@ -304,6 +316,8 @@ browser.runtime.onMessage.addListener(async message => {
         downloadFile(node)
       } else if (node.isFolder) {
         downloadFolder(node)
+      } else if (node.isVideoServiceVideo) {
+        downloadVideoServiceVideo(node)
       }
     }
   }

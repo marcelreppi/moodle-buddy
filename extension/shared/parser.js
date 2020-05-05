@@ -56,6 +56,7 @@ export function getQuerySelector(type, options) {
   const videoSelector = `video source[src*=${baseURL}\\/pluginfile]`
   const audioSelector = `audio source[src*=${baseURL}\\/pluginfile]`
   const imageSelector = `img[src*=${baseURL}\\/pluginfile]`
+  const videoServiceSelector = `video[src*=${baseURL}\\/mod\\/videoservice\\/file\\.php]`
   // Any link with /mod/xxx except /mod/resource and /mod/folder
   const activityQuerySelector = `[href*=${baseURL}\\/mod\\/]:not(${fileSelector}):not(${folderSelector})`
 
@@ -95,6 +96,9 @@ export function getQuerySelector(type, options) {
         mediaSelectors.push(imageSelector)
       }
       selector = mediaSelectors.join(",") || "pleasedontmatchanything"
+      break
+    case "videoservice":
+      selector = videoServiceSelector
       break
     default:
       break

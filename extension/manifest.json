@@ -50,6 +50,14 @@
       "js": [
         "content_scripts/dashboard-page.js"
       ]
+    },
+    {
+      "matches": [
+        "*://*/mod/videoservice*"
+      ],
+      "js": [
+        "content_scripts/videoservice-page.js"
+      ]
     }
   ],
   "background": {
