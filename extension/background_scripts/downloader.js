@@ -14,7 +14,7 @@ function DownloadTracker() {
   this.finished = []
 }
 
-const downloadTrackers = {}
+let downloadTrackers = {}
 
 let cancel = false
 
@@ -44,6 +44,7 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
 
   if (state.current === "interrupted") {
     downloadTracker.fileCount--
+    downloadTracker.inProgress.delete(id)
   }
 
   if (state.current === "complete") {
@@ -101,6 +102,7 @@ browser.runtime.onMessage.addListener(async message => {
         browser.downloads.cancel(id)
       }
     }
+    downloadTrackers = {}
   }
 
   if (message.command === "download") {
