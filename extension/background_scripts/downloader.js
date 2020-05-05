@@ -35,7 +35,10 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
   const isMostRecent = trackerTime === mostRecent
 
   if (!downloadTracker) {
-    sendLog("Download tracker was null")
+    if (mostRecent > 0) {
+      // Only send log when download was initiated via MoodleBuddy
+      sendLog("Download tracker was null")
+    }
     return
   }
 
