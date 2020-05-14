@@ -32,10 +32,10 @@ async function sendToLambda(path, body) {
     console.log(requestBody)
   }
 
-  if (!process.env.API_URL) return
+  if (!process.env.API_URL || !process.env.DEV_API_URL) return
 
   try {
-    fetch(`${process.env.API_URL}/${isDev ? "dev" : "prod"}${path}`, {
+    fetch(`${isDev ? process.env.DEV_API_URL : process.env.API_URL}${path}`, {
       method: "POST",
       headers: {
         "User-Agent": navigator.userAgent,
