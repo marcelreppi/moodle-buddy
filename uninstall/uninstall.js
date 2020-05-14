@@ -1,7 +1,7 @@
 const isFirefox = typeof InstallTrigger !== "undefined"
 
 async function sendToLambda(path, body) {
-  fetch(`https://v9366xhaf6.execute-api.eu-central-1.amazonaws.com/prod${path}`, {
+  fetch(`https://api.moodlebuddy.com${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
