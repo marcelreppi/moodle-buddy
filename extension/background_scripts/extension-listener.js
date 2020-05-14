@@ -92,7 +92,7 @@ browser.runtime.onInstalled.addListener(async details => {
 
   const { browserId } = await browser.storage.local.get("browserId")
   browser.runtime.setUninstallURL(
-    `http://moodle-buddy-uninstall-page.s3-website.eu-central-1.amazonaws.com?browserId=${browserId}`
+    `https://moodlebuddy.com/uninstall/uninstall.html?browserId=${browserId}`
   )
 })
 
