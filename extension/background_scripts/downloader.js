@@ -81,7 +81,8 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
 function sanitizeFileName(fileName, connectingString = "") {
   return fileName
     .trim()
-    .replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString)
+    .replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString) // Remove illegal chars
+    .replace(/( )\1+/gi, " ") // Remove > 1 white spaces
     .trim()
 }
 
