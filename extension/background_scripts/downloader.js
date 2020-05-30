@@ -83,8 +83,8 @@ function sanitizeFileName(fileName, connectingString = "") {
     .trim()
     .replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString) // Remove illegal chars
     .replace(/( )\1+/gi, " ") // Remove > 1 white spaces
-    .replace(/^\.*/gi, connectingString) // Remove dots at the start
-    .replace(/\.*$/gi, connectingString) // Remove dots at the end
+    .replace(/^\.*/gi, "") // Remove dots at the start
+    .replace(/\.*$/gi, "") // Remove dots at the end
     .trim()
 }
 
