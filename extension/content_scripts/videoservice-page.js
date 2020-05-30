@@ -74,9 +74,16 @@ async function downloadVideoResource(videoResource, options) {
       const videoNode = videoNodes.find(n => n.href === videoResource.href)
       videoNode.click()
 
-      setTimeout(() => {
+      function attemptDownload() {
         const videoURLSelector = getQuerySelector("videoservice")
         const videoElement = document.querySelector(videoURLSelector)
+        const backButton = document.querySelector("a[href$='browse']")
+
+        if (videoElement === null || backButton === null) {
+          setTimeout(attemptDownload, 2000)
+          return
+        }
+
         browser.runtime.sendMessage({
           command: "download",
           resources: [{ ...videoResource, href: videoElement.src }],
@@ -84,10 +91,12 @@ async function downloadVideoResource(videoResource, options) {
           courseShortcut: "",
           options,
         })
-        const backButton = document.querySelector("a[href$='browse']")
+
         backButton.click()
         resolve()
-      }, 2000)
+      }
+
+      setTimeout(attemptDownload, 3000)
     }
   })
 }
@@ -136,6 +145,9 @@ browser.runtime.onMessage.addListener(async message => {
   }
 
   if (message.command === "cancel-download") {
+    browser.runtime.sendMessage({
+      command: "cancel-download",
+    })
     cancel = true
   }
 })
