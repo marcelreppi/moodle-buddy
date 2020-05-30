@@ -88,12 +88,6 @@ function sanitizeFileName(fileName, connectingString = "") {
     .trim()
 }
 
-function sanitizeFolderName(folderName, connectingString = "") {
-  return sanitizeFileName(folderName)
-    .replace(/\./gi, connectingString)
-    .trim()
-}
-
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "cancel-download") {
     cancel = true
