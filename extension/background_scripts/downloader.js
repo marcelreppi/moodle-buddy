@@ -83,6 +83,8 @@ function sanitizeFileName(fileName, connectingString = "") {
     .trim()
     .replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString) // Remove illegal chars
     .replace(/( )\1+/gi, " ") // Remove > 1 white spaces
+    .replace(/^\.*/gi, connectingString) // Remove dots at the start
+    .replace(/\.*$/gi, connectingString) // Remove dots at the end
     .trim()
 }
 
@@ -119,9 +121,9 @@ browser.runtime.onMessage.addListener(async message => {
       if (cancel) return
 
       // Remove illegal characters from possible filename parts
-      const cleanCourseName = sanitizeFolderName(courseName, "")
-      const cleanCourseShortcut = sanitizeFolderName(courseShortcut, "_")
-      const cleanSectionName = sanitizeFolderName(section)
+      const cleanCourseName = sanitizeFileName(courseName, "")
+      const cleanCourseShortcut = sanitizeFileName(courseShortcut, "_")
+      const cleanSectionName = sanitizeFileName(section)
       const cleanFileName = sanitizeFileName(fileName).replace("{slash}", "/")
 
       let filePath = cleanFileName
@@ -158,7 +160,7 @@ browser.runtime.onMessage.addListener(async message => {
       if (process.env.NODE_ENV === "debug") {
         console.log(filePath)
         console.log(url)
-        return
+        // return
       }
 
       try {
@@ -174,7 +176,7 @@ browser.runtime.onMessage.addListener(async message => {
 
       let { fileName } = node
       if (node.partOfFolder !== "") {
-        const folderName = sanitizeFolderName(node.partOfFolder)
+        const folderName = sanitizeFileName(node.partOfFolder)
         fileName = `${folderName}{slash}${fileName}`
       }
 
@@ -211,7 +213,7 @@ browser.runtime.onMessage.addListener(async message => {
       }
 
       if (options.useMoodleFileName && node.fileName !== "" && fileType !== "") {
-        fileName = `${node.fileName}.${fileType}`
+        fileName = `${sanitizeFileName(node.fileName)}.${fileType}`
       }
 
       await download(downloadURL, fileName, node.section)
@@ -221,7 +223,7 @@ browser.runtime.onMessage.addListener(async message => {
       if (cancel) return
 
       if (node.isInline) {
-        const fileName = `${node.folderName}.zip`
+        const fileName = `${sanitizeFileName(node.folderName)}.zip`
         await download(node.href, fileName, node.section)
         return
       }
@@ -247,7 +249,7 @@ browser.runtime.onMessage.addListener(async message => {
         const downloadId = downloadIdTag.getAttribute("value")
         const downloadURL = `${baseURL}/mod/folder/download_folder.php?id=${downloadId}`
 
-        const fileName = `${node.folderName}.zip`
+        const fileName = `${sanitizeFileName(node.folderName)}.zip`
         await download(downloadURL, fileName, node.section)
       } else {
         // Downloading folder content as individual files
@@ -286,7 +288,7 @@ browser.runtime.onMessage.addListener(async message => {
           })
         }
 
-        const cleanFolderName = sanitizeFolderName(node.folderName)
+        const cleanFolderName = sanitizeFileName(node.folderName)
         for (const fileNode of fileNodes) {
           const URLFileName = parseFileNameFromPluginFileURL(fileNode.href)
           const fileName = `${cleanFolderName}{slash}${URLFileName}`
