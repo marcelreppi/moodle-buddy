@@ -81,8 +81,13 @@
     </div>
 
     <div v-if="downloadInProgress" class="download-hint">
-      Please don't click anything on the page and wait until the download for every video has been
-      started.
+      <div>
+        Please don't click anything on the page and wait until the download for every video has been
+        started.
+      </div>
+      <div>
+        Downloading many videos concurrently can be very slow.
+      </div>
     </div>
 
     <progress-bar
