@@ -137,13 +137,19 @@ export function parseFileNameFromNode(node) {
   // Files or Folders
   let contentNode = node.querySelector(".instancename")
   if (contentNode) {
-    return contentNode.firstChild.textContent.trim()
+    const { firstChild } = contentNode
+    if (firstChild && firstChild.textContent !== "") {
+      return firstChild.textContent.trim()
+    }
   }
 
   // PluginFiles
   contentNode = node.querySelector(".fp-filename")
   if (contentNode) {
-    return contentNode.textContent.trim()
+    const { textContent } = contentNode
+    if (textContent !== "") {
+      return contentNode.textContent.trim()
+    }
   }
 
   if (node.textContent !== "") {
@@ -192,10 +198,11 @@ export function parseFileNameFromPluginFileURL(url) {
 }
 
 export function parseActivityNameFromNode(node) {
-  if (node.querySelector(".instancename")) {
-    const activityName = node.querySelector(".instancename").firstChild.textContent
-    if (activityName !== "") {
-      return activityName.trim()
+  const contentNode = node.querySelector(".instancename")
+  if (contentNode) {
+    const { firstChild } = contentNode
+    if (firstChild && firstChild.textContent !== "") {
+      return firstChild.textContent.trim()
     }
   }
 
@@ -211,9 +218,12 @@ export function parseActivityTypeFromNode(node) {
     }
   }
 
-  if (node.querySelector(".accesshide")) {
-    const activityType = node.querySelector(".accesshide").firstChild.textContent.trim()
-    if (activityType !== "") return activityType
+  const contentNode = node.querySelector(".accesshide")
+  if (contentNode) {
+    const { firstChild } = contentNode
+    if (firstChild && firstChild.textContent !== "") {
+      return firstChild.textContent.trim()
+    }
   }
 
   return "Unkown Activity Type"
