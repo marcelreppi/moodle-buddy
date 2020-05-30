@@ -117,7 +117,7 @@ export default {
     },
     showVideoServiceView() {
       if (this.isSupportedPage && this.isVideoServicePage) {
-        sendEvent("video-service-page", true)
+        sendEvent("view-videoservice-page", true)
         return true
       }
       return false
