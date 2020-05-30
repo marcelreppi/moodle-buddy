@@ -295,15 +295,21 @@ browser.runtime.onMessage.addListener(async message => {
     }
 
     async function downloadVideoServiceVideo(node) {
-      const res = await fetch(node.href)
-      const body = await res.text()
-      const parser = new DOMParser()
-      const resHTML = parser.parseFromString(body, "text/html")
-      console.log(node.href)
-      console.log(resHTML.body.innerHTML)
-      console.log(resHTML.querySelector("video"))
-      // const videoNode = resHTML.querySelector(getQuerySelector("videoservice"))
-      // await download(videoNode.src, node.fileName)
+      let fileName = parseFileNameFromPluginFileURL(node.href)
+      const fileParts = fileName.split(".")
+      let fileType = fileParts.pop()
+      while (fileType === "") {
+        fileType = fileParts.pop()
+        if (fileParts.length === 0) {
+          break
+        }
+      }
+
+      if (options.useMoodleFileName && node.fileName !== "" && fileType !== "") {
+        fileName = `${sanitizeFileName(node.fileName)}.${fileType}`
+      }
+
+      await download(node.href, fileName)
     }
 
     for (const node of message.resources) {

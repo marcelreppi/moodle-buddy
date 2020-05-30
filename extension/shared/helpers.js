@@ -57,6 +57,10 @@ export const coursePageRegex = new RegExp(
   validURLRegex.source + /\/course\/view\.php\?id=[0-9]*/.source,
   "gi"
 )
+export const videoServicePageRegex = new RegExp(
+  validURLRegex.source + /\/mod\/videoservice\/view\.php/.source,
+  "gi"
+)
 
 export const fileRegex = new RegExp(
   validURLRegex.source + /\/mod\/resource\/view\.php\?id=[0-9]*/.source,

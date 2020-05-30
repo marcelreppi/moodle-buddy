@@ -78,7 +78,10 @@ export default {
   props: {
     resources: Array,
     setResourceSelected: Function,
-    onlyNewResources: Boolean,
+    onlyNewResources: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {

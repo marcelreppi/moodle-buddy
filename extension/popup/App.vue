@@ -12,6 +12,11 @@
         :options="options"
       ></DashboardPageView>
       <CourseView v-if="showCourseView" :activeTab="activeTab" :options="options"></CourseView>
+      <VideoServiceView
+        v-if="showVideoServiceView"
+        :activeTab="activeTab"
+        :options="options"
+      ></VideoServiceView>
       <NoMoodle
         v-if="showNoMoodle"
         :openInfoPage="onInfoClick"
@@ -57,6 +62,7 @@
 import { sendEvent, getActiveTab, isFirefox } from "../shared/helpers"
 import DashboardPageView from "./views/DashboardPageView.vue"
 import CourseView from "./views/CourseView.vue"
+import VideoServiceView from "./views/VideoServiceView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
 
 import MoodleIcon from "../icons/48.png"
@@ -66,6 +72,7 @@ export default {
   components: {
     DashboardPageView,
     CourseView,
+    VideoServiceView,
     NoMoodle,
   },
   data() {
@@ -76,6 +83,7 @@ export default {
       isSupportedPage: false,
       isDashboardPage: false,
       isCoursePage: false,
+      isVideoServicePage: false,
       options: null,
       nUpdates: 0,
       userHasRated: false,
@@ -107,8 +115,15 @@ export default {
       }
       return false
     },
+    showVideoServiceView() {
+      if (this.isSupportedPage && this.isVideoServicePage) {
+        sendEvent("video-service-page", true)
+        return true
+      }
+      return false
+    },
     showNoMoodle() {
-      return !this.showDashboardPageView && !this.showCourseView
+      return !this.showDashboardPageView && !this.showCourseView && !this.showVideoServiceView
     },
     showRatingHint() {
       const fileThreshold = this.rateHintLevels[this.rateHintLevel] || Infinity
@@ -165,6 +180,7 @@ export default {
         this.isSupportedPage = message.isSupportedPage
         this.isDashboardPage = message.isDashboardPage
         this.isCoursePage = message.isCoursePage
+        this.isVideoServicePage = message.isVideoServicePage
         this.saveStorageData(message)
 
         if (process.env.NODE_ENV === "debug") {
