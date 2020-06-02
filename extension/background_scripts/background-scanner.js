@@ -1,4 +1,4 @@
-import { loginURLRegex, getUpdatesFromCourses } from "../shared/helpers"
+import { loginPageRegex, getUpdatesFromCourses } from "../shared/helpers"
 import { setBadgeText } from "./helpers"
 import Course from "../models/Course"
 
@@ -20,7 +20,7 @@ async function backgroundScan() {
     const domParser = new DOMParser()
     const res = await fetch(courseLink)
 
-    if (res.url.match(loginURLRegex)) {
+    if (res.url.match(loginPageRegex)) {
       console.log("Moodle Buddy background scan error: Not logged in")
       return
     }
