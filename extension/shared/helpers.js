@@ -51,30 +51,42 @@ export function updateIconFromCourses(courses) {
 
 export const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/gi
 
-export const loginPageRegex = new RegExp(validURLRegex.source + /\/login\/index.php/.source, "gi")
-export const dashboardPageRegex = new RegExp(validURLRegex.source + /\/my/.source, "gi")
-export const coursePageRegex = new RegExp(
-  validURLRegex.source + /\/course\/view\.php\?id=[0-9]*/.source,
-  "gi"
-)
-export const videoServicePageRegex = new RegExp(
-  validURLRegex.source + /\/mod\/videoservice\/view\.php/.source,
-  "gi"
-)
+export const loginPageRegex = /\/login\/index.php/gi
+export const dashboardPageRegex = /\/my/gi
+export const coursePageRegex = /\/course\/view\.php\?id=[0-9]*/gi
+export const videoServicePageRegex = /\/mod\/videoservice\/view\.php/gi
 
-export const fileRegex = new RegExp(
-  validURLRegex.source + /\/mod\/resource\/view\.php\?id=[0-9]*/.source,
-  "gi"
-)
-export const folderRegex = new RegExp(
-  validURLRegex.source + /\/mod\/folder\/view\.php\?id=[0-9]*/.source,
-  "gi"
-)
-export const pluginFileRegex = new RegExp(
-  validURLRegex.source + /\/pluginfile\.php([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/.source,
-  "gi"
-)
-export const activityRegex = new RegExp(
-  validURLRegex.source + /\/mod\/(?!resource|folder)[A-z]*\/view\.php\?id=[0-9]*/.source,
-  "gi"
-)
+export const fileRegex = /\/mod\/resource\/view\.php\?id=[0-9]*/gi
+export const folderRegex = /\/mod\/folder\/view\.php\?id=[0-9]*/gi
+export const pluginFileRegex = /\/pluginfile\.php([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+export const activityRegex = /\/mod\/(?!resource|folder)[A-z]*\/view\.php\?id=[0-9]*/gi
+
+const allRegexes = {
+  login: loginPageRegex,
+  dashboard: dashboardPageRegex,
+  course: coursePageRegex,
+  videoservice: videoServicePageRegex,
+  file: fileRegex,
+  folder: folderRegex,
+  pluginfile: pluginFileRegex,
+  activity: activityRegex,
+}
+
+export function getURLRegex(type) {
+  let regex = validURLRegex.source // Base url
+  regex += ".*" // Any other subpath
+  regex += allRegexes[type].source // Type-specific url pattern
+  return new RegExp(regex, "gi")
+}
+
+export function getMoodleBaseURL(string) {
+  for (const regex of Object.values(allRegexes)) {
+    const baseURLRegex = new RegExp(`.*(?=${regex.source})`)
+    const match = string.match(baseURLRegex)
+    if (match) {
+      return match[0]
+    }
+  }
+
+  return ""
+}

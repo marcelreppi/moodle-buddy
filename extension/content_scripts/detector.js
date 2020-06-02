@@ -2,14 +2,14 @@ import {
   dashboardPageRegex,
   coursePageRegex,
   videoServicePageRegex,
-  validURLRegex,
+  getMoodleBaseURL,
 } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"
 
 async function setDefaultMoodleURL(options) {
   if (!options.autoSetMoodleURL) return
 
-  const baseURL = location.href.match(validURLRegex)[0]
+  const baseURL = getMoodleBaseURL(location.href)
   browser.storage.local.set({
     options: {
       ...options,

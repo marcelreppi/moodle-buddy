@@ -1,5 +1,5 @@
 import * as parser from "../shared/parser"
-import { sendLog, validURLRegex } from "../shared/helpers"
+import { sendLog, getMoodleBaseURL } from "../shared/helpers"
 
 function Course(link, HTMLDocument) {
   this.name = parser.parseCourseNameFromCoursePage(HTMLDocument)
@@ -127,7 +127,7 @@ function Course(link, HTMLDocument) {
             const downloadIdTag = parser.getDownloadIdTag(node)
             if (downloadIdTag === null) return
 
-            const baseURL = this.link.match(validURLRegex)
+            const baseURL = getMoodleBaseURL(this.link)
             const downloadId = downloadIdTag.getAttribute("value")
             const downloadURL = `${baseURL}/mod/folder/download_folder.php?id=${downloadId}`
 

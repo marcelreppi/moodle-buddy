@@ -4,7 +4,7 @@ const {
   getDownloadIdTag,
   getQuerySelector,
 } = require("../shared/parser")
-const { fileRegex, pluginFileRegex, validURLRegex } = require("../shared/helpers")
+const { fileRegex, getURLRegex, getMoodleBaseURL } = require("../shared/helpers")
 const { sendDownloadData, sendLog } = require("./helpers")
 
 function DownloadTracker() {
@@ -192,7 +192,8 @@ browser.runtime.onMessage.addListener(async message => {
         const resHTML = parser.parseFromString(body, "text/html")
         const mainRegionHTML = resHTML.querySelector("#region-main")
         if (mainRegionHTML) {
-          downloadURL = mainRegionHTML.innerHTML.match(pluginFileRegex).shift()
+          const pluginFileURLRegex = getURLRegex("pluginfile")
+          downloadURL = mainRegionHTML.innerHTML.match(pluginFileURLRegex).shift()
         }
       }
 
@@ -228,7 +229,7 @@ browser.runtime.onMessage.addListener(async message => {
       const parser = new DOMParser()
       const resHTML = parser.parseFromString(body, "text/html")
 
-      const baseURL = res.url.match(validURLRegex)[0]
+      const baseURL = getMoodleBaseURL(res.url)
 
       // Two options here
       // 1. "Download Folder" button is shown --> Download zip via button

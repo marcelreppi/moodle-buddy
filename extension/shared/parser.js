@@ -1,4 +1,4 @@
-import { coursePageRegex } from "./helpers"
+import { getURLRegex } from "./helpers"
 
 export function checkForMoodle() {
   // Check for unique moodle DOM element
@@ -44,21 +44,22 @@ export function parseCourseNameFromCard(cardNode) {
 }
 
 export function parseCourseLink(htmlString) {
-  const match = htmlString.match(coursePageRegex)
+  const courseURLRegex = getURLRegex("course")
+  const match = htmlString.match(courseURLRegex)
   return match ? match[0] : htmlString
 }
 
 export function getQuerySelector(type, options) {
-  const baseURL = "" // location.hostname.replace(/\./g, "\\.")
-  const fileSelector = `[href*=${baseURL}\\/mod\\/resource]`
-  const folderSelector = `[href*=${baseURL}\\/mod\\/folder]`
-  const pluginFileSelector = `[href*=${baseURL}\\/pluginfile]:not(.mediafallbacklink)`
-  const videoSelector = `video source[src*=${baseURL}\\/pluginfile]`
-  const audioSelector = `audio source[src*=${baseURL}\\/pluginfile]`
-  const imageSelector = `img[src*=${baseURL}\\/pluginfile]`
-  const videoServiceSelector = `video[src*=${baseURL}\\/mod\\/videoservice\\/file\\.php]`
+  const baseURL = ""
+  const fileSelector = `[href*="${baseURL}/mod/resource"]`
+  const folderSelector = `[href*="${baseURL}/mod/folder"]`
+  const pluginFileSelector = `[href*="${baseURL}/pluginfile"]:not(.mediafallbacklink)`
+  const videoSelector = `video source[src*="${baseURL}/pluginfile"]`
+  const audioSelector = `audio source[src*="${baseURL}/pluginfile"]`
+  const imageSelector = `img[src*="${baseURL}/pluginfile"]`
+  const videoServiceSelector = `video[src*="${baseURL}/mod/videoservice/file.php"]`
   // Any link with /mod/xxx except /mod/resource and /mod/folder
-  const activityQuerySelector = `[href*=${baseURL}\\/mod\\/]:not(${fileSelector}):not(${folderSelector})`
+  const activityQuerySelector = `[href*="${baseURL}/mod/"]:not(${fileSelector}):not(${folderSelector})`
 
   let selector = null
   switch (type) {
@@ -248,7 +249,7 @@ export function parseSectionName(node) {
 }
 
 export function getDownloadButton(node) {
-  return node.querySelector("form[action$=\\/mod\\/folder\\/download_folder\\.php]")
+  return node.querySelector(`form[action$="/mod/folder/download_folder.php"]`)
 }
 
 export function getDownloadIdTag(node) {
