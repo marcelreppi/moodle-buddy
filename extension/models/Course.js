@@ -109,9 +109,8 @@ function Course(link, HTMLDocument) {
       }
 
       const addFolderNode = node => {
-        const href = parser.parseURLFromNode(node, "folder", options)
         const resourceNode = {
-          href,
+          href: parser.parseURLFromNode(node, "folder", options),
           folderName: parser.parseFileNameFromNode(node),
           section: parser.parseSectionName(node),
           isFolder: true,
@@ -119,7 +118,7 @@ function Course(link, HTMLDocument) {
           isNewResource: null,
         }
 
-        if (href === "") {
+        if (resourceNode.href === "") {
           // Folder could be displayed inline
           const downloadButtonVisible = parser.getDownloadButton(node) !== null
           const { downloadFolderAsZip } = options
@@ -150,7 +149,7 @@ function Course(link, HTMLDocument) {
 
         this.resourceCounts.nFolders++
 
-        if (previousSeenResources === null || previousSeenResources.includes(href)) {
+        if (previousSeenResources === null || previousSeenResources.includes(resourceNode.href)) {
           resourceNode.isNewResource = false
         } else {
           this.resourceCounts.nNewFolders++
