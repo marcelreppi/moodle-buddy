@@ -161,6 +161,7 @@ browser.runtime.onMessage.addListener(async message => {
         const id = await browser.downloads.download({ url, filename: filePath })
         downloadTracker.inProgress.add(id)
       } catch (error) {
+        console.error(error)
         sendLog({ errorMessage: error.message, url, fileName: filePath })
       }
     }

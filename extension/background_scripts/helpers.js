@@ -45,6 +45,7 @@ async function sendToLambda(path, body) {
       body: JSON.stringify(requestBody),
     })
   } catch (error) {
+    console.error(error)
     setTimeout(() => {
       sendLog(error.message)
     }, 5000)

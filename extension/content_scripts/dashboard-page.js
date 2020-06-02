@@ -111,6 +111,7 @@ async function scanOverview() {
         courses.push(course)
         scanCompleted++
       } catch (error) {
+        console.error(error)
         sendLog({ errorMessage: error.message, url: link })
       }
     }
@@ -122,6 +123,7 @@ async function scanOverview() {
     updateIconFromCourses(courses)
     scanInProgress = false
   } catch (error) {
+    console.error(error)
     sendLog({ errorMessage: error.message, url: location.href })
   }
 }
