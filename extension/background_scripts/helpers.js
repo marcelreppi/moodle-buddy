@@ -69,7 +69,7 @@ export async function sendPageData(HTMLString, page) {
   if (!isDev) {
     sendToLambda("/page", { HTMLString, page })
   } else {
-    // console.log(page)
+    console.log(`Send ${page} page data`)
     // console.log(HTMLString)
   }
 }

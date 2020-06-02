@@ -252,7 +252,6 @@ function Course(link, HTMLDocument) {
         })
       }
     } catch (error) {
-      console.error(error)
       sendLog({ errorMessage: error.message, url: this.link })
     }
   }

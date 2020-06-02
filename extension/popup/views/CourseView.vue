@@ -100,7 +100,7 @@
       :toggle-details="toggleDetails"
     />
 
-    <div v-if="showDownloadOptions" style="margin-top: 20px;">
+    <div v-if="!loading && showDownloadOptions" style="margin-top: 20px;">
       <div>
         <label>
           <input v-model="prependCourseShortcutToFileName" type="checkbox" />
@@ -125,7 +125,7 @@
       style="width: 80%;"
     ></progress-bar>
 
-    <button class="download-button" :disabled="disableDownload" @click="onDownload">
+    <button v-if="!loading" class="download-button" :disabled="disableDownload" @click="onDownload">
       Download
     </button>
   </div>

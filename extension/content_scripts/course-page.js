@@ -1,25 +1,27 @@
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
-import { updateIconFromCourses } from "../shared/helpers"
+import { updateIconFromCourses, sendLog } from "../shared/helpers"
 import Course from "../models/Course"
 
-let courseLink = ""
-let course = null
+const courseLink = parseCourseLink(location.href)
+const course = new Course(courseLink, document)
 
 // browser.storage.local.clear()
 
 const isMoodlePage = checkForMoodle()
 if (isMoodlePage) {
-  courseLink = parseCourseLink(location.href)
-  course = new Course(courseLink, document)
-
   // Initial scan
-  course.scan().then(() => {
-    updateIconFromCourses(course)
+  course
+    .scan()
+    .then(() => {
+      updateIconFromCourses(course)
 
-    if (process.env.NODE_ENV === "debug") {
-      console.log(course)
-    }
-  })
+      if (process.env.NODE_ENV === "debug") {
+        console.log(course)
+      }
+    })
+    .catch(error => {
+      sendLog({ errorMessage: error.message, url: location.href })
+    })
 }
 
 browser.runtime.onMessage.addListener(async message => {
