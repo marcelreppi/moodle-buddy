@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "author": "Marcel Reppenhagen",
   "scripts": {
-    "start": "web-ext run -s ./build",
+    "start": "web-ext run -s ./build --firefox=nightly",
     "dev": "npm run nuke && cross-env NODE_ENV=development webpack --watch",
     "debug": "npm run nuke && cross-env NODE_ENV=debug webpack --watch",
     "build": "npm run nuke && cross-env NODE_ENV=production webpack",
