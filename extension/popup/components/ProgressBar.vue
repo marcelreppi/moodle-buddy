@@ -27,7 +27,7 @@ export default {
     total: {
       type: Number,
       required: false,
-      default: 0,
+      default: -1,
     },
     onDone: {
       type: Function,
@@ -42,35 +42,45 @@ export default {
   },
   data() {
     return {
-      currentTotal: this.$props.total,
-      progressText: `${actionByType[this.type]}... 0/${this.$props.total || "?"}`,
+      errors: 0,
+      completed: 0,
+      progress: 5,
       done: false,
       cancelable: ["download"],
     }
   },
-  methods: {
-    setProgress(completed, total) {
-      this.currentTotal = total
-
-      if (this.currentTotal === 0) {
-        // Handle edge case (eg. empty folders)
-        this.$Progress.set(100)
-        this.progressText = "Done!"
-
-        if (this.onDone) this.onDone()
-        return
+  computed: {
+    progressText() {
+      if (this.progress === 100) {
+        return "Done!"
       }
 
-      this.$Progress.set(Math.ceil((completed / this.currentTotal) * 100) || 1)
+      return [
+        `${actionByType[this.type]}...`,
+        `${this.completed}/${this.total !== -1 ? this.total : "?"}`,
+        `${this.errors > 0 ? `(${this.errors} Error(s))` : ""}`,
+      ].join(" ")
+    },
+  },
+  methods: {
+    setProgress(completed, total, errors) {
+      this.total = total
+      this.completed = completed
+      this.errors = errors
 
-      if (completed === this.currentTotal) {
-        this.progressText = "Done!"
+      if (this.total === 0) {
+        // Handle edge case (eg. empty folders)
+        this.progress = 100
+      } else {
+        this.progress = Math.ceil((this.completed / this.total) * 100) || 5
+      }
+
+      this.$Progress.set(this.progress)
+
+      if (this.progress === 100) {
         this.done = true
         this.onDone()
-        return
       }
-
-      this.progressText = `${actionByType[this.type]}... ${completed}/${this.currentTotal}`
     },
   },
   created() {
@@ -90,7 +100,7 @@ export default {
 
 .progress-bar-label {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: auto 20px;
   font-size: 13px;
   width: 100%;
 }

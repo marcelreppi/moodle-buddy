@@ -12,6 +12,15 @@ function DownloadTracker() {
   this.byteCount = 0
   this.inProgress = new Set()
   this.finished = []
+  this.errors = 0
+  this.sendProgress = function() {
+    browser.runtime.sendMessage({
+      command: "download-progress",
+      completed: this.finished.length,
+      total: this.fileCount,
+      errors: this.errors,
+    })
+  }
 }
 
 let downloadTrackers = {}
@@ -70,11 +79,7 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
   // Check if view needs to be updated
   // Only update view with most recent tracker information
   if (isMostRecent) {
-    browser.runtime.sendMessage({
-      command: "download-progress",
-      completed: downloadTracker.finished.length,
-      total: downloadTracker.fileCount,
-    })
+    downloadTracker.sendProgress()
   }
 })
 
@@ -160,9 +165,12 @@ browser.runtime.onMessage.addListener(async message => {
       try {
         const id = await browser.downloads.download({ url, filename: filePath })
         downloadTracker.inProgress.add(id)
-      } catch (error) {
-        console.error(error)
-        sendLog({ errorMessage: error.message, url, fileName: filePath })
+      } catch (err) {
+        console.error(err)
+        sendLog({ errorMessage: err.message, url, fileName: filePath })
+        downloadTracker.errors++
+        downloadTracker.fileCount--
+        downloadTracker.sendProgress()
       }
     }
 
@@ -258,11 +266,7 @@ browser.runtime.onMessage.addListener(async message => {
           // Only update view if the current download is the most recent one
           const mostRecent = Math.max(...Object.keys(downloadTrackers))
           if (downloadTime === mostRecent) {
-            browser.runtime.sendMessage({
-              command: "download-progress",
-              completed: downloadTracker.finished.length,
-              total: downloadTracker.fileCount,
-            })
+            downloadTracker.sendProgress()
           }
 
           if (process.env.NODE_ENV === "debug") {
@@ -277,11 +281,7 @@ browser.runtime.onMessage.addListener(async message => {
         // Only update view if the current download is the most recent one
         const mostRecent = Math.max(...Object.keys(downloadTrackers))
         if (downloadTime === mostRecent) {
-          browser.runtime.sendMessage({
-            command: "download-progress",
-            completed: downloadTracker.finished.length,
-            total: downloadTracker.fileCount,
-          })
+          downloadTracker.sendProgress()
         }
 
         const cleanFolderName = sanitizeFileName(node.folderName)
