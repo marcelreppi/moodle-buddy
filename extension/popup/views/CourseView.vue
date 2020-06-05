@@ -31,7 +31,10 @@
               <span class="checkbox-label">Download only new resources</span>
             </label>
           </div>
-          <div class="action" @click="onMarkAsSeenClick">Mark as seen</div>
+          <div class="new-resource-actions">
+            <div class="action" @click="toggleDetails(true)">Show details</div>
+            <div class="action" @click="onMarkAsSeenClick">Mark as seen</div>
+          </div>
         </div>
       </div>
 
@@ -80,7 +83,7 @@
           class="action"
           style="margin-top: 10px"
           :disabled="disableDownload"
-          @click="toggleDetails"
+          @click="toggleDetails(false)"
         >
           Show details on selected resources
         </button>
@@ -96,7 +99,7 @@
 
     <detail-overlay
       v-if="showDetails"
-      :resources="selectedResources"
+      :resources="showDetailResources"
       :toggle-details="toggleDetails"
     />
 
@@ -172,6 +175,7 @@ export default {
       downloadFiles: true,
       downloadFolders: true,
       showDetails: false,
+      showDetailResources: [],
       showDownloadOptions: true,
       activeSelectionTab: "simple",
       downloadInProgress: false,
@@ -208,6 +212,9 @@ export default {
         return this.nNewFolders === 0
       }
       return this.nFolders === 0
+    },
+    newResources() {
+      return this.resourceNodes.filter(n => n.isNewResource)
     },
     selectedResources() {
       return this.resourceNodes.filter(n => {
@@ -301,7 +308,13 @@ export default {
         command: "mark-as-seen",
       })
     },
-    toggleDetails() {
+    toggleDetails(onlyNew = false) {
+      if (onlyNew) {
+        this.showDetailResources = this.newResources
+      } else {
+        this.showDetailResources = this.selectedResources
+      }
+
       this.showDetails = !this.showDetails
 
       if (this.showDetails) {
@@ -471,5 +484,12 @@ export default {
 
 .checkbox-label {
   margin-left: 5px;
+}
+
+.new-resource-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 10px;
+  margin-top: 2px;
 }
 </style>
