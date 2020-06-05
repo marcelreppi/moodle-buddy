@@ -2,7 +2,7 @@ import { getURLRegex } from "./helpers"
 
 export function checkForMoodle() {
   // Check for unique moodle DOM element
-  return Boolean(document.querySelector("section#region-main"))
+  return Boolean(document.querySelector("#region-main"))
 }
 
 export function parseCourseNameFromCoursePage(document) {
