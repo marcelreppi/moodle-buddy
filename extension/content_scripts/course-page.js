@@ -4,6 +4,7 @@ import Course from "../models/Course"
 
 const courseLink = parseCourseLink(location.href)
 const course = new Course(courseLink, document)
+let error = false
 
 // browser.storage.local.clear()
 
@@ -19,8 +20,10 @@ if (isMoodlePage) {
         console.log(course)
       }
     })
-    .catch(error => {
-      sendLog({ errorMessage: error.message, url: location.href })
+    .catch(err => {
+      console.error(err)
+      error = true
+      sendLog({ errorMessage: err.message, url: location.href })
     })
 }
 
@@ -34,6 +37,13 @@ browser.runtime.onMessage.addListener(async message => {
       page: "course",
       HTMLString: document.querySelector("html").outerHTML,
     })
+
+    if (error) {
+      browser.runtime.sendMessage({
+        command: "error-view",
+      })
+      return
+    }
 
     browser.runtime.sendMessage({
       command: "scan-result",

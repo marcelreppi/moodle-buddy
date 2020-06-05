@@ -6,23 +6,26 @@
     </div>
 
     <div class="popup-content">
-      <DashboardPageView
-        v-if="showDashboardPageView"
-        :activeTab="activeTab"
-        :options="options"
-      ></DashboardPageView>
-      <CourseView v-if="showCourseView" :activeTab="activeTab" :options="options"></CourseView>
-      <VideoServiceView
-        v-if="showVideoServiceView"
-        :activeTab="activeTab"
-        :options="options"
-      ></VideoServiceView>
-      <NoMoodle
-        v-if="showNoMoodle"
-        :openInfoPage="onInfoClick"
-        :options="options"
-        :nUpdates="nUpdates"
-      ></NoMoodle>
+      <ErrorView v-if="showErrorView" />
+      <div v-else>
+        <DashboardPageView
+          v-if="showDashboardPageView"
+          :activeTab="activeTab"
+          :options="options"
+        ></DashboardPageView>
+        <CourseView v-if="showCourseView" :activeTab="activeTab" :options="options"></CourseView>
+        <VideoServiceView
+          v-if="showVideoServiceView"
+          :activeTab="activeTab"
+          :options="options"
+        ></VideoServiceView>
+        <NoMoodle
+          v-if="showNoMoodle"
+          :openInfoPage="onInfoClick"
+          :options="options"
+          :nUpdates="nUpdates"
+        ></NoMoodle>
+      </div>
 
       <div v-if="showRatingHint" class="rating-hint">
         <div>You have downloaded more than {{ rateHintLevels[rateHintLevel] }} files 🎉</div>
@@ -64,6 +67,7 @@ import DashboardPageView from "./views/DashboardPageView.vue"
 import CourseView from "./views/CourseView.vue"
 import VideoServiceView from "./views/VideoServiceView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
+import ErrorView from "./views/ErrorView.vue"
 
 import MoodleIcon from "../icons/48.png"
 import InfoIcon from "../static/information.png"
@@ -74,6 +78,7 @@ export default {
     CourseView,
     VideoServiceView,
     NoMoodle,
+    ErrorView,
   },
   data() {
     return {
@@ -84,6 +89,7 @@ export default {
       isDashboardPage: false,
       isCoursePage: false,
       isVideoServicePage: false,
+      showErrorView: false,
       options: null,
       nUpdates: 0,
       userHasRated: false,
@@ -194,6 +200,10 @@ export default {
             this.isDashboardPage = true
           }
         }
+      }
+
+      if (message.command === "error-view") {
+        this.showErrorView = true
       }
     })
 

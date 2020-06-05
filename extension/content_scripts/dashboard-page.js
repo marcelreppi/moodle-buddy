@@ -4,6 +4,7 @@ import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { coursePageRegex, updateIconFromCourses, sendLog } from "../shared/helpers"
 import Course from "../models/Course"
 
+let error = false
 let unknownLayout = false
 let overviewHidden = false
 let scanInProgress = true
@@ -110,9 +111,10 @@ async function scanOverview() {
         await course.scan()
         courses.push(course)
         scanCompleted++
-      } catch (error) {
-        console.error(error)
-        sendLog({ errorMessage: error.message, url: link })
+      } catch (err) {
+        error = true
+        console.error(err)
+        sendLog({ errorMessage: err.message, url: link })
       }
     }
 
@@ -122,9 +124,10 @@ async function scanOverview() {
 
     updateIconFromCourses(courses)
     scanInProgress = false
-  } catch (error) {
-    console.error(error)
-    sendLog({ errorMessage: error.message, url: location.href })
+  } catch (err) {
+    error = true
+    console.error(err)
+    sendLog({ errorMessage: err.message, url: location.href })
   }
 }
 
@@ -142,6 +145,13 @@ browser.runtime.onMessage.addListener(async message => {
       HTMLString: document.querySelector("html").outerHTML,
     })
 
+    if (error) {
+      browser.runtime.sendMessage({
+        command: "error-view",
+      })
+      return
+    }
+
     if (scanInProgress) {
       browser.runtime.sendMessage({
         command: "scan-in-progress",
@@ -149,6 +159,13 @@ browser.runtime.onMessage.addListener(async message => {
         total: scanTotal,
       })
     } else {
+      if (error) {
+        browser.runtime.sendMessage({
+          command: "error-view",
+        })
+        return
+      }
+
       const currentSettingsHash = shajs("sha224")
         .update(JSON.stringify(getOverviewSettings()))
         .digest("hex")
