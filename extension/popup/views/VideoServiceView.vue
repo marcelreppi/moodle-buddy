@@ -228,7 +228,6 @@ export default {
   created() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "scan-result") {
-        console.log(message.videoResources)
         this.nVideos = message.videoResources.length
         this.videoResources = message.videoResources.map(r => {
           return { ...r, selected: false, isFile: true }
