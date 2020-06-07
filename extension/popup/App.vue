@@ -86,9 +86,7 @@ export default {
       MoodleIcon,
       activeTab: null,
       isSupportedPage: false,
-      isDashboardPage: false,
-      isCoursePage: false,
-      isVideoServicePage: false,
+      page: "",
       showErrorView: false,
       options: null,
       nUpdates: 0,
@@ -108,28 +106,16 @@ export default {
   computed: {
     isFirefox,
     showDashboardPageView() {
-      if (this.isSupportedPage && this.isDashboardPage) {
-        sendEvent("view-dashboard-page", true)
-        return true
-      }
-      return false
+      return this.page === "dashboard"
     },
     showCourseView() {
-      if (this.isSupportedPage && this.isCoursePage) {
-        sendEvent("view-course-page", true)
-        return true
-      }
-      return false
+      return this.page === "course"
     },
     showVideoServiceView() {
-      if (this.isSupportedPage && this.isVideoServicePage) {
-        sendEvent("view-videoservice-page", true)
-        return true
-      }
-      return false
+      return this.page === "videoservice"
     },
     showNoMoodle() {
-      return !this.showDashboardPageView && !this.showCourseView && !this.showVideoServiceView
+      return this.page === ""
     },
     showRatingHint() {
       const fileThreshold = this.rateHintLevels[this.rateHintLevel] || Infinity
@@ -171,7 +157,7 @@ export default {
       })
       sendEvent("avoid-rating-hint")
     },
-    saveStorageData(data) {
+    cacheStorageData(data) {
       const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = data
       this.options = options
       this.nUpdates = nUpdates
@@ -183,22 +169,26 @@ export default {
   created() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "state") {
-        this.isSupportedPage = message.isSupportedPage
-        this.isDashboardPage = message.isDashboardPage
-        this.isCoursePage = message.isCoursePage
-        this.isVideoServicePage = message.isVideoServicePage
-        this.saveStorageData(message)
+        this.page = message.page
+        this.cacheStorageData(message)
 
         if (process.env.NODE_ENV === "debug") {
-          this.isSupportedPage = true
           const filename = this.activeTab.url.split("/").pop()
           if (filename.includes("course")) {
-            this.isCoursePage = true
+            this.page = "course"
           }
 
           if (filename.includes("dashboard")) {
-            this.isDashboardPage = true
+            this.page = "dashboard"
           }
+
+          if (filename.includes("videoservice")) {
+            this.page = "videoservice"
+          }
+        }
+
+        if (this.page !== "") {
+          sendEvent(`view-${this.page}-page`, true)
         }
       }
 
@@ -216,7 +206,7 @@ export default {
         })
         .catch(() => {
           // When detector is not available fetch state from storage manually
-          browser.storage.local.get().then(this.saveStorageData)
+          browser.storage.local.get().then(this.cacheStorageData)
         })
     })
   },

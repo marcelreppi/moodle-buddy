@@ -19,12 +19,21 @@ async function setDefaultMoodleURL(options) {
 }
 
 async function runDetector() {
-  const isDashboardPage = Boolean(location.href.match(dashboardPageRegex))
-  const isCoursePage = Boolean(location.href.match(coursePageRegex))
-  const isVideoServicePage = Boolean(location.href.match(videoServicePageRegex))
-  const urlIsSupported = isDashboardPage || isCoursePage || isVideoServicePage
+  let page = ""
+
   const isMoodlePage = checkForMoodle()
-  const isSupportedPage = urlIsSupported && isMoodlePage
+
+  if (isMoodlePage) {
+    const isDashboardPage = Boolean(location.href.match(dashboardPageRegex))
+    const isCoursePage = Boolean(location.href.match(coursePageRegex))
+    const isVideoServicePage = Boolean(location.href.match(videoServicePageRegex))
+
+    if (isCoursePage) page = "course"
+    if (isDashboardPage) page = "dashboard"
+    if (isVideoServicePage) page = "videoservice"
+  }
+
+  const isSupportedPage = page !== ""
 
   const {
     options,
@@ -46,10 +55,7 @@ async function runDetector() {
     if (message.command === "get-state") {
       browser.runtime.sendMessage({
         command: "state",
-        isSupportedPage,
-        isDashboardPage,
-        isCoursePage,
-        isVideoServicePage,
+        page,
         options,
         nUpdates,
         userHasRated,
@@ -57,15 +63,13 @@ async function runDetector() {
         rateHintLevel,
       })
 
-      let page = ""
-      if (isCoursePage) page = "course"
-      if (isDashboardPage) page = "dashboard"
-      if (isVideoServicePage) page = "videoservice"
-      browser.runtime.sendMessage({
-        command: "page-data",
-        page,
-        HTMLString: document.querySelector("html").outerHTML,
-      })
+      if (isSupportedPage) {
+        browser.runtime.sendMessage({
+          command: "page-data",
+          page,
+          HTMLString: document.querySelector("html").outerHTML,
+        })
+      }
     }
 
     if (message.command === "rate-click") {
@@ -85,7 +89,6 @@ async function runDetector() {
 
   if (process.env.NODE_ENV === "debug") {
     const filename = location.href.split("/").pop()
-    let page = ""
 
     if (filename.includes("course")) {
       page = "course"
