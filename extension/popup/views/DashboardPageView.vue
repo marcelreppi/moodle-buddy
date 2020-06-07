@@ -4,11 +4,7 @@
       <div>Scanning courses for updates...</div>
       <progress-bar type="scan" ref="progressBar"></progress-bar>
     </div>
-    <div v-else-if="unknownLayout && courses.length === 0" style="width: 60%;" class="no-courses">
-      <div>Moodle Buddy currently doesn't support this Moodle layout.</div>
-      <div>Sorry!</div>
-    </div>
-    <div v-else-if="!unknownLayout && courses.length === 0" class="no-courses">
+    <div v-else-if="courses.length === 0" class="no-courses">
       <div>No courses found</div>
     </div>
     <div v-else class="course-container scrollbar">
@@ -24,8 +20,6 @@
 </template>
 
 <script>
-import { sendEvent } from "../../shared/helpers"
-
 import CourseCard from "../components/CourseCard.vue"
 import ProgressBar from "../components/ProgressBar.vue"
 
@@ -41,34 +35,21 @@ export default {
   data() {
     return {
       courses: null,
-      unknownLayout: false,
     }
   },
   created() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "scan-in-progress") {
         if (message.total !== 0) {
-          this.$refs.progressBar.setProgress(message.completed, message.total)
+          this.$refs.progressBar.setProgress(message.total, message.completed)
+        } else {
+          this.$refs.progressBar.resetProgress()
         }
-        setTimeout(() => {
-          browser.tabs.sendMessage(this.activeTab.id, {
-            command: "scan",
-          })
-        }, 200)
         return
       }
 
       if (message.command === "scan-result") {
-        this.unknownLayout = message.unknownLayout
         this.courses = message.courses
-
-        if (message.overviewHidden) {
-          sendEvent("no-overview", true)
-        }
-
-        if (this.unknownLayout) {
-          sendEvent("unknown-layout", true)
-        }
 
         this.courses.sort((a, b) => {
           if (

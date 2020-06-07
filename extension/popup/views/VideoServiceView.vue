@@ -93,7 +93,6 @@
     <progress-bar
       v-if="downloadInProgress"
       ref="progressBar"
-      :total="selectedResources.length"
       type="download"
       :onDone="onDownloadFinished"
       :onCancel="onCancel"
@@ -225,6 +224,11 @@ export default {
       sendEvent("cancel-download", true)
     },
   },
+  updated() {
+    if (this.downloadInProgress) {
+      this.$refs.progressBar.setProgress(this.selectedResources.length)
+    }
+  },
   created() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "scan-result") {
@@ -239,7 +243,7 @@ export default {
       if (message.command === "download-start-progress") {
         const { completed, total, errors } = message
         if (this.$refs.progressBar) {
-          this.$refs.progressBar.setProgress(completed, total, errors)
+          this.$refs.progressBar.setProgress(total, completed, errors)
         }
       }
     })

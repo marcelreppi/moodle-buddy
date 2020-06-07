@@ -1,12 +1,10 @@
 import shajs from "sha.js"
 
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
-import { coursePageRegex, updateIconFromCourses, sendLog } from "../shared/helpers"
+import { coursePageRegex, updateIconFromCourses, sendLog, sendEvent } from "../shared/helpers"
 import Course from "../models/Course"
 
 let error = false
-let unknownLayout = false
-let overviewHidden = false
 let scanInProgress = true
 let scanTotal = 0
 let scanCompleted = 0
@@ -28,7 +26,30 @@ function hasHiddenParent(element) {
   return element.parentNode && hasHiddenParent(element.parentNode)
 }
 
-async function scanOverview() {
+function sendScanProgress() {
+  browser.runtime.sendMessage({
+    command: "scan-in-progress",
+    completed: scanCompleted,
+    total: scanTotal,
+  })
+}
+
+function sendScanResults() {
+  browser.runtime.sendMessage({
+    command: "scan-result",
+    courses: courses.map(c => ({
+      name: c.name,
+      link: c.link,
+      isNew: c.isFirstScan,
+      resourceNodes: c.resourceNodes,
+      activityNodes: c.activityNodes,
+      ...c.resourceCounts,
+      ...c.activityCounts,
+    })),
+  })
+}
+
+async function scanOverview(retry = true) {
   try {
     scanInProgress = true
     scanTotal = 0
@@ -37,45 +58,35 @@ async function scanOverview() {
 
     let courseLinks = []
 
+    sendScanProgress()
+
+    // Sleep some time to wait for full page load
+    await new Promise(resolve => setTimeout(resolve, 2000))
+
     // Save hash of settings to check for changes
     lastSettingsHash = shajs("sha224")
       .update(JSON.stringify(getOverviewSettings()))
       .digest("hex")
 
+    let useFallback = false
+
+    // Try to use the overview node to find courses
+    // If something goes wrong use fallback
     const overviewNode = document.querySelector("[data-region='myoverview']")
-
     if (overviewNode) {
-      const emptyCourseList = overviewNode.querySelector("[data-region='empty-message']")
-      if (emptyCourseList) {
-        // There are no courses shown
-        scanInProgress = false
-        return
-      }
-
       const courseNodes = overviewNode.querySelectorAll("[data-region='course-content']")
 
-      if (courseNodes.length === 0) {
-        // Check again if courses have not loaded yet
-        setTimeout(scanOverview, 200)
-        return
+      if (courseNodes.length !== 0) {
+        courseLinks = Array.from(courseNodes).map(n => parseCourseLink(n.innerHTML))
+      } else {
+        useFallback = true
       }
-
-      // Overview page has fully loaded
-      scanTotal = courseNodes.length
-      courseLinks = Array.from(courseNodes).map(n => parseCourseLink(n.innerHTML))
     } else {
-      overviewHidden = true
-      // Sleep some time to wait for full page load
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      useFallback = true
+    }
 
-      // Some moodle platforms have this data block as overview
-      let searchRoot = document.querySelector("[data-block='course_overview_campus'")
-
-      if (!searchRoot) {
-        // Fallback to more general (outer) element
-        searchRoot = document.querySelector("#region-main")
-      }
-
+    if (useFallback) {
+      const searchRoot = document.querySelector("#region-main")
       courseLinks = Array.from(
         new Set(
           Array.from(searchRoot.querySelectorAll("a"))
@@ -83,17 +94,22 @@ async function scanOverview() {
             .map(n => n.href)
         )
       )
+    }
 
-      if (courseLinks.length === 0) {
-        if (process.env.NODE_ENV === "debug") {
-          console.log(courseLinks)
-        }
-
-        unknownLayout = true
-        scanInProgress = false
+    if (courseLinks.length === 0) {
+      // No courses found
+      if (retry) {
+        console.log("No course found in dashboard. Retrying once more...")
+        scanOverview(false)
         return
       }
+
+      sendEvent("empty-dashboard", true)
+      scanInProgress = false
+      return
     }
+
+    scanTotal = courseLinks.length
 
     if (process.env.NODE_ENV === "debug") {
       console.log(courseLinks)
@@ -112,10 +128,12 @@ async function scanOverview() {
         courses.push(course)
         scanCompleted++
       } catch (err) {
+        scanTotal--
         error = true
         console.error(err)
         sendLog({ errorMessage: err.message, url: link })
       }
+      sendScanProgress()
     }
 
     browser.storage.local.set({
@@ -124,6 +142,7 @@ async function scanOverview() {
 
     updateIconFromCourses(courses)
     scanInProgress = false
+    sendScanResults()
   } catch (err) {
     error = true
     console.error(err)
@@ -147,11 +166,7 @@ browser.runtime.onMessage.addListener(async message => {
     }
 
     if (scanInProgress) {
-      browser.runtime.sendMessage({
-        command: "scan-in-progress",
-        completed: scanCompleted,
-        total: scanTotal,
-      })
+      sendScanProgress()
     } else {
       if (error) {
         browser.runtime.sendMessage({
@@ -166,29 +181,13 @@ browser.runtime.onMessage.addListener(async message => {
 
       if (currentSettingsHash !== lastSettingsHash) {
         // User has modified the overview -> Repeat the scan
+        lastSettingsHash = currentSettingsHash
         scanOverview()
-        browser.runtime.sendMessage({
-          command: "scan-in-progress",
-        })
         return
       }
 
-      browser.runtime.sendMessage({
-        command: "scan-result",
-        unknownLayout,
-        overviewHidden,
-        courses: courses.map(c => ({
-          name: c.name,
-          link: c.link,
-          isNew: c.isFirstScan,
-          resourceNodes: c.resourceNodes,
-          activityNodes: c.activityNodes,
-          ...c.resourceCounts,
-          ...c.activityCounts,
-        })),
-      })
+      sendScanResults()
     }
-
     return
   }
 

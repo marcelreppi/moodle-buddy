@@ -24,11 +24,6 @@ export default {
       type: String,
       required: true,
     },
-    total: {
-      type: Number,
-      required: false,
-      default: -1,
-    },
     onDone: {
       type: Function,
       required: false,
@@ -42,9 +37,10 @@ export default {
   },
   data() {
     return {
-      errors: 0,
+      total: -1,
       completed: 0,
-      progress: 5,
+      errors: 0,
+      progress: 0,
       done: false,
       cancelable: ["download"],
     }
@@ -63,7 +59,7 @@ export default {
     },
   },
   methods: {
-    setProgress(completed, total, errors) {
+    setProgress(total, completed = 0, errors = 0) {
       this.total = total
       this.completed = completed
       this.errors = errors
@@ -82,9 +78,19 @@ export default {
         this.onDone()
       }
     },
+    resetProgress() {
+      this.total = -1
+      this.completed = 0
+      this.errors = 0
+      this.progress = 0
+      this.done = false
+
+      // Set a small number to make something visible
+      this.$Progress.set(5)
+    },
   },
   created() {
-    this.$Progress.set(1) // Set a small number to make something visible
+    this.resetProgress()
   },
 }
 </script>
