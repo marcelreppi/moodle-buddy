@@ -56,6 +56,16 @@ async function runDetector() {
         totalDownloadedFiles,
         rateHintLevel,
       })
+
+      let page = ""
+      if (isCoursePage) page = "course"
+      if (isDashboardPage) page = "dashboard"
+      if (isVideoServicePage) page = "videoservice"
+      browser.runtime.sendMessage({
+        command: "page-data",
+        page,
+        HTMLString: document.querySelector("html").outerHTML,
+      })
     }
 
     if (message.command === "rate-click") {

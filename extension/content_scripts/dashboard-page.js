@@ -139,12 +139,6 @@ if (isMoodlePage) {
 
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "scan") {
-    browser.runtime.sendMessage({
-      command: "page-data",
-      page: "dashboard",
-      HTMLString: document.querySelector("html").outerHTML,
-    })
-
     if (error) {
       browser.runtime.sendMessage({
         command: "error-view",

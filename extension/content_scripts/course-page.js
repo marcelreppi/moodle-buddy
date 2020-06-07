@@ -29,12 +29,6 @@ if (isMoodlePage) {
 
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "scan") {
-    browser.runtime.sendMessage({
-      command: "page-data",
-      page: "course",
-      HTMLString: document.querySelector("html").outerHTML,
-    })
-
     // await course.scan()
     // updateIconFromCourses(course)
 

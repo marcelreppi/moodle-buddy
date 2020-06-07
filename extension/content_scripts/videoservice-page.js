@@ -111,12 +111,6 @@ async function downloadVideoResource(videoResource, options) {
 
 browser.runtime.onMessage.addListener(async message => {
   if (message.command === "scan") {
-    browser.runtime.sendMessage({
-      command: "page-data",
-      page: "videoservice",
-      HTMLString: document.querySelector("html").outerHTML,
-    })
-
     scanForVideos()
 
     if (error) {
