@@ -99,48 +99,47 @@ async function scanOverview(retry = true) {
     if (courseLinks.length === 0) {
       // No courses found
       if (retry) {
+        // Retry once more because maybe the page was not fully loaded
         console.log("No course found in dashboard. Retrying once more...")
         scanOverview(false)
         return
       }
+    } else {
+      // Some courses were found
+      scanTotal = courseLinks.length
 
-      sendEvent("empty-dashboard", true)
-      scanInProgress = false
-      return
-    }
-
-    scanTotal = courseLinks.length
-
-    if (process.env.NODE_ENV === "debug") {
-      console.log(courseLinks)
-      return
-    }
-
-    const domParser = new DOMParser()
-    for (const link of courseLinks) {
-      try {
-        const res = await fetch(link)
-        const resBody = await res.text()
-        const HTMLDocument = domParser.parseFromString(resBody, "text/html")
-
-        const course = new Course(link, HTMLDocument)
-        await course.scan()
-        courses.push(course)
-        scanCompleted++
-      } catch (err) {
-        scanTotal--
-        error = true
-        console.error(err)
-        sendLog({ errorMessage: err.message, url: link })
+      if (process.env.NODE_ENV === "debug") {
+        console.log(courseLinks)
+        return
       }
-      sendScanProgress()
+
+      const domParser = new DOMParser()
+      for (const link of courseLinks) {
+        try {
+          const res = await fetch(link)
+          const resBody = await res.text()
+          const HTMLDocument = domParser.parseFromString(resBody, "text/html")
+
+          const course = new Course(link, HTMLDocument)
+          await course.scan()
+          courses.push(course)
+          scanCompleted++
+        } catch (err) {
+          scanTotal--
+          error = true
+          console.error(err)
+          sendLog({ errorMessage: err.message, url: link })
+        }
+        sendScanProgress()
+      }
+
+      browser.storage.local.set({
+        overviewCourseLinks: courses.map(c => c.link),
+      })
+
+      updateIconFromCourses(courses)
     }
 
-    browser.storage.local.set({
-      overviewCourseLinks: courses.map(c => c.link),
-    })
-
-    updateIconFromCourses(courses)
     scanInProgress = false
     sendScanResults()
   } catch (err) {
@@ -184,6 +183,10 @@ browser.runtime.onMessage.addListener(async message => {
         lastSettingsHash = currentSettingsHash
         scanOverview()
         return
+      }
+
+      if (courses.length === 0) {
+        console.log("empty dashboard")
       }
 
       sendScanResults()

@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import { sendEvent } from "../../shared/helpers"
+
 import CourseCard from "../components/CourseCard.vue"
 import ProgressBar from "../components/ProgressBar.vue"
 
@@ -50,6 +52,10 @@ export default {
 
       if (message.command === "scan-result") {
         this.courses = message.courses
+
+        if (this.courses.length === 0) {
+          sendEvent("empty-dashboard", true)
+        }
 
         this.courses.sort((a, b) => {
           if (
