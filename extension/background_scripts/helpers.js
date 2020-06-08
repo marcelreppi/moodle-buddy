@@ -63,7 +63,7 @@ export async function sendEvent(event, saveURL, eventData) {
 }
 
 export async function sendDownloadData(data) {
-  sendToLambda("/download", { fileCount: data.fileCount, byteCount: data.byteCount })
+  sendToLambda("/download", data)
 }
 
 export async function sendPageData(HTMLString, page) {
