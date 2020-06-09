@@ -216,7 +216,7 @@ export default {
 <style>
 .app {
   font-size: 15px;
-  padding: 25px 10px 5px 10px;
+  padding: 15px 10px 5px 10px;
 }
 
 .chrome {
@@ -224,7 +224,7 @@ export default {
 }
 
 .title {
-  font-size: 24px;
+  font-size: 22px;
   text-align: center;
   margin-bottom: 10px;
 }
