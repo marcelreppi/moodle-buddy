@@ -8,17 +8,32 @@ export function checkForMoodle() {
 export function parseCourseNameFromCoursePage(document) {
   const header = document.querySelector(".page-header-headings")
   if (header && header.children.length > 0) {
-    return header.children[0].textContent
+    return header.children[0].textContent.trim()
   }
 
   const shortcutNode = document.querySelector("a[aria-current='page']")
   if (shortcutNode) {
     if (shortcutNode.title !== "") {
-      return shortcutNode.title
+      return shortcutNode.title.trim()
     }
 
     if (shortcutNode.textContent !== "") {
-      return shortcutNode.textContent
+      return shortcutNode.textContent.trim()
+    }
+  }
+
+  const firstHeader = document.querySelector("#region-main").querySelector("h1")
+  if (firstHeader) {
+    if (firstHeader.textContent !== "") {
+      return firstHeader.textContent.trim()
+    }
+  }
+
+  const firstNavbar = document.querySelector("#page").querySelector("nav")
+  if (firstNavbar) {
+    const allNavElements = Array.from(firstNavbar.querySelectorAll("li"))
+    if (allNavElements.length !== 0) {
+      return allNavElements.pop().textContent.trim()
     }
   }
 
@@ -29,18 +44,19 @@ export function parseCourseShortcut(document) {
   const shortcutNode = document.querySelector("a[aria-current='page']")
   if (shortcutNode) {
     if (shortcutNode.textContent !== "") {
-      return shortcutNode.textContent
+      return shortcutNode.textContent.trim()
+    }
+  }
+
+  const firstNavbar = document.querySelector("#page").querySelector("nav")
+  if (firstNavbar) {
+    const allNavElements = Array.from(firstNavbar.querySelectorAll("li"))
+    if (allNavElements.length !== 0) {
+      return allNavElements.pop().textContent.trim()
     }
   }
 
   return "Unknown Shortcut"
-}
-
-export function parseCourseNameFromCard(cardNode) {
-  return cardNode
-    .querySelector(".coursename")
-    .innerText.split("\n")
-    .pop()
 }
 
 export function parseCourseLink(htmlString) {
