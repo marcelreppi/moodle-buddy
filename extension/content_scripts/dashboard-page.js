@@ -1,7 +1,7 @@
 import shajs from "sha.js"
 
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
-import { coursePageRegex, updateIconFromCourses, sendLog, sendEvent } from "../shared/helpers"
+import { coursePageRegex, updateIconFromCourses, sendLog } from "../shared/helpers"
 import Course from "../models/Course"
 
 let error = false
@@ -49,8 +49,9 @@ function sendScanResults() {
   })
 }
 
-async function scanOverview(retry = true) {
+async function scanOverview(retry = 0) {
   try {
+    const maxRetries = 2
     scanInProgress = true
     scanTotal = 0
     scanCompleted = 0
@@ -98,10 +99,10 @@ async function scanOverview(retry = true) {
 
     if (courseLinks.length === 0) {
       // No courses found
-      if (retry) {
+      if (retry < maxRetries) {
         // Retry once more because maybe the page was not fully loaded
         console.log("No course found in dashboard. Retrying once more...")
-        scanOverview(false)
+        scanOverview(retry + 1)
         return
       }
     } else {
