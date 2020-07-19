@@ -2,6 +2,11 @@ import { isFirefox, getActiveTab } from "../shared/helpers"
 
 const isDev = process.env.NODE_ENV !== "production"
 
+const API_URL = "https://api.moodlebuddy.com"
+
+// const DEV_API_URL = "http://localhost:8080"
+const DEV_API_URL = "https://dev-api.moodlebuddy.com"
+
 async function sendToLambda(path, body) {
   const { options, browserId } = await browser.storage.local.get(["options", "browserId"])
 
@@ -32,15 +37,12 @@ async function sendToLambda(path, body) {
     console.log(requestBody)
   }
 
-  if (!process.env.API_URL || !process.env.DEV_API_URL) return
-
   try {
-    fetch(`${isDev ? process.env.DEV_API_URL : process.env.API_URL}${path}`, {
+    fetch(`${isDev ? DEV_API_URL : API_URL}${path}`, {
       method: "POST",
       headers: {
         "User-Agent": navigator.userAgent,
         "Content-Type": "application/json",
-        "X-API-Key": process.env.API_KEY,
       },
       body: JSON.stringify(requestBody),
     })

@@ -12,7 +12,6 @@ cd ..
 
 # Copy all necessary files to tmp directory
 mkdir tmp
-cp .env tmp/.env
 cp -r extension screenshots webpack.config.js package.json package-lock.json README.md tmp
 cd tmp
 

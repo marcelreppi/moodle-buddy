@@ -3,7 +3,6 @@ const webpack = require("webpack")
 const CopyPlugin = require("copy-webpack-plugin")
 const { VueLoaderPlugin } = require("vue-loader")
 const TerserPlugin = require("terser-webpack-plugin")
-const DotenvPlugin = require("dotenv-webpack")
 
 const isProd = process.env.NODE_ENV === "production"
 
@@ -107,7 +106,6 @@ module.exports = {
       { from: "./screenshots", to: "./screenshots" },
     ]),
     new webpack.EnvironmentPlugin(["NODE_ENV"]), // Make process.env.NODE_ENV available in code
-    new DotenvPlugin(), // Load environment variables from .env file
     new webpack.DefinePlugin({
       global: "window", // Placeholder for global used in any node_modules
     }),
