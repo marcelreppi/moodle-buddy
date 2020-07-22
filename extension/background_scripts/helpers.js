@@ -49,7 +49,7 @@ async function sendToLambda(path, body) {
   } catch (error) {
     console.error(error)
     setTimeout(() => {
-      sendLog(error.message)
+      sendLog({ errorMessage: error.message })
     }, 5000)
   }
 }
@@ -83,6 +83,13 @@ export async function sendFeedback(subject, content) {
 }
 
 export async function sendLog(log) {
+  const { errorMessage } = log
+
+  const skipMessages = ["Failed to fetch", "Download canceled by the user"]
+  if (errorMessage && skipMessages.includes(errorMessage)) {
+    return
+  }
+
   sendToLambda("/log", { log })
 }
 
