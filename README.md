@@ -52,18 +52,6 @@ The plugin is available for both **Firefox** and **Chrome**.
 * Download new resources directly from the dashboard page
 * Scans your courses in the background (if you are logged in) and notifies you if there are updates
 
-## Build
+# Copyright
 
-1. Install dependencies
-
-```
-npm i
-```
-
-2. Build project
-
-```
-npm run build
-```
-
-3. Now the `build` directory will contain all files for the addon
+Copyright © 2020 Marcel Reppenhagen All Rights Reserved
