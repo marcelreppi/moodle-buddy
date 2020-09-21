@@ -20,29 +20,33 @@
     <div class="content-container">
       <div class="section-title">Report a bug or submit a feature request</div>
       <div class="section-content">
-        <div class="form-container">
-          <p class="center">Send an email to <a href="mailto:hello@moodlebuddy.com">hello@moodlebuddy.com</a></p>
-          <div class="center">or</div>
-          <p class="center">Submit the form below</p>
-          <div class="form">
-            <div>Subject</div>
-            <input type="text" id="form-subject">
-            <div>Content</div>
-            <textarea id="form-content" cols="60" rows="10"></textarea>
+        <p>Send an email to <a href="mailto:hello@moodlebuddy.com">hello@moodlebuddy.com</a></p>
+        <div>or</div>
+        <p>submit the form below.</p>
+        <p>
+          Please leave your E-Mail if you are willing to help out or be notified when your issue has been fixed.
+        </p>
+        <div class="form">
+          <div>Moodle Platform / URL</div>
+          <input type="text" id="form-platform" placeholder="E.g. Technical University of Berlin">
+          <div>Subject</div>
+          <input type="text" id="form-subject" placeholder="Something is not working...">
+          <div>Content</div>
+          <textarea id="form-content" cols="60" rows="10" placeholder="Please explain what is happening..."></textarea>
 
-            <div>
-              <button id="form-button">Submit</button>
-            </div>
+          <div class="missing">
+            <div>Please fill out all the fields</div>
           </div>
+
+          <button id="form-button">Submit</button>
         </div>
-
-
-        <div class="success">
-          <div>Success!</div>
-          <div>Thank you very much for your feedback!</div>
-        </div>
-
       </div>
+
+      <div class="success">
+        <div>Success!</div>
+        <div>Thank you very much for your feedback!</div>
+      </div>
+
     </div>
 
     <div class="footer">
