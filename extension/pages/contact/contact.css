@@ -76,7 +76,7 @@ html, body {
   margin-top: 20px;
 }
 
-.form > input[type="text"] {
+.form > input {
   padding: 5px;
   width: 100%;
   font-family: inherit;

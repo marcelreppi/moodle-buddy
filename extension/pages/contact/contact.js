@@ -1,14 +1,20 @@
 document.querySelector("#form-button").addEventListener("click", async () => {
+  const email = document.querySelector("#form-email").value
   const platform = document.querySelector("#form-platform").value
   const subject = document.querySelector("#form-subject").value
   const content = document.querySelector("#form-content").value
 
   if (subject !== "" && content !== "" && platform !== "") {
-    const { browserId } = await browser.storage.local.get("browserId")
+    const { options, browserId } = await browser.storage.local.get()
+    const { defaultMoodleURL } = options
 
-    const message = [`Moodle platform: ${platform}`, `Browser ID: ${browserId}`, content].join(
-      "\n\n"
-    )
+    const message = [
+      `E-Mail: ${email}`,
+      `Moodle platform: ${platform}`,
+      `Browser ID: ${browserId}`,
+      `Moodle URL: ${defaultMoodleURL}`,
+      content,
+    ].join("\n\n")
 
     browser.runtime.sendMessage({
       command: "feedback",
