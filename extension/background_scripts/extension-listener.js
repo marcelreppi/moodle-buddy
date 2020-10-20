@@ -118,7 +118,7 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
       break
     case "debug":
       browser.tabs.executeScript({
-        file: `../content_scripts/${message.page}-page.js`,
+        file: `content_scripts/${message.page}-page.js`,
       })
       break
     default:
