@@ -54,6 +54,9 @@
       <span>
         <div class="link" @click="onDonateClick">Donate</div>
       </span>
+      <span>
+        <div class="link" @click="onOptionsClick">Options</div>
+      </span>
       <span class="footer-right-section">
         <img class="info-icon" :src="InfoIcon" alt="info" @click="onInfoClick" />
       </span>
@@ -143,6 +146,9 @@ export default {
       })
       this.navigateTo(this.rateLink)
       sendEvent("rate-click")
+    },
+    onOptionsClick() {
+      browser.runtime.openOptionsPage()
     },
     navigateTo(link) {
       browser.tabs.create({
