@@ -31,6 +31,12 @@ async function runDetector() {
     if (isCoursePage) page = "course"
     if (isDashboardPage) page = "dashboard"
     if (isVideoServicePage) page = "videoservice"
+
+    if (process.env.NODE_ENV === "debug") {
+      const filename = location.href.split("/").pop()
+      if (filename.includes("course")) page = "course"
+      if (filename.includes("dashboard")) page = "dashboard"
+    }
   }
 
   const isSupportedPage = page !== ""
@@ -49,6 +55,11 @@ async function runDetector() {
     })
 
     setDefaultMoodleURL(options)
+
+    browser.runtime.sendMessage({
+      command: "execute-script",
+      page,
+    })
   }
 
   browser.runtime.onMessage.addListener(async message => {
@@ -86,25 +97,6 @@ async function runDetector() {
       runDetector()
     }
   })
-
-  if (process.env.NODE_ENV === "debug") {
-    const filename = location.href.split("/").pop()
-
-    if (filename.includes("course")) {
-      page = "course"
-    }
-
-    if (filename.includes("dashboard")) {
-      page = "dashboard"
-    }
-
-    if (page !== "") {
-      browser.runtime.sendMessage({
-        command: "debug",
-        page,
-      })
-    }
-  }
 }
 
 runDetector()

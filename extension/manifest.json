@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Moodle Buddy",
-  "version": "1.41",
+  "version": "1.42",
   "description": "Moodle Buddy offers mass download and notification functionality for the moodle learning management platform.",
   "icons": {
     "16": "icons/16.png",
@@ -33,30 +33,6 @@
       "js": [
         "shared/browser-polyfill.js",
         "content_scripts/detector.js"
-      ]
-    },
-    {
-      "matches": [
-        "*://*/course/view.php?id=*"
-      ],
-      "js": [
-        "content_scripts/course-page.js"
-      ]
-    },
-    {
-      "matches": [
-        "*://*/my*"
-      ],
-      "js": [
-        "content_scripts/dashboard-page.js"
-      ]
-    },
-    {
-      "matches": [
-        "*://*/mod/videoservice*"
-      ],
-      "js": [
-        "content_scripts/videoservice-page.js"
       ]
     }
   ],
