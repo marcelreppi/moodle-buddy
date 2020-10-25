@@ -16,7 +16,7 @@ if (isMoodlePage) {
     .then(() => {
       updateIconFromCourses(course)
 
-      if (process.env.NODE_ENV === "debug") {
+      if (process.env.NODE_ENV !== "production") {
         console.log(course)
       }
     })
