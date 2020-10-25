@@ -145,10 +145,11 @@ export default {
         command: "rate-click",
       })
       this.navigateTo(this.rateLink)
-      sendEvent("rate-click")
+      sendEvent("rate-click", false)
     },
     onOptionsClick() {
       browser.runtime.openOptionsPage()
+      sendEvent("options-click", false)
     },
     navigateTo(link) {
       browser.tabs.create({
