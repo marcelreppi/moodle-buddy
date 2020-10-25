@@ -247,12 +247,11 @@ export function parseActivityTypeFromNode(node) {
 }
 
 export function parseSectionName(node) {
-  let section = node.closest("li[id^='section-']")
+  const section = node.closest("[id^='section-']")
   if (section && section.attributes["aria-label"]) {
     return section.attributes["aria-label"].value.trim()
   }
 
-  section = node.closest("div[id^='section-']")
   if (section && section.attributes["aria-labelledby"]) {
     const labelledBy = section.attributes["aria-labelledby"].value
     const label = document.getElementById(labelledBy)
@@ -261,7 +260,7 @@ export function parseSectionName(node) {
     }
   }
 
-  return ""
+  return "Unknown Section"
 }
 
 export function getDownloadButton(node) {
