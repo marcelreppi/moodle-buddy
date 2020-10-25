@@ -1,23 +1,8 @@
-const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/gi
-
-function onError(error) {
-  const errorNode = document.querySelector(".error")
-  errorNode.textContent = `Error: ${error}`
-  errorNode.classList.add("show")
-  setTimeout(() => {
-    document.querySelector(".error").classList.remove("show")
-  }, 5000)
-}
-
-function onSuccess() {
-  document.querySelector(".success").classList.add("show")
-  setTimeout(() => {
-    document.querySelector(".success").classList.remove("show")
-  }, 3000)
-}
+let restoredOptions = null
 
 function restore() {
   browser.storage.local.get("options").then(({ options = {} }) => {
+    restoredOptions = options
     const inputs = document.querySelectorAll("input")
     inputs.forEach(input => {
       switch (input.type) {
@@ -32,11 +17,15 @@ function restore() {
           break
       }
     })
-  }, onError)
+
+    // Fake event to trigger the checkURL event callback
+    document.getElementById("defaultMoodleURL").dispatchEvent(new Event("input"))
+  })
 }
 
 async function save(e) {
   e.preventDefault()
+
   const updatedOptions = {}
   const inputs = document.querySelectorAll("input")
   inputs.forEach(input => {
@@ -58,11 +47,20 @@ async function save(e) {
     }
   })
 
-  const { defaultMoodleURL } = updatedOptions
-  if (defaultMoodleURL !== "" && !defaultMoodleURL.match(validURLRegex)) {
-    onError("Invalid URL")
-    return
+  const changedOptions = {}
+  for (const option of Object.keys(updatedOptions)) {
+    if (updatedOptions[option] !== restoredOptions[option]) {
+      changedOptions[option] = {
+        old: restoredOptions[option],
+        new: updatedOptions[option],
+      }
+    }
   }
+  await browser.runtime.sendMessage({
+    command: "event",
+    event: "modify-options",
+    eventData: changedOptions,
+  })
 
   if (updatedOptions.disableInteractionTracking) {
     await browser.runtime.sendMessage({
@@ -71,18 +69,21 @@ async function save(e) {
     })
   }
 
-  await browser.runtime.sendMessage({
-    command: "event",
-    event: "options-save",
-    eventData: { options: updatedOptions },
+  await browser.storage.local.set({
+    options: updatedOptions,
   })
+}
 
-  await browser.storage.local
-    .set({
-      options: updatedOptions,
-    })
-    .then(onSuccess, onError)
+function checkURL(e) {
+  const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/gi
+  const inputURL = e.target.value
+  if (inputURL !== "" && !inputURL.match(validURLRegex)) {
+    document.getElementById("invalid-url").style.display = "block"
+  } else {
+    document.getElementById("invalid-url").style.display = "none"
+  }
 }
 
 document.addEventListener("DOMContentLoaded", restore)
-document.querySelector("form").addEventListener("submit", save)
+document.addEventListener("input", save)
+document.getElementById("defaultMoodleURL").addEventListener("input", checkURL)

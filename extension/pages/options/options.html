@@ -9,146 +9,134 @@
 
 <body>
   <div class="container">
-    <form>
+    <div class="form-section">Your personal Moodle URL</div>
+    <div>
+      <input class="url-input" type="text" id="defaultMoodleURL">
+    </div>
+    <div id="invalid-url">Invalid URL</div>
+    <div>
+      <input type="checkbox" id="autoSetMoodleURL">
+      <label for="autoSetMoodleURL">Automatically detect Moodle URL</label>
+    </div>
 
-      <div class="form-section">Your personal Moodle URL</div>
+    <div class="form-section">Background Scanning</div>
+    <div>
+      When background scanning is enabled Moodle Buddy will periodically crawl your Moodle course overview page for
+      any updates and notify you when there is anything new.
 
-      <label>
-        <input class="url-input" type="text" id="defaultMoodleURL">
-      </label>
-      <label>
-        <input type="checkbox" id="autoSetMoodleURL">
-        <span>Automatically detect Moodle URL</span>
-      </label>
+      <p>To ensure it works properly you must do the following:</p>
 
-      <div class="form-section">Background Scanning</div>
+      <ul>
+        <li>Log into your Moodle account and make sure <b>to be remembered</b></li>
+        <li>
+          Open the Moodle dashboard page
+          <br />
+          (URL ending on <i>/my</i>, for example https://mymoodle.com/my)
+        </li>
+        <li>Customize your overview to show all the courses that you want to
+          have scanned
+        </li>
+        <li>Refresh the overview page</li>
+        <li>Open Moodle Buddy and wait for one full scan</li>
+        <li>
+          Tick the checkbox below
+        </li>
+      </ul>
+    </div>
+    <div class="interval">
+      <label>Scan interval (minutes)</label>
+      <input type="number" id="backgroundScanInterval" min="15" step="5" value="30">
+    </div>
+    <div>
+      <input type="checkbox" id="enableBackgroundScanning">
+      <label for="enableBackgroundScanning">Enable background scanning</label>
+    </div>
 
+    <div class="form-section">File detection options</div>
+    <div>
+      <input type="checkbox" id="includeVideo" />
+      <label for="includeVideo">Include embedded videos</label>
+    </div>
+    <div>
+      <input type="checkbox" id="includeAudio" />
+      <label for="includeAudio">Include embedded audios</label>
+    </div>
+    <div>
+      <input type="checkbox" id="includeImage" />
+      <label for="includeImage">Include embedded images</label>
+    </div>
+
+    <div class="form-section">Default download options</div>
+
+    <div>
+      <input type="checkbox" id="onlyNewResources" />
+      <label for="onlyNewResources">When new resources are available only download the new ones</label>
+    </div>
+    <div>
+      <input type="checkbox" id="downloadFolderAsZip" />
+      <label for="downloadFolderAsZip">Download Moodle folders as ZIP files whenever possible</label>
+    </div>
+
+    <div class="form-subsection">Download organization</div>
+    <div>
+      <input type="checkbox" id="saveToMoodleFolder" />
+      <label for="saveToMoodleFolder">Download everything into a "Moodle" subfolder</label>
+    </div>
+    <div style="margin-top: 10px;">
+      <div style="margin-left: 5px;">Possible subfolder structures:</div>
+      <input type="radio" id="fs1" name="folderStructure" value="CourseFile">
+      <label for="fs1">Course name / File</label><br>
+      <input type="radio" id="fs2" name="folderStructure" value="CourseSectionFile">
+      <label for="fs2">Course name / Section name / File</label><br>
+      <input type="radio" id="fs3" name="folderStructure" value="None">
+      <label for="fs3">No subfolders</label><br>
+    </div>
+
+    <div class="form-subsection">File name</div>
+    <div>
+      <input type="checkbox" id="useMoodleFileName" />
+      <label for="useMoodleFileName">Use Moodle file name as actual file name</label>
+    </div>
+    <div>
+      <input type="checkbox" id="showDownloadOptions" />
+      <label for="showDownloadOptions">Show the download options to modify the filename</label>
+    </div>
+    <div>
+      <input type="checkbox" id="prependCourseShortcutToFileName" />
+      <label for="prependCourseShortcutToFileName">Prepend course shortcut to each file name</label>
+    </div>
+    <div>
+      <input type="checkbox" id="prependCourseToFileName" />
+      <label for="prependCourseToFileName">Prepend course name to each file name</label>
+    </div>
+
+    <div class="form-section">Course overview page options</div>
+
+    <div>
+      <input type="checkbox" id="alwaysShowDetails" />
+      <label for="alwaysShowDetails">Always show details on new resources</label>
+    </div>
+
+    <div class="form-section">Anonymized usage data</div>
+
+    <div>
+      <p>
+        A few interactions are tracked when the plugin is used such as when the plugin is
+        installed or the "Download" button is clicked.
+      </p>
+      <p>
+        The following data is collected: event name, date, time, browser type, random browser ID, Moodle URL.
+      </p>
+      <p>
+        I use this data to monitor the usage, detect errors and improve the features.
+      </p>
+      <p>I would really appreciate it if you don't disable it! It really helps me a lot!</p>
+      <p>If you still wish to turn it off you can do it here:</p>
       <div>
-        When background scanning is enabled Moodle Buddy will periodically crawl your Moodle course overview page for
-        any updates and notify you when there is anything new.
-
-        <p>To ensure it works properly you must do the following:</p>
-
-        <ul>
-          <li>Log into your Moodle account and make sure <b>to be remembered</b></li>
-          <li>
-            Open the Moodle course overview page
-            <br />
-            (URL ending on <i>/my</i>, for example https://mymoodle.com/my)
-          </li>
-          <li>Customize your overview to show all the courses that you want to
-            have scanned
-          </li>
-          <li>Refresh the overview page</li>
-          <li>Open Moodle Buddy and wait for one full scan</li>
-          <li>
-            Tick the checkbox below
-          </li>
-        </ul>
+        <input type="checkbox" id="disableInteractionTracking" />
+        <label for="disableInteractionTracking">Disable anonymized usage monitoring</label>
       </div>
-      <label class="interval-label">
-        <span>Scan interval (minutes)</span>
-        <input type="number" id="backgroundScanInterval" min="15" step="5" value="30">
-      </label>
-      <label>
-        <input type="checkbox" id="enableBackgroundScanning">
-        <span>Enable background scanning</span>
-      </label>
-
-      <div class="form-section">File detection options</div>
-      <label>
-        <input type="checkbox" id="includeVideo" />
-        <span>Include embedded videos</span>
-      </label>
-      <label>
-        <input type="checkbox" id="includeAudio" />
-        <span>Include embedded audios</span>
-      </label>
-      <label>
-        <input type="checkbox" id="includeImage" />
-        <span>Include embedded images</span>
-      </label>
-
-      <div class="form-section">Default download options</div>
-
-      <label>
-        <input type="checkbox" id="onlyNewResources" />
-        <span>When new resources are available only download the new ones</span>
-      </label>
-      <label>
-        <input type="checkbox" id="downloadFolderAsZip" />
-        <span>Download Moodle folders as ZIP files whenever possible</span>
-      </label>
-
-      <div class="form-subsection">Download organization</div>
-      <label>
-        <input type="checkbox" id="saveToMoodleFolder" />
-        <span>Download everything into a "Moodle" subfolder</span>
-      </label>
-      <label style="margin-top: 10px;">
-        <div style="margin-left: 5px;">Possible subfolder structures:</div>
-        <input type="radio" id="fs1" name="folderStructure" value="CourseFile">
-        <label for="fs1">Course name / File</label><br>
-        <input type="radio" id="fs2" name="folderStructure" value="CourseSectionFile">
-        <label for="fs2">Course name / Section name / File</label><br>
-        <input type="radio" id="fs3" name="folderStructure" value="None">
-        <label for="fs3">No subfolders</label><br>
-      </label>
-
-      <div class="form-subsection">File name</div>
-      <label>
-        <input type="checkbox" id="useMoodleFileName" />
-        <span>Use Moodle file name as actual file name</span>
-      </label>
-      <label>
-        <input type="checkbox" id="showDownloadOptions" />
-        <span>
-          Show the download options to modify the filename
-        </span>
-      </label>
-      <label>
-        <input type="checkbox" id="prependCourseShortcutToFileName" />
-        <span>Prepend course shortcut to each file name</span>
-      </label>
-      <label>
-        <input type="checkbox" id="prependCourseToFileName" />
-        <span>Prepend course name to each file name</span>
-      </label>
-
-      <div class="form-section">Course overview page options</div>
-
-      <label>
-        <input type="checkbox" id="alwaysShowDetails" />
-        <span>Always show details on new resources</span>
-      </label>
-
-      <div class="form-section">Anonymized usage data</div>
-
-      <div>
-        <p>
-          A few interactions are tracked when the plugin is used such as when the plugin is
-          installed or the "Download" button is clicked.
-        </p>
-        <p>
-          The following data is collected: event name, date, time, browser type, random browser ID, Moodle URL.
-        </p>
-        <p>
-          I use this data to monitor the usage, detect errors and improve the features.
-        </p>
-        <p>I would really appreciate it if you don't disable it! It really helps me a lot!</p>
-        <p>If you still wish to turn it off you can do it here:</p>
-        <label>
-          <input type="checkbox" id="disableInteractionTracking" />
-          <span>Disable anonymized usage monitoring</span>
-        </label>
-      </div>
-
-      <div class="button-row">
-        <button type="submit">Save</button>
-        <div class="success">Saved successfully</div>
-        <div class="error"></div>
-      </div>
-    </form>
+    </div>
   </div>
 
   <script src="/shared/browser-polyfill.js"></script>
