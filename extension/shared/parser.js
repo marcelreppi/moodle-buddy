@@ -260,6 +260,13 @@ export function parseSectionName(node) {
     }
   }
 
+  if (section) {
+    const sectionNameElement = section.querySelector(".sectionname")
+    if (sectionNameElement) {
+      return sectionNameElement.textContent.trim()
+    }
+  }
+
   return "Unknown Section"
 }
 
