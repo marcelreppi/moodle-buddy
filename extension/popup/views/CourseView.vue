@@ -95,41 +95,41 @@
         :setResourceSelected="setResourceSelected"
         :onlyNewResources="onlyNewResources"
       />
-    </div>
 
-    <detail-overlay
-      v-if="showDetails"
-      :resources="showDetailResources"
-      :toggle-details="toggleDetails"
-    />
+      <detail-overlay
+        v-if="showDetails"
+        :resources="showDetailResources"
+        :toggle-details="toggleDetails"
+      />
 
-    <div v-if="!loading && showDownloadOptions" style="margin-top: 20px;">
-      <div>
-        <label>
-          <input v-model="prependCourseShortcutToFileName" type="checkbox" />
-          <span class="checkbox-label">Prepend course shortcut to each file name</span>
-        </label>
+      <div v-if="showDownloadOptions" style="margin-top: 20px;">
+        <div>
+          <label>
+            <input v-model="prependCourseShortcutToFileName" type="checkbox" />
+            <span class="checkbox-label">Prepend course shortcut to each file name</span>
+          </label>
+        </div>
+        <div>
+          <label>
+            <input v-model="prependCourseToFileName" type="checkbox" />
+            <span class="checkbox-label">Prepend course name to each file name</span>
+          </label>
+        </div>
       </div>
-      <div>
-        <label>
-          <input v-model="prependCourseToFileName" type="checkbox" />
-          <span class="checkbox-label">Prepend course name to each file name</span>
-        </label>
-      </div>
+
+      <progress-bar
+        v-if="downloadInProgress"
+        ref="progressBar"
+        type="download"
+        :onDone="onDownloadFinished"
+        :onCancel="onCancel"
+        style="width: 80%;"
+      ></progress-bar>
+
+      <button class="download-button" :disabled="disableDownload" @click="onDownload">
+        Download
+      </button>
     </div>
-
-    <progress-bar
-      v-if="downloadInProgress"
-      ref="progressBar"
-      type="download"
-      :onDone="onDownloadFinished"
-      :onCancel="onCancel"
-      style="width: 80%;"
-    ></progress-bar>
-
-    <button v-if="!loading" class="download-button" :disabled="disableDownload" @click="onDownload">
-      Download
-    </button>
   </div>
 </template>
 
