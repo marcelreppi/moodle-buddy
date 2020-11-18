@@ -1,0 +1,130 @@
+:root {
+  --nav-height: 4rem;
+  --red: #c50e20;
+}
+
+html,
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-weight: 350;
+  font-size: 22px;
+}
+
+nav {
+  height: var(--nav-height);
+  font-size: 30px;
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  background: #f7f7f7;
+  width: 100%;
+  position: fixed;
+  top: 0;
+}
+
+nav>a:nth-child(1) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: black;
+}
+
+nav img {
+  margin-left: 10px;
+}
+
+nav>div:nth-child(2) {
+  display: flex;
+  font-size: 0.9em;
+  width: 1fr;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-item {
+  margin-right: 5rem;
+  text-decoration: none;
+  color: black;
+}
+
+.nav-item:hover {
+  text-decoration: underline;
+  color: var(--red);
+}
+
+#main {
+  margin-top: var(--nav-height);
+}
+
+section {
+  width: 60rem;
+  margin: 0 auto;
+  margin-bottom: 6rem;
+}
+
+section::before {
+  display: block;
+  content: "";
+  margin-top: calc((var(--nav-height)) * -1);
+  height: var(--nav-height);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#banner {
+  display: grid;
+  grid-template-columns: 20rem auto;
+  column-gap: 7rem;
+  padding-top: 4rem;
+}
+
+#download {
+  margin-top: 3em;
+  display: flex;
+  flex-direction: column;
+}
+
+.dl-link {
+  font-size: 26px;
+  width: 12em;
+  padding: .8rem;
+  /* border: 1px solid black; */
+  border-radius: 5px;
+  color: white;
+  margin-bottom: 2rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.dl-link:hover {
+  text-decoration: underline;
+}
+
+.dl-link img {
+  width: 1em;
+  margin-right: .5em;
+}
+
+#dl-chrome {
+  background: rgb(75 139 245);
+}
+
+#dl-firefox {
+  background: rgb(255 137 2);
+}
+
+#banner>div:nth-child(2) {
+  display: flex;
+  align-items: center;
+}
+
+.screenshot {
+  width: 17rem;
+  height: auto;
+  border: 1px solid rgb(223, 223, 223);
+  border-radius: 5px;
+  margin-right: 1rem;
+  display: block;
+}
