@@ -10,7 +10,8 @@
     "nuke": "rm -rf build",
     "lint": "eslint --ext .js,.vue .",
     "lint:fix": "eslint --ext .js,.vue . --fix",
-    "publish": "cd scripts && sh build.sh"
+    "publish": "cd scripts && sh build.sh",
+    "test": "cd test && node --max-old-space-size=4096 -r esm index.js"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,9 @@
     "url": "https://github.com/marcelreppi/moodle-buddy/issues"
   },
   "dependencies": {
+    "esm": "^3.2.25",
+    "jsdom": "^16.4.0",
+    "normalize.css": "^8.0.1",
     "sha.js": "^2.4.11",
     "vue": "^2.6.12",
     "vue-progressbar": "^0.7.5"
