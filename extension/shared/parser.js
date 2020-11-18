@@ -29,12 +29,21 @@ export function parseCourseNameFromCoursePage(document) {
     }
   }
 
-  const firstNavbar = document.querySelector("#page").querySelector("nav")
-  if (firstNavbar) {
-    const allNavElements = Array.from(firstNavbar.querySelectorAll("li"))
-    if (allNavElements.length !== 0) {
-      return allNavElements.pop().textContent.trim()
+  const possibleTitleContainers = document.querySelectorAll("#page, #page-header, #page-navbar")
+  if (possibleTitleContainers) {
+    for (const container of possibleTitleContainers) {
+      const titleElement = container.querySelector("h1")
+      if (titleElement) {
+        if (titleElement.textContent !== "") {
+          return titleElement.textContent.trim()
+        }
+      }
     }
+  }
+
+  const shortcut = parseCourseShortcut(document)
+  if (shortcut !== "" && shortcut !== "Unknown Shortcut") {
+    return shortcut
   }
 
   return "Unknown Course"
@@ -48,11 +57,16 @@ export function parseCourseShortcut(document) {
     }
   }
 
-  const firstNavbar = document.querySelector("#page").querySelector("nav")
-  if (firstNavbar) {
-    const allNavElements = Array.from(firstNavbar.querySelectorAll("li"))
-    if (allNavElements.length !== 0) {
-      return allNavElements.pop().textContent.trim()
+  const possibleNavbarContainers = document.querySelectorAll("#page, #page-header, #page-navbar")
+  if (possibleNavbarContainers) {
+    for (const container of possibleNavbarContainers) {
+      const navbar = container.querySelector("nav, ol, ul")
+      if (navbar) {
+        const allNavElements = Array.from(navbar.querySelectorAll("li"))
+        if (allNavElements.length !== 0) {
+          return allNavElements.pop().textContent.trim()
+        }
+      }
     }
   }
 
@@ -246,13 +260,18 @@ export function parseActivityTypeFromNode(node) {
   return "Unkown Activity Type"
 }
 
-export function parseSectionName(node) {
+export function parseSectionName(node, document) {
   const section = node.closest("[id^='section-']")
-  if (section && section.attributes["aria-label"]) {
+
+  if (!section) {
+    return ""
+  }
+
+  if (section.attributes["aria-label"]) {
     return section.attributes["aria-label"].value.trim()
   }
 
-  if (section && section.attributes["aria-labelledby"]) {
+  if (section.attributes["aria-labelledby"]) {
     const labelledBy = section.attributes["aria-labelledby"].value
     const label = document.getElementById(labelledBy)
     if (label) {
@@ -260,11 +279,15 @@ export function parseSectionName(node) {
     }
   }
 
-  if (section) {
-    const sectionNameElement = section.querySelector(".sectionname")
-    if (sectionNameElement) {
-      return sectionNameElement.textContent.trim()
-    }
+  const sectionNameElement = section.querySelector(".sectionname")
+  if (sectionNameElement) {
+    return sectionNameElement.textContent.trim()
+  }
+
+  if (section.id === "section-0") {
+    // Make an exception for section 0
+    // Often courses contain general info in there without a section title
+    return ""
   }
 
   return "Unknown Section"

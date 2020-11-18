@@ -21,7 +21,7 @@ function Course(link, HTMLDocument) {
     nNewActivities: 0,
   }
 
-  this.scan = async function() {
+  this.scan = async function(testLocalStorage) {
     this.resourceNodes = []
     this.resourceCounts = {
       nFiles: 0,
@@ -38,7 +38,7 @@ function Course(link, HTMLDocument) {
     //  Local storage data
     let storedCourseData = {}
 
-    const localStorage = await browser.storage.local.get()
+    const localStorage = testLocalStorage || (await browser.storage.local.get())
     const { options } = localStorage
 
     if (localStorage[this.link]) {
@@ -59,7 +59,7 @@ function Course(link, HTMLDocument) {
       const resourceNode = {
         href,
         fileName: parser.parseFileNameFromNode(node),
-        section: parser.parseSectionName(node),
+        section: parser.parseSectionName(node, this.HTMLDocument),
         isFile: true,
         isPluginFile: false,
         isNewResource: null,
@@ -90,7 +90,7 @@ function Course(link, HTMLDocument) {
       const resourceNode = {
         href,
         fileName: parser.parseFileNameFromPluginFileURL(href),
-        section: parser.parseSectionName(node),
+        section: parser.parseSectionName(node, this.HTMLDocument),
         partOfFolder,
         isFile: true,
         isPluginFile: true,
@@ -111,7 +111,7 @@ function Course(link, HTMLDocument) {
       const resourceNode = {
         href: parser.parseURLFromNode(node, "folder", options),
         folderName: parser.parseFileNameFromNode(node),
-        section: parser.parseSectionName(node),
+        section: parser.parseSectionName(node, this.HTMLDocument),
         isFolder: true,
         isInline: false,
         isNewResource: null,
@@ -165,7 +165,7 @@ function Course(link, HTMLDocument) {
         href,
         activityName: parser.parseActivityNameFromNode(node),
         activityType: parser.parseActivityTypeFromNode(node),
-        section: parser.parseSectionName(node),
+        section: parser.parseSectionName(node, this.HTMLDocument),
         isActivity: true,
         isNewActivity: null,
       }
@@ -223,6 +223,10 @@ function Course(link, HTMLDocument) {
       mediaFileNodes.forEach(n => addPluginFileNode(n))
       folderNodes.forEach(n => addFolderNode(n))
       activityNodes.forEach(n => addActivityNode(n))
+    }
+
+    if (testLocalStorage) {
+      return
     }
 
     if (localStorage[this.link]) {
