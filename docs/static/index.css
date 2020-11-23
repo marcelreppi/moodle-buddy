@@ -37,6 +37,7 @@ nav>a {
 nav img {
   margin-left: 10px;
   width: 1em;
+  height: auto;
 }
 
 nav>div {
@@ -137,14 +138,15 @@ section::before {
 #mobile-mb {
   display: none;
   justify-content: center;
+  align-items: center;
   font-size: 26px;
   margin: 30px 0px;
 }
 
 #mobile-mb img {
   margin-left: 10px;
-  width: 1em;
-  height: auto;
+  height: 1em;
+  width: auto;
 }
 
 @media (max-width: 1400px) {
@@ -192,11 +194,19 @@ section::before {
   header {
     font-size: 20px;
   }
+
+  :root {
+    --nav-height: 3rem; 
+  }
 }
 
 @media (max-width: 500px) {
   .dl-link {
     font-size: 22px;
+  }
+
+  nav img {
+    width: 1.2em;
   }
 
   nav > a > div {
