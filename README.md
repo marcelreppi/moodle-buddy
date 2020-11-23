@@ -12,7 +12,7 @@
 ![Users](https://img.shields.io/amo/users/moodle-buddy)
 ![Ratings](https://img.shields.io/amo/rating/moodle-buddy)
 
-Moodle Buddy offers mass download and notification functionality for the moodle learning management platform. Students can download all learning materials with just one click and see updates to their courses immediately.
+Moodle Buddy offers mass download and notification functionality for the Moodle learning management platform. Students can download all learning materials with just one click and see updates to their courses immediately.
 
 ## Installation
 

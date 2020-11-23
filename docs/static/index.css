@@ -10,39 +10,44 @@ body {
   font-size: 22px;
 }
 
-nav {
+header {
   height: var(--nav-height);
   font-size: 30px;
-  display: grid;
-  grid-template-columns: 1fr 3fr;
+  display: flex;
+  justify-content: center;
   background: #f7f7f7;
   width: 100%;
   position: fixed;
   top: 0;
 }
 
-nav>a:nth-child(1) {
+nav {
+  display: flex;
+  justify-content: space-around;
+  width: 60rem;
+}
+
+nav>a {
   display: flex;
   align-items: center;
-  justify-content: center;
   text-decoration: none;
   color: black;
 }
 
 nav img {
   margin-left: 10px;
+  width: 1em;
 }
 
-nav>div:nth-child(2) {
+nav>div {
   display: flex;
   font-size: 0.9em;
-  width: 1fr;
   justify-content: center;
   align-items: center;
 }
 
 .nav-item {
-  margin-right: 5rem;
+  margin-right: 5vw;
   text-decoration: none;
   color: black;
 }
@@ -59,7 +64,7 @@ nav>div:nth-child(2) {
 section {
   width: 60rem;
   margin: 0 auto;
-  margin-bottom: 6rem;
+  margin-bottom: 3rem;
 }
 
 section::before {
@@ -74,7 +79,7 @@ section::before {
 #banner {
   display: grid;
   grid-template-columns: 20rem auto;
-  column-gap: 7rem;
+  column-gap: 4rem;
   padding-top: 4rem;
 }
 
@@ -121,10 +126,84 @@ section::before {
 }
 
 .screenshot {
-  width: 17rem;
-  height: auto;
+  height: 17rem;
+  width: auto;
   border: 1px solid rgb(223, 223, 223);
   border-radius: 5px;
   margin-right: 1rem;
   display: block;
+}
+
+#mobile-mb {
+  display: none;
+  justify-content: center;
+  font-size: 26px;
+  margin: 30px 0px;
+}
+
+#mobile-mb img {
+  margin-left: 10px;
+  width: 1em;
+  height: auto;
+}
+
+@media (max-width: 1400px) {
+  html, body {
+    font-size: 18px;
+  }
+
+  header {
+    font-size: 24px;
+  }
+
+  #banner {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    grid-template-columns: 100%;
+    column-gap: 0rem;
+    padding-top: 0rem;
+    row-gap: 0px;
+  }
+
+  #banner > div:nth-child(2) {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    row-gap: 20px;
+    justify-items: center;
+  }
+
+  #download {
+    align-items: center;
+  }
+
+  .screenshot {
+    height: auto;
+    max-width: 400px;
+    width: 80vw;
+    margin: 0;
+  }
+
+  section {
+    width: 90vw;
+  }
+}
+
+@media (max-width: 900px) {
+  header {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 500px) {
+  .dl-link {
+    font-size: 22px;
+  }
+
+  nav > a > div {
+    display: none;
+  }
+
+  #mobile-mb {
+    display: flex;
+  }
 }

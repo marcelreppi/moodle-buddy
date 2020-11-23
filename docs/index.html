@@ -10,7 +10,7 @@
 </head>
 
 <body>
-  <div>
+  <header>
     <nav>
       <a href="#main">
         <div>Moodle Buddy</div>
@@ -22,35 +22,49 @@
         <a class="nav-item" href="#contact">Contact</a>
       </div>
     </nav>
-  </div>
+  </header>
+
   <div id="main">
     <section>
       <div id="banner">
         <div>
+          <div id="mobile-mb">
+            <div>Moodle Buddy</div>
+            <img src="../extension/icons/32.png" alt="">
+          </div>
           <h2>
             Mass download and notifications for the Moodle learning management platform
           </h2>
           <p>
-            Enhance your Moodle experience with Moodle Buddy and always keep up-to-date with your course material
+            Enhance your Moodle experience with <b>Moodle Buddy</b> and always keep up-to-date with your course
+            material.
           </p>
           <p>Great for students and teachers!</p>
           <div id="download">
-            <a class="dl-link" id="dl-chrome"
-              href="https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo">
-              <img src="static/chrome.png" alt="">
-              Download for Chrome
-            </a>
-            <a class="dl-link" id="dl-firefox" href="https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/">
-              <img src="static/firefox.png" alt="">
-              Download for Firefox
-            </a>
+            <div>
+              <img src="https://img.shields.io/chrome-web-store/v/nomahjpllnbcpbggnpiehiecfbjmcaeo" alt="Version" />
+              <img src="https://img.shields.io/chrome-web-store/users/nomahjpllnbcpbggnpiehiecfbjmcaeo" alt="Users" />
+              <a class="dl-link" id="dl-chrome"
+                href="https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo">
+                <img src="static/chrome.png" alt="">
+                Download for Chrome
+              </a>
+            </div>
+            <div>
+              <img src="https://img.shields.io/amo/v/moodle-buddy" alt="Version" />
+              <img src="https://img.shields.io/amo/users/moodle-buddy" alt="Users" />
+              <img src="https://img.shields.io/amo/rating/moodle-buddy" alt="Ratings" />
+              <a class="dl-link" id="dl-firefox" href="https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/">
+                <img src="static/firefox.png" alt="">
+                Download for Firefox
+              </a>
+            </div>
           </div>
         </div>
         <div>
           <div>
             <img class="screenshot" src="../screenshots/coursepage.png" alt="">
           </div>
-
           <div>
             <img class="screenshot" src="../screenshots/dashboardpage.png" alt="">
           </div>
@@ -59,100 +73,53 @@
     </section>
     <section id="about">
       <h1>About</h1>
-      <div>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam massa dolor, tincidunt a imperdiet in, sagittis
-        eu
-        libero. Duis iaculis est non velit varius maximus. Nunc porttitor rhoncus diam et cursus. Phasellus molestie
-        congue risus quis lacinia. Aliquam erat volutpat. In ac iaculis ante, eu imperdiet leo. Phasellus enim augue,
-        imperdiet quis porta in, porttitor ut augue. Proin pulvinar erat vitae odio vehicula fermentum. Quisque felis
-        lorem, feugiat nec maximus auctor, porta et mauris.
+      <p><b>Moodle Buddy</b> offers mass download and notification functionality for the Moodle learning management
+        platform.
+        Students can download all learning materials with just one click and see updates to their courses immediately.
+      </p>
+      <p>The project is open-source and available <a href="https://github.com/marcelreppi/moodle-buddy">here</a>.</p>
+      <h2>Full Feature List</h2>
+      <p><strong>Course Page</strong> (URL includes /course)</p>
+      <ul>
+        <li>Download all course resources with one click</li>
+        <li>Scans single Moodle courses for new resources</li>
+        <li>Scans single Moodle courses for new activities (Assignment Uploads, Forums, etc.)</li>
+        <li>Shows you when new resources or activities have been detected</li>
+        <li>Download only new resources from a course</li>
+        <li>Filter downloadable resources for files and folders</li>
+        <li>Modify file names of the downloaded resources</li>
+      </ul>
 
-        In eu ultricies massa. In semper placerat pretium. Nulla facilisi. In vel pulvinar magna, ut molestie ligula.
-        Integer a iaculis purus. Suspendisse potenti. In hac habitasse platea dictumst. Aliquam sem purus, efficitur eu
-        aliquet quis, placerat eget elit. Mauris pretium magna non metus consectetur pretium. Sed interdum est vel ex
-        feugiat accumsan. Nunc dapibus aliquet dui volutpat suscipit. Etiam mattis mi quam, vel lobortis tellus
-        tincidunt
-        nec. Sed aliquam, dui in mattis bibendum, sapien lectus mattis urna, ac convallis sem ex sit amet ante.
-        Curabitur
-        at elit eget nisl maximus gravida in luctus lectus. Vestibulum molestie dignissim lacus, ac scelerisque orci
-        lacinia a.
+      <p><strong>Dashboard</strong> (URL ending on /my)</p>
+      <ul>
+        <li>Shows updates (resources &amp; activities) for all courses from the dashboard page</li>
+        <li>Download new resources directly from the dashboard page</li>
+        <li>Scans your courses in the background (if you are logged in) and notifies you if there are updates</li>
+      </ul>
 
-        Nunc volutpat accumsan massa suscipit varius. Nulla et leo malesuada, viverra neque nec, sodales arcu. Curabitur
-        eleifend nibh ut eleifend congue. Quisque dignissim lorem lacus, sed mattis ipsum facilisis a. Integer vel nunc
-        ultricies, porttitor lacus vitae, tincidunt nisi. Sed euismod turpis pellentesque orci laoreet ornare.
-        Pellentesque maximus justo id urna mattis efficitur. Donec hendrerit metus sodales dolor ornare varius.
-        Phasellus
-        nec odio quam. Suspendisse maximus nulla ac luctus scelerisque. Proin sed fringilla quam. Suspendisse dapibus
-        quis
-        nibh eu elementum.
+      <p><strong>Video Page</strong> (URL includes /videoservice)</p>
+      <ul>
+        <li>Download all videos with one click</li>
+      </ul>
 
-        Nulla ut varius turpis, vel maximus odio. Integer tincidunt feugiat laoreet. Etiam non est felis. Nulla accumsan
-        vehicula magna, sed ornare tortor ornare eget. Vestibulum ullamcorper ex felis, eget iaculis turpis tincidunt
-        ut.
-        Nullam mattis auctor neque, a interdum turpis pretium a. Donec bibendum eu enim a porttitor. Quisque porttitor
-        lectus lacus, vitae aliquam ligula vehicula quis. In posuere suscipit magna, ac viverra urna pretium quis. Sed
-        ut
-        tempor diam. Ut iaculis nibh vel gravida mattis. Aenean gravida vehicula erat, sit amet tincidunt lacus. Aenean
-        tellus urna, pharetra at congue sodales, molestie id ante. Etiam nibh dolor, tincidunt in felis eget, eleifend
-        ornare risus. Praesent at vulputate leo, auctor scelerisque tortor.
-
-        Aliquam tempus tempus leo, id rutrum arcu dictum non. Maecenas sit amet diam ut tellus consequat lacinia.
-        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Sed dignissim
-        venenatis justo in dictum. Ut pharetra lacus pharetra urna feugiat, vitae tincidunt nunc molestie. Aliquam
-        condimentum ut mi ac euismod. Nullam sit amet aliquam felis. Suspendisse pellentesque ipsum in tellus ornare
-        rhoncus vel in ante. Praesent lacinia lacinia elementum. Curabitur nec imperdiet nibh. Proin suscipit diam non
-        diam interdum sodales et iaculis turpis. Vivamus eu ligula eleifend, hendrerit ex at, rutrum eros. Donec urna
-        turpis, condimentum id dolor non, vestibulum semper elit. Orci varius natoque penatibus et magnis dis parturient
-        montes, nascetur ridiculus mus. Praesent eu sem sit amet tellus ornare ornare.
-      </div>
+      <h2>Usage</h2>
+      <ol>
+        <li>Log into your university’s Moodle system</li>
+        <li>Visit any of the following Moodle webpages:
+          <ul>
+            <li>Moodle Dashboard/Course Overview (URL ending on /my)</li>
+            <li>Any Moodle course page (URL includes /course)</li>
+            <li>Moodle video page (URL includes /videoservice)</li>
+          </ul>
+        </li>
+        <li>Click the Moodle Buddy icon in the extension bar of your browser</li>
+        <li>Explore all the features Moodle Buddy has to offer</li>
+      </ol>
     </section>
     <section id="contact">
       <h1>Contact</h1>
       <div>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam massa dolor, tincidunt a imperdiet in, sagittis
-        eu
-        libero. Duis iaculis est non velit varius maximus. Nunc porttitor rhoncus diam et cursus. Phasellus molestie
-        congue risus quis lacinia. Aliquam erat volutpat. In ac iaculis ante, eu imperdiet leo. Phasellus enim augue,
-        imperdiet quis porta in, porttitor ut augue. Proin pulvinar erat vitae odio vehicula fermentum. Quisque felis
-        lorem, feugiat nec maximus auctor, porta et mauris.
-
-        In eu ultricies massa. In semper placerat pretium. Nulla facilisi. In vel pulvinar magna, ut molestie ligula.
-        Integer a iaculis purus. Suspendisse potenti. In hac habitasse platea dictumst. Aliquam sem purus, efficitur eu
-        aliquet quis, placerat eget elit. Mauris pretium magna non metus consectetur pretium. Sed interdum est vel ex
-        feugiat accumsan. Nunc dapibus aliquet dui volutpat suscipit. Etiam mattis mi quam, vel lobortis tellus
-        tincidunt
-        nec. Sed aliquam, dui in mattis bibendum, sapien lectus mattis urna, ac convallis sem ex sit amet ante.
-        Curabitur
-        at elit eget nisl maximus gravida in luctus lectus. Vestibulum molestie dignissim lacus, ac scelerisque orci
-        lacinia a.
-
-        Nunc volutpat accumsan massa suscipit varius. Nulla et leo malesuada, viverra neque nec, sodales arcu. Curabitur
-        eleifend nibh ut eleifend congue. Quisque dignissim lorem lacus, sed mattis ipsum facilisis a. Integer vel nunc
-        ultricies, porttitor lacus vitae, tincidunt nisi. Sed euismod turpis pellentesque orci laoreet ornare.
-        Pellentesque maximus justo id urna mattis efficitur. Donec hendrerit metus sodales dolor ornare varius.
-        Phasellus
-        nec odio quam. Suspendisse maximus nulla ac luctus scelerisque. Proin sed fringilla quam. Suspendisse dapibus
-        quis
-        nibh eu elementum.
-
-        Nulla ut varius turpis, vel maximus odio. Integer tincidunt feugiat laoreet. Etiam non est felis. Nulla accumsan
-        vehicula magna, sed ornare tortor ornare eget. Vestibulum ullamcorper ex felis, eget iaculis turpis tincidunt
-        ut.
-        Nullam mattis auctor neque, a interdum turpis pretium a. Donec bibendum eu enim a porttitor. Quisque porttitor
-        lectus lacus, vitae aliquam ligula vehicula quis. In posuere suscipit magna, ac viverra urna pretium quis. Sed
-        ut
-        tempor diam. Ut iaculis nibh vel gravida mattis. Aenean gravida vehicula erat, sit amet tincidunt lacus. Aenean
-        tellus urna, pharetra at congue sodales, molestie id ante. Etiam nibh dolor, tincidunt in felis eget, eleifend
-        ornare risus. Praesent at vulputate leo, auctor scelerisque tortor.
-
-        Aliquam tempus tempus leo, id rutrum arcu dictum non. Maecenas sit amet diam ut tellus consequat lacinia.
-        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Sed dignissim
-        venenatis justo in dictum. Ut pharetra lacus pharetra urna feugiat, vitae tincidunt nunc molestie. Aliquam
-        condimentum ut mi ac euismod. Nullam sit amet aliquam felis. Suspendisse pellentesque ipsum in tellus ornare
-        rhoncus vel in ante. Praesent lacinia lacinia elementum. Curabitur nec imperdiet nibh. Proin suscipit diam non
-        diam interdum sodales et iaculis turpis. Vivamus eu ligula eleifend, hendrerit ex at, rutrum eros. Donec urna
-        turpis, condimentum id dolor non, vestibulum semper elit. Orci varius natoque penatibus et magnis dis parturient
-        montes, nascetur ridiculus mus. Praesent eu sem sit amet tellus ornare ornare.
+        Send an E-Mail to <a href="mailto:hello@moodlebuddy.com">hello@moodlebuddy.com</a>
       </div>
     </section>
   </div>
