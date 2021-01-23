@@ -3,6 +3,7 @@ import {
   coursePageRegex,
   videoServicePageRegex,
   getMoodleBaseURL,
+  courseResourcesPageRegex,
 } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"
 
@@ -25,7 +26,9 @@ async function runDetector() {
 
   if (isMoodlePage) {
     const isDashboardPage = Boolean(location.href.match(dashboardPageRegex))
-    const isCoursePage = Boolean(location.href.match(coursePageRegex))
+    const isCoursePage = Boolean(
+      location.href.match(coursePageRegex) || location.href.match(courseResourcesPageRegex)
+    )
     const isVideoServicePage = Boolean(location.href.match(videoServicePageRegex))
 
     if (isCoursePage) page = "course"
