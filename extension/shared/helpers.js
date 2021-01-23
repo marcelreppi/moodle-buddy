@@ -54,6 +54,7 @@ export const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.
 export const loginPageRegex = /\/login\/index.php/gi
 export const dashboardPageRegex = /\/my/gi
 export const coursePageRegex = /\/course\/view\.php\?id=[0-9]*/gi
+export const courseResourcesPageRegex = /\/course\/resources\.php\?id=[0-9]*/gi
 export const videoServicePageRegex = /\/mod\/videoservice\/view\.php/gi
 
 export const fileRegex = /\/mod\/resource\/view\.php\?id=[0-9]*/gi
