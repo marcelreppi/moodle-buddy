@@ -32,20 +32,22 @@ async function sendToLambda(path, body) {
     console.log(requestBody)
   }
 
-  try {
-    fetch(`${process.env.API_URL}${path}`, {
-      method: "POST",
-      headers: {
-        "User-Agent": navigator.userAgent,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(requestBody),
-    })
-  } catch (error) {
-    console.error(error)
-    setTimeout(() => {
-      sendLog({ errorMessage: error.message })
-    }, 5000)
+  if (process.env.API_URL) {
+    try {
+      fetch(`${process.env.API_URL}${path}`, {
+        method: "POST",
+        headers: {
+          "User-Agent": navigator.userAgent,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      })
+    } catch (error) {
+      console.error(error)
+      setTimeout(() => {
+        sendLog({ errorMessage: error.message })
+      }, 5000)
+    }
   }
 }
 
