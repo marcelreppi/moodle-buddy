@@ -66,3 +66,8 @@ Copyright © 2020 Marcel Reppenhagen All Rights Reserved
    * This starts **Firefox Nightly** with the plugin installed and reloads the plugin on every file change.
    * **You must have Firefox Nightly installed**. Some Nightly versions used to cause some issues. The version that works for me without problems is `74.0a1`.
    * Alternatively, you can use Chrome and load an unpacked extension pointing to the `build` directory. Make sure to reload the extension after every file change.
+
+## Debugging
+
+* When using Firefox I suggest opening the *Browser Console* with the shortcut `CTRL + Shift + J`
+* Make sure to click the Cog Icon and enable *Show Content Messages*. This makes the log statements from the code show up in the console.
