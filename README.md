@@ -4,7 +4,7 @@
 
 ![Version](https://img.shields.io/chrome-web-store/v/nomahjpllnbcpbggnpiehiecfbjmcaeo)
 ![Users](https://img.shields.io/chrome-web-store/users/nomahjpllnbcpbggnpiehiecfbjmcaeo)
-<!-- ![Ratings](https://img.shields.io/chrome-web-store/rating/nomahjpllnbcpbggnpiehiecfbjmcaeo) -->
+![Ratings](https://img.shields.io/chrome-web-store/rating/nomahjpllnbcpbggnpiehiecfbjmcaeo)
 
 ### [Firefox](https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/)
 
@@ -36,7 +36,7 @@ The plugin is available for both **Firefox** and **Chrome**.
 
 ![Screenshots](screenshots/combined.png "Course page (simple) | Course page (detailed) | Dashboard page")
 
-**Course Page**
+### Course Page
 
 * Download all course resources with one click
 * Scans single Moodle courses for new resources
@@ -46,7 +46,7 @@ The plugin is available for both **Firefox** and **Chrome**.
 * Filter downloadable resources for files and folders
 * Modify file names of the downloaded resources
 
-**Dashboard**
+### Dashboard
 
 * Shows updates (resources & activities) for all courses from the dashboard page
 * Download new resources directly from the dashboard page
@@ -55,3 +55,14 @@ The plugin is available for both **Firefox** and **Chrome**.
 # Copyright
 
 Copyright © 2020 Marcel Reppenhagen All Rights Reserved
+
+# For Developers
+
+## Build
+
+1. Open one terminal and run `npm run dev`
+   * This runs webpack and reloads the bundle on every file change.
+2. Open a second terminal and run `npm start`
+   * This starts **Firefox Nightly** with the plugin installed and reloads the plugin on every file change.
+   * **You must have Firefox Nightly installed**. Some Nightly versions used to cause some issues. The version that works for me without problems is `74.0a1`.
+   * Alternatively, you can use Chrome and load an unpacked extension pointing to the `build` directory. Make sure to reload the extension after every file change.
