@@ -8,6 +8,6 @@ test/**
 
 *.rest
 *.zip
-*.env
+*.env*
 
 notes.md

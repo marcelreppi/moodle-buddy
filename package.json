@@ -21,8 +21,6 @@
     "url": "https://github.com/marcelreppi/moodle-buddy/issues"
   },
   "dependencies": {
-    "esm": "^3.2.25",
-    "jsdom": "^16.4.0",
     "normalize.css": "^8.0.1",
     "sha.js": "^2.4.11",
     "vue": "^2.6.12",
@@ -45,8 +43,10 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.1.4",
     "eslint-plugin-vue": "^6.2.2",
+    "esm": "^3.2.25",
     "file-loader": "^5.1.0",
     "image-webpack-loader": "^6.0.0",
+    "jsdom": "^16.4.0",
     "prettier": "^1.19.1",
     "terser-webpack-plugin": "^2.3.8",
     "url-loader": "^3.0.0",

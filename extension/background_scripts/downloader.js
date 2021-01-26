@@ -12,6 +12,8 @@ let cancel = false
 
 function DownloadTracker() {
   this.startTime = new Date().getTime()
+
+  // Register the download tracker
   downloadTrackers[this.startTime] = this
 
   this.fileCount = 0
@@ -99,7 +101,7 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
   if (state === undefined) return
 
   let downloadTracker = null
-  for (const [time, tracker] of Object.entries(downloadTrackers)) {
+  for (const tracker of Object.values(downloadTrackers)) {
     if (tracker.inProgress.has(id)) {
       downloadTracker = tracker
     }

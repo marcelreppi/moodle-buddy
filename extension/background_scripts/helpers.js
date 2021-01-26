@@ -2,11 +2,6 @@ import { isFirefox, getActiveTab } from "../shared/helpers"
 
 const isDev = process.env.NODE_ENV !== "production"
 
-const API_URL = "https://api.moodlebuddy.com"
-
-// const DEV_API_URL = "http://localhost:8080"
-const DEV_API_URL = "https://dev-api.moodlebuddy.com"
-
 async function sendToLambda(path, body) {
   const { options, browserId } = await browser.storage.local.get(["options", "browserId"])
 
@@ -38,7 +33,7 @@ async function sendToLambda(path, body) {
   }
 
   try {
-    fetch(`${isDev ? DEV_API_URL : API_URL}${path}`, {
+    fetch(`${process.env.API_URL}${path}`, {
       method: "POST",
       headers: {
         "User-Agent": navigator.userAgent,
@@ -71,9 +66,6 @@ export async function sendDownloadData(data) {
 export async function sendPageData(HTMLString, page) {
   if (!isDev) {
     sendToLambda("/page", { HTMLString, page })
-  } else {
-    console.log(`Send ${page} page data`)
-    // console.log(HTMLString)
   }
 }
 

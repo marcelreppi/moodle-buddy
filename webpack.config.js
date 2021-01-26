@@ -3,6 +3,7 @@ const webpack = require("webpack")
 const CopyPlugin = require("copy-webpack-plugin")
 const { VueLoaderPlugin } = require("vue-loader")
 const TerserPlugin = require("terser-webpack-plugin")
+const Dotenv = require("dotenv-webpack")
 
 const isProd = process.env.NODE_ENV === "production"
 
@@ -105,6 +106,9 @@ module.exports = {
       { from: "./extension/icons", to: "./icons" },
       { from: "./screenshots", to: "./screenshots" },
     ]),
+    new Dotenv({
+      path: isProd ? ".env" : ".env.dev",
+    }),
     new webpack.EnvironmentPlugin(["NODE_ENV"]), // Make process.env.NODE_ENV available in code
     new webpack.DefinePlugin({
       global: "window", // Placeholder for global used in any node_modules
