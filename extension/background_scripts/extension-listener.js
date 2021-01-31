@@ -36,6 +36,7 @@ const initialStorage = {
   userHasRated: false,
   totalDownloadedFiles: 0,
   rateHintLevel: 1,
+  courseData: {},
 }
 
 async function onInstall() {
@@ -60,10 +61,27 @@ async function onUpdate() {
     updatedOptions = { ...updatedOptions, ...localOptions }
   }
 
+  // Transfer course data from localStorage to courseData object
+  let updatedCourseData = {}
+  // Add current state
+  if (localStorage.courseData) {
+    updatedCourseData = { ...localStorage.courseData }
+  }
+  // Transfer the data
+  for (const key in localStorage) {
+    if (key.startsWith("http")) {
+      updatedCourseData[key] = localStorage[key]
+      delete localStorage[key]
+    }
+  }
+  // Remove from localStorage
+  await browser.storage.local.remove(Object.keys(updatedCourseData))
+
   // Merge existing storage data
   await browser.storage.local.set({
     ...initialStorage,
     ...localStorage,
+    courseData: updatedCourseData,
     options: updatedOptions,
   })
 
