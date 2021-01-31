@@ -252,7 +252,7 @@ browser.runtime.onMessage.addListener(async message => {
       if (options.useMoodleFileName && node.fileName !== "" && fileType !== "") {
         fileName = `${sanitizeFileName(node.fileName)}.${fileType}`
       }
-      downloadURL=downloadURL.replace(/\"\ onclick.*/gi, "") // fix trailing %22%20onclick issue
+      downloadURL = downloadURL.replace(/\"\ onclick.*/gi, "") // fix trailing %22%20onclick issue
       await download(downloadURL, fileName, node.section)
     }
 
