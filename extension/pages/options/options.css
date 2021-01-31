@@ -1,5 +1,8 @@
-html, body {
-  --font: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+html,
+body {
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+    "Segoe UI Symbol";
   font-family: var(--font);
   font-weight: 350;
   font-size: 14px;
@@ -51,7 +54,7 @@ div.interval input {
   margin-bottom: 7px;
 }
 
-.form-section:nth-of-type(n+2) {
+.form-section:nth-of-type(n + 2) {
   margin-top: 20px;
 }
 
@@ -61,4 +64,27 @@ div.interval input {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+}
+
+.clear-button {
+  padding: 7px 10px;
+  border-radius: 5px;
+  border: 0;
+  background-color: #c50e20;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  letter-spacing: 0.5px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.clear-button:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.clear-button:disabled {
+  background-color: #a8a8a8;
+  cursor: default;
+  text-decoration: none;
 }

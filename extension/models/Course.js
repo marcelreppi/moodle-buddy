@@ -39,11 +39,11 @@ function Course(link, HTMLDocument) {
     let storedCourseData = {}
 
     const localStorage = testLocalStorage || (await browser.storage.local.get())
-    const { options } = localStorage
+    const { options, courseData } = localStorage
 
-    if (localStorage[this.link]) {
+    if (courseData[this.link]) {
       this.isFirstScan = false
-      storedCourseData = localStorage[this.link]
+      storedCourseData = courseData[this.link]
     }
 
     const {
@@ -229,32 +229,30 @@ function Course(link, HTMLDocument) {
       return
     }
 
-    if (localStorage[this.link]) {
-      await browser.storage.local.set({
-        [this.link]: {
-          ...localStorage[this.link],
-          seenResources: this.resourceNodes.filter(n => !n.isNewResource).map(n => n.href),
-          newResources: this.resourceNodes.filter(n => n.isNewResource).map(n => n.href),
-          seenActivities: this.activityNodes.filter(n => !n.isNewActivity).map(n => n.href),
-          newActivities: this.activityNodes.filter(n => n.isNewActivity).map(n => n.href),
-        },
-      })
+    if (courseData[this.link]) {
+      courseData[this.link] = {
+        ...courseData[this.link],
+        seenResources: this.resourceNodes.filter(n => !n.isNewResource).map(n => n.href),
+        newResources: this.resourceNodes.filter(n => n.isNewResource).map(n => n.href),
+        seenActivities: this.activityNodes.filter(n => !n.isNewActivity).map(n => n.href),
+        newActivities: this.activityNodes.filter(n => n.isNewActivity).map(n => n.href),
+      }
+      await browser.storage.local.set({ courseData })
     } else {
       // First time this course was scanned
-      await browser.storage.local.set({
-        [this.link]: {
-          seenResources: this.resourceNodes.filter(n => !n.isNewResource).map(n => n.href),
-          newResources: this.resourceNodes.filter(n => n.isNewResource).map(n => n.href),
-          seenActivities: this.activityNodes.filter(n => !n.isNewActivity).map(n => n.href),
-          newActivities: this.activityNodes.filter(n => n.isNewActivity).map(n => n.href),
-        },
-      })
+      courseData[this.link] = {
+        seenResources: this.resourceNodes.filter(n => !n.isNewResource).map(n => n.href),
+        newResources: this.resourceNodes.filter(n => n.isNewResource).map(n => n.href),
+        seenActivities: this.activityNodes.filter(n => !n.isNewActivity).map(n => n.href),
+        newActivities: this.activityNodes.filter(n => n.isNewActivity).map(n => n.href),
+      }
+      await browser.storage.local.set({ courseData })
     }
   }
 
   this.updateStoredResources = async function(downloadedResourceNodes) {
-    const localStorage = await browser.storage.local.get()
-    const storedCourseData = localStorage[this.link]
+    const { courseData } = await browser.storage.local.get("courseData")
+    const storedCourseData = courseData[this.link]
     const { seenResources, newResources } = storedCourseData
 
     // Default behavior: Merge all stored new resources
@@ -277,15 +275,18 @@ function Course(link, HTMLDocument) {
     }
 
     await browser.storage.local.set({
-      [this.link]: updatedCourseData,
+      courseData: {
+        ...courseData,
+        [this.link]: updatedCourseData,
+      },
     })
 
     return updatedCourseData
   }
 
   this.updateStoredActivities = async function() {
-    const localStorage = await browser.storage.local.get()
-    const storedCourseData = localStorage[this.link]
+    const { courseData } = await browser.storage.local.get("courseData")
+    const storedCourseData = courseData[this.link]
 
     const { seenActivities, newActivities } = storedCourseData
     const updatedSeenActivities = Array.from(new Set(seenActivities.concat(newActivities)))
@@ -298,7 +299,10 @@ function Course(link, HTMLDocument) {
     }
 
     await browser.storage.local.set({
-      [this.link]: updatedCourseData,
+      courseData: {
+        ...courseData,
+        [this.link]: updatedCourseData,
+      },
     })
 
     return updatedCourseData
