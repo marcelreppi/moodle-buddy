@@ -64,8 +64,8 @@ Copyright © 2020 Marcel Reppenhagen All Rights Reserved
    * This runs webpack and reloads the bundle on every file change.
 2. Open a second terminal and run `npm start`
    * This starts **Firefox Nightly** with the plugin installed and reloads the plugin on every file change.
-   * **You must have Firefox Nightly installed**. Some Nightly versions used to cause some issues. The version that works for me without problems is `74.0a1`.
-   * Alternatively, you can use Chrome and load an unpacked extension pointing to the `build` directory. Make sure to reload the extension after every file change.
+   * Alternatively, run `npm run start:ff` to use regular Firefox
+   * If you want to use Chrome for the development you can load an unpacked extension pointing to the `build` directory. Make sure to reload the extension after every file change.
 
 ## Debugging
 

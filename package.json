@@ -4,6 +4,7 @@
   "author": "Marcel Reppenhagen",
   "scripts": {
     "start": "web-ext run -s ./build --firefox=nightly",
+    "start:ff": "web-ext run -s ./build",
     "dev": "npm run nuke && cross-env NODE_ENV=development webpack --watch",
     "debug": "npm run nuke && cross-env NODE_ENV=debug webpack --watch",
     "build": "npm run nuke && cross-env NODE_ENV=production webpack",
@@ -54,7 +55,7 @@
     "vue-loader": "^15.9.3",
     "vue-style-loader": "^4.1.2",
     "vue-template-compiler": "^2.6.12",
-    "web-ext": "^3.2.1",
+    "web-ext": "^5.5.0",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12"
   }
