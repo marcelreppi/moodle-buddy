@@ -134,6 +134,11 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
     case "log":
       sendLog(message.log)
       break
+    case "clear-course-data":
+      await browser.storage.local.set({
+        courseData: initialStorage.courseData,
+      })
+      break
     case "execute-script":
       browser.tabs.executeScript({
         file: `content_scripts/${message.page}-page.js`,

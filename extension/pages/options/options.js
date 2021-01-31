@@ -84,6 +84,15 @@ function checkURL(e) {
   }
 }
 
+async function clearCourseData(e) {
+  await browser.runtime.sendMessage({
+    command: "clear-course-data",
+  })
+
+  e.target.disabled = true
+}
+
 document.addEventListener("DOMContentLoaded", restore)
 document.addEventListener("input", save)
 document.getElementById("defaultMoodleURL").addEventListener("input", checkURL)
+document.getElementById("clear-button").addEventListener("click", clearCourseData)
