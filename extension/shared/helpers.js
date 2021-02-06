@@ -60,6 +60,7 @@ export const videoServicePageRegex = /\/mod\/videoservice\/view\.php/gi
 export const fileRegex = /\/mod\/resource\/view\.php\?id=[0-9]*/gi
 export const folderRegex = /\/mod\/folder\/view\.php\?id=[0-9]*/gi
 export const pluginFileRegex = /\/pluginfile\.php([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+export const urlRegex = /\/mod\/url\/view\.php\?id=[0-9]*/gi
 export const activityRegex = /\/mod\/(?!resource|folder)[A-z]*\/view\.php\?id=[0-9]*/gi
 
 const allRegexes = {
@@ -70,6 +71,7 @@ const allRegexes = {
   file: fileRegex,
   folder: folderRegex,
   pluginfile: pluginFileRegex,
+  url: urlRegex,
   activity: activityRegex,
 }
 

@@ -51,6 +51,20 @@ function Course(link, HTMLDocument) {
       seenActivities: previousSeenActivities = null,
     } = storedCourseData
 
+    const addResource = resourceNode => {
+      if (previousSeenResources === null || previousSeenResources.includes(resourceNode.href)) {
+        // If course has never been scanned previousSeenResources don't exist
+        // Never treat a resource as new when the course is scanned for the first time
+        // because we're capturing the initial state of the course
+        resourceNode.isNewResource = false
+      } else {
+        this.resourceCounts.nNewFiles++
+        resourceNode.isNewResource = true
+      }
+
+      this.resourceNodes.push(resourceNode)
+    }
+
     const addFileNode = node => {
       const href = parser.parseURLFromNode(node, "file", options)
       if (href === "") return
@@ -65,17 +79,42 @@ function Course(link, HTMLDocument) {
         isNewResource: null,
       }
 
-      if (previousSeenResources === null || previousSeenResources.includes(href)) {
-        // If course has never been scanned previousSeenResources don't exist
-        // Never treat a resource as new when the course is scanned for the first time
-        // because we're capturing the initial state of the course
-        resourceNode.isNewResource = false
-      } else {
-        this.resourceCounts.nNewFiles++
-        resourceNode.isNewResource = true
-      }
+      addResource(resourceNode)
+    }
 
-      this.resourceNodes.push(resourceNode)
+    const addURLNode = node => {
+      // Make sure URL is a downloadable file
+      const activityIcon = node.querySelector("img.activityicon")
+      if (activityIcon) {
+        const imgName = activityIcon.src.split("/").pop()
+        if (imgName) {
+          // const urlType = ""
+          // if (imgName.includes("pdf")) urlType = "pdf"
+          // if (imgName.includes("archive")) urlType = "archive"
+          // if (imgName.includes("markup")) urlType = "markup"
+          // if (imgName.includes("sourcecode")) urlType = "sourcecode"
+          // if (imgName.includes("text")) urlType = "text"
+
+          if (imgName !== "icon") {
+            // File has been identified as downloadable
+            const href = parser.parseURLFromNode(node, "url", options)
+            if (href === "") return
+
+            this.resourceCounts.nFiles++
+            const resourceNode = {
+              href,
+              fileName: parser.parseFileNameFromNode(node),
+              section: parser.parseSectionName(node, this.HTMLDocument),
+              isFile: true,
+              isPluginFile: false,
+              isURL: true,
+              isNewResource: null,
+            }
+
+            addResource(resourceNode)
+          }
+        }
+      }
     }
 
     const addPluginFileNode = (node, partOfFolder = "") => {
@@ -97,14 +136,7 @@ function Course(link, HTMLDocument) {
         isNewResource: null,
       }
 
-      if (previousSeenResources === null || previousSeenResources.includes(href)) {
-        resourceNode.isNewResource = false
-      } else {
-        this.resourceCounts.nNewFiles++
-        resourceNode.isNewResource = true
-      }
-
-      this.resourceNodes.push(resourceNode)
+      addResource(resourceNode)
     }
 
     const addFolderNode = node => {
@@ -191,11 +223,14 @@ function Course(link, HTMLDocument) {
       for (const node of modules) {
         const isFile = node.classList.contains("resource")
         const isFolder = node.classList.contains("folder")
+        const isURL = node.classList.contains("url")
 
         if (isFile) {
           addFileNode(node)
         } else if (isFolder) {
           addFolderNode(node)
+        } else if (isURL) {
+          addURLNode(node)
         } else {
           addActivityNode(node)
         }

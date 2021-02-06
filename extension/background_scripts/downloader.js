@@ -4,7 +4,7 @@ const {
   getDownloadIdTag,
   getQuerySelector,
 } = require("../shared/parser")
-const { fileRegex, getURLRegex, getMoodleBaseURL } = require("../shared/helpers")
+const { fileRegex, urlRegex, getURLRegex, getMoodleBaseURL } = require("../shared/helpers")
 const { sendDownloadData, sendLog } = require("./helpers")
 
 let downloadTrackers = {}
@@ -235,7 +235,23 @@ browser.runtime.onMessage.addListener(async message => {
         const mainRegionHTML = resHTML.querySelector("#region-main")
         if (mainRegionHTML) {
           const pluginFileURLRegex = getURLRegex("pluginfile")
-          downloadURL = mainRegionHTML.innerHTML.match(pluginFileURLRegex).shift()
+          const pluginFileURLMatch = mainRegionHTML.innerHTML.match(pluginFileURLRegex)
+          if (pluginFileURLMatch) {
+            downloadURL = pluginFileURLMatch.shift()
+          } else {
+            // TODO: Update view on fail
+            return
+          }
+        }
+      } else if (res.url.match(urlRegex)) {
+        const body = await res.text()
+        const parser = new DOMParser()
+        const resHTML = parser.parseFromString(body, "text/html")
+        const mainRegionHTML = resHTML.querySelector("#region-main")
+        if (mainRegionHTML) {
+          const moodleURL = getMoodleBaseURL(res.url)
+          const externalATag = mainRegionHTML.querySelector(`a:not([href^="${moodleURL}"])`)
+          downloadURL = externalATag.href
         }
       }
 

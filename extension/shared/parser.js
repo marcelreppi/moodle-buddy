@@ -84,6 +84,7 @@ export function getQuerySelector(type, options) {
   const fileSelector = `[href*="${baseURL}/mod/resource"]`
   const folderSelector = `[href*="${baseURL}/mod/folder"]`
   const pluginFileSelector = `[href*="${baseURL}/pluginfile"]:not(.mediafallbacklink)`
+  const urlSelector = `[href*="${baseURL}/mod/url"]`
   const videoSelector = `video source[src*="${baseURL}/pluginfile"]`
   const audioSelector = `audio source[src*="${baseURL}/pluginfile"]`
   const imageSelector = `img[src*="${baseURL}/pluginfile"]`
@@ -101,6 +102,9 @@ export function getQuerySelector(type, options) {
       break
     case "pluginfile":
       selector = pluginFileSelector
+      break
+    case "url":
+      selector = urlSelector
       break
     case "activity":
       selector = activityQuerySelector
