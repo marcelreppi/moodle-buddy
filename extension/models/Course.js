@@ -88,14 +88,10 @@ function Course(link, HTMLDocument) {
       if (activityIcon) {
         const imgName = activityIcon.src.split("/").pop()
         if (imgName) {
-          // const urlType = ""
-          // if (imgName.includes("pdf")) urlType = "pdf"
-          // if (imgName.includes("archive")) urlType = "archive"
-          // if (imgName.includes("markup")) urlType = "markup"
-          // if (imgName.includes("sourcecode")) urlType = "sourcecode"
-          // if (imgName.includes("text")) urlType = "text"
-
-          if (imgName !== "icon") {
+          // "icon" image is usually used for websites but I can't download full websites
+          // Only support external URLs when they point to a file
+          const isFile = imgName !== "icon"
+          if (isFile) {
             // File has been identified as downloadable
             const href = parser.parseURLFromNode(node, "url", options)
             if (href === "") return
