@@ -29,9 +29,9 @@
   "background": {
     "scripts": [
       "shared/browser-polyfill.js",
-      "background-scripts/extension-listener.js",
+      "background-scripts/extensionListener.js",
       "background-scripts/downloader.js",
-      "background-scripts/background-scanner.js"
+      "background-scripts/backgroundScanner.js"
     ]
   },
   "options_ui": {

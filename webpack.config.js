@@ -22,13 +22,13 @@ const contentEntry = filename => {
 module.exports = {
   entry: {
     "popup/app.bundle": join(__dirname, "extension", "popup", "index.js"),
-    "content-scripts/course-page": contentEntry("course-page.js"),
-    "content-scripts/dashboard-page": contentEntry("dashboard-page.js"),
-    "content-scripts/videoservice-page": contentEntry("videoservice-page.js"),
+    "content-scripts/coursePage": contentEntry("coursePage.js"),
+    "content-scripts/dashboardPage": contentEntry("dashboardPage.js"),
+    "content-scripts/videoservicePage": contentEntry("videoservicePage.js"),
     "content-scripts/detector": contentEntry("detector.js"),
     "background-scripts/downloader": backgroundEntry("downloader.js"),
-    "background-scripts/extension-listener": backgroundEntry("extension-listener.js"),
-    "background-scripts/background-scanner": backgroundEntry("background-scanner.js"),
+    "background-scripts/extensionListener": backgroundEntry("extensionListener.js"),
+    "background-scripts/backgroundScanner": backgroundEntry("backgroundScanner.js"),
   },
   output: {
     path: join(__dirname, "build"),
