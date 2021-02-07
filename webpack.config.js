@@ -12,23 +12,23 @@ console.log(`Webpack is in ${process.env.NODE_ENV} mode`)
 const polyfills = ["core-js/stable", "regenerator-runtime/runtime"]
 
 const backgroundEntry = filename => {
-  return polyfills.concat(join(__dirname, "extension", "background_scripts", filename))
+  return polyfills.concat(join(__dirname, "extension", "background-scripts", filename))
 }
 
 const contentEntry = filename => {
-  return polyfills.concat(join(__dirname, "extension", "content_scripts", filename))
+  return polyfills.concat(join(__dirname, "extension", "content-scripts", filename))
 }
 
 module.exports = {
   entry: {
     "popup/app.bundle": join(__dirname, "extension", "popup", "index.js"),
-    "content_scripts/course-page": contentEntry("course-page.js"),
-    "content_scripts/dashboard-page": contentEntry("dashboard-page.js"),
-    "content_scripts/videoservice-page": contentEntry("videoservice-page.js"),
-    "content_scripts/detector": contentEntry("detector.js"),
-    "background_scripts/downloader": backgroundEntry("downloader.js"),
-    "background_scripts/extension-listener": backgroundEntry("extension-listener.js"),
-    "background_scripts/background-scanner": backgroundEntry("background-scanner.js"),
+    "content-scripts/course-page": contentEntry("course-page.js"),
+    "content-scripts/dashboard-page": contentEntry("dashboard-page.js"),
+    "content-scripts/videoservice-page": contentEntry("videoservice-page.js"),
+    "content-scripts/detector": contentEntry("detector.js"),
+    "background-scripts/downloader": backgroundEntry("downloader.js"),
+    "background-scripts/extension-listener": backgroundEntry("extension-listener.js"),
+    "background-scripts/background-scanner": backgroundEntry("background-scanner.js"),
   },
   output: {
     path: join(__dirname, "build"),
