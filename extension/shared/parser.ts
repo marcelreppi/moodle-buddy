@@ -1,41 +1,80 @@
+import { ExtensionOptions } from "extension/types/global.types"
 import { getURLRegex } from "./helpers"
 
-export function checkForMoodle() {
+export function checkForMoodle(): boolean {
   // Check for unique moodle DOM element
   return Boolean(document.querySelector("#region-main"))
 }
 
-export function parseCourseNameFromCoursePage(document) {
-  const header = document.querySelector(".page-header-headings")
-  if (header && header.children.length > 0) {
-    return header.children[0].textContent.trim()
-  }
-
+export function parseCourseShortcut(document: Document): string {
   const shortcutNode = document.querySelector("a[aria-current='page']")
   if (shortcutNode) {
-    if (shortcutNode.title !== "") {
-      return shortcutNode.title.trim()
-    }
-
-    if (shortcutNode.textContent !== "") {
-      return shortcutNode.textContent.trim()
+    const { textContent } = shortcutNode
+    if (textContent) {
+      return textContent.trim()
     }
   }
 
-  const firstHeader = document.querySelector("#region-main").querySelector("h1")
-  if (firstHeader) {
-    if (firstHeader.textContent !== "") {
-      return firstHeader.textContent.trim()
+  const possibleNavbarContainers = document.querySelectorAll("#page, #page-header, #page-navbar")
+  if (possibleNavbarContainers) {
+    for (const container of Array.from(possibleNavbarContainers)) {
+      const navbar = container.querySelector("nav, ol, ul")
+      if (navbar) {
+        const allNavElements = Array.from(navbar.querySelectorAll("li"))
+        const lastNav = allNavElements.pop()
+        if (lastNav) {
+          const { textContent } = lastNav
+          if (textContent) {
+            return textContent.trim()
+          }
+        }
+      }
+    }
+  }
+
+  return "Unknown Shortcut"
+}
+
+export function parseCourseNameFromCoursePage(document: Document): string {
+  const header = document.querySelector(".page-header-headings")
+  if (header && header.children.length > 0) {
+    const { textContent } = header.children[0]
+    if (textContent) {
+      return textContent.trim()
+    }
+  }
+
+  const shortcutNode = document.querySelector<HTMLAnchorElement>("a[aria-current='page']")
+  if (shortcutNode) {
+    const { title, textContent } = shortcutNode
+    if (title) {
+      return title.trim()
+    }
+
+    if (textContent) {
+      return textContent.trim()
+    }
+  }
+
+  const mainHTML = document.querySelector("#region-main")
+  if (mainHTML) {
+    const firstHeader = mainHTML.querySelector("h1")
+    if (firstHeader) {
+      const { textContent } = firstHeader
+      if (textContent) {
+        return textContent.trim()
+      }
     }
   }
 
   const possibleTitleContainers = document.querySelectorAll("#page, #page-header, #page-navbar")
   if (possibleTitleContainers) {
-    for (const container of possibleTitleContainers) {
+    for (const container of Array.from(possibleTitleContainers)) {
       const titleElement = container.querySelector("h1")
       if (titleElement) {
-        if (titleElement.textContent !== "") {
-          return titleElement.textContent.trim()
+        const { textContent } = titleElement
+        if (textContent) {
+          return textContent.trim()
         }
       }
     }
@@ -49,37 +88,24 @@ export function parseCourseNameFromCoursePage(document) {
   return "Unknown Course"
 }
 
-export function parseCourseShortcut(document) {
-  const shortcutNode = document.querySelector("a[aria-current='page']")
-  if (shortcutNode) {
-    if (shortcutNode.textContent !== "") {
-      return shortcutNode.textContent.trim()
-    }
-  }
-
-  const possibleNavbarContainers = document.querySelectorAll("#page, #page-header, #page-navbar")
-  if (possibleNavbarContainers) {
-    for (const container of possibleNavbarContainers) {
-      const navbar = container.querySelector("nav, ol, ul")
-      if (navbar) {
-        const allNavElements = Array.from(navbar.querySelectorAll("li"))
-        if (allNavElements.length !== 0) {
-          return allNavElements.pop().textContent.trim()
-        }
-      }
-    }
-  }
-
-  return "Unknown Shortcut"
-}
-
-export function parseCourseLink(htmlString) {
+export function parseCourseLink(htmlString: string): string {
   const courseURLRegex = getURLRegex("course")
   const match = htmlString.match(courseURLRegex)
   return match ? match[0] : htmlString
 }
 
-export function getQuerySelector(type, options) {
+type QuerySelectorTypes =
+  | "file"
+  | "folder"
+  | "pluginfile"
+  | "url"
+  | "activity"
+  | "video"
+  | "audio"
+  | "image"
+  | "media"
+  | "videoservice"
+export function getQuerySelector(type: QuerySelectorTypes, options: ExtensionOptions): string {
   const baseURL = ""
   const fileSelector = `[href*="${baseURL}/mod/resource"]`
   const folderSelector = `[href*="${baseURL}/mod/folder"]`
@@ -143,24 +169,28 @@ export function getQuerySelector(type, options) {
   return selector
 }
 
-export function parseURLFromNode(node, type, options) {
-  const aTag = node.querySelector(getQuerySelector(type, options))
+export function parseURLFromNode(
+  node: Element,
+  type: QuerySelectorTypes,
+  options: ExtensionOptions
+): string {
+  const aTag = node.querySelector<HTMLAnchorElement>(getQuerySelector(type, options))
   if (aTag) {
     return aTag.href
   }
 
-  if (node.tagName === "A") {
+  if (node instanceof HTMLAnchorElement) {
     return node.href
   }
 
   if (type === "pluginfile") {
     // Videos are also pluginfiles but have a different selector
-    const sourceTag = node.querySelector(getQuerySelector("media", options))
-    if (sourceTag) {
-      return sourceTag.src
+    const mediaTag = node.querySelector(getQuerySelector("media", options))
+    if (mediaTag instanceof HTMLSourceElement || mediaTag instanceof HTMLImageElement) {
+      return mediaTag.src
     }
 
-    if (node.tagName === "SOURCE" || node.tagName === "IMG") {
+    if (node instanceof HTMLSourceElement || node instanceof HTMLImageElement) {
       return node.src
     }
   }
@@ -168,13 +198,16 @@ export function parseURLFromNode(node, type, options) {
   return ""
 }
 
-export function parseFileNameFromNode(node) {
+export function parseFileNameFromNode(node: Element): string {
   // Files or Folders
   let contentNode = node.querySelector(".instancename")
   if (contentNode) {
     const { firstChild } = contentNode
-    if (firstChild && firstChild.textContent !== "") {
-      return firstChild.textContent.trim()
+    if (firstChild) {
+      const { textContent } = firstChild
+      if (textContent) {
+        return textContent.trim()
+      }
     }
   }
 
@@ -182,28 +215,32 @@ export function parseFileNameFromNode(node) {
   contentNode = node.querySelector(".fp-filename")
   if (contentNode) {
     const { textContent } = contentNode
-    if (textContent !== "") {
-      return contentNode.textContent.trim()
+    if (textContent) {
+      return textContent.trim()
     }
   }
 
-  if (node.textContent !== "") {
-    return node.textContent.trim()
+  const { textContent } = node
+  if (textContent) {
+    return textContent.trim()
   }
 
   return "Unknown Filename"
 }
 
-export function parseFileNameFromPluginFileURL(url) {
-  let fileName = url
-    .split("/")
-    .pop() // Take last part of URL
-    .split("?")
-    .shift() // Take everything before query parameters
+export function parseFileNameFromPluginFileURL(url: string): string {
+  let fileName = ""
+  const urlParts = url.split("/")
+  const lastUrlPart = urlParts.pop()
+  if (lastUrlPart) {
+    // Take everything before query parameters
+    const [path] = lastUrlPart.split("?")
+    fileName = path
+  }
 
   fileName = decodeURIComponent(fileName)
 
-  const specialCharacters = {
+  const specialCharacters: Record<string, string> = {
     "%21": "!",
     "%23": "#",
     "%24": "$",
@@ -232,19 +269,22 @@ export function parseFileNameFromPluginFileURL(url) {
   return fileName
 }
 
-export function parseActivityNameFromNode(node) {
+export function parseActivityNameFromNode(node: Element): string {
   const contentNode = node.querySelector(".instancename")
   if (contentNode) {
     const { firstChild } = contentNode
-    if (firstChild && firstChild.textContent !== "") {
-      return firstChild.textContent.trim()
+    if (firstChild) {
+      const { textContent } = firstChild
+      if (textContent) {
+        return textContent.trim()
+      }
     }
   }
 
   return "Unknown Activity"
 }
 
-export function parseActivityTypeFromNode(node) {
+export function parseActivityTypeFromNode(node: Element): string {
   const modtypeClassResult = node.className.match(/modtype.*(?= )/gi)
   if (modtypeClassResult) {
     const activityType = modtypeClassResult[0].split("_")[1]
@@ -256,36 +296,46 @@ export function parseActivityTypeFromNode(node) {
   const contentNode = node.querySelector(".accesshide")
   if (contentNode) {
     const { firstChild } = contentNode
-    if (firstChild && firstChild.textContent !== "") {
-      return firstChild.textContent.trim()
+    if (firstChild) {
+      const { textContent } = firstChild
+      if (textContent) {
+        return textContent.trim()
+      }
     }
   }
 
   return "Unkown Activity Type"
 }
 
-export function parseSectionName(node, document) {
+export function parseSectionName(node: Element, document: Document): string {
   const section = node.closest("[id^='section-']")
 
   if (!section) {
     return ""
   }
 
-  if (section.attributes["aria-label"]) {
-    return section.attributes["aria-label"].value.trim()
+  const ariaLabel = section.attributes.getNamedItem("aria-label")
+  if (ariaLabel) {
+    return ariaLabel.value.trim()
   }
 
-  if (section.attributes["aria-labelledby"]) {
-    const labelledBy = section.attributes["aria-labelledby"].value
-    const label = document.getElementById(labelledBy)
+  const ariaLabelledBy = section.attributes.getNamedItem("aria-labelledby")
+  if (ariaLabelledBy) {
+    const label = document.getElementById(ariaLabelledBy.value)
     if (label) {
-      return label.textContent.trim()
+      const { textContent } = label
+      if (textContent) {
+        return textContent.trim()
+      }
     }
   }
 
   const sectionNameElement = section.querySelector(".sectionname")
   if (sectionNameElement) {
-    return sectionNameElement.textContent.trim()
+    const { textContent } = sectionNameElement
+    if (textContent) {
+      return textContent.trim()
+    }
   }
 
   if (section.id === "section-0") {
@@ -297,10 +347,10 @@ export function parseSectionName(node, document) {
   return "Unknown Section"
 }
 
-export function getDownloadButton(node) {
-  return node.querySelector(`form[action$="/mod/folder/download_folder.php"]`)
+export function getDownloadButton(node: Element): HTMLFormElement | null {
+  return node.querySelector<HTMLFormElement>(`form[action$="/mod/folder/download_folder.php"]`)
 }
 
-export function getDownloadIdTag(node) {
-  return node.querySelector("input[name='id']")
+export function getDownloadIdTag(node: Element): HTMLInputElement | null {
+  return node.querySelector<HTMLInputElement>("input[name='id']")
 }

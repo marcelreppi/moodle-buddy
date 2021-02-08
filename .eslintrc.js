@@ -1,19 +1,15 @@
 module.exports = {
   root: true,
   extends: [
-    "airbnb-base",
+    "airbnb-typescript/base",
     "plugin:prettier/recommended",
+    "prettier/@typescript-eslint",
     "plugin:vue/essential",
     "@vue/typescript/recommended",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
-    parser: "babel-eslint",
-    ecmaVersion: 2020,
-    ecmaFeatures: {
-      impliedStrict: true,
-      classes: true,
-    },
+    project: "tsconfig.eslint.json",
   },
   rules: {
     "prettier/prettier": [
@@ -34,6 +30,10 @@ module.exports = {
         allowTemplateLiterals: true,
       },
     ],
+    "@typescript-eslint/space-infix-ops": 0,
+    "@typescript-eslint/object-curly-spacing": 0,
+    "@typescript-eslint/lines-between-class-members": 0,
+    "no-case-declarations": 0,
     "func-names": 0,
     "no-new": 0,
     "prefer-destructuring": 1,

@@ -1,6 +1,6 @@
-const fs = require("fs")
-const { JSDOM } = require("jsdom")
-const { default: Course } = require("../extension/models/Course")
+import fs from "fs"
+import { JSDOM } from "jsdom"
+import Course from "../extension/models/Course"
 
 const dir = "files"
 const files = fs.readdirSync(dir)
@@ -50,8 +50,8 @@ async function run() {
       error = true
     }
 
-    const { resourceNodes } = course
-    for (const r of resourceNodes) {
+    const { resources } = course
+    for (const r of resources) {
       if (r.fileName === "Unknown Filename") {
         console.log("Unknown Filename")
         error = true

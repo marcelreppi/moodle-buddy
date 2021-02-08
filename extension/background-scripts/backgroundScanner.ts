@@ -1,11 +1,12 @@
-import { loginPageRegex, getUpdatesFromCourses } from "../shared/helpers"
+import { ExtensionStorage } from "extension/types/global.types"
+import { getURLRegex, getUpdatesFromCourses } from "../shared/helpers"
 import { setBadgeText } from "./helpers"
 import Course from "../models/Course"
 
 // browser.storage.local.clear()
 
 async function backgroundScan() {
-  const { options, overviewCourseLinks } = await browser.storage.local.get([
+  const { options, overviewCourseLinks }: ExtensionStorage = await browser.storage.local.get([
     "options",
     "overviewCourseLinks",
   ])
@@ -20,7 +21,7 @@ async function backgroundScan() {
     const domParser = new DOMParser()
     const res = await fetch(courseLink)
 
-    if (res.url.match(loginPageRegex)) {
+    if (res.url.match(getURLRegex("login"))) {
       console.log("Moodle Buddy background scan error: Not logged in")
       return
     }
@@ -40,12 +41,12 @@ async function backgroundScan() {
   if (nUpdates === 0) {
     setBadgeText("")
   } else {
-    setBadgeText(nUpdates)
+    setBadgeText(nUpdates.toString())
   }
 }
 
 async function startBackgroundScanning() {
-  const { options } = await browser.storage.local.get("options")
+  const { options }: ExtensionStorage = await browser.storage.local.get("options")
 
   if (!options) {
     setTimeout(() => {

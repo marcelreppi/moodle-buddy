@@ -25,8 +25,8 @@
         </div>
         <div v-if="showDetails" class="detail-container">
           <div v-for="(node, i) in allNewNodes" :key="i">
-            <span v-if="node.isFile" class="filename">- {{ node.fileName }} (File)</span>
-            <span v-if="node.isFolder" class="filename">- {{ node.folderName }} (Folder)</span>
+            <span v-if="node.isFile" class="filename">- {{ node.name }} (File)</span>
+            <span v-if="node.isFolder" class="filename">- {{ node.name }} (Folder)</span>
             <span v-if="node.isActivity" class="filename">
               - {{ node.activityName }} (Activity)
             </span>
@@ -71,10 +71,10 @@ export default {
   },
   computed: {
     newResources() {
-      return this.course.resourceNodes.filter(n => n.isNewResource)
+      return this.course.resources.filter(n => n.isNew)
     },
     newActivities() {
-      return this.course.activityNodes.filter(n => n.isNewActivity)
+      return this.course.activities.filter(n => n.isNew)
     },
     allNewNodes() {
       return this.newResources.concat(this.newActivities)
