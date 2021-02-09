@@ -1,3 +1,5 @@
+import pLimit from "p-limit"
+
 import { DownloadMessage, DownloadProgressMessage, Message } from "extension/types/messages.types"
 import { ExtensionOptions, ExtensionStorage } from "extension/types/global.types"
 import { FileResource, FolderResource, Resource } from "extension/models/Course.types"
@@ -30,6 +32,10 @@ class Downloader {
   private inProgress: Set<number>
   private finished: number[]
 
+  private prepLimit: pLimit.Limit
+  private downloadLimit: pLimit.Limit
+  private retryInterval: number
+
   constructor(
     id: number,
     courseName: string,
@@ -53,38 +59,12 @@ class Downloader {
     this.inProgress = new Set()
     this.finished = []
 
+    // Concurrent download limiting
+    this.prepLimit = pLimit(this.options.maxConcurrentDownloads)
+    this.downloadLimit = pLimit(this.options.maxConcurrentDownloads)
+    this.retryInterval = 1000
+
     this.start()
-  }
-
-  async start() {
-    this.addFiles(this.resources.length)
-
-    for (const r of this.resources) {
-      if (this.isCancelled) {
-        this.removeFiles(1)
-        continue
-      }
-
-      switch (r.type) {
-        case "file":
-          await this.downloadFile(r as FileResource)
-          break
-        case "url":
-          await this.downloadFile(r as FileResource)
-          break
-        case "pluginfile":
-          await this.downloadPluginFile(r as FileResource)
-          break
-        case "folder":
-          await this.downloadFolder(r as FolderResource)
-          break
-        case "videoservice":
-          await this.downloadVideoServiceVideo(r as FileResource)
-          break
-        default:
-          break
-      }
-    }
   }
 
   async cancel() {
@@ -100,26 +80,6 @@ class Downloader {
 
   isDone() {
     return this.finished.length === this.fileCount
-  }
-
-  async addFiles(n: number) {
-    this.addCount += n
-    this.fileCount += n
-
-    await this.onUpdate()
-  }
-
-  async removeFiles(n: number) {
-    this.removeCount += n
-    this.fileCount -= n
-
-    await this.onUpdate()
-  }
-
-  async onDownloadStart(id: number) {
-    this.inProgress.add(id)
-
-    await this.onUpdate()
   }
 
   async onCompleted(id: number) {
@@ -139,14 +99,76 @@ class Downloader {
     await this.onUpdate()
   }
 
-  async onError() {
+  updateView() {
+    browser.runtime.sendMessage<DownloadProgressMessage>({
+      command: "download-progress",
+      completed: this.finished.length,
+      total: this.fileCount,
+      errors: this.errorCount,
+    })
+  }
+
+  private async onError() {
     this.errorCount++
     this.fileCount--
 
     await this.onUpdate()
   }
 
-  async onUpdate() {
+  private async start() {
+    this.addFiles(this.resources.length)
+
+    for (const r of this.resources) {
+      this.prepLimit(async () => {
+        if (this.isCancelled) {
+          this.removeFiles(1)
+          return
+        }
+
+        switch (r.type) {
+          case "file":
+            await this.downloadFile(r as FileResource)
+            break
+          case "url":
+            await this.downloadFile(r as FileResource)
+            break
+          case "pluginfile":
+            await this.downloadPluginFile(r as FileResource)
+            break
+          case "folder":
+            await this.downloadFolder(r as FolderResource)
+            break
+          case "videoservice":
+            await this.downloadVideoServiceVideo(r as FileResource)
+            break
+          default:
+            break
+        }
+      })
+    }
+  }
+
+  private async addFiles(n: number) {
+    this.addCount += n
+    this.fileCount += n
+
+    await this.onUpdate()
+  }
+
+  private async removeFiles(n: number) {
+    this.removeCount += n
+    this.fileCount -= n
+
+    await this.onUpdate()
+  }
+
+  private async onDownloadStart(id: number) {
+    this.inProgress.add(id)
+
+    await this.onUpdate()
+  }
+
+  private async onUpdate() {
     // Check if all downloads have completed
     if (this.finished.length === this.fileCount) {
       // All downloads have finished
@@ -167,16 +189,7 @@ class Downloader {
     }
   }
 
-  updateView() {
-    browser.runtime.sendMessage<DownloadProgressMessage>({
-      command: "download-progress",
-      completed: this.finished.length,
-      total: this.fileCount,
-      errors: this.errorCount,
-    })
-  }
-
-  async download(href: string, fileName: string, section: string) {
+  private async download(href: string, fileName: string, section: string) {
     if (this.isCancelled) return
 
     // Remove illegal characters from possible filename parts
@@ -222,17 +235,31 @@ class Downloader {
       // return
     }
 
-    try {
-      const id = await browser.downloads.download({ url: href, filename: filePath })
-      await this.onDownloadStart(id)
-    } catch (err) {
-      console.error(err)
-      sendLog({ errorMessage: err.message, url: href, fileName: filePath })
-      await this.onError()
+    const startDownload = async () => {
+      if (this.isCancelled) {
+        return
+      }
+
+      if (this.inProgress.size < this.options.maxConcurrentDownloads) {
+        try {
+          const id = await browser.downloads.download({ url: href, filename: filePath })
+          await this.onDownloadStart(id)
+        } catch (err) {
+          console.error(err)
+          sendLog({ errorMessage: err.message, url: href, fileName: filePath })
+          await this.onError()
+        }
+      } else {
+        setTimeout(() => {
+          this.downloadLimit(startDownload)
+        }, this.retryInterval)
+      }
     }
+
+    this.downloadLimit(startDownload)
   }
 
-  async downloadPluginFile(resource: FileResource) {
+  private async downloadPluginFile(resource: FileResource) {
     if (this.isCancelled) return
 
     let { name: fileName } = resource
@@ -244,7 +271,7 @@ class Downloader {
     await this.download(resource.href, fileName, resource.section)
   }
 
-  async downloadFile(resource: FileResource) {
+  private async downloadFile(resource: FileResource) {
     if (this.isCancelled) return
 
     // Fetch the href to get the actual download URL
@@ -306,7 +333,7 @@ class Downloader {
     await this.download(downloadURL, fileName, resource.section)
   }
 
-  async downloadFolder(resource: FolderResource) {
+  private async downloadFolder(resource: FolderResource) {
     if (this.isCancelled) return
 
     if (resource.isInline) {
@@ -365,7 +392,7 @@ class Downloader {
     }
   }
 
-  async downloadVideoServiceVideo(resource: FileResource) {
+  private async downloadVideoServiceVideo(resource: FileResource) {
     if (this.isCancelled) return
 
     let fileName = parseFileNameFromPluginFileURL(resource.href)

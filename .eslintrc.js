@@ -33,6 +33,7 @@ module.exports = {
     "@typescript-eslint/space-infix-ops": 0,
     "@typescript-eslint/object-curly-spacing": 0,
     "@typescript-eslint/lines-between-class-members": 0,
+    "no-continue": 0,
     "no-case-declarations": 0,
     "func-names": 0,
     "no-new": 0,

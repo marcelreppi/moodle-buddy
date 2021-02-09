@@ -30,6 +30,7 @@ const defaultOptions: ExtensionOptions = {
   includeVideo: true,
   includeAudio: true,
   includeImage: false,
+  maxConcurrentDownloads: 100,
 }
 
 const initialStorage: ExtensionStorage = {

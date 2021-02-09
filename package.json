@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "normalize.css": "^8.0.1",
+    "p-limit": "^3.1.0",
     "sha.js": "^2.4.11",
     "vue": "^2.6.12",
     "vue-progressbar": "^0.7.5"
