@@ -1,4 +1,4 @@
-import { Resource } from "extension/models/Course.types"
+import { Activity, Counts, Resource } from "extension/models/Course.types"
 import { ExtensionOptions } from "./extension.types"
 import { FeedbackData, LogData, PageData } from "./tracker.types"
 
@@ -57,18 +57,42 @@ export interface CourseCrawlMessage extends Message {
   options: ExtensionOptions
 }
 
-export interface ScanMessage extends Message {
-  command: "scan"
-}
-
 export interface ScanInProgressMessage extends Message {
   command: "scan-in-progress"
   completed: number
   total: number
 }
 
+export interface ScanMessage extends Message {
+  command: "scan"
+}
+
 export interface ScanResultMessage extends Message {
   command: "scan-result"
+}
+
+interface CourseScanData {
+  resources: Resource[]
+  activities: Activity[]
+  counts: Counts
+}
+
+export interface CourseScanResultMessage extends ScanResultMessage {
+  course: CourseScanData
+}
+
+interface DashboardCourseData extends CourseScanData {
+  name: string
+  link: string
+  isNew: boolean
+}
+
+export interface DashboardScanResultMessage extends ScanResultMessage {
+  courses: DashboardCourseData[]
+}
+
+export interface VideoScanResultMessage extends ScanResultMessage {
+  videoResources: Resource[]
 }
 
 export interface MarkAsSeenMessage extends Message {

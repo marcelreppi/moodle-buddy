@@ -10,13 +10,13 @@
     <div v-if="hasUpdates">
       <div class="course-details">
         <div v-if="newResources.length > 0" class="update-details">
-          <span>{{ course.nNewFiles + course.nNewFolders }}</span>
-          <span v-if="course.nNewFiles + course.nNewFolders === 1">new resource</span>
+          <span>{{ course.counts.nNewFiles + course.counts.nNewFolders }}</span>
+          <span v-if="course.counts.nNewFiles + course.counts.nNewFolders === 1">new resource</span>
           <span v-else>new resources</span>
         </div>
         <div v-if="newActivities.length > 0" class="update-details">
-          <span>{{ course.nNewActivities }}</span>
-          <span v-if="course.nNewActivities === 1">new activity</span>
+          <span>{{ course.counts.nNewActivities }}</span>
+          <span v-if="course.counts.nNewActivities === 1">new activity</span>
           <span v-else>new activities</span>
         </div>
         <div class="detail-switch" @click="onDetailClick">
@@ -67,21 +67,24 @@ export default {
   data() {
     return {
       showDetails: false,
+      resources: this.course.resources,
+      activities: this.course.activities,
+      counts: this.course.counts,
     }
   },
   computed: {
     newResources() {
-      return this.course.resources.filter(n => n.isNew)
+      return this.resources.filter(n => n.isNew)
     },
     newActivities() {
-      return this.course.activities.filter(n => n.isNew)
+      return this.activities.filter(n => n.isNew)
     },
     allNewNodes() {
       return this.newResources.concat(this.newActivities)
     },
     hasUpdates() {
       return (
-        this.course.nNewFiles > 0 || this.course.nNewFolders > 0 || this.course.nNewActivities > 0
+        this.counts.nNewFiles > 0 || this.counts.nNewFolders > 0 || this.counts.nNewActivities > 0
       )
     },
   },
@@ -114,9 +117,9 @@ export default {
     },
     onMarkAsSeenClick(course) {
       sendEvent("mark-as-seen-dashboard-page", true)
-      course.nNewFiles = 0
-      course.nNewFolders = 0
-      course.nNewActivities = 0
+      course.counts.nNewFiles = 0
+      course.counts.nNewFolders = 0
+      course.counts.nNewActivities = 0
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "mark-as-seen",
         link: course.link,

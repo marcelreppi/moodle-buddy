@@ -1,10 +1,3 @@
-export interface ResourceCounts {
-  nFiles: number
-  nNewFiles: number
-  nFolders: number
-  nNewFolders: number
-}
-
 export interface Resource {
   href: string
   name: string
@@ -25,11 +18,6 @@ export interface FolderResource extends Resource {
   isInline: boolean
 }
 
-export interface ActivitiesCounts {
-  nActivities: number
-  nNewActivities: number
-}
-
 export interface Activity {
   href: string
   name: string
@@ -37,6 +25,15 @@ export interface Activity {
   section: string
   isActivity: true
   isNew: boolean
+}
+
+export interface Counts {
+  nFiles: number
+  nNewFiles: number
+  nFolders: number
+  nNewFolders: number
+  nActivities: number
+  nNewActivities: number
 }
 
 export interface CourseData extends browser.storage.StorageObject {

@@ -6,6 +6,7 @@ import {
   ErrorViewMessage,
   Message,
   VideoDownloadProgressMessage,
+  VideoScanResultMessage,
 } from "extension/types/messages.types"
 import { Resource } from "extension/models/Course.types"
 import { getQuerySelector, parseCourseNameFromCoursePage } from "../shared/parser"
@@ -150,7 +151,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
       return
     }
 
-    browser.runtime.sendMessage({
+    browser.runtime.sendMessage<VideoScanResultMessage>({
       command: "scan-result",
       videoResources,
     })

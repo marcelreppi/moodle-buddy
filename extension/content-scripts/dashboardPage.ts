@@ -2,6 +2,7 @@ import shajs from "sha.js"
 
 import {
   DashboardCrawlMessage,
+  DashboardScanResultMessage,
   DownloadMessage,
   ErrorViewMessage,
   MarkAsSeenMessage,
@@ -44,7 +45,7 @@ function sendScanProgress() {
 }
 
 function sendScanResults() {
-  browser.runtime.sendMessage({
+  browser.runtime.sendMessage<DashboardScanResultMessage>({
     command: "scan-result",
     courses: courses.map(c => ({
       name: c.name,
@@ -52,8 +53,7 @@ function sendScanResults() {
       isNew: c.isFirstScan,
       resources: c.resources,
       activities: c.activities,
-      ...c.resourceCounts,
-      ...c.activityCounts,
+      counts: c.counts,
     })),
   })
 }

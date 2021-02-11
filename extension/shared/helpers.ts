@@ -35,8 +35,7 @@ export function isFirefox(): boolean {
 export function getUpdatesFromCourses(courses: Course[]): number {
   const courseList = courses.flat()
   const nUpdates = courseList.reduce((sum, c) => {
-    const { nNewFiles, nNewFolders } = c.resourceCounts
-    const { nNewActivities } = c.activityCounts
+    const { nNewFiles, nNewFolders, nNewActivities } = c.counts
     return sum + nNewFiles + nNewFolders + nNewActivities
   }, 0)
   return nUpdates

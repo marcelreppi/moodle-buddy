@@ -2,8 +2,7 @@ import { ExtensionOptions, ExtensionStorage } from "extension/types/extension.ty
 import * as parser from "../shared/parser"
 import { getMoodleBaseURL } from "../shared/helpers"
 import {
-  ActivitiesCounts,
-  ResourceCounts,
+  Counts,
   Resource,
   Activity,
   FileResource,
@@ -19,11 +18,10 @@ class Course {
   isFirstScan: boolean
 
   resources: Resource[]
-  resourceCounts: ResourceCounts
+  counts: Counts
   previousSeenResources: string[] | null
 
   activities: Activity[]
-  activityCounts: ActivitiesCounts
   previousSeenActivities: string[] | null
 
   constructor(link: string, HTMLDocument: HTMLDocument) {
@@ -38,19 +36,17 @@ class Course {
 
   private reset(): void {
     this.resources = []
-    this.resourceCounts = {
+    this.counts = {
       nFiles: 0,
       nNewFiles: 0,
       nFolders: 0,
       nNewFolders: 0,
+      nActivities: 0,
+      nNewActivities: 0,
     }
     this.previousSeenResources = null
 
     this.activities = []
-    this.activityCounts = {
-      nActivities: 0,
-      nNewActivities: 0,
-    }
     this.previousSeenActivities = null
   }
 
@@ -62,9 +58,9 @@ class Course {
       resource.isNew = false
     } else {
       if (isFolder) {
-        this.resourceCounts.nNewFolders++
+        this.counts.nNewFolders++
       } else {
-        this.resourceCounts.nNewFiles++
+        this.counts.nNewFiles++
       }
       resource.isNew = true
     }
@@ -76,7 +72,7 @@ class Course {
     const href = parser.parseURLFromNode(node, "file", options)
     if (href === "") return
 
-    this.resourceCounts.nFiles++
+    this.counts.nFiles++
     const resource: FileResource = {
       href,
       name: parser.parseFileNameFromNode(node),
@@ -97,7 +93,7 @@ class Course {
     const detectedURLs = this.resources.map(r => r.href)
     if (detectedURLs.includes(href)) return
 
-    this.resourceCounts.nFiles++
+    this.counts.nFiles++
     const resource: FileResource = {
       href,
       name: parser.parseFileNameFromPluginFileURL(href),
@@ -125,7 +121,7 @@ class Course {
           const href = parser.parseURLFromNode(node, "url", options)
           if (href === "") return
 
-          this.resourceCounts.nFiles++
+          this.counts.nFiles++
           const resourceNode: FileResource = {
             href,
             name: parser.parseFileNameFromNode(node),
@@ -179,7 +175,7 @@ class Course {
       }
     }
 
-    this.resourceCounts.nFolders++
+    this.counts.nFolders++
     this.addResource(resource, true)
   }
 
@@ -187,7 +183,7 @@ class Course {
     const href = parser.parseURLFromNode(node, "activity", options)
     if (href === "") return
 
-    this.activityCounts.nActivities++
+    this.counts.nActivities++
     const activity: Activity = {
       href,
       name: parser.parseActivityNameFromNode(node),
@@ -203,7 +199,7 @@ class Course {
     ) {
       activity.isNew = false
     } else {
-      this.activityCounts.nNewActivities++
+      this.counts.nNewActivities++
       activity.isNew = true
     }
 

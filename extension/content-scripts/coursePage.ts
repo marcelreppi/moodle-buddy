@@ -1,5 +1,6 @@
 import {
   CourseCrawlMessage,
+  CourseScanResultMessage,
   DownloadMessage,
   ErrorViewMessage,
   Message,
@@ -49,12 +50,13 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
       return
     }
 
-    browser.runtime.sendMessage({
+    browser.runtime.sendMessage<CourseScanResultMessage>({
       command: "scan-result",
-      resources: course.resources,
-      activities: course.activities,
-      ...course.resourceCounts,
-      ...course.activityCounts,
+      course: {
+        resources: course.resources,
+        activities: course.activities,
+        counts: course.counts,
+      },
     })
     return
   }

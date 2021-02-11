@@ -343,17 +343,19 @@ export default {
   created() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "scan-result") {
-        this.nFiles = message.nFiles
-        this.nNewFiles = message.nNewFiles
-        this.nFolders = message.nFolders
-        this.nNewFolders = message.nNewFolders
-        this.resources = message.resources.map(r => {
+        const { course } = message
+        const { resources, activities, counts } = course
+        this.nFiles = counts.nFiles
+        this.nNewFiles = counts.nNewFiles
+        this.nFolders = counts.nFolders
+        this.nNewFolders = counts.nNewFolders
+        this.resources = resources.map(r => {
           return { ...r, selected: false }
         })
 
-        this.nActivities = message.nActivities
-        this.nNewActivities = message.nNewActivities
-        this.activities = message.activities
+        this.nActivities = counts.nActivities
+        this.nNewActivities = counts.nNewActivities
+        this.activities = activities
 
         if (this.nNewResources > 0) {
           this.onlyNewResources = this.options.onlyNewResources
