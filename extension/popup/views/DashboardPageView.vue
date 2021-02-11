@@ -59,17 +59,17 @@ export default {
 
         this.courses.sort((a, b) => {
           if (
-            a.nNewFiles > b.nNewFiles ||
-            a.nNewFolders > b.nNewFolders ||
-            a.nNewActivities > b.nNewActivities
+            a.counts.nNewFiles > b.counts.nNewFiles ||
+            a.counts.nNewFolders > b.counts.nNewFolders ||
+            a.counts.nNewActivities > b.counts.nNewActivities
           ) {
             return -1
           }
 
           if (
-            a.nNewFiles < b.nNewFiles ||
-            a.nNewFolders < b.nNewFolders ||
-            a.nNewActivities < b.nNewActivities
+            a.counts.nNewFiles < b.counts.nNewFiles ||
+            a.counts.nNewFolders < b.counts.nNewFolders ||
+            a.counts.nNewActivities < b.counts.nNewActivities
           ) {
             return 1
           }

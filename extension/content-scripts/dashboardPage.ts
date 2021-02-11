@@ -1,18 +1,28 @@
 import shajs from "sha.js"
 
+import {
+  DashboardCrawlMessage,
+  DashboardScanResultMessage,
+  DownloadMessage,
+  ErrorViewMessage,
+  MarkAsSeenMessage,
+  Message,
+  ScanInProgressMessage,
+} from "extension/types/messages.types"
+import { ExtensionStorage } from "extension/types/extension.types"
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
-import { coursePageRegex, updateIconFromCourses, sendLog } from "../shared/helpers"
+import { getURLRegex, updateIconFromCourses, sendLog } from "../shared/helpers"
 import Course from "../models/Course"
 
 let error = false
 let scanInProgress = true
 let scanTotal = 0
 let scanCompleted = 0
-let courses = []
+let courses: Course[] = []
 let lastSettingsHash = ""
 
 function getOverviewSettings() {
-  const settingsDiv = document.querySelector("[data-region='courses-view'")
+  const settingsDiv: HTMLElement | null = document.querySelector("[data-region='courses-view'")
   if (settingsDiv) {
     return settingsDiv.dataset
   }
@@ -20,14 +30,14 @@ function getOverviewSettings() {
   return null
 }
 
-function hasHiddenParent(element) {
-  if (element === document) return false
+function hasHiddenParent(element: HTMLElement): boolean {
+  if (element === null || element.tagName === "HTML") return false
   if (getComputedStyle(element).display === "none" || element.hidden) return true
-  return element.parentNode && hasHiddenParent(element.parentNode)
+  return element.parentElement !== null && hasHiddenParent(element.parentElement)
 }
 
 function sendScanProgress() {
-  browser.runtime.sendMessage({
+  browser.runtime.sendMessage<ScanInProgressMessage>({
     command: "scan-in-progress",
     completed: scanCompleted,
     total: scanTotal,
@@ -35,16 +45,15 @@ function sendScanProgress() {
 }
 
 function sendScanResults() {
-  browser.runtime.sendMessage({
+  browser.runtime.sendMessage<DashboardScanResultMessage>({
     command: "scan-result",
     courses: courses.map(c => ({
       name: c.name,
       link: c.link,
       isNew: c.isFirstScan,
-      resourceNodes: c.resourceNodes,
-      activityNodes: c.activityNodes,
-      ...c.resourceCounts,
-      ...c.activityCounts,
+      resources: c.resources,
+      activities: c.activities,
+      counts: c.counts,
     })),
   })
 }
@@ -57,7 +66,7 @@ async function scanOverview(retry = 0) {
     scanCompleted = 0
     courses = []
 
-    let courseLinks = []
+    let courseLinks: string[] = []
 
     sendScanProgress()
 
@@ -86,15 +95,19 @@ async function scanOverview(retry = 0) {
       useFallback = true
     }
 
+    useFallback = true
     if (useFallback) {
       const searchRoot = document.querySelector("#region-main")
-      courseLinks = Array.from(
-        new Set(
-          Array.from(searchRoot.querySelectorAll("a"))
-            .filter(n => n.href.match(coursePageRegex) && !hasHiddenParent(n))
-            .map(n => n.href)
+      if (searchRoot) {
+        const coursePageRegex = getURLRegex("course")
+        courseLinks = Array.from(
+          new Set(
+            Array.from(searchRoot.querySelectorAll("a"))
+              .filter(n => n.href.match(coursePageRegex) && !hasHiddenParent(n))
+              .map(n => n.href)
+          )
         )
-      )
+      }
     }
 
     if (courseLinks.length === 0) {
@@ -156,10 +169,12 @@ if (isMoodlePage) {
   scanOverview()
 }
 
-browser.runtime.onMessage.addListener(async message => {
-  if (message.command === "scan") {
+// eslint-disable-next-line @typescript-eslint/ban-types
+const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+  const { command } = message as Message
+  if (command === "scan") {
     if (error) {
-      browser.runtime.sendMessage({
+      browser.runtime.sendMessage<ErrorViewMessage>({
         command: "error-view",
       })
       return
@@ -169,7 +184,7 @@ browser.runtime.onMessage.addListener(async message => {
       sendScanProgress()
     } else {
       if (error) {
-        browser.runtime.sendMessage({
+        browser.runtime.sendMessage<ErrorViewMessage>({
           command: "error-view",
         })
         return
@@ -195,8 +210,9 @@ browser.runtime.onMessage.addListener(async message => {
     return
   }
 
-  if (message.command === "mark-as-seen") {
-    const i = courses.findIndex(c => c.link === message.link)
+  if (command === "mark-as-seen") {
+    const { link } = message as MarkAsSeenMessage
+    const i = courses.findIndex(c => c.link === link)
     const course = courses[i]
 
     // Update course
@@ -206,16 +222,17 @@ browser.runtime.onMessage.addListener(async message => {
     updateIconFromCourses(courses)
   }
 
-  if (message.command === "crawl") {
-    const i = courses.findIndex(c => c.link === message.link)
+  if (command === "crawl") {
+    const { link } = message as DashboardCrawlMessage
+    const i = courses.findIndex(c => c.link === link)
     const course = courses[i]
 
-    const { options } = await browser.storage.local.get("options")
+    const { options }: ExtensionStorage = await browser.storage.local.get("options")
 
     // Only download new resources
-    const downloadNodes = course.resourceNodes.filter(node => node.isNewResource)
+    const downloadNodes = course.resources.filter(r => r.isNew)
 
-    browser.runtime.sendMessage({
+    browser.runtime.sendMessage<DownloadMessage>({
       command: "download",
       resources: downloadNodes,
       courseName: course.name,
@@ -229,4 +246,5 @@ browser.runtime.onMessage.addListener(async message => {
     await course.scan()
     updateIconFromCourses(courses)
   }
-})
+}
+browser.runtime.onMessage.addListener(messageListener)

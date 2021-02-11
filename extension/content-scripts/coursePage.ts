@@ -1,5 +1,13 @@
+import {
+  CourseCrawlMessage,
+  CourseScanResultMessage,
+  DownloadMessage,
+  ErrorViewMessage,
+  Message,
+} from "extension/types/messages.types"
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { updateIconFromCourses, sendLog } from "../shared/helpers"
+
 import Course from "../models/Course"
 
 const courseLink = parseCourseLink(location.href)
@@ -14,7 +22,7 @@ if (isMoodlePage) {
   course
     .scan()
     .then(() => {
-      updateIconFromCourses(course)
+      updateIconFromCourses([course])
 
       if (process.env.NODE_ENV !== "production") {
         console.log(course)
@@ -27,47 +35,51 @@ if (isMoodlePage) {
     })
 }
 
-browser.runtime.onMessage.addListener(async message => {
-  if (message.command === "scan") {
+// eslint-disable-next-line @typescript-eslint/ban-types
+const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+  const { command } = message as Message
+
+  if (command === "scan") {
     // await course.scan()
     // updateIconFromCourses(course)
 
     if (error) {
-      browser.runtime.sendMessage({
+      browser.runtime.sendMessage<ErrorViewMessage>({
         command: "error-view",
       })
       return
     }
 
-    browser.runtime.sendMessage({
+    browser.runtime.sendMessage<CourseScanResultMessage>({
       command: "scan-result",
-      resourceNodes: course.resourceNodes,
-      activityNodes: course.activityNodes,
-      ...course.resourceCounts,
-      ...course.activityCounts,
+      course: {
+        resources: course.resources,
+        activities: course.activities,
+        counts: course.counts,
+      },
     })
     return
   }
 
-  if (message.command === "mark-as-seen") {
+  if (command === "mark-as-seen") {
     await course.updateStoredResources()
     await course.updateStoredActivities()
     await course.scan()
-    updateIconFromCourses(course)
+    updateIconFromCourses([course])
     return
   }
 
-  if (message.command === "update-activities") {
+  if (command === "update-activities") {
     await course.updateStoredActivities()
     await course.scan()
-    updateIconFromCourses(course)
+    updateIconFromCourses([course])
     return
   }
 
-  if (message.command === "crawl") {
-    const { options, selectedResources } = message
+  if (command === "crawl") {
+    const { options, selectedResources } = message as CourseCrawlMessage
 
-    browser.runtime.sendMessage({
+    browser.runtime.sendMessage<DownloadMessage>({
       command: "download",
       resources: selectedResources,
       courseName: course.name,
@@ -77,6 +89,7 @@ browser.runtime.onMessage.addListener(async message => {
 
     await course.updateStoredResources(selectedResources)
     await course.scan()
-    updateIconFromCourses(course)
+    updateIconFromCourses([course])
   }
-})
+}
+browser.runtime.onMessage.addListener(messageListener)

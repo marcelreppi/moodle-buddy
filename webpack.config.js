@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { join } = require("path")
 const webpack = require("webpack")
 const CopyPlugin = require("copy-webpack-plugin")
@@ -12,23 +13,23 @@ console.log(`Webpack is in ${process.env.NODE_ENV} mode`)
 const polyfills = ["core-js/stable", "regenerator-runtime/runtime"]
 
 const backgroundEntry = filename => {
-  return polyfills.concat(join(__dirname, "extension", "background_scripts", filename))
+  return polyfills.concat(join(__dirname, "extension", "background-scripts", filename))
 }
 
 const contentEntry = filename => {
-  return polyfills.concat(join(__dirname, "extension", "content_scripts", filename))
+  return polyfills.concat(join(__dirname, "extension", "content-scripts", filename))
 }
 
 module.exports = {
   entry: {
     "popup/app.bundle": join(__dirname, "extension", "popup", "index.js"),
-    "content_scripts/course-page": contentEntry("course-page.js"),
-    "content_scripts/dashboard-page": contentEntry("dashboard-page.js"),
-    "content_scripts/videoservice-page": contentEntry("videoservice-page.js"),
-    "content_scripts/detector": contentEntry("detector.js"),
-    "background_scripts/downloader": backgroundEntry("downloader.js"),
-    "background_scripts/extension-listener": backgroundEntry("extension-listener.js"),
-    "background_scripts/background-scanner": backgroundEntry("background-scanner.js"),
+    "content-scripts/coursePage": contentEntry("coursePage.ts"),
+    "content-scripts/dashboardPage": contentEntry("dashboardPage.ts"),
+    "content-scripts/videoservicePage": contentEntry("videoservicePage.ts"),
+    "content-scripts/detector": contentEntry("detector.ts"),
+    "background-scripts/downloader": backgroundEntry("downloader.ts"),
+    "background-scripts/extensionListener": backgroundEntry("extensionListener.ts"),
+    "background-scripts/backgroundScanner": backgroundEntry("backgroundScanner.ts"),
   },
   output: {
     path: join(__dirname, "build"),
@@ -38,6 +39,11 @@ module.exports = {
   devtool: isProd ? undefined : "inline-source-map",
   module: {
     rules: [
+      {
+        test: /\.ts$/,
+        use: "ts-loader",
+        exclude: /node_modules/,
+      },
       {
         test: /\.js$/,
         loader: "babel-loader",
@@ -94,7 +100,7 @@ module.exports = {
     alias: {
       vue$: "vue/dist/vue.esm.js",
     },
-    extensions: ["*", ".js", ".vue", ".json"],
+    extensions: ["*", ".js", ".ts", ".vue", ".json"],
   },
   plugins: [
     new VueLoaderPlugin(),

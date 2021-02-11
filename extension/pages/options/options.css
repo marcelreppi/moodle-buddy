@@ -23,12 +23,9 @@ div.interval {
   margin-bottom: 10px;
 }
 
-div.interval span {
-  margin-right: 15px;
-}
-
-div.interval input {
-  width: 50px;
+input[type="number"] {
+  width: 60px;
+  margin-left: 10px;
 }
 
 .form-subsection {

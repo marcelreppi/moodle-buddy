@@ -5,7 +5,7 @@
       <div v-if="showNewActivityInfo" id="new-activities">
         <span>The following activities were added to the course:</span>
         <div class="bold" v-for="(node, i) in newActivities" :key="i">
-          {{ node.activityName }}
+          {{ node.name }}
         </div>
         <hr />
       </div>
@@ -91,7 +91,7 @@
 
       <detailed-selection
         v-else
-        :resources="resourceNodes"
+        :resources="resources"
         :setResourceSelected="setResourceSelected"
         :onlyNewResources="onlyNewResources"
       />
@@ -165,8 +165,8 @@ export default {
       nNewFolders: -1,
       nActivities: -1,
       nNewActivities: -1,
-      resourceNodes: null,
-      activityNodes: null,
+      resources: null,
+      activities: null,
       onlyNewResources: false,
       useMoodleFileName: false,
       prependCourseToFileName: false,
@@ -198,7 +198,7 @@ export default {
       return this.nNewFiles + this.nNewFolders
     },
     newActivities() {
-      return this.activityNodes.filter(n => n.isNewActivity)
+      return this.activities.filter(n => n.isNew)
     },
     disableFilesCb() {
       if (this.onlyNewResources) {
@@ -213,14 +213,14 @@ export default {
       return this.nFolders === 0
     },
     newResources() {
-      return this.resourceNodes.filter(n => n.isNewResource)
+      return this.resources.filter(n => n.isNew)
     },
     selectedResources() {
-      return this.resourceNodes.filter(n => {
+      return this.resources.filter(n => {
         if (this.activeSelectionTab === "simple") {
           if (!this.downloadFiles && n.isFile) return false
           if (!this.downloadFolders && n.isFolder) return false
-          if (this.onlyNewResources && !n.isNewResource) return false
+          if (this.onlyNewResources && !n.isNew) return false
 
           return true
         }
@@ -246,7 +246,7 @@ export default {
       }
 
       if (this.activeSelectionTab === "detailed") {
-        return this.resourceNodes.every(r => !r.selected)
+        return this.resources.every(r => !r.selected)
       }
 
       return false
@@ -324,7 +324,7 @@ export default {
       browser.runtime.openOptionsPage()
     },
     setResourceSelected(href, value) {
-      const resource = this.resourceNodes.find(r => r.href === href)
+      const resource = this.resources.find(r => r.href === href)
       resource.selected = value
     },
     onCancel() {
@@ -343,17 +343,19 @@ export default {
   created() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "scan-result") {
-        this.nFiles = message.nFiles
-        this.nNewFiles = message.nNewFiles
-        this.nFolders = message.nFolders
-        this.nNewFolders = message.nNewFolders
-        this.resourceNodes = message.resourceNodes.map(r => {
+        const { course } = message
+        const { resources, activities, counts } = course
+        this.nFiles = counts.nFiles
+        this.nNewFiles = counts.nNewFiles
+        this.nFolders = counts.nFolders
+        this.nNewFolders = counts.nNewFolders
+        this.resources = resources.map(r => {
           return { ...r, selected: false }
         })
 
-        this.nActivities = message.nActivities
-        this.nNewActivities = message.nNewActivities
-        this.activityNodes = message.activityNodes
+        this.nActivities = counts.nActivities
+        this.nNewActivities = counts.nNewActivities
+        this.activities = activities
 
         if (this.nNewResources > 0) {
           this.onlyNewResources = this.options.onlyNewResources

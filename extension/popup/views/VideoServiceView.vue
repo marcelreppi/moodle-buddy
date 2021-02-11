@@ -240,7 +240,7 @@ export default {
         this.loading = false
       }
 
-      if (message.command === "download-start-progress") {
+      if (message.command === "video-download-progress") {
         const { completed, total, errors } = message
         if (this.$refs.progressBar) {
           this.$refs.progressBar.setProgress(total, completed, errors)

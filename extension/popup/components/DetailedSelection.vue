@@ -33,7 +33,7 @@
           @mousemove="onMouseOver"
           @input="onCheck"
         >
-          <span class="resource">{{ r.fileName || r.folderName }}</span>
+          <span class="resource">{{ r.name }}</span>
           <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
           <div>
             <input :data-href="r.href" :ref="`fileCb${i}`" type="checkbox" :checked="r.selected" />
@@ -57,7 +57,7 @@
           @mousemove="onMouseOver"
           @input="onCheck"
         >
-          <span class="resource">{{ r.fileName || r.folderName }}</span>
+          <span class="resource">{{ r.name || r.name }}</span>
           <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
           <div>
             <input
@@ -97,7 +97,7 @@ export default {
     filteredResources() {
       if (this.searchInput === "") {
         if (this.onlyNewResources) {
-          return this.resources.filter(r => r.isNewResource)
+          return this.resources.filter(r => r.isNew)
         }
 
         return this.resources
@@ -106,15 +106,15 @@ export default {
       return this.resources.filter(r => {
         let isMatch = false
         if (r.isFile) {
-          isMatch = r.fileName.match(new RegExp(this.searchInput, "gi"))
+          isMatch = r.name.match(new RegExp(this.searchInput, "gi"))
         }
 
         if (r.isFolder) {
-          isMatch = r.folderName.match(new RegExp(this.searchInput, "gi"))
+          isMatch = r.name.match(new RegExp(this.searchInput, "gi"))
         }
 
         if (this.onlyNewResources) {
-          return r.isNewResource && isMatch
+          return r.isNew && isMatch
         }
 
         return isMatch

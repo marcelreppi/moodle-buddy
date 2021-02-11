@@ -23,6 +23,7 @@ function restore() {
   })
 }
 
+let timeout = null
 async function save(e) {
   e.preventDefault()
 
@@ -56,11 +57,15 @@ async function save(e) {
       }
     }
   }
-  await browser.runtime.sendMessage({
-    command: "event",
-    event: "modify-options",
-    eventData: changedOptions,
-  })
+
+  clearTimeout(timeout)
+  timeout = setTimeout(async () => {
+    await browser.runtime.sendMessage({
+      command: "event",
+      event: "modify-options",
+      eventData: changedOptions,
+    })
+  }, 500)
 
   if (updatedOptions.disableInteractionTracking) {
     await browser.runtime.sendMessage({

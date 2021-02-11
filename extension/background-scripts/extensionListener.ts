@@ -1,14 +1,18 @@
+import { CourseData } from "extension/models/Course.types"
+import { uuidv4, setIcon, setBadgeText } from "./helpers"
+import { sendEvent, sendPageData, sendFeedback, sendLog } from "./tracker"
+import { ExtensionOptions, ExtensionStorage, StoredCourseData } from "../types/extension.types"
 import {
-  sendEvent,
-  sendPageData,
-  sendFeedback,
-  uuidv4,
-  setIcon,
-  setBadgeText,
-  sendLog,
-} from "./helpers"
+  EventMessage,
+  ExecuteScriptMessage,
+  FeedbackMessage,
+  LogMessage,
+  Message,
+  PageDataMessage,
+  SetBadgeMessage,
+} from "../types/messages.types"
 
-const defaultOptions = {
+const defaultOptions: ExtensionOptions = {
   onlyNewResources: false,
   useMoodleFileName: true,
   showDownloadOptions: false,
@@ -26,9 +30,10 @@ const defaultOptions = {
   includeVideo: true,
   includeAudio: true,
   includeImage: false,
+  maxConcurrentDownloads: 100,
 }
 
-const initialStorage = {
+const initialStorage: ExtensionStorage = {
   options: defaultOptions,
   browserId: uuidv4(),
   overviewCourseLinks: [], // Used for background scanning
@@ -52,8 +57,8 @@ async function onInstall() {
 }
 
 async function onUpdate() {
-  const localStorage = await browser.storage.local.get()
-  const localOptions = localStorage.options
+  const localStorage: ExtensionStorage = await browser.storage.local.get()
+  const localOptions: ExtensionOptions = localStorage.options as ExtensionOptions
 
   // Merge existing options
   let updatedOptions = { ...defaultOptions }
@@ -62,7 +67,7 @@ async function onUpdate() {
   }
 
   // Transfer course data from localStorage to courseData object
-  let updatedCourseData = {}
+  let updatedCourseData: StoredCourseData = {}
   // Add current state
   if (localStorage.courseData) {
     updatedCourseData = { ...localStorage.courseData }
@@ -70,7 +75,7 @@ async function onUpdate() {
   // Transfer the data
   for (const key in localStorage) {
     if (key.startsWith("http")) {
-      updatedCourseData[key] = localStorage[key]
+      updatedCourseData[key] = localStorage[key] as CourseData
       delete localStorage[key]
     }
   }
@@ -114,25 +119,35 @@ browser.runtime.onInstalled.addListener(async details => {
   )
 })
 
-browser.runtime.onMessage.addListener(async (message, sender) => {
-  switch (message.command) {
+const messageListener: browser.runtime.onMessageEvent = async (
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  message: object,
+  sender: browser.runtime.MessageSender
+) => {
+  const { command } = message as Message
+  switch (command) {
     case "event":
-      sendEvent(message.event, message.saveURL, message.eventData)
+      const { event, saveURL, eventData } = message as EventMessage
+      sendEvent(event, saveURL, eventData)
       break
     case "page-data":
-      sendPageData(message.HTMLString, message.page)
+      const { pageData } = message as PageDataMessage
+      sendPageData(pageData)
       break
     case "feedback":
-      sendFeedback(message.subject, message.content)
+      const { feedbackData } = message as FeedbackMessage
+      sendFeedback(feedbackData)
       break
     case "set-icon":
-      setIcon(sender.tab.id)
+      setIcon(sender.tab?.id)
       break
     case "set-badge":
-      setBadgeText(message.text, sender.tab.id)
+      const { text } = message as SetBadgeMessage
+      setBadgeText(text, sender.tab?.id)
       break
     case "log":
-      sendLog(message.log)
+      const { logData } = message as LogMessage
+      sendLog(logData)
       break
     case "clear-course-data":
       await browser.storage.local.set({
@@ -140,11 +155,13 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
       })
       break
     case "execute-script":
-      browser.tabs.executeScript({
-        file: `content_scripts/${message.page}-page.js`,
+      const { scriptName } = message as ExecuteScriptMessage
+      browser.tabs.executeScript(undefined, {
+        file: `content-scripts/${scriptName}Page.js`,
       })
       break
     default:
       break
   }
-})
+}
+browser.runtime.onMessage.addListener(messageListener)
