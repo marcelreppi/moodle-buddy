@@ -68,7 +68,7 @@ class Course {
     this.resources.push(resource)
   }
 
-  private addFile(node: Element, options: ExtensionOptions) {
+  private addFile(node: HTMLElement, options: ExtensionOptions) {
     const href = parser.parseURLFromNode(node, "file", options)
     if (href === "") return
 
@@ -85,7 +85,7 @@ class Course {
     this.addResource(resource)
   }
 
-  private addPluginFile(node: Element, options: ExtensionOptions, partOfFolder = ""): void {
+  private addPluginFile(node: HTMLElement, options: ExtensionOptions, partOfFolder = ""): void {
     const href = parser.parseURLFromNode(node, "pluginfile", options)
     if (href === "") return
 
@@ -107,7 +107,7 @@ class Course {
     this.addResource(resource)
   }
 
-  private addURLNode(node: Element, options: ExtensionOptions) {
+  private addURLNode(node: HTMLElement, options: ExtensionOptions) {
     // Make sure URL is a downloadable file
     const activityIcon: HTMLImageElement | null = node.querySelector("img.activityicon")
     if (activityIcon) {
@@ -137,7 +137,7 @@ class Course {
     }
   }
 
-  private addFolder(node: Element, options: ExtensionOptions) {
+  private addFolder(node: HTMLElement, options: ExtensionOptions) {
     const resource: FolderResource = {
       href: parser.parseURLFromNode(node, "folder", options),
       name: parser.parseFileNameFromNode(node),
@@ -167,7 +167,9 @@ class Course {
         // Not downloading via button as ZIP
         // Download folder as individual pluginfiles
         // Look for any pluginfiles
-        const folderFiles = node.querySelectorAll(parser.getQuerySelector("pluginfile", options))
+        const folderFiles = node.querySelectorAll<HTMLElement>(
+          parser.getQuerySelector("pluginfile", options)
+        )
         for (const pluginFile of Array.from(folderFiles)) {
           this.addPluginFile(pluginFile, options, resource.name)
         }
@@ -179,7 +181,7 @@ class Course {
     this.addResource(resource, true)
   }
 
-  private addActivity(node: Element, options: ExtensionOptions) {
+  private addActivity(node: HTMLElement, options: ExtensionOptions) {
     const href = parser.parseURLFromNode(node, "activity", options)
     if (href === "") return
 
@@ -228,7 +230,7 @@ class Course {
       return
     }
 
-    const modules = mainHTML.querySelectorAll("li[id^='module-']")
+    const modules = mainHTML.querySelectorAll<HTMLElement>("li[id^='module-']")
     if (modules && modules.length !== 0) {
       for (const node of Array.from(modules)) {
         const isFile = node.classList.contains("resource")
@@ -247,22 +249,34 @@ class Course {
       }
 
       // Check for pluginfiles that could be anywhere on the page
-      const pluginFileNodes = mainHTML.querySelectorAll(
+      const pluginFileNodes = mainHTML.querySelectorAll<HTMLElement>(
         parser.getQuerySelector("pluginfile", options)
       )
-      const mediaFileNodes = mainHTML.querySelectorAll(parser.getQuerySelector("media", options))
+      const mediaFileNodes = mainHTML.querySelectorAll<HTMLElement>(
+        parser.getQuerySelector("media", options)
+      )
       pluginFileNodes.forEach(n => this.addPluginFile(n, options))
       mediaFileNodes.forEach(n => this.addPluginFile(n, options))
     } else {
       // Backup solution that is a little more brute force
-      const fileNodes = mainHTML.querySelectorAll(parser.getQuerySelector("file", options))
-      const pluginFileNodes = mainHTML.querySelectorAll(
+      const fileNodes = mainHTML.querySelectorAll<HTMLElement>(
+        parser.getQuerySelector("file", options)
+      )
+      const pluginFileNodes = mainHTML.querySelectorAll<HTMLElement>(
         parser.getQuerySelector("pluginfile", options)
       )
-      const urlFileNodes = mainHTML.querySelectorAll(parser.getQuerySelector("url", options))
-      const mediaFileNodes = mainHTML.querySelectorAll(parser.getQuerySelector("media", options))
-      const folderNodes = mainHTML.querySelectorAll(parser.getQuerySelector("folder", options))
-      const activities = mainHTML.querySelectorAll(parser.getQuerySelector("activity", options))
+      const urlFileNodes = mainHTML.querySelectorAll<HTMLElement>(
+        parser.getQuerySelector("url", options)
+      )
+      const mediaFileNodes = mainHTML.querySelectorAll<HTMLElement>(
+        parser.getQuerySelector("media", options)
+      )
+      const folderNodes = mainHTML.querySelectorAll<HTMLElement>(
+        parser.getQuerySelector("folder", options)
+      )
+      const activities = mainHTML.querySelectorAll<HTMLElement>(
+        parser.getQuerySelector("activity", options)
+      )
 
       fileNodes.forEach(n => this.addFile(n, options))
       pluginFileNodes.forEach(n => this.addPluginFile(n, options))

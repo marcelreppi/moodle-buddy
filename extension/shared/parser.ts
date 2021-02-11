@@ -170,7 +170,7 @@ export function getQuerySelector(type: QuerySelectorTypes, options: ExtensionOpt
 }
 
 export function parseURLFromNode(
-  node: Element,
+  node: HTMLElement,
   type: QuerySelectorTypes,
   options: ExtensionOptions
 ): string {
@@ -198,7 +198,7 @@ export function parseURLFromNode(
   return ""
 }
 
-export function parseFileNameFromNode(node: Element): string {
+export function parseFileNameFromNode(node: HTMLElement): string {
   // Files or Folders
   let contentNode = node.querySelector(".instancename")
   if (contentNode) {
@@ -269,7 +269,7 @@ export function parseFileNameFromPluginFileURL(url: string): string {
   return fileName
 }
 
-export function parseActivityNameFromNode(node: Element): string {
+export function parseActivityNameFromNode(node: HTMLElement): string {
   const contentNode = node.querySelector(".instancename")
   if (contentNode) {
     const { firstChild } = contentNode
@@ -284,7 +284,7 @@ export function parseActivityNameFromNode(node: Element): string {
   return "Unknown Activity"
 }
 
-export function parseActivityTypeFromNode(node: Element): string {
+export function parseActivityTypeFromNode(node: HTMLElement): string {
   const modtypeClassResult = node.className.match(/modtype.*(?= )/gi)
   if (modtypeClassResult) {
     const activityType = modtypeClassResult[0].split("_")[1]
@@ -307,7 +307,7 @@ export function parseActivityTypeFromNode(node: Element): string {
   return "Unkown Activity Type"
 }
 
-export function parseSectionName(node: Element, document: Document): string {
+export function parseSectionName(node: HTMLElement, document: Document): string {
   const section = node.closest("[id^='section-']")
 
   if (!section) {
@@ -347,10 +347,10 @@ export function parseSectionName(node: Element, document: Document): string {
   return "Unknown Section"
 }
 
-export function getDownloadButton(node: Element): HTMLFormElement | null {
+export function getDownloadButton(node: HTMLElement): HTMLFormElement | null {
   return node.querySelector<HTMLFormElement>(`form[action$="/mod/folder/download_folder.php"]`)
 }
 
-export function getDownloadIdTag(node: Element): HTMLInputElement | null {
+export function getDownloadIdTag(node: HTMLElement): HTMLInputElement | null {
   return node.querySelector<HTMLInputElement>("input[name='id']")
 }

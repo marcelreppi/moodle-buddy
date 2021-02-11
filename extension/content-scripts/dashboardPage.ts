@@ -30,10 +30,10 @@ function getOverviewSettings() {
   return null
 }
 
-function hasHiddenParent(element: any): boolean {
+function hasHiddenParent(element: HTMLElement): boolean {
   if (element === null || element.tagName === "HTML") return false
   if (getComputedStyle(element).display === "none" || element.hidden) return true
-  return element.parentNode && hasHiddenParent(element.parentNode)
+  return element.parentElement !== null && hasHiddenParent(element.parentElement)
 }
 
 function sendScanProgress() {
@@ -95,6 +95,7 @@ async function scanOverview(retry = 0) {
       useFallback = true
     }
 
+    useFallback = true
     if (useFallback) {
       const searchRoot = document.querySelector("#region-main")
       if (searchRoot) {
