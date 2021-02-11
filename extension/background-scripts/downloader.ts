@@ -22,6 +22,7 @@ class Downloader {
   resources: Resource[]
   options: ExtensionOptions
 
+  private sentData: boolean
   private isCancelled: boolean
   private fileCount: number
   private byteCount: number
@@ -49,6 +50,7 @@ class Downloader {
     this.resources = resources
     this.options = options
 
+    this.sentData = false
     this.isCancelled = false
     this.fileCount = 0
     this.byteCount = 0
@@ -69,9 +71,19 @@ class Downloader {
 
   async cancel() {
     this.isCancelled = true
+
     for (const id of this.inProgress) {
       await browser.downloads.cancel(id)
     }
+
+    const remainingFiles =
+      this.addCount -
+      this.removeCount -
+      this.interruptCount -
+      this.finished.length -
+      this.inProgress.size
+
+    this.removeFiles(remainingFiles)
   }
 
   isDownloading(id: number): boolean {
@@ -170,7 +182,7 @@ class Downloader {
 
   private async onUpdate() {
     // Check if all downloads have completed
-    if (this.finished.length === this.fileCount) {
+    if (this.isDone() && !this.sentData) {
       // All downloads have finished
       sendDownloadData({
         fileCount: this.fileCount,
@@ -186,6 +198,7 @@ class Downloader {
       await browser.storage.local.set({
         totalDownloadedFiles: totalDownloadedFiles + this.fileCount,
       })
+      this.sentData = true
     }
   }
 
