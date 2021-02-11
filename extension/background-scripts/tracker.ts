@@ -1,4 +1,4 @@
-import { ExtensionStorage } from "extension/types/global.types"
+import { ExtensionStorage } from "extension/types/extension.types"
 import {
   AdditionalPayload,
   DownloadData,

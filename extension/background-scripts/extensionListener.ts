@@ -1,7 +1,7 @@
 import { CourseData } from "extension/models/Course.types"
 import { uuidv4, setIcon, setBadgeText } from "./helpers"
 import { sendEvent, sendPageData, sendFeedback, sendLog } from "./tracker"
-import { ExtensionOptions, ExtensionStorage, StoredCourseData } from "../types/global.types"
+import { ExtensionOptions, ExtensionStorage, StoredCourseData } from "../types/extension.types"
 import {
   EventMessage,
   ExecuteScriptMessage,

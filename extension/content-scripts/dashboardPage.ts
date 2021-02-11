@@ -8,7 +8,7 @@ import {
   Message,
   ScanInProgressMessage,
 } from "extension/types/messages.types"
-import { ExtensionStorage } from "extension/types/global.types"
+import { ExtensionStorage } from "extension/types/extension.types"
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { getURLRegex, updateIconFromCourses, sendLog } from "../shared/helpers"
 import Course from "../models/Course"

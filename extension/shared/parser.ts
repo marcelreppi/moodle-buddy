@@ -1,4 +1,4 @@
-import { ExtensionOptions } from "extension/types/global.types"
+import { ExtensionOptions } from "extension/types/extension.types"
 import { getURLRegex } from "./helpers"
 
 export function checkForMoodle(): boolean {

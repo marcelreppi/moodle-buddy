@@ -1,4 +1,4 @@
-import { ExtensionOptions, ExtensionStorage } from "extension/types/global.types"
+import { ExtensionOptions, ExtensionStorage } from "extension/types/extension.types"
 import * as parser from "../shared/parser"
 import { getMoodleBaseURL } from "../shared/helpers"
 import {

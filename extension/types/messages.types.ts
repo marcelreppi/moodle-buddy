@@ -1,5 +1,5 @@
 import { Resource } from "extension/models/Course.types"
-import { ExtensionOptions } from "./global.types"
+import { ExtensionOptions } from "./extension.types"
 import { FeedbackData, LogData, PageData } from "./tracker.types"
 
 export interface Message {

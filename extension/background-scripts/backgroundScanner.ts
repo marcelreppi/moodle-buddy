@@ -1,4 +1,4 @@
-import { ExtensionStorage } from "extension/types/global.types"
+import { ExtensionStorage } from "extension/types/extension.types"
 import { getURLRegex, getUpdatesFromCourses } from "../shared/helpers"
 import { setBadgeText } from "./helpers"
 import Course from "../models/Course"

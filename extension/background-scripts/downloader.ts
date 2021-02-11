@@ -1,7 +1,7 @@
 import pLimit from "p-limit"
 
 import { DownloadMessage, DownloadProgressMessage, Message } from "extension/types/messages.types"
-import { ExtensionOptions, ExtensionStorage } from "extension/types/global.types"
+import { ExtensionOptions, ExtensionStorage } from "extension/types/extension.types"
 import { FileResource, FolderResource, Resource } from "extension/models/Course.types"
 import {
   parseFileNameFromPluginFileURL,
