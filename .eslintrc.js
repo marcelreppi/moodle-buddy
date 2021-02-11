@@ -68,6 +68,9 @@ module.exports = {
     {
       files: ["**/*.vue"],
       parser: "vue-eslint-parser",
+      rules: {
+        "@typescript-eslint/explicit-module-boundary-types": 0,
+      },
     },
   ],
 }
