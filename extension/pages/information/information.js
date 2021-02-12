@@ -18,12 +18,14 @@ document.querySelector("#privacy-link").addEventListener("click", () => {
   })
 })
 
-document.querySelector("#options-link").addEventListener("click", () => {
-  browser.runtime.sendMessage({
-    command: "event",
-    event: "options-click",
+document.querySelectorAll(".options-link").forEach(n => {
+  n.addEventListener("click", () => {
+    browser.runtime.sendMessage({
+      command: "event",
+      event: "options-click",
+    })
+    browser.runtime.openOptionsPage()
   })
-  browser.runtime.openOptionsPage()
 })
 
 document.querySelector("#donate-link").addEventListener("click", () => {
@@ -33,9 +35,11 @@ document.querySelector("#donate-link").addEventListener("click", () => {
   })
 })
 
-document.querySelector("#contact").addEventListener("click", () => {
-  browser.tabs.create({
-    url: "/pages/contact/contact.html",
+document.querySelectorAll(".contact-link").forEach(n => {
+  n.addEventListener("click", () => {
+    browser.tabs.create({
+      url: "/pages/contact/contact.html",
+    })
   })
 })
 
