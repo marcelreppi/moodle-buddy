@@ -8,13 +8,13 @@ import {
   VideoDownloadProgressMessage,
   VideoScanResultMessage,
 } from "extension/types/messages.types"
-import { Resource } from "extension/models/Course.types"
+import { VideoResource } from "extension/models/Course.types"
 import { getQuerySelector, parseCourseNameFromCoursePage } from "../shared/parser"
 import { sendLog } from "../shared/helpers"
 
 const courseName = parseCourseNameFromCoursePage(document)
 let videoNodes: HTMLAnchorElement[] = []
-let videoResources: Resource[] = []
+let videoResources: VideoResource[] = []
 let cancel = false
 let error = false
 
@@ -45,11 +45,13 @@ async function scanForVideos() {
       }
 
       if (videoElement !== null && fileName !== "") {
-        const videoResource: Resource = {
+        const videoResource: VideoResource = {
           href: videoElement.src,
+          src: videoElement.src,
           name: fileName,
           section: "",
           isNew: false,
+          isFile: true,
           type: "videoservice",
         }
         videoResources.push(videoResource)
@@ -75,11 +77,13 @@ async function scanForVideos() {
         }, [] as HTMLAnchorElement[])
 
       videoNodes.forEach(n => {
-        const videoResource: Resource = {
+        const videoResource: VideoResource = {
           href: n.href,
+          src: "",
           name: n.textContent ? n.textContent.trim() : "Unknown Video",
           section: "",
           isNew: false,
+          isFile: true,
           type: "videoservice",
         }
         videoResources.push(videoResource)
@@ -92,47 +96,32 @@ async function scanForVideos() {
   }
 }
 
-async function downloadVideoResource(videoResource: Resource, options: ExtensionOptions) {
-  return new Promise<void>(resolve => {
-    if (location.href.endsWith("view")) {
-      browser.runtime.sendMessage<DownloadMessage>({
-        command: "download",
-        resources: [videoResource],
-        courseName,
-        courseShortcut: "",
-        options,
-      })
-      resolve()
-      return
-    }
-
-    if (location.href.endsWith("browse")) {
-      const videoNode = videoNodes.find(n => n.href === videoResource.href)
+async function getVideoResourceSrc(
+  videoResource: VideoResource,
+  options: ExtensionOptions
+): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    const videoNode = videoNodes.find(n => n.href === videoResource.href)
+    if (videoNode) {
       videoNode?.click()
 
-      function attemptDownload() {
+      function attemptSrcParsing() {
         const videoURLSelector = getQuerySelector("videoservice", options)
         const videoElement = document.querySelector<HTMLVideoElement>(videoURLSelector)
         const backButton = document.querySelector<HTMLAnchorElement>("a[href$='browse']")
 
         if (videoElement === null || backButton === null) {
-          setTimeout(attemptDownload, 2000)
+          setTimeout(attemptSrcParsing, 2000)
           return
         }
 
-        browser.runtime.sendMessage<DownloadMessage>({
-          command: "download",
-          resources: [{ ...videoResource, href: videoElement.src }],
-          courseName,
-          courseShortcut: "",
-          options,
-        })
-
         backButton?.click()
-        resolve()
+        resolve(videoElement.src)
       }
 
-      setTimeout(attemptDownload, 3000)
+      setTimeout(attemptSrcParsing, 3000)
+    } else {
+      reject()
     }
   })
 }
@@ -142,7 +131,6 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
   const { command } = message as Message
   if (command === "scan") {
     await scanForVideos()
-    console.log(videoNodes, videoResources)
 
     if (error) {
       browser.runtime.sendMessage<ErrorViewMessage>({
@@ -162,21 +150,49 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     const { options, selectedResources } = message as CourseCrawlMessage
 
     try {
-      for (let i = 0; i < selectedResources.length; i++) {
-        const selectedResource = selectedResources[i]
-        const videoResource = videoResources.find(r => r.href === selectedResource.href)
-        if (videoResource) {
-          await downloadVideoResource(videoResource, options)
-          browser.runtime.sendMessage<VideoDownloadProgressMessage>({
-            command: "video-download-progress",
-            completed: i + 1,
-            total: selectedResources.length,
-          })
-          if (cancel) {
-            cancel = false
-            return
+      if (location.href.endsWith("view")) {
+        // A single video is being diplayed
+        await browser.runtime.sendMessage<DownloadMessage>({
+          command: "download",
+          resources: videoResources,
+          courseName,
+          courseShortcut: "",
+          options,
+        })
+        await browser.runtime.sendMessage<VideoDownloadProgressMessage>({
+          command: "video-download-progress",
+          completed: videoResources.length,
+          total: selectedResources.length,
+        })
+      } else if (location.href.endsWith("browse")) {
+        // A list of videos is being displayed
+        const downloadVideoResources: VideoResource[] = []
+        for (let i = 0; i < selectedResources.length; i++) {
+          const selectedResource = selectedResources[i]
+          const videoResource = videoResources.find(r => r.href === selectedResource.href)
+          if (videoResource) {
+            videoResource.src = await getVideoResourceSrc(videoResource, options)
+            browser.runtime.sendMessage<VideoDownloadProgressMessage>({
+              command: "video-download-progress",
+              completed: i + 1,
+              total: selectedResources.length,
+            })
+            downloadVideoResources.push(videoResource)
+
+            if (cancel) {
+              cancel = false
+              return
+            }
           }
         }
+
+        browser.runtime.sendMessage<DownloadMessage>({
+          command: "download",
+          resources: downloadVideoResources,
+          courseName,
+          courseShortcut: "",
+          options,
+        })
       }
     } catch (err) {
       console.error(err)

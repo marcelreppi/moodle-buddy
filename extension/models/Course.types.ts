@@ -12,6 +12,11 @@ export interface FileResource extends Resource {
   isFile: true
 }
 
+export interface VideoResource extends FileResource {
+  src: string
+  type: "videoservice"
+}
+
 export interface FolderResource extends Resource {
   type: "folder"
   isFolder: true

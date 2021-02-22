@@ -2,7 +2,12 @@ import pLimit from "p-limit"
 
 import { DownloadMessage, DownloadProgressMessage, Message } from "extension/types/messages.types"
 import { ExtensionOptions, ExtensionStorage } from "extension/types/extension.types"
-import { FileResource, FolderResource, Resource } from "extension/models/Course.types"
+import {
+  FileResource,
+  FolderResource,
+  Resource,
+  VideoResource,
+} from "extension/models/Course.types"
 import {
   parseFileNameFromPluginFileURL,
   getDownloadButton,
@@ -151,7 +156,7 @@ class Downloader {
             await this.downloadFolder(r as FolderResource)
             break
           case "videoservice":
-            await this.downloadVideoServiceVideo(r as FileResource)
+            await this.downloadVideoServiceVideo(r as VideoResource)
             break
           default:
             break
@@ -405,10 +410,10 @@ class Downloader {
     }
   }
 
-  private async downloadVideoServiceVideo(resource: FileResource) {
+  private async downloadVideoServiceVideo(resource: VideoResource) {
     if (this.isCancelled) return
 
-    let fileName = parseFileNameFromPluginFileURL(resource.href)
+    let fileName = parseFileNameFromPluginFileURL(resource.src)
     const fileParts = fileName.split(".")
     let fileType = fileParts.pop()
     while (fileType === "") {
@@ -423,7 +428,7 @@ class Downloader {
       fileName = `${sanitizeFileName(resource.name)}.${fileType}`
     }
 
-    await this.download(resource.href, fileName, resource.section)
+    await this.download(resource.src, fileName, resource.section)
   }
 }
 
