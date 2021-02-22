@@ -66,6 +66,7 @@ async function scanOverview(retry = 0) {
     scanCompleted = 0
     courses = []
 
+    const { options }: ExtensionStorage = await browser.storage.local.get("options")
     let courseLinks: string[] = []
 
     sendScanProgress()
@@ -119,6 +120,9 @@ async function scanOverview(retry = 0) {
         return
       }
     } else {
+      // Apply maxCoursesOnDashboardPage option
+      courseLinks = courseLinks.slice(0, options.maxCoursesOnDashboardPage)
+
       // Some courses were found
       scanTotal = courseLinks.length
 

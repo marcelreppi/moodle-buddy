@@ -132,15 +132,15 @@
 
       <div class="form-subsection">File name</div>
       <div>
-        <input type="checkbox" id="useMoodleFileName" />
-        <label for="useMoodleFileName">
-          Use Moodle file name as actual file name
-        </label>
-      </div>
-      <div>
         <input type="checkbox" id="showDownloadOptions" />
         <label for="showDownloadOptions">
           Show the download options to modify the filename
+        </label>
+      </div>
+      <div>
+        <input type="checkbox" id="useMoodleFileName" />
+        <label for="useMoodleFileName">
+          Use Moodle file name as actual file name
         </label>
       </div>
       <div>
@@ -156,8 +156,14 @@
         </label>
       </div>
 
-      <div class="form-section">Course overview page options</div>
+      <div class="form-section">Dashboard page options</div>
 
+      <div>
+        <label for="maxCoursesOnDashboardPage">
+          Maximum scanned courses
+        </label>
+        <input type="number" id="maxCoursesOnDashboardPage" min="1" step="1" />
+      </div>
       <div>
         <input type="checkbox" id="alwaysShowDetails" />
         <label for="alwaysShowDetails">

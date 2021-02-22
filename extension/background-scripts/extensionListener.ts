@@ -31,6 +31,7 @@ const defaultOptions: ExtensionOptions = {
   includeAudio: true,
   includeImage: false,
   maxConcurrentDownloads: 100,
+  maxCoursesOnDashboardPage: 100,
 }
 
 const initialStorage: ExtensionStorage = {
