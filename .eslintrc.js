@@ -51,13 +51,7 @@ module.exports = {
     ],
     "no-useless-return": 0,
     "no-restricted-syntax": 0,
-    "no-unused-vars": [
-      1,
-      {
-        ignoreSiblings: true,
-        argsIgnorePattern: "res|next|^err|reject|event",
-      },
-    ],
+    "no-unused-vars": 1,
     "no-use-before-define": 0,
     "no-inner-declarations": 0,
   },
