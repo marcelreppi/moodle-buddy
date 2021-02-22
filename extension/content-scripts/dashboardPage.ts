@@ -101,13 +101,9 @@ async function scanOverview(retry = 0) {
       const searchRoot = document.querySelector("#region-main")
       if (searchRoot) {
         const coursePageRegex = getURLRegex("course")
-        courseLinks = Array.from(
-          new Set(
-            Array.from(searchRoot.querySelectorAll("a"))
-              .filter(n => n.href.match(coursePageRegex) && !hasHiddenParent(n))
-              .map(n => n.href)
-          )
-        )
+        courseLinks = Array.from(searchRoot.querySelectorAll("a"))
+          .filter(n => n.href.match(coursePageRegex) && !hasHiddenParent(n))
+          .map(n => n.href)
       }
     }
 
@@ -120,10 +116,11 @@ async function scanOverview(retry = 0) {
         return
       }
     } else {
+      // Remove duplicates
+      courseLinks = Array.from(new Set(courseLinks))
       // Apply maxCoursesOnDashboardPage option
       courseLinks = courseLinks.slice(0, options.maxCoursesOnDashboardPage)
 
-      // Some courses were found
       scanTotal = courseLinks.length
 
       if (process.env.NODE_ENV === "debug") {
