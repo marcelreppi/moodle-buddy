@@ -22,7 +22,7 @@ const contentEntry = filename => {
 
 module.exports = {
   entry: {
-    "popup/app.bundle": join(__dirname, "extension", "popup", "index.js"),
+    "popup/app.bundle": ["babel-polyfill", join(__dirname, "extension", "popup", "index.js")],
     "content-scripts/coursePage": contentEntry("coursePage.ts"),
     "content-scripts/dashboardPage": contentEntry("dashboardPage.ts"),
     "content-scripts/videoservicePage": contentEntry("videoservicePage.ts"),
