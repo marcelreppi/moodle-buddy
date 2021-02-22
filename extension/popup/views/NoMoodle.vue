@@ -48,21 +48,23 @@ export default {
   },
   data() {
     return {
+      moodleURL: this.options ? this.options.defaultMoodleURL : "",
       urlInput: "",
       showInvalidURL: false,
     }
   },
+  watch: {
+    options(newOptions) {
+      this.moodleURL = newOptions ? newOptions.defaultMoodleURL : ""
+    },
+  },
   computed: {
     showDefaultURLInput() {
-      if (this.options) {
-        return this.options.defaultMoodleURL === ""
-      }
-
-      return true
+      return this.moodleURL === ""
     },
   },
   methods: {
-    onSaveClick() {
+    async onSaveClick() {
       if (!this.urlInput.match(validURLRegex)) {
         this.showInvalidURL = true
         setTimeout(() => {
@@ -70,14 +72,14 @@ export default {
         }, 2000)
         return
       }
-      this.options.defaultMoodleURL = this.urlInput
-      browser.storage.local.set({
-        options: { ...this.options },
+      this.moodleURL = this.urlInput
+      await browser.storage.local.set({
+        options: { ...this.options, defaultMoodleURL: this.moodleURL },
       })
     },
-    navigateToMoodle() {
-      browser.tabs.create({
-        url: this.options.defaultMoodleURL,
+    async navigateToMoodle() {
+      await browser.tabs.create({
+        url: this.moodleURL,
       })
       sendEvent("go-to-moodle", false)
       window.close()

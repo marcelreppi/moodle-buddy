@@ -176,8 +176,8 @@ export default {
   created() {
     browser.runtime.onMessage.addListener(message => {
       if (message.command === "state") {
-        this.page = message.page
         this.cacheStorageData(message)
+        this.page = message.page
 
         if (process.env.NODE_ENV === "debug") {
           const filename = this.activeTab.url.split("/").pop()
