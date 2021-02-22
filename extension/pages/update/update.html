@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="./update.css" />
+    <link rel="shortcut icon" type="image/png" href="../../icons/48.png" />
+    <title>Moodle Buddy</title>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="title">
+        Moodle Buddy
+        <img class="title-icon" src="../../icons/48.png" />
+      </div>
+
+      <div class="content-container">
+        <h2 class="thank-you">
+          Moodle Buddy has been updated to version
+          <span class="version"></span>
+          🎉
+        </h2>
+        <h3>New Features</h3>
+        <div class="section-content">
+          <ol>
+            <li>
+              <b>Concurrent download limiting</b>
+              <div>
+                In the
+                <span id="maxConcurrentDownloads" class="link options-link">
+                  settings
+                </span>
+                you can now configure the maximum amount of concurrent downloads
+                that Moodle Buddy will start.
+              </div>
+            </li>
+            <li>
+              <b>Dashboard scan limiting</b>
+              <div>
+                In the
+                <span id="maxCoursesOnDashboardPage" class="link options-link">
+                  settings
+                </span>
+                you can now limit the maximum amount courses that will be
+                scanned when visiting the dashboard page.
+              </div>
+            </li>
+            <li>
+              <b>
+                Added a FAQ / Troubleshoot to the
+                <span id="faq" class="link info-page">information page</span>
+              </b>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="footer-row">
+          <span>
+            Inofficial Plugin made by
+            <a href="https://twitter.com/marcelreppi">marcelreppi</a>
+          </span>
+          <span class="footer-right-section">
+            (v.
+            <span class="version"></span>
+            )
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <script src="/shared/browser-polyfill.js"></script>
+    <script src="update.js"></script>
+  </body>
+</html>
