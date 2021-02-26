@@ -1,4 +1,4 @@
-import { ExtensionOptions, ExtensionStorage } from "extension/types/extension.types"
+import { ExtensionStorage } from "extension/types/extension.types"
 import {
   ExecuteScriptMessage,
   Message,
@@ -10,11 +10,13 @@ import { PageData } from "extension/types/tracker.types"
 import { getMoodleBaseURL, getURLRegex } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"
 
-async function setDefaultMoodleURL(options: ExtensionOptions) {
+async function setDefaultMoodleURL() {
+  const { options }: ExtensionStorage = await browser.storage.local.get("options")
+
   if (!options.autoSetMoodleURL) return
 
   const baseURL = getMoodleBaseURL(location.href)
-  browser.storage.local.set({
+  await browser.storage.local.set({
     options: {
       ...options,
       defaultMoodleURL: `${baseURL}/my`,
@@ -53,15 +55,12 @@ async function runDetector() {
 
   const isSupportedPage = page !== ""
 
-  const localStorage: ExtensionStorage = await browser.storage.local.get()
-  const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = localStorage
-
   if (isSupportedPage) {
     browser.runtime.sendMessage<SetIconMessage>({
       command: "set-icon",
     })
 
-    setDefaultMoodleURL(options)
+    setDefaultMoodleURL()
 
     browser.runtime.sendMessage<ExecuteScriptMessage>({
       command: "execute-script",
@@ -73,7 +72,10 @@ async function runDetector() {
     // eslint-disable-next-line @typescript-eslint/ban-types
     message: object
   ) => {
+    const localStorage: ExtensionStorage = await browser.storage.local.get()
+    const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = localStorage
     const { command } = message as Message
+
     if (command === "get-state") {
       browser.runtime.sendMessage<StateMessage>({
         command: "state",
@@ -101,14 +103,12 @@ async function runDetector() {
       await browser.storage.local.set({
         userHasRated: true,
       })
-      runDetector()
     }
 
     if (command === "avoid-rate-click") {
       await browser.storage.local.set({
         rateHintLevel: rateHintLevel + 1,
       })
-      runDetector()
     }
   }
   browser.runtime.onMessage.addListener(messageListener)
