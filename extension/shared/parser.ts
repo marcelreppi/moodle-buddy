@@ -233,8 +233,8 @@ export function parseFileNameFromPluginFileURL(url: string): string {
   const urlParts = url.split("/")
   const lastUrlPart = urlParts.pop()
   if (lastUrlPart) {
-    // Take everything before query parameters
-    const [path] = lastUrlPart.split("?")
+    // Take everything before hash or query parameters
+    const [path] = lastUrlPart.split(/[#?]/)
     fileName = path
   }
 

@@ -43,3 +43,17 @@ export function sanitizeFileName(fileName: string, connectingString = ""): strin
     .replace(/\.*$/gi, "") // Remove dots at the end
     .trim()
 }
+
+export function getFileTypeFromURL(url: string): string {
+  const urlParts = url.split(/[#?]/)
+  const urlPath = urlParts.shift()
+  if (urlPath !== undefined) {
+    const partParts = urlPath.split(".")
+    const fileType = partParts.pop()
+    if (fileType !== undefined) {
+      return fileType.trim()
+    }
+  }
+
+  return ""
+}

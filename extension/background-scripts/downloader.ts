@@ -15,7 +15,7 @@ import {
   getQuerySelector,
 } from "../shared/parser"
 import { getURLRegex, getMoodleBaseURL } from "../shared/helpers"
-import { sanitizeFileName } from "./helpers"
+import { getFileTypeFromURL, sanitizeFileName } from "./helpers"
 import { sendLog, sendDownloadData } from "./tracker"
 
 let downloaders: Record<number, Downloader> = {}
@@ -414,18 +414,13 @@ class Downloader {
     if (this.isCancelled) return
 
     let fileName = parseFileNameFromPluginFileURL(resource.src)
-    const fileParts = fileName.split(".")
-    let fileType = fileParts.pop()
-    while (fileType === "") {
-      fileType = fileParts.pop()
-      if (fileParts.length === 0) {
-        break
-      }
-    }
 
     const { useMoodleFileName } = this.options
-    if (useMoodleFileName && resource.name !== "" && fileType !== "") {
-      fileName = `${sanitizeFileName(resource.name)}.${fileType}`
+    if (useMoodleFileName) {
+      const fileType = getFileTypeFromURL(fileName)
+      if (fileType !== "" && resource.name !== "") {
+        fileName = `${sanitizeFileName(resource.name)}.${fileType}`
+      }
     }
 
     await this.download(resource.src, fileName, resource.section)
