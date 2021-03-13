@@ -131,8 +131,7 @@ export default {
     onMouseOver(e) {
       if (this.mouseDown) {
         const cbId = e.target.parentElement.id
-        this.$refs[cbId][0].checked = true
-
+        this.$refs[cbId].checked = true
         const { href } = e.target.parentElement.dataset
         this.setResourceSelected(href, true)
       }

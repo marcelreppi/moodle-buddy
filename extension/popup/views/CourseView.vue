@@ -13,7 +13,9 @@
         <span>
           There
           <span>{{ nResources === 1 ? "is" : "are" }}</span>
+          {{ " " }}
           <span class="bold">{{ nResources }}</span>
+          {{ " " }}
           <span class="bold">{{ nResources === 1 ? "resource" : "resources" }}</span>
           available for download
         </span>
@@ -21,8 +23,11 @@
           <div>
             Since last visit
             <span class="bold">{{ nNewResources }} new</span>
+            {{ " " }}
             <span class="bold">{{ nNewResources === 1 ? "resource" : "resources" }}</span>
+            {{ " " }}
             <span>{{ nNewResources === 1 ? "was" : "were" }}</span>
+            {{ " " }}
             added
           </div>
           <div>
@@ -284,7 +289,7 @@ export default {
 
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
-        selectedResources: this.selectedResources,
+        selectedResources: this.selectedResources.map(r => ({ ...r })), // Resolve proxy
         options: {
           useMoodleFileName: this.useMoodleFileName,
           prependCourseToFileName: this.prependCourseToFileName,
