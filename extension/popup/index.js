@@ -1,21 +1,17 @@
-import Vue from "vue"
-import VueProgressBar from "vue-progressbar"
+import { createApp } from "vue"
+import VueProgressBar from "@aacassandra/vue3-progressbar"
 
 import App from "./App.vue"
 
 import "./index.css"
 
-Vue.config.devtools = false
-Vue.config.productionTip = false
+const app = createApp(App)
 
-Vue.use(VueProgressBar, {
+app.use(VueProgressBar, {
   color: "#007a2b",
   failedColor: "#000000",
   thickness: "15px",
   position: "relative",
 })
 
-new Vue({
-  el: "#app",
-  render: createApp => createApp(App),
-})
+app.mount("#app")

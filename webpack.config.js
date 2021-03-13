@@ -98,7 +98,7 @@ module.exports = {
   },
   resolve: {
     alias: {
-      vue$: "vue/dist/vue.esm.js",
+      vue: "@vue/runtime-dom",
     },
     extensions: ["*", ".js", ".ts", ".vue", ".json"],
   },
