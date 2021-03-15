@@ -1,4 +1,4 @@
-import { ExtensionStorage } from "extension/types/extension.types"
+import { ExtensionStorage, SupportedPage } from "extension/types/extension.types"
 import {
   ExecuteScriptMessage,
   Message,
@@ -25,7 +25,7 @@ async function setDefaultMoodleURL() {
 }
 
 async function runDetector() {
-  let page = ""
+  let page: SupportedPage = ""
 
   const isMoodlePage = checkForMoodle()
 
@@ -80,11 +80,7 @@ async function runDetector() {
       browser.runtime.sendMessage<StateMessage>({
         command: "state",
         page,
-        options,
-        nUpdates,
-        userHasRated,
-        totalDownloadedFiles,
-        rateHintLevel,
+        state: { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel },
       })
 
       if (isSupportedPage) {

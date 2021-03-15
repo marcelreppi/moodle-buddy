@@ -2,7 +2,7 @@
   <div class="app" :class="{ chrome: !isFirefox }">
     <div class="title">
       Moodle Buddy
-      <img class="title-icon" :src="MoodleIcon" alt="logo" />
+      <img class="title-icon" src="../icons/48.png" alt="logo" />
     </div>
 
     <div class="popup-content">
@@ -35,7 +35,7 @@
           in the {{ isFirefox ? "Firefox Add-on Store" : "Chrome Web Store" }} 🙏
         </div>
 
-        <div style="margin-top: 20px;">
+        <div style="margin-top: 20px">
           <button @click="onRateClick">Rate Moodle Buddy</button>
           <div class="avoid-rate" @click="onAvoidRateClick">I will have to disappoint you...</div>
         </div>
@@ -58,13 +58,16 @@
         <div class="link" @click="onOptionsClick">Options</div>
       </span>
       <span class="footer-right-section">
-        <img class="info-icon" :src="InfoIcon" alt="info" @click="onInfoClick" />
+        <img class="info-icon" src="../static/information.png" alt="info" @click="onInfoClick" />
       </span>
     </div>
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue"
+import { Message, StateData, StateMessage } from "../types/messages.types"
+import { ExtensionOptions, SupportedPage } from "../types/extension.types"
 import { sendEvent, getActiveTab, isFirefox } from "../shared/helpers"
 import DashboardPageView from "./views/DashboardPageView.vue"
 import CourseView from "./views/CourseView.vue"
@@ -72,10 +75,7 @@ import VideoServiceView from "./views/VideoServiceView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
 import ErrorView from "./views/ErrorView.vue"
 
-import MoodleIcon from "../icons/48.png"
-import InfoIcon from "../static/information.png"
-
-export default {
+export default defineComponent({
   components: {
     DashboardPageView,
     CourseView,
@@ -85,13 +85,11 @@ export default {
   },
   data() {
     return {
-      InfoIcon,
-      MoodleIcon,
-      activeTab: null,
+      activeTab: undefined as browser.tabs.Tab | undefined,
       isSupportedPage: false,
-      page: "",
+      page: "" as SupportedPage,
       showErrorView: false,
-      options: null,
+      options: {} as ExtensionOptions,
       nUpdates: 0,
       userHasRated: false,
       totalDownloadedFiles: 0,
@@ -107,31 +105,28 @@ export default {
         8: 5000,
         9: 7500,
         10: 10000,
-      },
+      } as Record<string, number>,
+      rateLink: isFirefox()
+        ? "https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/"
+        : "https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo",
     }
   },
   computed: {
-    isFirefox,
-    showDashboardPageView() {
+    showDashboardPageView(): boolean {
       return this.page === "dashboard"
     },
-    showCourseView() {
+    showCourseView(): boolean {
       return this.page === "course"
     },
-    showVideoServiceView() {
+    showVideoServiceView(): boolean {
       return this.page === "videoservice"
     },
-    showNoMoodle() {
+    showNoMoodle(): boolean {
       return this.page === ""
     },
-    showRatingHint() {
+    showRatingHint(): boolean {
       const fileThreshold = this.rateHintLevels[this.rateHintLevel] || Infinity
       return this.showCourseView && !this.userHasRated && this.totalDownloadedFiles > fileThreshold
-    },
-    rateLink() {
-      return this.isFirefox
-        ? "https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/"
-        : "https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo"
     },
   },
   methods: {
@@ -144,6 +139,8 @@ export default {
       sendEvent("donate-click", false)
     },
     onRateClick() {
+      if (!this.activeTab?.id) return
+
       this.userHasRated = true
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "rate-click",
@@ -155,20 +152,22 @@ export default {
       browser.runtime.openOptionsPage()
       sendEvent("options-click", false)
     },
-    navigateTo(link) {
+    navigateTo(link: string) {
       browser.tabs.create({
         url: link,
       })
       window.close()
     },
     onAvoidRateClick() {
+      if (!this.activeTab?.id) return
+
       this.userHasRated = true
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "avoid-rate-click",
       })
       sendEvent("avoid-rating-hint")
     },
-    cacheStorageData(data) {
+    cacheStorageData(data: StateData) {
       const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = data
       this.options = options
       this.nUpdates = nUpdates
@@ -178,13 +177,21 @@ export default {
     },
   },
   created() {
-    browser.runtime.onMessage.addListener(message => {
-      if (message.command === "state") {
-        this.cacheStorageData(message)
-        this.page = message.page
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+      const { command } = message as Message
+
+      if (command === "state") {
+        const { page, state } = message as StateMessage
+        this.cacheStorageData(state)
+        this.page = page
 
         if (process.env.NODE_ENV === "debug") {
-          const filename = this.activeTab.url.split("/").pop()
+          let filename = ""
+          if (this.activeTab && this.activeTab.url) {
+            filename = this.activeTab.url.split("/").pop() || ""
+          }
+
           if (filename.includes("course")) {
             this.page = "course"
           }
@@ -203,25 +210,27 @@ export default {
         }
       }
 
-      if (message.command === "error-view") {
+      if (command === "error-view") {
         this.showErrorView = true
       }
-    })
+    }
+    browser.runtime.onMessage.addListener(messageListener)
 
-    getActiveTab().then(tab => {
+    getActiveTab().then((tab) => {
       this.activeTab = tab
       // Get state on load from detector
-      browser.tabs
-        .sendMessage(this.activeTab.id, {
+      if (this.activeTab?.id) {
+        browser.tabs.sendMessage(this.activeTab.id, {
           command: "get-state",
         })
-        .catch(() => {
-          // When detector is not available fetch state from storage manually
-          browser.storage.local.get().then(this.cacheStorageData)
-        })
+        // .catch(() => {
+        //   // When detector is not available fetch state from storage manually
+        //   browser.storage.local.get().then(this.cacheStorageData)
+        // })
+      }
     })
   },
-}
+})
 </script>
 
 <style>

@@ -101,9 +101,9 @@ async function onUpdate() {
 
   sendEvent("update", false)
 
-  browser.tabs.create({
-    url: "/pages/update/update.html",
-  })
+  // browser.tabs.create({
+  //   url: "/pages/update/update.html",
+  // })
 }
 
 browser.runtime.onInstalled.addListener(async details => {

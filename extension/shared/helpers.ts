@@ -4,8 +4,8 @@ import { LogData } from "extension/types/tracker.types"
 
 export function sendEvent(
   event: string,
-  saveURL: boolean,
-  eventData: Record<string, unknown>
+  saveURL = true,
+  eventData: Record<string, unknown> = {}
 ): void {
   browser.runtime.sendMessage<EventMessage>({
     command: "event",

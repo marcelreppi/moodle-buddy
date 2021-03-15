@@ -19,39 +19,64 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent, PropType } from "vue"
+import {
+  DashboardScanResultMessage,
+  Message,
+  ScanInProgressMessage,
+  DashboardCourseData,
+} from "../../types/messages.types"
+import { ExtensionOptions } from "../../types/extension.types"
 import { sendEvent } from "../../shared/helpers"
 
 import CourseCard from "../components/CourseCard.vue"
 import ProgressBar from "../components/ProgressBar.vue"
 
-export default {
+export default defineComponent({
   components: {
     CourseCard,
     ProgressBar,
   },
   props: {
-    activeTab: Object,
-    options: Object,
+    activeTab: {
+      type: Object as PropType<browser.tabs.Tab>,
+      required: true,
+    },
+    options: {
+      type: Object as PropType<ExtensionOptions>,
+      required: true,
+    },
   },
   data() {
     return {
-      courses: null,
+      courses: null as DashboardCourseData[] | null,
     }
   },
+  computed: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    progressBarRef(): any {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return this.$refs.progressBar as any
+    },
+  },
   created() {
-    browser.runtime.onMessage.addListener(message => {
-      if (message.command === "scan-in-progress") {
-        if (message.total !== 0) {
-          this.$refs.progressBar.setProgress(message.total, message.completed)
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+      const { command } = message as Message
+      if (command === "scan-in-progress") {
+        const { total, completed } = message as ScanInProgressMessage
+        if (total !== 0) {
+          this.progressBarRef.setProgress(total, completed)
         } else {
-          this.$refs.progressBar.resetProgress()
+          this.progressBarRef.resetProgress()
         }
         return
       }
 
-      if (message.command === "scan-result") {
-        this.courses = message.courses
+      if (command === "scan-result") {
+        const { courses } = message as DashboardScanResultMessage
+        this.courses = courses
 
         if (this.courses.length === 0) {
           sendEvent("empty-dashboard", true)
@@ -77,13 +102,16 @@ export default {
           return 0
         })
       }
-    })
+    }
+    browser.runtime.onMessage.addListener(messageListener)
 
-    browser.tabs.sendMessage(this.activeTab.id, {
-      command: "scan",
-    })
+    if (this?.activeTab?.id) {
+      browser.tabs.sendMessage(this.activeTab.id, {
+        command: "scan",
+      })
+    }
   },
-}
+})
 </script>
 
 <style>

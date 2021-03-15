@@ -34,3 +34,7 @@ export interface ExtensionStorage extends browser.storage.StorageObject {
   rateHintLevel: number
   courseData: StoredCourseData
 }
+
+export type SupportedPage = "course" | "dashboard" | "videoservice" | ""
+
+export type SelectionTab = "simple" | "detailed"

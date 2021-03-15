@@ -18,21 +18,27 @@
   </div>
 </template>
 
-<script>
-export default {
+<script lang="ts">
+import { defineComponent, PropType } from "vue"
+import { FileResource, FolderResource, Resource } from "../../models/Course.types"
+
+export default defineComponent({
   props: {
-    resources: Array,
+    resources: {
+      type: Object as PropType<Resource[]>,
+      required: true,
+    },
     toggleDetails: Function,
   },
   computed: {
-    files() {
-      return this.resources.filter(n => n.isFile)
+    files(): Resource[] {
+      return this.resources.filter((n) => (n as FileResource).isFile)
     },
-    folders() {
-      return this.resources.filter(n => n.isFolder)
+    folders(): Resource[] {
+      return this.resources.filter((n) => (n as FolderResource).isFolder)
     },
   },
-}
+})
 </script>
 
 <style scoped>

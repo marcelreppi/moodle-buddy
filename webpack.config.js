@@ -12,17 +12,17 @@ console.log(`Webpack is in ${process.env.NODE_ENV} mode`)
 
 const polyfills = ["core-js/stable", "regenerator-runtime/runtime"]
 
-const backgroundEntry = filename => {
+const backgroundEntry = (filename) => {
   return polyfills.concat(join(__dirname, "extension", "background-scripts", filename))
 }
 
-const contentEntry = filename => {
+const contentEntry = (filename) => {
   return polyfills.concat(join(__dirname, "extension", "content-scripts", filename))
 }
 
 module.exports = {
   entry: {
-    "popup/app.bundle": ["babel-polyfill", join(__dirname, "extension", "popup", "index.js")],
+    "popup/app.bundle": ["babel-polyfill", join(__dirname, "extension", "popup", "main.ts")],
     "content-scripts/coursePage": contentEntry("coursePage.ts"),
     "content-scripts/dashboardPage": contentEntry("dashboardPage.ts"),
     "content-scripts/videoservicePage": contentEntry("videoservicePage.ts"),
@@ -41,8 +41,11 @@ module.exports = {
     rules: [
       {
         test: /\.ts$/,
-        use: "ts-loader",
+        loader: "ts-loader",
         exclude: /node_modules/,
+        options: {
+          appendTsSuffixTo: [/\.vue$/],
+        },
       },
       {
         test: /\.js$/,
@@ -53,11 +56,11 @@ module.exports = {
       },
       {
         test: /\.vue$/,
-        use: "vue-loader",
+        loader: "vue-loader",
       },
       {
         test: /\.css$/,
-        use: ["vue-style-loader", "css-loader"],
+        use : ["vue-style-loader", "css-loader"],
       },
       {
         test: /\.(gif|png|jpe?g|svg)$/i,
@@ -80,16 +83,12 @@ module.exports = {
       },
       {
         test: /\.(gif|png|jpe?g|svg)$/i,
-        use: [
-          {
-            loader: "url-loader",
-            options: {
-              limit: 10 * 1024,
-              outputPath: "/popup/images",
-              publicPath: "/popup/images",
-            },
-          },
-        ],
+        loader: "url-loader",
+        options: {
+          limit: 10 * 1024,
+          outputPath: "/popup/images",
+          publicPath: "/popup/images",
+        },
       },
     ],
   },
@@ -104,14 +103,16 @@ module.exports = {
   },
   plugins: [
     new VueLoaderPlugin(),
-    new CopyPlugin([
-      { from: "./extension/manifest.json", to: "./manifest.json" },
-      { from: "./extension/popup/index.html", to: "./popup/index.html" },
-      { from: "./extension/pages", to: "./pages" },
-      { from: "./extension/shared", to: "./shared" },
-      { from: "./extension/icons", to: "./icons" },
-      { from: "./screenshots", to: "./screenshots" },
-    ]),
+    new CopyPlugin({
+      patterns: [
+        { from: "./extension/manifest.json", to: "./manifest.json" },
+        { from: "./extension/popup/index.html", to: "./popup/index.html" },
+        { from: "./extension/pages", to: "./pages" },
+        { from: "./extension/shared", to: "./shared" },
+        { from: "./extension/icons", to: "./icons" },
+        { from: "./screenshots", to: "./screenshots" },
+      ],
+    }),
     new Dotenv({
       path: isProd ? ".env" : ".env.dev",
     }),
@@ -122,10 +123,6 @@ module.exports = {
   ],
   optimization: {
     minimize: isProd,
-    minimizer: [
-      new TerserPlugin({
-        sourceMap: true,
-      }),
-    ],
+    minimizer: [new TerserPlugin()],
   },
 }

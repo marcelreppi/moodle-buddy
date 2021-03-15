@@ -107,7 +107,7 @@
         :toggle-details="toggleDetails"
       />
 
-      <div v-if="showDownloadOptions" style="margin-top: 20px;">
+      <div v-if="showDownloadOptions" style="margin-top: 20px">
         <div>
           <label>
             <input v-model="prependCourseShortcutToFileName" type="checkbox" />
@@ -122,14 +122,14 @@
         </div>
       </div>
 
-      <progress-bar
+      <ProgressBar
         v-if="downloadInProgress"
         ref="progressBar"
         type="download"
         :onDone="onDownloadFinished"
         :onCancel="onCancel"
-        style="width: 80%;"
-      ></progress-bar>
+        style="width: 80%"
+      ></ProgressBar>
 
       <button class="download-button" :disabled="disableDownload" @click="onDownload">
         Download
@@ -138,14 +138,23 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue"
+import { SelectionTab } from "../../types/extension.types"
+import {
+  CourseScanResultMessage,
+  DownloadProgressMessage,
+  Message,
+  ScanMessage,
+} from "../../types/messages.types"
+import { Activity, Resource, FileResource, FolderResource } from "../../models/Course.types"
 import { sendEvent } from "../../shared/helpers"
 
 import DetailOverlay from "../components/DetailOverlay.vue"
 import DetailedSelection from "../components/DetailedSelection.vue"
 import ProgressBar from "../components/ProgressBar.vue"
 
-export default {
+export default defineComponent({
   components: {
     DetailOverlay,
     DetailedSelection,
@@ -170,8 +179,8 @@ export default {
       nNewFolders: -1,
       nActivities: -1,
       nNewActivities: -1,
-      resources: null,
-      activities: null,
+      resources: [] as Resource[],
+      activities: [] as Activity[],
       onlyNewResources: false,
       useMoodleFileName: false,
       prependCourseToFileName: false,
@@ -179,52 +188,52 @@ export default {
       downloadFiles: true,
       downloadFolders: true,
       showDetails: false,
-      showDetailResources: [],
+      showDetailResources: [] as Array<Resource | Activity>,
       showDownloadOptions: true,
-      activeSelectionTab: "simple",
+      activeSelectionTab: "simple" as SelectionTab,
       downloadInProgress: false,
       downloadProgressText: "",
     }
   },
   computed: {
-    showSimpleSelection() {
+    showSimpleSelection(): boolean {
       return this.activeSelectionTab === "simple"
     },
-    showNewResourceInfo() {
+    showNewResourceInfo(): boolean {
       return this.nNewFiles > 0 || this.nNewFolders > 0
     },
-    showNewActivityInfo() {
+    showNewActivityInfo(): boolean {
       return this.nNewActivities > 0
     },
-    nResources() {
+    nResources(): number {
       return this.nFiles + this.nFolders
     },
-    nNewResources() {
+    nNewResources(): number {
       return this.nNewFiles + this.nNewFolders
     },
-    newActivities() {
-      return this.activities.filter(n => n.isNew)
+    newActivities(): Activity[] {
+      return this.activities.filter((n) => n.isNew)
     },
-    disableFilesCb() {
+    disableFilesCb(): boolean {
       if (this.onlyNewResources) {
         return this.nNewFiles === 0
       }
       return this.nFiles === 0
     },
-    disableFoldersCb() {
+    disableFoldersCb(): boolean {
       if (this.onlyNewResources) {
         return this.nNewFolders === 0
       }
       return this.nFolders === 0
     },
-    newResources() {
-      return this.resources.filter(n => n.isNew)
+    newResources(): Resource[] {
+      return this.resources.filter((n) => n.isNew)
     },
-    selectedResources() {
-      return this.resources.filter(n => {
+    selectedResources(): Array<Resource | Activity> {
+      return this.resources.filter((n) => {
         if (this.activeSelectionTab === "simple") {
-          if (!this.downloadFiles && n.isFile) return false
-          if (!this.downloadFolders && n.isFolder) return false
+          if (!this.downloadFiles && (n as FileResource).isFile) return false
+          if (!this.downloadFolders && (n as FolderResource).isFolder) return false
           if (this.onlyNewResources && !n.isNew) return false
 
           return true
@@ -237,7 +246,7 @@ export default {
         return false
       })
     },
-    disableDownload() {
+    disableDownload(): boolean {
       if (this.downloadInProgress) {
         return true
       }
@@ -251,10 +260,15 @@ export default {
       }
 
       if (this.activeSelectionTab === "detailed") {
-        return this.resources.every(r => !r.selected)
+        return this.resources.every((r) => !r.selected)
       }
 
       return false
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    progressBarRef(): any {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return this.$refs.progressBar as any
     },
   },
   watch: {
@@ -266,7 +280,7 @@ export default {
     },
   },
   methods: {
-    setSelectionTab(tab) {
+    setSelectionTab(tab: SelectionTab) {
       this.activeSelectionTab = tab
     },
     handleCheckboxes() {
@@ -289,7 +303,7 @@ export default {
 
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
-        selectedResources: this.selectedResources.map(r => ({ ...r })), // Resolve proxy
+        selectedResources: this.selectedResources.map((r) => ({ ...r })), // Resolve proxy
         options: {
           useMoodleFileName: this.useMoodleFileName,
           prependCourseToFileName: this.prependCourseToFileName,
@@ -328,9 +342,11 @@ export default {
     showOptionsPage() {
       browser.runtime.openOptionsPage()
     },
-    setResourceSelected(href, value) {
-      const resource = this.resources.find(r => r.href === href)
-      resource.selected = value
+    setResourceSelected(href: string, value: boolean) {
+      const resource = this.resources.find((r) => r.href === href)
+      if (resource) {
+        resource.selected = value
+      }
     },
     onCancel() {
       browser.runtime.sendMessage({
@@ -342,21 +358,23 @@ export default {
   },
   updated() {
     if (this.downloadInProgress) {
-      this.$refs.progressBar.setProgress(this.selectedResources.length)
+      this.progressBarRef.setProgress(this.selectedResources.length)
     }
   },
   created() {
-    browser.runtime.onMessage.addListener(message => {
-      if (message.command === "scan-result") {
-        const { course } = message
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+      const { command } = message as Message
+      console.log(message)
+      if (command === "scan-result") {
+        const { course } = message as CourseScanResultMessage
+        console.log(course, console.log())
         const { resources, activities, counts } = course
         this.nFiles = counts.nFiles
         this.nNewFiles = counts.nNewFiles
         this.nFolders = counts.nFolders
         this.nNewFolders = counts.nNewFolders
-        this.resources = resources.map(r => {
-          return { ...r, selected: false }
-        })
+        this.resources = resources.map((r) => ({ ...r, selected: false }))
 
         this.nActivities = counts.nActivities
         this.nNewActivities = counts.nNewActivities
@@ -375,13 +393,14 @@ export default {
         }
       }
 
-      if (message.command === "download-progress") {
-        const { completed, total, errors } = message
-        if (this.$refs.progressBar) {
-          this.$refs.progressBar.setProgress(total, completed, errors)
+      if (command === "download-progress") {
+        const { completed, total, errors } = message as DownloadProgressMessage
+        if (this.progressBarRef) {
+          this.progressBarRef.setProgress(total, completed, errors)
         }
       }
-    })
+    }
+    browser.runtime.onMessage.addListener(messageListener)
 
     this.showDownloadOptions = this.options.showDownloadOptions
     this.useMoodleFileName = this.options.useMoodleFileName
@@ -389,11 +408,11 @@ export default {
     this.prependCourseShortcutToFileName = this.options.prependCourseShortcutToFileName
 
     // Scan for resources
-    browser.tabs.sendMessage(this.activeTab.id, {
+    browser.tabs.sendMessage<ScanMessage>(this.activeTab.id, {
       command: "scan",
     })
   },
-}
+})
 </script>
 
 <style scoped>

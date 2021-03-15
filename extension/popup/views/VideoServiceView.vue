@@ -5,9 +5,13 @@
       <div class="resource-info">
         <span>
           There
+          {{ " " }}
           <span>{{ nVideos === 1 ? "is" : "are" }}</span>
+          {{ " " }}
           <span class="bold">{{ nVideos }}</span>
+          {{ " " }}
           <span class="bold">{{ nVideos === 1 ? "video" : "videos" }}</span>
+          {{ " " }}
           available for download
         </span>
       </div>
@@ -65,7 +69,7 @@
       :toggle-details="toggleDetails"
     />
 
-    <div v-if="showDownloadOptions" style="margin-top: 20px;">
+    <div v-if="showDownloadOptions" style="margin-top: 20px">
       <div>
         <label>
           <input v-model="prependCourseShortcutToFileName" type="checkbox" />
@@ -85,9 +89,7 @@
         Please don't click anything on the page and wait until the download for every video has been
         started.
       </div>
-      <div>
-        Downloading many videos concurrently can be very slow.
-      </div>
+      <div>Downloading many videos concurrently can be very slow.</div>
     </div>
 
     <progress-bar
@@ -96,7 +98,7 @@
       type="download"
       :onDone="onDownloadFinished"
       :onCancel="onCancel"
-      style="width: 80%;"
+      style="width: 80%"
     ></progress-bar>
 
     <button class="download-button" :disabled="disableDownload" @click="onDownload">
@@ -105,14 +107,22 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue"
+import {
+  Message,
+  VideoDownloadProgressMessage,
+  VideoScanResultMessage,
+} from "../../types/messages.types"
+import { SelectionTab } from "../../types/extension.types"
+import { VideoResource } from "../../models/Course.types"
 import { sendEvent } from "../../shared/helpers"
 
 import DetailOverlay from "../components/DetailOverlay.vue"
 import DetailedSelection from "../components/DetailedSelection.vue"
 import ProgressBar from "../components/ProgressBar.vue"
 
-export default {
+export default defineComponent({
   components: {
     DetailOverlay,
     DetailedSelection,
@@ -132,24 +142,24 @@ export default {
     return {
       loading: true,
       nVideos: -1,
-      videoResources: null,
+      videoResources: [] as VideoResource[],
       useMoodleFileName: false,
       prependCourseToFileName: false,
       prependCourseShortcutToFileName: false,
       downloadVideos: true,
       showDetails: false,
       showDownloadOptions: true,
-      activeSelectionTab: "simple",
+      activeSelectionTab: "simple" as SelectionTab,
       downloadInProgress: false,
       downloadProgressText: "",
     }
   },
   computed: {
-    showSimpleSelection() {
+    showSimpleSelection(): boolean {
       return this.activeSelectionTab === "simple"
     },
-    selectedResources() {
-      return this.videoResources.filter(n => {
+    selectedResources(): VideoResource[] {
+      return this.videoResources.filter((n) => {
         if (this.activeSelectionTab === "simple") {
           return true
         }
@@ -161,10 +171,10 @@ export default {
         return false
       })
     },
-    disableVideoCb() {
+    disableVideoCb(): boolean {
       return this.nVideos === 0
     },
-    disableDownload() {
+    disableDownload(): boolean {
       if (this.downloadInProgress) {
         return true
       }
@@ -174,14 +184,19 @@ export default {
       }
 
       if (this.activeSelectionTab === "detailed") {
-        return this.videoResources.every(r => !r.selected)
+        return this.videoResources.every((r) => !r.selected)
       }
 
       return false
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    progressBarRef(): any {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return this.$refs.progressBar as any
+    },
   },
   methods: {
-    setSelectionTab(tab) {
+    setSelectionTab(tab: SelectionTab) {
       this.activeSelectionTab = tab
     },
     onDownload() {
@@ -192,7 +207,7 @@ export default {
 
       browser.tabs.sendMessage(this.activeTab.id, {
         command: "crawl",
-        selectedResources: this.selectedResources,
+        selectedResources: this.selectedResources.map((r) => ({ ...r })), // Resolve proxy
         options: {
           useMoodleFileName: this.useMoodleFileName,
           prependCourseToFileName: this.prependCourseToFileName,
@@ -212,9 +227,11 @@ export default {
         sendEvent("show-details-course-page", true)
       }
     },
-    setResourceSelected(href, value) {
-      const resource = this.videoResources.find(r => r.href === href)
-      resource.selected = value
+    setResourceSelected(href: string, value: boolean) {
+      const resource = this.videoResources.find((r) => r.href === href)
+      if (resource) {
+        resource.selected = value
+      }
     },
     onCancel() {
       browser.tabs.sendMessage(this.activeTab.id, {
@@ -226,27 +243,31 @@ export default {
   },
   updated() {
     if (this.downloadInProgress) {
-      this.$refs.progressBar.setProgress(this.selectedResources.length)
+      this.progressBarRef.setProgress(this.selectedResources.length)
     }
   },
   created() {
-    browser.runtime.onMessage.addListener(message => {
-      if (message.command === "scan-result") {
-        this.nVideos = message.videoResources.length
-        this.videoResources = message.videoResources.map(r => {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+      const { command } = message as Message
+      if (command === "scan-result") {
+        const { videoResources } = message as VideoScanResultMessage
+        this.nVideos = videoResources.length
+        this.videoResources = videoResources.map((r) => {
           return { ...r, selected: false, isFile: true }
         })
 
         this.loading = false
       }
 
-      if (message.command === "video-download-progress") {
-        const { completed, total, errors } = message
-        if (this.$refs.progressBar) {
-          this.$refs.progressBar.setProgress(total, completed, errors)
+      if (command === "video-download-progress") {
+        const { completed, total } = message as VideoDownloadProgressMessage
+        if (this.progressBarRef) {
+          this.progressBarRef.setProgress(total, completed)
         }
       }
-    })
+    }
+    browser.runtime.onMessage.addListener(messageListener)
 
     this.showDownloadOptions = this.options.showDownloadOptions
     this.useMoodleFileName = this.options.useMoodleFileName
@@ -258,7 +279,7 @@ export default {
       command: "scan",
     })
   },
-}
+})
 </script>
 
 <style scoped>

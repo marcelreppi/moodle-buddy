@@ -1,5 +1,5 @@
-import { Activity, Counts, Resource } from "extension/models/Course.types"
-import { ExtensionOptions } from "./extension.types"
+import { Activity, Counts, Resource, VideoResource } from "extension/models/Course.types"
+import { ExtensionOptions, SupportedPage } from "./extension.types"
 import { FeedbackData, LogData, PageData } from "./tracker.types"
 
 export interface Message {
@@ -43,7 +43,7 @@ export interface LogMessage extends Message {
 
 export interface ExecuteScriptMessage extends Message {
   command: "execute-script"
-  scriptName: string
+  scriptName: SupportedPage
 }
 
 export interface DashboardCrawlMessage extends Message {
@@ -81,7 +81,7 @@ export interface CourseScanResultMessage extends ScanResultMessage {
   course: CourseScanData
 }
 
-interface DashboardCourseData extends CourseScanData {
+export interface DashboardCourseData extends CourseScanData {
   name: string
   link: string
   isNew: boolean
@@ -92,7 +92,7 @@ export interface DashboardScanResultMessage extends ScanResultMessage {
 }
 
 export interface VideoScanResultMessage extends ScanResultMessage {
-  videoResources: Resource[]
+  videoResources: VideoResource[]
 }
 
 export interface MarkAsSeenMessage extends Message {
@@ -104,14 +104,18 @@ export interface CancelDownloadMessage extends Message {
   command: "cancel-download"
 }
 
-export interface StateMessage extends Message {
-  command: "state"
-  page: string
+export interface StateData {
   options: ExtensionOptions
   nUpdates: number
   userHasRated: boolean
   totalDownloadedFiles: number
   rateHintLevel: number
+}
+
+export interface StateMessage extends Message {
+  command: "state"
+  page: SupportedPage
+  state: StateData
 }
 
 export interface DownloadMessage extends Message {

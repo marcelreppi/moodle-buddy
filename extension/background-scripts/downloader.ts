@@ -446,7 +446,7 @@ async function onDownload(message: DownloadMessage) {
   downloaders[downloader.id] = downloader
 }
 
-browser.downloads.onChanged.addListener(async downloadDelta => {
+browser.downloads.onChanged.addListener(async (downloadDelta) => {
   const { state, id } = downloadDelta
 
   if (state === undefined) return

@@ -9,12 +9,8 @@
       to your courses
     </div>
     <div v-if="showDefaultURLInput" class="content-container marginize">
-      <div>
-        Want to navigate to your Moodle from here?
-      </div>
-      <div>
-        Paste the URL below:
-      </div>
+      <div>Want to navigate to your Moodle from here?</div>
+      <div>Paste the URL below:</div>
       <div>
         <input class="url-input" type="text" name="" id="" v-model="urlInput" />
         <button class="save-button" @click="onSaveClick">Save</button>
@@ -23,9 +19,7 @@
         <div v-if="showInvalidURL" class="invalid-url">Invalid URL!</div>
       </transition>
     </div>
-    <div v-else class="marginize link" @click="navigateToMoodle">
-      Go to my Moodle
-    </div>
+    <div v-else class="marginize link" @click="navigateToMoodle">Go to my Moodle</div>
     <hr />
     <div>This is an unsupported webpage.</div>
     <div class="hints">Make sure you are...</div>
@@ -37,10 +31,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent } from "vue"
 import { sendEvent, validURLRegex } from "../../shared/helpers"
 
-export default {
+export default defineComponent({
   props: {
     openInfoPage: Function,
     options: Object,
@@ -59,7 +54,7 @@ export default {
     },
   },
   computed: {
-    showDefaultURLInput() {
+    showDefaultURLInput(): boolean {
       return this.moodleURL === ""
     },
   },
@@ -85,7 +80,7 @@ export default {
       window.close()
     },
   },
-}
+})
 </script>
 
 <style scoped>

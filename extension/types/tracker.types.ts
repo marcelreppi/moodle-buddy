@@ -1,3 +1,5 @@
+import { SupportedPage } from "./extension.types"
+
 export interface Payload {
   browser: "firefox" | "chrome"
   browserId: string
@@ -21,7 +23,7 @@ export interface DownloadData {
 
 export interface PageData {
   content: string
-  page: string
+  page: SupportedPage
 }
 
 export interface FeedbackData {

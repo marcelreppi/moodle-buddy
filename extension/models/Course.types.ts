@@ -5,6 +5,7 @@ export interface Resource {
   isNew: boolean
   type: "file" | "pluginfile" | "videoservice" | "url" | "folder"
   partOfFolder?: string
+  selected?: boolean // Only used on the frontend
 }
 
 export interface FileResource extends Resource {
