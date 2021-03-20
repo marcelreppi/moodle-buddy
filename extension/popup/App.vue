@@ -85,6 +85,7 @@ export default defineComponent({
   },
   data() {
     return {
+      isFirefox: isFirefox(),
       activeTab: undefined as browser.tabs.Tab | undefined,
       isSupportedPage: false,
       page: "" as SupportedPage,
