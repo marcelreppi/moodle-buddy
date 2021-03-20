@@ -365,10 +365,8 @@ export default defineComponent({
     // eslint-disable-next-line @typescript-eslint/ban-types
     const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
       const { command } = message as Message
-      console.log(message)
       if (command === "scan-result") {
         const { course } = message as CourseScanResultMessage
-        console.log(course, console.log())
         const { resources, activities, counts } = course
         this.nFiles = counts.nFiles
         this.nNewFiles = counts.nNewFiles
