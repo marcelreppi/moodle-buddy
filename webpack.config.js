@@ -12,25 +12,49 @@ console.log(`Webpack is in ${process.env.NODE_ENV} mode`)
 
 const polyfills = ["core-js/stable", "regenerator-runtime/runtime"]
 
-const backgroundEntry = (filename) => {
-  return polyfills.concat(join(__dirname, "extension", "background-scripts", filename))
+const entries = {
+  "popup/app.bundle": ["babel-polyfill", join(__dirname, "extension", "popup", "main.ts")],
 }
 
-const contentEntry = (filename) => {
-  return polyfills.concat(join(__dirname, "extension", "content-scripts", filename))
+// Content scripts
+const addContentEntry = (filename) => {
+  const [filenameWithoutExtension] = filename.split(".")
+  const inputPath = polyfills.concat(join(__dirname, "extension", "content-scripts", filename))
+  const outputPath = `content-scripts/${filenameWithoutExtension}`
+  entries[outputPath] = inputPath
 }
+
+addContentEntry("coursePage.ts")
+addContentEntry("dashboardPage.ts")
+addContentEntry("videoservicePage.ts")
+addContentEntry("detector.ts")
+
+// Background scripts
+const addBackgroundEntry = (filename) => {
+  const [filenameWithoutExtension] = filename.split(".")
+  const inputPath = polyfills.concat(join(__dirname, "extension", "background-scripts", filename))
+  const outputPath = `background-scripts/${filenameWithoutExtension}`
+  entries[outputPath] = inputPath
+}
+
+addBackgroundEntry("downloader.ts")
+addBackgroundEntry("extensionListener.ts")
+addBackgroundEntry("backgroundScanner.ts")
+
+// Page scripts
+const addPageEntry = (filename) => {
+  const [filenameWithoutExtension] = filename.split(".")
+  const inputPath = polyfills.concat(
+    join(__dirname, "extension", "pages", filenameWithoutExtension, filename)
+  )
+  const outputPath = `pages/${filenameWithoutExtension}/${filenameWithoutExtension}`
+  entries[outputPath] = inputPath
+}
+
+addPageEntry("contact.ts")
 
 module.exports = {
-  entry: {
-    "popup/app.bundle": ["babel-polyfill", join(__dirname, "extension", "popup", "main.ts")],
-    "content-scripts/coursePage": contentEntry("coursePage.ts"),
-    "content-scripts/dashboardPage": contentEntry("dashboardPage.ts"),
-    "content-scripts/videoservicePage": contentEntry("videoservicePage.ts"),
-    "content-scripts/detector": contentEntry("detector.ts"),
-    "background-scripts/downloader": backgroundEntry("downloader.ts"),
-    "background-scripts/extensionListener": backgroundEntry("extensionListener.ts"),
-    "background-scripts/backgroundScanner": backgroundEntry("backgroundScanner.ts"),
-  },
+  entry: entries,
   output: {
     path: join(__dirname, "build"),
     filename: "[name].js",
@@ -60,7 +84,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use : ["vue-style-loader", "css-loader"],
+        use: ["vue-style-loader", "css-loader"],
       },
       {
         test: /\.(gif|png|jpe?g|svg)$/i,
@@ -107,7 +131,7 @@ module.exports = {
       patterns: [
         { from: "./extension/manifest.json", to: "./manifest.json" },
         { from: "./extension/popup/index.html", to: "./popup/index.html" },
-        { from: "./extension/pages", to: "./pages" },
+        { from: "./extension/pages", to: "./pages", globOptions: { ignore: ["**/*.ts"] } },
         { from: "./extension/shared", to: "./shared" },
         { from: "./extension/icons", to: "./icons" },
         { from: "./screenshots", to: "./screenshots" },
