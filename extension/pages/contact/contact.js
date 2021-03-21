@@ -18,8 +18,7 @@ document.querySelector("#form-button").addEventListener("click", async () => {
 
     browser.runtime.sendMessage({
       command: "feedback",
-      subject,
-      content: message,
+      feedbackData: { subject, content: message },
     })
 
     document.querySelector(".section-content").style.display = "none"
