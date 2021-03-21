@@ -52,6 +52,11 @@ const addPageEntry = (filename) => {
 }
 
 addPageEntry("contact.ts")
+addPageEntry("information.ts")
+addPageEntry("install.ts")
+// addPageEntry("legal.ts")
+addPageEntry("options.ts")
+addPageEntry("update.ts")
 
 module.exports = {
   entry: entries,

@@ -1,4 +1,4 @@
-document.querySelector("#imprint-link").addEventListener("click", () => {
+document.querySelector("#imprint-link")?.addEventListener("click", () => {
   browser.runtime.sendMessage({
     command: "event",
     event: "imprint-click",
@@ -8,7 +8,7 @@ document.querySelector("#imprint-link").addEventListener("click", () => {
   })
 })
 
-document.querySelector("#privacy-link").addEventListener("click", () => {
+document.querySelector("#privacy-link")?.addEventListener("click", () => {
   browser.runtime.sendMessage({
     command: "event",
     event: "privacy-click",
@@ -18,7 +18,7 @@ document.querySelector("#privacy-link").addEventListener("click", () => {
   })
 })
 
-document.querySelectorAll(".options-link").forEach(n => {
+document.querySelectorAll(".options-link")?.forEach((n) => {
   n.addEventListener("click", () => {
     browser.runtime.sendMessage({
       command: "event",
@@ -28,14 +28,14 @@ document.querySelectorAll(".options-link").forEach(n => {
   })
 })
 
-document.querySelector("#donate-link").addEventListener("click", () => {
+document.querySelector("#donate-link")?.addEventListener("click", () => {
   browser.runtime.sendMessage({
     command: "event",
     event: "donate-click",
   })
 })
 
-document.querySelectorAll(".contact-link").forEach(n => {
+document.querySelectorAll(".contact-link")?.forEach((n) => {
   n.addEventListener("click", () => {
     browser.tabs.create({
       url: "/pages/contact/contact.html",
@@ -43,4 +43,9 @@ document.querySelectorAll(".contact-link").forEach(n => {
   })
 })
 
-document.querySelector("#version").textContent = `(v. ${browser.runtime.getManifest().version})`
+const versionSpan = document.querySelector<HTMLSpanElement>("#version")
+if (versionSpan) {
+  versionSpan.textContent = `(v. ${browser.runtime.getManifest().version})`
+}
+
+export {}
