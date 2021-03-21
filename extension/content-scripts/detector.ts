@@ -3,7 +3,6 @@ import {
   ExecuteScriptMessage,
   Message,
   PageDataMessage,
-  SetIconMessage,
   StateMessage,
 } from "extension/types/messages.types"
 import { PageData } from "extension/types/tracker.types"
@@ -56,7 +55,7 @@ async function runDetector() {
   const isSupportedPage = page !== ""
 
   if (isSupportedPage) {
-    browser.runtime.sendMessage<SetIconMessage>({
+    browser.runtime.sendMessage<Message>({
       command: "set-icon",
     })
 

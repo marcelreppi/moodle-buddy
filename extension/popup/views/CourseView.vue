@@ -145,7 +145,6 @@ import {
   CourseScanResultMessage,
   DownloadProgressMessage,
   Message,
-  ScanMessage,
 } from "../../types/messages.types"
 import { Activity, Resource, FileResource, FolderResource } from "../../models/Course.types"
 import { sendEvent } from "../../shared/helpers"
@@ -353,6 +352,7 @@ export default defineComponent({
   },
   updated() {
     if (this.downloadInProgress) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const progressBarRef = this.$refs.progressBar as any
       progressBarRef.setProgress(this.selectedResources.length)
     }
@@ -389,6 +389,7 @@ export default defineComponent({
 
       if (command === "download-progress") {
         const { completed, total, errors } = message as DownloadProgressMessage
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const progressBarRef = this.$refs.progressBar as any
         if (progressBarRef) {
           progressBarRef.setProgress(total, completed, errors)
@@ -403,7 +404,7 @@ export default defineComponent({
     this.prependCourseShortcutToFileName = this.options.prependCourseShortcutToFileName
 
     // Scan for resources
-    browser.tabs.sendMessage<ScanMessage>(this.activeTab.id, {
+    browser.tabs.sendMessage<Message>(this.activeTab.id, {
       command: "scan",
     })
   },

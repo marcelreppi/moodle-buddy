@@ -2,15 +2,41 @@ import { Activity, Counts, Resource, VideoResource } from "extension/models/Cour
 import { ExtensionOptions, SupportedPage } from "./extension.types"
 import { FeedbackData, LogData, PageData } from "./tracker.types"
 
+type Command =
+  | "get-state"
+  | "state"
+  | "event"
+  | "page-data"
+  | "feedback"
+  | "set-badge"
+  | "set-icon"
+  | "error-view"
+  | "log"
+  | "execute-script"
+  | "crawl"
+  | "scan-in-progress"
+  | "scan"
+  | "scan-result"
+  | "mark-as-seen"
+  | "cancel-download"
+  | "update-activities"
+  | "download"
+  | "download-progress"
+  | "video-download-progress"
+  | "clear-course-data"
+  | "rate-click"
+  | "avoid-rate-click"
+  | "clear-course"
+
 export interface Message {
-  command: string
+  command: Command
 }
 
 export interface EventMessage extends Message {
   command: "event"
   event: string
   saveURL: boolean
-  eventData: Record<string, unknown>
+  eventData?: Record<string, unknown>
 }
 
 export interface PageDataMessage extends Message {
@@ -26,14 +52,6 @@ export interface FeedbackMessage extends Message {
 export interface SetBadgeMessage extends Message {
   command: "set-badge"
   text: string
-}
-
-export interface SetIconMessage extends Message {
-  command: "set-icon"
-}
-
-export interface ErrorViewMessage extends Message {
-  command: "error-view"
 }
 
 export interface LogMessage extends Message {
@@ -61,10 +79,6 @@ export interface ScanInProgressMessage extends Message {
   command: "scan-in-progress"
   completed: number
   total: number
-}
-
-export interface ScanMessage extends Message {
-  command: "scan"
 }
 
 export interface ScanResultMessage extends Message {
@@ -98,10 +112,6 @@ export interface VideoScanResultMessage extends ScanResultMessage {
 export interface MarkAsSeenMessage extends Message {
   command: "mark-as-seen"
   link: string
-}
-
-export interface CancelDownloadMessage extends Message {
-  command: "cancel-download"
 }
 
 export interface StateData {

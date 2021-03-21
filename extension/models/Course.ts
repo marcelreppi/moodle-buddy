@@ -90,7 +90,7 @@ class Course {
     if (href === "") return
 
     // Avoid duplicates
-    const detectedURLs = this.resources.map(r => r.href)
+    const detectedURLs = this.resources.map((r) => r.href)
     if (detectedURLs.includes(href)) return
 
     this.counts.nFiles++
@@ -255,8 +255,8 @@ class Course {
       const mediaFileNodes = mainHTML.querySelectorAll<HTMLElement>(
         parser.getQuerySelector("media", options)
       )
-      pluginFileNodes.forEach(n => this.addPluginFile(n, options))
-      mediaFileNodes.forEach(n => this.addPluginFile(n, options))
+      pluginFileNodes.forEach((n) => this.addPluginFile(n, options))
+      mediaFileNodes.forEach((n) => this.addPluginFile(n, options))
     } else {
       // Backup solution that is a little more brute force
       const fileNodes = mainHTML.querySelectorAll<HTMLElement>(
@@ -278,12 +278,12 @@ class Course {
         parser.getQuerySelector("activity", options)
       )
 
-      fileNodes.forEach(n => this.addFile(n, options))
-      pluginFileNodes.forEach(n => this.addPluginFile(n, options))
-      urlFileNodes.forEach(n => this.addURLNode(n, options))
-      mediaFileNodes.forEach(n => this.addPluginFile(n, options))
-      folderNodes.forEach(n => this.addFolder(n, options))
-      activities.forEach(n => this.addActivity(n, options))
+      fileNodes.forEach((n) => this.addFile(n, options))
+      pluginFileNodes.forEach((n) => this.addPluginFile(n, options))
+      urlFileNodes.forEach((n) => this.addURLNode(n, options))
+      mediaFileNodes.forEach((n) => this.addPluginFile(n, options))
+      folderNodes.forEach((n) => this.addFolder(n, options))
+      activities.forEach((n) => this.addActivity(n, options))
     }
 
     if (testLocalStorage) {
@@ -291,10 +291,10 @@ class Course {
     }
 
     courseData[this.link] = {
-      seenResources: this.resources.filter(n => !n.isNew).map(n => n.href),
-      newResources: this.resources.filter(n => n.isNew).map(n => n.href),
-      seenActivities: this.activities.filter(n => !n.isNew).map(n => n.href),
-      newActivities: this.activities.filter(n => n.isNew).map(n => n.href),
+      seenResources: this.resources.filter((n) => !n.isNew).map((n) => n.href),
+      newResources: this.resources.filter((n) => n.isNew).map((n) => n.href),
+      seenActivities: this.activities.filter((n) => !n.isNew).map((n) => n.href),
+      newActivities: this.activities.filter((n) => n.isNew).map((n) => n.href),
     }
     await browser.storage.local.set({ courseData })
   }
@@ -315,7 +315,7 @@ class Course {
     // Merge already seen resources with new resources
     // Use set to remove duplicates
     const updatedSeenResources = Array.from(new Set(seenResources.concat(toBeMerged)))
-    const updatedNewResources = newResources.filter(r => !updatedSeenResources.includes(r))
+    const updatedNewResources = newResources.filter((r) => !updatedSeenResources.includes(r))
 
     const updatedCourseData = {
       ...(storedCourseData as Record<string, unknown>),

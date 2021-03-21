@@ -1,9 +1,7 @@
 import { ExtensionOptions, ExtensionStorage } from "extension/types/extension.types"
 import {
-  CancelDownloadMessage,
   CourseCrawlMessage,
   DownloadMessage,
-  ErrorViewMessage,
   Message,
   VideoDownloadProgressMessage,
   VideoScanResultMessage,
@@ -133,7 +131,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     await scanForVideos()
 
     if (error) {
-      browser.runtime.sendMessage<ErrorViewMessage>({
+      browser.runtime.sendMessage<Message>({
         command: "error-view",
       })
       return
@@ -198,14 +196,14 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
       console.error(err)
       sendLog({ errorMessage: err.message, url: location.href })
       error = true
-      browser.runtime.sendMessage<ErrorViewMessage>({
+      browser.runtime.sendMessage<Message>({
         command: "error-view",
       })
     }
   }
 
   if (command === "cancel-download") {
-    browser.runtime.sendMessage<CancelDownloadMessage>({
+    browser.runtime.sendMessage<Message>({
       command: "cancel-download",
     })
     cancel = true

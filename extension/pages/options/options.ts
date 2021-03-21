@@ -1,4 +1,5 @@
 import { ExtensionOptions, ExtensionStorage } from "../../types/extension.types"
+import { EventMessage, Message } from "../../types/messages.types"
 
 let restoredOptions: ExtensionOptions
 
@@ -63,17 +64,19 @@ async function save(e: Event) {
 
   clearTimeout(timeout)
   timeout = setTimeout(async () => {
-    await browser.runtime.sendMessage({
+    await browser.runtime.sendMessage<EventMessage>({
       command: "event",
       event: "modify-options",
+      saveURL: false,
       eventData: changedOptions,
     })
   }, 500)
 
   if (updatedOptions.disableInteractionTracking) {
-    await browser.runtime.sendMessage({
+    await browser.runtime.sendMessage<EventMessage>({
       command: "event",
       event: "disable-tracking",
+      saveURL: false,
     })
   }
 
@@ -100,7 +103,7 @@ function checkURL(e: Event) {
 }
 
 async function clearCourseData(e: Event) {
-  await browser.runtime.sendMessage({
+  await browser.runtime.sendMessage<Message>({
     command: "clear-course-data",
   })
 

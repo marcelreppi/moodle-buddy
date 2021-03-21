@@ -143,7 +143,7 @@ export default defineComponent({
       if (!this.activeTab?.id) return
 
       this.userHasRated = true
-      browser.tabs.sendMessage(this.activeTab.id, {
+      browser.tabs.sendMessage<Message>(this.activeTab.id, {
         command: "rate-click",
       })
       this.navigateTo(this.rateLink)

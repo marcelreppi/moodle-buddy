@@ -2,7 +2,6 @@ import {
   CourseCrawlMessage,
   CourseScanResultMessage,
   DownloadMessage,
-  ErrorViewMessage,
   Message,
 } from "extension/types/messages.types"
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
@@ -44,7 +43,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     // updateIconFromCourses(course)
 
     if (error) {
-      browser.runtime.sendMessage<ErrorViewMessage>({
+      browser.runtime.sendMessage<Message>({
         command: "error-view",
       })
       return

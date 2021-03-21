@@ -4,7 +4,6 @@ import {
   DashboardCrawlMessage,
   DashboardScanResultMessage,
   DownloadMessage,
-  ErrorViewMessage,
   MarkAsSeenMessage,
   Message,
   ScanInProgressMessage,
@@ -173,7 +172,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
   const { command } = message as Message
   if (command === "scan") {
     if (error) {
-      browser.runtime.sendMessage<ErrorViewMessage>({
+      browser.runtime.sendMessage<Message>({
         command: "error-view",
       })
       return
@@ -183,7 +182,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
       sendScanProgress()
     } else {
       if (error) {
-        browser.runtime.sendMessage<ErrorViewMessage>({
+        browser.runtime.sendMessage<Message>({
           command: "error-view",
         })
         return
