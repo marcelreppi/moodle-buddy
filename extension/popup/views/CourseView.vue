@@ -142,6 +142,7 @@
 import { defineComponent } from "vue"
 import { SelectionTab } from "../../types/extension.types"
 import {
+  CourseCrawlMessage,
   CourseScanResultMessage,
   DownloadProgressMessage,
   Message,
@@ -228,7 +229,7 @@ export default defineComponent({
     newResources(): Resource[] {
       return this.resources.filter((n) => n.isNew)
     },
-    selectedResources(): Array<Resource | Activity> {
+    selectedResources(): Array<Resource> {
       return this.resources.filter((n) => {
         if (this.activeSelectionTab === "simple") {
           if (!this.downloadFiles && (n as FileResource).isFile) return false
@@ -295,7 +296,7 @@ export default defineComponent({
 
       this.downloadInProgress = true
 
-      browser.tabs.sendMessage(this.activeTab.id, {
+      browser.tabs.sendMessage<CourseCrawlMessage>(this.activeTab.id, {
         command: "crawl",
         selectedResources: this.selectedResources.map((r) => ({ ...r })), // Resolve proxy
         options: {
@@ -316,7 +317,7 @@ export default defineComponent({
       this.nNewFiles = 0
       this.nNewFolders = 0
       this.nNewActivities = 0
-      browser.tabs.sendMessage(this.activeTab.id, {
+      browser.tabs.sendMessage<Message>(this.activeTab.id, {
         command: "mark-as-seen",
       })
     },
@@ -343,7 +344,7 @@ export default defineComponent({
       }
     },
     onCancel() {
-      browser.runtime.sendMessage({
+      browser.runtime.sendMessage<Message>({
         command: "cancel-download",
       })
       this.downloadInProgress = false
@@ -381,7 +382,7 @@ export default defineComponent({
         this.loading = false
 
         if (this.nNewActivities > 0) {
-          browser.tabs.sendMessage(this.activeTab.id, {
+          browser.tabs.sendMessage<Message>(this.activeTab.id, {
             command: "update-activities",
           })
         }

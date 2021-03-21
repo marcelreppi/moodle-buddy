@@ -69,10 +69,16 @@ export interface DashboardCrawlMessage extends Message {
   link: string
 }
 
+interface CrawlOptions {
+  useMoodleFileName: ExtensionOptions["useMoodleFileName"]
+  prependCourseToFileName: ExtensionOptions["prependCourseToFileName"]
+  prependCourseShortcutToFileName: ExtensionOptions["prependCourseShortcutToFileName"]
+}
+
 export interface CourseCrawlMessage extends Message {
   command: "crawl"
   selectedResources: Resource[]
-  options: ExtensionOptions
+  options: CrawlOptions
 }
 
 export interface ScanInProgressMessage extends Message {
@@ -133,7 +139,7 @@ export interface DownloadMessage extends Message {
   courseName: string
   courseShortcut: string
   resources: Resource[]
-  options: ExtensionOptions
+  options: CrawlOptions
 }
 
 export interface DownloadProgressMessage extends Message {

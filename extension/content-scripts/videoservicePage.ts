@@ -169,7 +169,10 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
           const selectedResource = selectedResources[i]
           const videoResource = videoResources.find((r) => r.href === selectedResource.href)
           if (videoResource) {
-            videoResource.src = await getVideoResourceSrc(videoResource, options)
+            videoResource.src = await getVideoResourceSrc(
+              videoResource,
+              options as ExtensionOptions
+            )
             browser.runtime.sendMessage<VideoDownloadProgressMessage>({
               command: "video-download-progress",
               completed: i + 1,

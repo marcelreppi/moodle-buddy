@@ -106,7 +106,7 @@ export default defineComponent({
     browser.runtime.onMessage.addListener(messageListener)
 
     if (this?.activeTab?.id) {
-      browser.tabs.sendMessage(this.activeTab.id, {
+      browser.tabs.sendMessage<Message>(this.activeTab.id, {
         command: "scan",
       })
     }

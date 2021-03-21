@@ -163,7 +163,7 @@ export default defineComponent({
       if (!this.activeTab?.id) return
 
       this.userHasRated = true
-      browser.tabs.sendMessage(this.activeTab.id, {
+      browser.tabs.sendMessage<Message>(this.activeTab.id, {
         command: "avoid-rate-click",
       })
       sendEvent("avoid-rating-hint")
@@ -221,7 +221,7 @@ export default defineComponent({
       this.activeTab = tab
       // Get state on load from detector
       if (this.activeTab?.id) {
-        browser.tabs.sendMessage(this.activeTab.id, {
+        browser.tabs.sendMessage<Message>(this.activeTab.id, {
           command: "get-state",
         })
         // .catch(() => {

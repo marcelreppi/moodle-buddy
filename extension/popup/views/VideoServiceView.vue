@@ -110,6 +110,7 @@
 <script lang="ts">
 import { defineComponent } from "vue"
 import {
+  CourseCrawlMessage,
   Message,
   VideoDownloadProgressMessage,
   VideoScanResultMessage,
@@ -205,7 +206,7 @@ export default defineComponent({
 
       this.downloadInProgress = true
 
-      browser.tabs.sendMessage(this.activeTab.id, {
+      browser.tabs.sendMessage<CourseCrawlMessage>(this.activeTab.id, {
         command: "crawl",
         selectedResources: this.selectedResources.map((r) => ({ ...r })), // Resolve proxy
         options: {
@@ -234,7 +235,7 @@ export default defineComponent({
       }
     },
     onCancel() {
-      browser.tabs.sendMessage(this.activeTab.id, {
+      browser.tabs.sendMessage<Message>(this.activeTab.id, {
         command: "cancel-download",
       })
       this.downloadInProgress = false
@@ -275,7 +276,7 @@ export default defineComponent({
     this.prependCourseShortcutToFileName = this.options.prependCourseShortcutToFileName
 
     // Scan for resources
-    browser.tabs.sendMessage(this.activeTab.id, {
+    browser.tabs.sendMessage<Message>(this.activeTab.id, {
       command: "scan",
     })
   },
