@@ -265,11 +265,6 @@ export default defineComponent({
 
       return false
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    progressBarRef(): any {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return this.$refs.progressBar as any
-    },
   },
   watch: {
     nResources() {
@@ -358,7 +353,8 @@ export default defineComponent({
   },
   updated() {
     if (this.downloadInProgress) {
-      this.progressBarRef.setProgress(this.selectedResources.length)
+      const progressBarRef = this.$refs.progressBar as any
+      progressBarRef.setProgress(this.selectedResources.length)
     }
   },
   created() {
@@ -393,8 +389,9 @@ export default defineComponent({
 
       if (command === "download-progress") {
         const { completed, total, errors } = message as DownloadProgressMessage
-        if (this.progressBarRef) {
-          this.progressBarRef.setProgress(total, completed, errors)
+        const progressBarRef = this.$refs.progressBar as any
+        if (progressBarRef) {
+          progressBarRef.setProgress(total, completed, errors)
         }
       }
     }

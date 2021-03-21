@@ -49,23 +49,22 @@ export default defineComponent({
       done: false,
       cancelable: ["download"],
       $Progress: this.$Progress as any,
-      progressText: "",
     }
   },
-  methods: {
-    setProgressText() {
-      let progressText = [
+  computed: {
+    progressText(): string {
+      if (this.progress === 100) {
+        return "Done!"
+      }
+
+      return [
         `${actionText[this.type]}...`,
         `${this.completed}/${this.total !== -1 ? this.total : "?"}`,
         `${this.errors > 0 ? `(${this.errors} Error(s))` : ""}`,
       ].join(" ")
-
-      if (this.progress === 100) {
-        progressText = "Done!"
-      }
-
-      this.progressText = progressText
     },
+  },
+  methods: {
     setProgress(total: number, completed = 0, errors = 0) {
       this.total = total
       this.completed = completed
@@ -84,8 +83,6 @@ export default defineComponent({
         this.done = true
         this.onDone()
       }
-
-      this.setProgressText()
     },
     resetProgress() {
       this.total = -1
@@ -100,7 +97,6 @@ export default defineComponent({
   },
   created() {
     this.resetProgress()
-    this.setProgressText()
   },
 })
 </script>
