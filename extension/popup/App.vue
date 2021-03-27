@@ -1,13 +1,13 @@
 <template>
-  <div class="app" :class="{ chrome: !isFirefox }">
-    <div class="title">
+  <div class="w-full h-full px-3 pt-4 pb-2" :class="{ chrome: !isFirefox }">
+    <div class="flex items-center justify-center mb-2 text-xl">
       Moodle Buddy
-      <img class="title-icon" src="../icons/48.png" alt="logo" />
+      <img class="w-5 h-5 ml-1" src="../icons/48.png" alt="logo" />
     </div>
 
-    <div class="popup-content">
+    <div class="relative w-full h-full">
       <ErrorView v-if="showErrorView" />
-      <div v-else>
+      <div class="box-border relative flex flex-col items-center justify-center w-full" v-else>
         <DashboardPageView
           v-if="showDashboardPageView"
           :activeTab="activeTab"
@@ -27,22 +27,27 @@
         ></NoMoodle>
       </div>
 
-      <div v-if="showRatingHint" class="rating-hint">
+      <div
+        v-if="showRatingHint"
+        class="absolute top-0 left-0 right-0 flex flex-col items-center justify-center px-5 space-y-2 text-center bg-white border -bottom-3 shadow-custom"
+      >
         <div>You have downloaded more than {{ rateHintLevels[rateHintLevel] }} files 🎉</div>
         <div>Thank you very much! 😄👌</div>
         <div>
-          I would really appreciate your rating and review <br />
-          in the {{ isFirefox ? "Firefox Add-on Store" : "Chrome Web Store" }} 🙏
+          I would really appreciate your rating and review in the
+          {{ isFirefox ? "Firefox Add-on Store" : "Chrome Web Store" }} 🙏
         </div>
 
-        <div style="margin-top: 20px">
-          <button @click="onRateClick">Rate Moodle Buddy</button>
-          <div class="avoid-rate" @click="onAvoidRateClick">I will have to disappoint you...</div>
+        <div class="pt-3">
+          <button class="btn" @click="onRateClick">Rate Moodle Buddy</button>
+          <div class="mt-2 text-xs text-gray-400 cursor-pointer" @click="onAvoidRateClick">
+            I will have to disappoint you...
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="footer">
+    <footer class="flex items-center justify-between text-xs mt-7">
       <span>
         <div class="link" @click="() => navigateTo('/pages/contact/contact.html')">
           Report a bug
@@ -57,17 +62,26 @@
       <span>
         <div class="link" @click="onOptionsClick">Options</div>
       </span>
-      <span class="footer-right-section">
-        <img class="info-icon" src="../static/information.png" alt="info" @click="onInfoClick" />
-      </span>
-    </div>
+      <img
+        class="w-4 h-4 hover:cursor-pointer"
+        src="../static/information.png"
+        alt="info"
+        @click="onInfoClick"
+      />
+    </footer>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { Message, StateData, StateMessage } from "moodle-buddy-types"
-import { ExtensionOptions, SupportedPage } from "moodle-buddy-types"
+import {
+  Message,
+  StateData,
+  StateMessage,
+  ExtensionOptions,
+  SupportedPage,
+} from "moodle-buddy-types"
+
 import { sendEvent, getActiveTab, isFirefox } from "../shared/helpers"
 import DashboardPageView from "./views/DashboardPageView.vue"
 import CourseView from "./views/CourseView.vue"
@@ -233,144 +247,3 @@ export default defineComponent({
   },
 })
 </script>
-
-<style>
-.app {
-  font-size: 15px;
-  padding: 15px 10px 5px 10px;
-}
-
-.chrome {
-  padding-right: 25px;
-}
-
-.title {
-  font-size: 22px;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.title-icon {
-  width: 20px;
-  height: 20px;
-  margin: 0px 5px;
-}
-
-.content-container {
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-}
-
-.popup-content {
-  width: 100%;
-  position: relative;
-}
-
-.link {
-  color: blue;
-  text-decoration: underline;
-}
-
-.link:hover {
-  cursor: pointer;
-}
-
-.bold {
-  font-weight: 600;
-}
-
-hr {
-  margin: 10px 0px;
-  color: rgba(240, 240, 240, 0.347);
-  border-color: rgba(240, 240, 240, 0.347);
-}
-
-.rating-hint {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: -10px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 0px 30px;
-  text-align: center;
-  background: white;
-  border-radius: 5px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-}
-
-.rating-hint > div:nth-of-type(n + 1) {
-  margin-top: 5px;
-}
-
-.rating-hint button {
-  padding: 10px 10px;
-  border-radius: 5px;
-  border: 0;
-  background-color: #c50e20;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  letter-spacing: 0.5px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-}
-
-.avoid-rate {
-  font-size: 12px;
-  color: #6f6f6f;
-  margin-top: 10px;
-  cursor: pointer;
-}
-
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 30px;
-  font-size: 12px;
-  color: #6f6f6f;
-}
-
-.footer-right-section {
-  display: flex;
-  align-items: center;
-}
-
-.info-icon {
-  width: 16px;
-  height: 16px;
-  margin-left: 10px;
-}
-
-.info-icon:hover {
-  cursor: pointer;
-}
-
-.scrollbar {
-  --scrollbarBG: #dcdcdc;
-  --thumbBG: #c50e2080;
-  scrollbar-width: thin;
-  scrollbar-color: var(--thumbBG) var(--scrollbarBG);
-}
-
-.scrollbar::-webkit-scrollbar {
-  width: 11px;
-}
-
-.scrollbar::-webkit-scrollbar-track {
-  background: var(--scrollbarBG);
-}
-.scrollbar::-webkit-scrollbar-thumb {
-  background-color: var(--thumbBG);
-  border-radius: 6px;
-  border: 3px solid var(--scrollbarBG);
-}
-</style>

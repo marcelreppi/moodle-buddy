@@ -4,7 +4,7 @@
     <div v-else class="content-container">
       <div v-if="showNewActivityInfo" id="new-activities">
         <span>The following activities were added to the course:</span>
-        <div class="bold" v-for="(node, i) in newActivities" :key="i">
+        <div class="font-semibold" v-for="(node, i) in newActivities" :key="i">
           {{ node.name }}
         </div>
         <hr />
@@ -14,17 +14,17 @@
           There
           <span>{{ nResources === 1 ? "is" : "are" }}</span>
           {{ " " }}
-          <span class="bold">{{ nResources }}</span>
+          <span class="font-semibold">{{ nResources }}</span>
           {{ " " }}
-          <span class="bold">{{ nResources === 1 ? "resource" : "resources" }}</span>
+          <span class="font-semibold">{{ nResources === 1 ? "resource" : "resources" }}</span>
           available for download
         </span>
         <div v-if="showNewResourceInfo" class="new-resources-info">
           <div>
             Since last visit
-            <span class="bold">{{ nNewResources }} new</span>
+            <span class="font-semibold">{{ nNewResources }} new</span>
             {{ " " }}
-            <span class="bold">{{ nNewResources === 1 ? "resource" : "resources" }}</span>
+            <span class="font-semibold">{{ nNewResources === 1 ? "resource" : "resources" }}</span>
             {{ " " }}
             <span>{{ nNewResources === 1 ? "was" : "were" }}</span>
             {{ " " }}

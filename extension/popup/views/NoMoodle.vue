@@ -2,7 +2,7 @@
   <div class="content-container">
     <div v-if="nUpdates > 0" class="marginize">
       There {{ nUpdates === 1 ? "is" : "are" }}
-      <span class="bold">
+      <span class="font-semibold">
         {{ nUpdates }}
         {{ nUpdates === 1 ? "update" : "updates" }}
       </span>

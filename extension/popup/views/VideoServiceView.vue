@@ -8,9 +8,9 @@
           {{ " " }}
           <span>{{ nVideos === 1 ? "is" : "are" }}</span>
           {{ " " }}
-          <span class="bold">{{ nVideos }}</span>
+          <span class="font-semibold">{{ nVideos }}</span>
           {{ " " }}
-          <span class="bold">{{ nVideos === 1 ? "video" : "videos" }}</span>
+          <span class="font-semibold">{{ nVideos === 1 ? "video" : "videos" }}</span>
           {{ " " }}
           available for download
         </span>

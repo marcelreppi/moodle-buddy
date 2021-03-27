@@ -1,14 +1,60 @@
-html, body {
-  width: 400px;
-  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
-  font-weight: 350;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    width: 400px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+      "Segoe UI Symbol";
+    font-weight: 350;
+  }
+
+  hr {
+    margin: 10px 0px;
+    color: rgba(240, 240, 240, 0.347);
+    border-color: rgba(240, 240, 240, 0.347);
+  }
 }
 
-button {
-  padding: 0;
-  border: none;
-  font: inherit;
-  color: inherit;
-  background-color: transparent;
-  cursor: pointer;
+@layer components {
+  .link {
+    @apply text-blue-600 underline;
+  }
+
+  .link:hover {
+    @apply cursor-pointer;
+  }
+
+  .content-container {
+    @apply box-border relative flex flex-col items-center justify-center w-full;
+  }
+
+  .btn {
+    @apply py-2 px-3 rounded bg-mb-red text-white font-semibold text-center tracking-wide shadow-custom;
+  }
+}
+
+@layer utilities {
+  .scrollbar {
+    --scrollbarBG: #dcdcdc;
+    --thumbBG: #c50e2080;
+    scrollbar-width: thin;
+    scrollbar-color: var(--thumbBG) var(--scrollbarBG);
+  }
+
+  .scrollbar::-webkit-scrollbar {
+    width: 11px;
+  }
+
+  .scrollbar::-webkit-scrollbar-track {
+    background: var(--scrollbarBG);
+  }
+  .scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--thumbBG);
+    border-radius: 6px;
+    border: 3px solid var(--scrollbarBG);
+  }
 }
