@@ -1,5 +1,5 @@
-import { ExtensionOptions, ExtensionStorage } from "../../types/extension.types"
-import { FeedbackMessage } from "../../types/messages.types"
+import { ExtensionOptions, ExtensionStorage } from "moodle-buddy-types"
+import { FeedbackMessage } from "moodle-buddy-types"
 
 document.querySelector("#form-button")?.addEventListener("click", async () => {
   const email = document.querySelector<HTMLInputElement>("#form-email")?.value

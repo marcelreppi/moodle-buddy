@@ -2,7 +2,8 @@
   "compilerOptions": {
     "typeRoots": [
       "node_modules/@types",
-      "node_modules/web-ext-types"
+      "node_modules/web-ext-types",
+      "node_modules/moodle-buddy-types"
     ],
     "target": "es6",
     "module": "ES6",

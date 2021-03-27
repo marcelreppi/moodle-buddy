@@ -66,8 +66,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { Message, StateData, StateMessage } from "../types/messages.types"
-import { ExtensionOptions, SupportedPage } from "../types/extension.types"
+import { Message, StateData, StateMessage } from "moodle-buddy-types"
+import { ExtensionOptions, SupportedPage } from "moodle-buddy-types"
 import { sendEvent, getActiveTab, isFirefox } from "../shared/helpers"
 import DashboardPageView from "./views/DashboardPageView.vue"
 import CourseView from "./views/CourseView.vue"

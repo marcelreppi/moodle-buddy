@@ -1,11 +1,13 @@
-import { ExtensionStorage, SupportedPage } from "extension/types/extension.types"
 import {
+  ExtensionStorage,
+  SupportedPage,
   ExecuteScriptMessage,
   Message,
   PageDataMessage,
   StateMessage,
-} from "extension/types/messages.types"
-import { PageData } from "extension/types/tracker.types"
+  PageData,
+} from "moodle-buddy-types"
+
 import { getMoodleBaseURL, getURLRegex } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"
 

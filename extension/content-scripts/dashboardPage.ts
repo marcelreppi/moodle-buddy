@@ -7,8 +7,8 @@ import {
   MarkAsSeenMessage,
   Message,
   ScanInProgressMessage,
-} from "extension/types/messages.types"
-import { ExtensionStorage } from "extension/types/extension.types"
+} from "moodle-buddy-types"
+import { ExtensionStorage } from "moodle-buddy-types"
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { getURLRegex, updateIconFromCourses, sendLog } from "../shared/helpers"
 import Course from "../models/Course"

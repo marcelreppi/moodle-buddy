@@ -1,4 +1,4 @@
-import { SupportedPage } from "./extension.types"
+import { SupportedPage } from "moodle-buddy-types"
 
 export interface Payload {
   browser: "firefox" | "chrome"

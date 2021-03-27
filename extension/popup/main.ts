@@ -1,4 +1,3 @@
-import "../types/global.types"
 import { createApp, Plugin } from "vue"
 import VueProgressBar from "@aacassandra/vue3-progressbar"
 

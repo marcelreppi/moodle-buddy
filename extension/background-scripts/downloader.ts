@@ -1,13 +1,13 @@
 import pLimit from "p-limit"
 
-import { DownloadMessage, DownloadProgressMessage, Message } from "extension/types/messages.types"
-import { ExtensionOptions, ExtensionStorage } from "extension/types/extension.types"
+import { DownloadMessage, DownloadProgressMessage, Message } from "moodle-buddy-types"
+import { ExtensionOptions, ExtensionStorage } from "moodle-buddy-types"
 import {
   FileResource,
   FolderResource,
   Resource,
   VideoResource,
-} from "extension/models/Course.types"
+} from "moodle-buddy-types"
 import {
   parseFileNameFromPluginFileURL,
   getDownloadButton,

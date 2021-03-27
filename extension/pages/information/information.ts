@@ -1,4 +1,4 @@
-import { EventMessage } from "../../types/messages.types"
+import { EventMessage } from "moodle-buddy-types"
 
 document.querySelector("#imprint-link")?.addEventListener("click", () => {
   browser.runtime.sendMessage<EventMessage>({

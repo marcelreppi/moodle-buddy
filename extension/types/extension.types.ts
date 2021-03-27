@@ -1,4 +1,4 @@
-import { CourseData } from "extension/models/Course.types"
+import { CourseData } from "moodle-buddy-types"
 
 export interface ExtensionOptions extends browser.storage.StorageObject {
   onlyNewResources: boolean

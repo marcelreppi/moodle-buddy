@@ -3,7 +3,7 @@ import {
   CourseScanResultMessage,
   DownloadMessage,
   Message,
-} from "extension/types/messages.types"
+} from "moodle-buddy-types"
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { updateIconFromCourses, sendLog } from "../shared/helpers"
 

@@ -75,7 +75,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue"
-import { FileResource, FolderResource, Resource } from "../../models/Course.types"
+import { FileResource, FolderResource, Resource } from "moodle-buddy-types"
 
 type CbCategory = "all" | "file" | "folder"
 

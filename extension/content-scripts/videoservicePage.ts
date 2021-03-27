@@ -1,12 +1,12 @@
-import { ExtensionOptions, ExtensionStorage } from "extension/types/extension.types"
+import { ExtensionOptions, ExtensionStorage } from "moodle-buddy-types"
 import {
   CourseCrawlMessage,
   DownloadMessage,
   Message,
   VideoDownloadProgressMessage,
   VideoScanResultMessage,
-} from "extension/types/messages.types"
-import { VideoResource } from "extension/models/Course.types"
+} from "moodle-buddy-types"
+import { VideoResource } from "moodle-buddy-types"
 import { getQuerySelector, parseCourseNameFromCoursePage } from "../shared/parser"
 import { sendLog } from "../shared/helpers"
 

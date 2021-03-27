@@ -1,6 +1,5 @@
 import Course from "extension/models/Course"
-import { EventMessage, LogMessage, SetBadgeMessage } from "extension/types/messages.types"
-import { LogData } from "extension/types/tracker.types"
+import { EventMessage, LogMessage, SetBadgeMessage, LogData } from "moodle-buddy-types"
 
 export function sendEvent(
   event: string,

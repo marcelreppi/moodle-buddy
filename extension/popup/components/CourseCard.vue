@@ -55,9 +55,14 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "vue"
-import { DashboardCrawlMessage, MarkAsSeenMessage } from "../../types/messages.types"
-import { Activity, Resource } from "../../models/Course.types"
-import { ExtensionOptions } from "../../types/extension.types"
+import {
+  DashboardCrawlMessage,
+  MarkAsSeenMessage,
+  Activity,
+  Resource,
+  ExtensionOptions,
+} from "moodle-buddy-types"
+
 import Course from "../../models/Course"
 import { sendEvent } from "../../shared/helpers"
 

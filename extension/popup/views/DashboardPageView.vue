@@ -26,8 +26,9 @@ import {
   Message,
   ScanInProgressMessage,
   DashboardCourseData,
-} from "../../types/messages.types"
-import { ExtensionOptions } from "../../types/extension.types"
+  ExtensionOptions,
+} from "moodle-buddy-types"
+
 import { sendEvent } from "../../shared/helpers"
 
 import CourseCard from "../components/CourseCard.vue"

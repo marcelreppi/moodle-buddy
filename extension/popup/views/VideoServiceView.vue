@@ -114,9 +114,10 @@ import {
   Message,
   VideoDownloadProgressMessage,
   VideoScanResultMessage,
-} from "../../types/messages.types"
-import { SelectionTab } from "../../types/extension.types"
-import { VideoResource } from "../../models/Course.types"
+  SelectionTab,
+  VideoResource,
+} from "moodle-buddy-types"
+
 import { sendEvent } from "../../shared/helpers"
 
 import DetailOverlay from "../components/DetailOverlay.vue"

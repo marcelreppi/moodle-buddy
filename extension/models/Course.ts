@@ -1,14 +1,15 @@
-import { ExtensionOptions, ExtensionStorage } from "extension/types/extension.types"
-import * as parser from "../shared/parser"
-import { getMoodleBaseURL } from "../shared/helpers"
 import {
+  ExtensionOptions,
+  ExtensionStorage,
   Counts,
   Resource,
   Activity,
   FileResource,
   FolderResource,
   CourseData,
-} from "./Course.types"
+} from "moodle-buddy-types"
+import * as parser from "../shared/parser"
+import { getMoodleBaseURL } from "../shared/helpers"
 
 class Course {
   link: string

@@ -140,14 +140,18 @@
 
 <script lang="ts">
 import { defineComponent } from "vue"
-import { SelectionTab } from "../../types/extension.types"
 import {
+  SelectionTab,
   CourseCrawlMessage,
   CourseScanResultMessage,
   DownloadProgressMessage,
   Message,
-} from "../../types/messages.types"
-import { Activity, Resource, FileResource, FolderResource } from "../../models/Course.types"
+  Activity,
+  Resource,
+  FileResource,
+  FolderResource,
+} from "moodle-buddy-types"
+
 import { sendEvent } from "../../shared/helpers"
 
 import DetailOverlay from "../components/DetailOverlay.vue"

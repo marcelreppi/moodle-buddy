@@ -1,6 +1,14 @@
-import { Activity, Counts, Resource, VideoResource } from "extension/models/Course.types"
-import { ExtensionOptions, SupportedPage } from "./extension.types"
-import { FeedbackData, LogData, PageData } from "./tracker.types"
+import {
+  Activity,
+  Counts,
+  Resource,
+  VideoResource,
+  ExtensionOptions,
+  SupportedPage,
+  FeedbackData,
+  LogData,
+  PageData,
+} from "moodle-buddy-types"
 
 type Command =
   | "get-state"
