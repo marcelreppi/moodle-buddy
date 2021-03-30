@@ -1,6 +1,6 @@
 <template>
   <div class="content-container">
-    <div v-if="nUpdates > 0" class="marginize">
+    <div v-if="nUpdates > 0" class="mb-3">
       There {{ nUpdates === 1 ? "is" : "are" }}
       <span class="font-semibold">
         {{ nUpdates }}
@@ -8,22 +8,33 @@
       </span>
       to your courses
     </div>
-    <div v-if="showDefaultURLInput" class="content-container marginize">
+    <div v-if="showDefaultURLInput" class="mb-3 content-container">
       <div>Want to navigate to your Moodle from here?</div>
       <div>Paste the URL below:</div>
       <div>
-        <input class="url-input" type="text" name="" id="" v-model="urlInput" />
-        <button class="save-button" @click="onSaveClick">Save</button>
+        <input
+          class="w-64 mr-1 border border-gray-400 rounded-md focus:border-gray-500"
+          type="text"
+          name=""
+          id=""
+          v-model="urlInput"
+        />
+        <button class="py-0.5 btn" @click="onSaveClick">Save</button>
       </div>
       <transition name="fade">
-        <div v-if="showInvalidURL" class="invalid-url">Invalid URL!</div>
+        <div
+          v-if="showInvalidURL"
+          class="px-3 py-2 mt-4 font-bold text-center text-white bg-black rounded-md shadow-custom"
+        >
+          Invalid URL!
+        </div>
       </transition>
     </div>
-    <div v-else class="marginize link" @click="navigateToMoodle">Go to my Moodle</div>
-    <hr />
+    <div v-else class="mb-3 link" @click="navigateToMoodle">Go to my Moodle</div>
+    <hr class="w-5/6 my-2" />
     <div>This is an unsupported webpage.</div>
-    <div class="hints">Make sure you are...</div>
-    <ul>
+    <div class="mt-3">Make sure you are...</div>
+    <ul class="list-disc">
       <li>on your university's Moodle page</li>
       <li>logged in</li>
       <li>on a <span class="link" @click="openInfoPage">supported</span> Moodle webpage</li>
@@ -84,43 +95,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.url-input {
-  width: 250px;
-  font-family: inherit;
-}
-
-.save-button {
-  width: 60px;
-  padding: 2px 5px 3px 5px;
-  margin-left: 7px;
-  border-radius: 5px;
-  border: 0;
-  background-color: #c50e20;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  letter-spacing: 0.5px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-}
-
-.save-button:hover {
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.invalid-url {
-  padding: 2px 15px 4px 15px;
-  margin-top: 15px;
-  border-radius: 5px;
-  border: 0;
-  background-color: #000000;
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  letter-spacing: 0.5px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-}
-
 .fade-leave-active {
   transition: all 0.5s;
 }
@@ -130,23 +104,5 @@ export default defineComponent({
 .fade-enter,
 .fade-leave-to {
   opacity: 0;
-}
-
-ul {
-  margin: 0;
-}
-
-hr {
-  width: 85%;
-}
-
-.hints {
-  margin: 17px 0px 5px 0px;
-  /* padding: 0px 60px; */
-  text-align: center;
-}
-
-.marginize {
-  margin-bottom: 10px;
 }
 </style>

@@ -49,7 +49,7 @@
 
     <footer class="flex items-center justify-between text-xs mt-7">
       <span>
-        <div class="link" @click="() => navigateTo('/pages/contact/contact.html')">
+        <div class="link" @click="onReportBugClick">
           Report a bug
         </div>
       </span>
@@ -82,7 +82,7 @@ import {
   SupportedPage,
 } from "moodle-buddy-types"
 
-import { sendEvent, getActiveTab, isFirefox } from "../shared/helpers"
+import { sendEvent, getActiveTab, isFirefox, navigateTo } from "../shared/helpers"
 import DashboardPageView from "./views/DashboardPageView.vue"
 import CourseView from "./views/CourseView.vue"
 import VideoServiceView from "./views/VideoServiceView.vue"
@@ -145,12 +145,15 @@ export default defineComponent({
     },
   },
   methods: {
+    onReportBugClick() {
+      navigateTo("/pages/contact/contact.html")
+    },
     onInfoClick() {
-      this.navigateTo("/pages/information/information.html")
+      navigateTo("/pages/information/information.html")
       sendEvent("info-click", false)
     },
     onDonateClick() {
-      this.navigateTo("https://paypal.me/marcelreppi")
+      navigateTo("https://paypal.me/marcelreppi")
       sendEvent("donate-click", false)
     },
     onRateClick() {
@@ -160,18 +163,12 @@ export default defineComponent({
       browser.tabs.sendMessage<Message>(this.activeTab.id, {
         command: "rate-click",
       })
-      this.navigateTo(this.rateLink)
+      navigateTo(this.rateLink)
       sendEvent("rate-click", false)
     },
     onOptionsClick() {
       browser.runtime.openOptionsPage()
       sendEvent("options-click", false)
-    },
-    navigateTo(link: string) {
-      browser.tabs.create({
-        url: link,
-      })
-      window.close()
     },
     onAvoidRateClick() {
       if (!this.activeTab?.id) return

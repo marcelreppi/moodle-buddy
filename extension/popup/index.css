@@ -11,12 +11,6 @@
       "Segoe UI Symbol";
     font-weight: 350;
   }
-
-  hr {
-    margin: 10px 0px;
-    color: rgba(240, 240, 240, 0.347);
-    border-color: rgba(240, 240, 240, 0.347);
-  }
 }
 
 @layer components {
@@ -33,7 +27,11 @@
   }
 
   .btn {
-    @apply py-2 px-3 rounded bg-mb-red text-white font-semibold text-center tracking-wide shadow-custom;
+    @apply py-1 px-3 rounded bg-mb-red text-white font-semibold text-center tracking-wide shadow-custom;
+  }
+
+  .btn:hover {
+    @apply opacity-95 underline;
   }
 }
 
