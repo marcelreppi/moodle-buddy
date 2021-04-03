@@ -43,18 +43,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { ExtensionOptions } from "moodle-buddy-types"
+import { defineComponent, PropType } from "vue"
 import { sendEvent, validURLRegex } from "../../shared/helpers"
 
 export default defineComponent({
   props: {
     openInfoPage: Function,
-    options: Object,
-    nUpdates: Number,
+    options: {
+      type: Object as PropType<ExtensionOptions>,
+      required: true,
+    },
+    nUpdates: {
+      type: Number,
+      required: true,
+    },
   },
   data() {
     return {
-      moodleURL: this.options ? this.options.defaultMoodleURL : "",
+      moodleURL: Object.keys(this.options).length === 0 ? this.options.defaultMoodleURL : "",
       urlInput: "",
       showInvalidURL: false,
     }
