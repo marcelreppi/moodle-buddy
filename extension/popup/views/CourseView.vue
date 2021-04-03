@@ -139,7 +139,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, PropType } from "vue"
 import {
   SelectionTab,
   CourseCrawlMessage,
@@ -150,6 +150,7 @@ import {
   Resource,
   FileResource,
   FolderResource,
+  ExtensionOptions,
 } from "moodle-buddy-types"
 
 import { sendEvent } from "../../shared/helpers"
@@ -166,11 +167,11 @@ export default defineComponent({
   },
   props: {
     activeTab: {
-      type: Object,
+      type: Object as PropType<browser.tabs.Tab>,
       required: true,
     },
     options: {
-      type: Object,
+      type: Object as PropType<ExtensionOptions>,
       required: true,
     },
   },
@@ -300,15 +301,17 @@ export default defineComponent({
 
       this.downloadInProgress = true
 
-      browser.tabs.sendMessage<CourseCrawlMessage>(this.activeTab.id, {
-        command: "crawl",
-        selectedResources: this.selectedResources.map((r) => ({ ...r })), // Resolve proxy
-        options: {
-          useMoodleFileName: this.useMoodleFileName,
-          prependCourseToFileName: this.prependCourseToFileName,
-          prependCourseShortcutToFileName: this.prependCourseShortcutToFileName,
-        },
-      })
+      if (this.activeTab.id) {
+        browser.tabs.sendMessage<CourseCrawlMessage>(this.activeTab.id, {
+          command: "crawl",
+          selectedResources: this.selectedResources.map((r) => ({ ...r })), // Resolve proxy
+          options: {
+            useMoodleFileName: this.useMoodleFileName,
+            prependCourseToFileName: this.prependCourseToFileName,
+            prependCourseShortcutToFileName: this.prependCourseShortcutToFileName,
+          },
+        })
+      }
     },
     onDownloadFinished() {
       setTimeout(() => {
@@ -321,9 +324,11 @@ export default defineComponent({
       this.nNewFiles = 0
       this.nNewFolders = 0
       this.nNewActivities = 0
-      browser.tabs.sendMessage<Message>(this.activeTab.id, {
-        command: "mark-as-seen",
-      })
+      if (this.activeTab.id) {
+        browser.tabs.sendMessage<Message>(this.activeTab.id, {
+          command: "mark-as-seen",
+        })
+      }
     },
     toggleDetails(onlyNew = false) {
       if (onlyNew) {
@@ -386,9 +391,11 @@ export default defineComponent({
         this.loading = false
 
         if (this.nNewActivities > 0) {
-          browser.tabs.sendMessage<Message>(this.activeTab.id, {
-            command: "update-activities",
-          })
+          if (this.activeTab.id) {
+            browser.tabs.sendMessage<Message>(this.activeTab.id, {
+              command: "update-activities",
+            })
+          }
         }
       }
 
@@ -408,10 +415,12 @@ export default defineComponent({
     this.prependCourseToFileName = this.options.prependCourseToFileName
     this.prependCourseShortcutToFileName = this.options.prependCourseShortcutToFileName
 
-    // Scan for resources
-    browser.tabs.sendMessage<Message>(this.activeTab.id, {
-      command: "scan",
-    })
+    if (this.activeTab.id) {
+      // Scan for resources
+      browser.tabs.sendMessage<Message>(this.activeTab.id, {
+        command: "scan",
+      })
+    }
   },
 })
 </script>

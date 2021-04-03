@@ -49,9 +49,7 @@
 
     <footer class="flex items-center justify-between text-xs mt-7">
       <span>
-        <div class="link" @click="onReportBugClick">
-          Report a bug
-        </div>
+        <div class="link" @click="onReportBugClick">Report a bug</div>
       </span>
       <span>
         <div class="link" @click="onRateClick">Rate</div>
