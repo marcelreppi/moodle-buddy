@@ -1,13 +1,13 @@
 <template>
   <div class="content-container">
-    <div v-if="courses === null" class="no-courses">
+    <div v-if="courses === null" class="text-center">
       <div>Scanning courses for updates...</div>
       <progress-bar type="scan" ref="progressBar"></progress-bar>
     </div>
-    <div v-else-if="courses.length === 0" class="no-courses">
+    <div v-else-if="courses.length === 0" class="text-center">
       <div>No courses found</div>
     </div>
-    <div v-else class="course-container scrollbar">
+    <div v-else class="w-full px-2 overflow-y-auto max-h-80 scrollbar">
       <CourseCard
         v-for="(course, i) in courses"
         :key="i"
@@ -114,17 +114,3 @@ export default defineComponent({
   },
 })
 </script>
-
-<style>
-.course-container {
-  box-sizing: border-box;
-  width: 100%;
-  max-height: 300px;
-  padding: 0px 10px;
-  overflow-y: auto;
-}
-
-.no-courses {
-  text-align: center;
-}
-</style>
