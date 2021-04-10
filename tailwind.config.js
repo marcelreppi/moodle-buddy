@@ -13,7 +13,8 @@ module.exports = {
   },
   variants: {
     extend: {
-      cursor: ["hover", "focus"],
+      cursor: ["disabled", "hover", "focus"],
+      backgroundColor: ["disabled"],
     },
   },
   plugins: [],
