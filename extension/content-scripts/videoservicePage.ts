@@ -1,12 +1,14 @@
-import { ExtensionOptions, ExtensionStorage } from "moodle-buddy-types"
 import {
+  DownloadProgressMessage,
+  ExtensionOptions,
+  ExtensionStorage,
   CourseCrawlMessage,
   DownloadMessage,
   Message,
-  VideoDownloadProgressMessage,
   VideoScanResultMessage,
+  VideoResource,
 } from "moodle-buddy-types"
-import { VideoResource } from "moodle-buddy-types"
+
 import { getQuerySelector, parseCourseNameFromCoursePage } from "../shared/parser"
 import { sendLog } from "../shared/helpers"
 
@@ -157,10 +159,11 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
           courseShortcut: "",
           options,
         })
-        await browser.runtime.sendMessage<VideoDownloadProgressMessage>({
-          command: "video-download-progress",
+        await browser.runtime.sendMessage<DownloadProgressMessage>({
+          command: "download-progress",
           completed: videoResources.length,
           total: selectedResources.length,
+          errors: 0,
         })
       } else if (location.href.endsWith("browse")) {
         // A list of videos is being displayed
@@ -173,10 +176,11 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
               videoResource,
               options as ExtensionOptions
             )
-            browser.runtime.sendMessage<VideoDownloadProgressMessage>({
-              command: "video-download-progress",
+            browser.runtime.sendMessage<DownloadProgressMessage>({
+              command: "download-progress",
               completed: i + 1,
               total: selectedResources.length,
+              errors: 0,
             })
             downloadVideoResources.push(videoResource)
 

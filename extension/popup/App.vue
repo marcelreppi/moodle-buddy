@@ -6,25 +6,31 @@
     </div>
 
     <div class="relative w-full h-full">
-      <ErrorView v-if="showErrorView" />
+      <error-view v-if="showErrorView" />
       <div class="box-border relative flex flex-col items-center justify-center w-full" v-else>
-        <DashboardPageView
+        <dashboard-page-view
           v-if="showDashboardPageView"
           :activeTab="activeTab"
           :options="options"
-        ></DashboardPageView>
-        <CourseView v-if="showCourseView" :activeTab="activeTab" :options="options"></CourseView>
-        <VideoServiceView
+        ></dashboard-page-view>
+        <main-view
+          v-if="showCourseView"
+          :activeTab="activeTab"
+          :options="options"
+          view="course"
+        ></main-view>
+        <main-view
           v-if="showVideoServiceView"
           :activeTab="activeTab"
           :options="options"
-        ></VideoServiceView>
-        <NoMoodle
+          view="videoservice"
+        ></main-view>
+        <no-moodle
           v-if="showNoMoodle"
           :openInfoPage="onInfoClick"
           :options="options"
           :nUpdates="nUpdates"
-        ></NoMoodle>
+        ></no-moodle>
       </div>
 
       <div
@@ -81,17 +87,15 @@ import {
 } from "moodle-buddy-types"
 
 import { sendEvent, getActiveTab, isFirefox, navigateTo } from "../shared/helpers"
+import MainView from "./views/MainView.vue"
 import DashboardPageView from "./views/DashboardPageView.vue"
-import CourseView from "./views/CourseView.vue"
-import VideoServiceView from "./views/VideoServiceView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
 import ErrorView from "./views/ErrorView.vue"
 
 export default defineComponent({
   components: {
+    MainView,
     DashboardPageView,
-    CourseView,
-    VideoServiceView,
     NoMoodle,
     ErrorView,
   },
