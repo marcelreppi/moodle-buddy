@@ -1,11 +1,17 @@
 import Course from "extension/models/Course"
-import { EventMessage, LogMessage, SetBadgeMessage } from "extension/types/messages.types"
-import { LogData } from "extension/types/tracker.types"
+import { EventMessage, LogMessage, SetBadgeMessage, LogData } from "moodle-buddy-types"
+
+export function navigateTo(link: string): void {
+  browser.tabs.create({
+    url: link,
+  })
+  window.close()
+}
 
 export function sendEvent(
   event: string,
-  saveURL: boolean,
-  eventData: Record<string, unknown>
+  saveURL = true,
+  eventData: Record<string, unknown> = {}
 ): void {
   browser.runtime.sendMessage<EventMessage>({
     command: "event",

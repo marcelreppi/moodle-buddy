@@ -1,7 +1,7 @@
-import { CourseData } from "extension/models/Course.types"
+import { CourseData } from "moodle-buddy-types"
 import { uuidv4, setIcon, setBadgeText } from "./helpers"
 import { sendEvent, sendPageData, sendFeedback, sendLog } from "./tracker"
-import { ExtensionOptions, ExtensionStorage, StoredCourseData } from "../types/extension.types"
+import { ExtensionOptions, ExtensionStorage, StoredCourseData } from "moodle-buddy-types"
 import {
   EventMessage,
   ExecuteScriptMessage,
@@ -10,7 +10,7 @@ import {
   Message,
   PageDataMessage,
   SetBadgeMessage,
-} from "../types/messages.types"
+} from "moodle-buddy-types"
 
 const defaultOptions: ExtensionOptions = {
   onlyNewResources: false,
@@ -101,9 +101,9 @@ async function onUpdate() {
 
   sendEvent("update", false)
 
-  browser.tabs.create({
-    url: "/pages/update/update.html",
-  })
+  // browser.tabs.create({
+  //   url: "/pages/update/update.html",
+  // })
 }
 
 browser.runtime.onInstalled.addListener(async details => {

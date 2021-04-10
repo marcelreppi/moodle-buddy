@@ -1,14 +1,14 @@
-import { ExtensionOptions, ExtensionStorage } from "extension/types/extension.types"
 import {
-  CancelDownloadMessage,
+  DownloadProgressMessage,
+  ExtensionOptions,
+  ExtensionStorage,
   CourseCrawlMessage,
   DownloadMessage,
-  ErrorViewMessage,
   Message,
-  VideoDownloadProgressMessage,
   VideoScanResultMessage,
-} from "extension/types/messages.types"
-import { VideoResource } from "extension/models/Course.types"
+  VideoResource,
+} from "moodle-buddy-types"
+
 import { getQuerySelector, parseCourseNameFromCoursePage } from "../shared/parser"
 import { sendLog } from "../shared/helpers"
 
@@ -37,8 +37,8 @@ async function scanForVideos() {
           // eslint-disable-next-line prefer-destructuring
           fileName = textContent
             .split("\n")
-            .map(t => t.trim())
-            .filter(t => {
+            .map((t) => t.trim())
+            .filter((t) => {
               return Boolean(t)
             })[0]
         }
@@ -65,9 +65,9 @@ async function scanForVideos() {
       )
 
       videoNodes = Array.from(videoServiceURLs)
-        .filter(n => n.href.endsWith("view"))
+        .filter((n) => n.href.endsWith("view"))
         .reduce((nodes, current) => {
-          const links = nodes.map(n => n.href)
+          const links = nodes.map((n) => n.href)
           if (!links.includes(current.href)) {
             if (current.textContent !== "") {
               nodes.push(current)
@@ -76,7 +76,7 @@ async function scanForVideos() {
           return nodes
         }, [] as HTMLAnchorElement[])
 
-      videoNodes.forEach(n => {
+      videoNodes.forEach((n) => {
         const videoResource: VideoResource = {
           href: n.href,
           src: "",
@@ -101,7 +101,7 @@ async function getVideoResourceSrc(
   options: ExtensionOptions
 ): Promise<string> {
   return new Promise<string>((resolve, reject) => {
-    const videoNode = videoNodes.find(n => n.href === videoResource.href)
+    const videoNode = videoNodes.find((n) => n.href === videoResource.href)
     if (videoNode) {
       videoNode?.click()
 
@@ -133,7 +133,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     await scanForVideos()
 
     if (error) {
-      browser.runtime.sendMessage<ErrorViewMessage>({
+      browser.runtime.sendMessage<Message>({
         command: "error-view",
       })
       return
@@ -159,23 +159,28 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
           courseShortcut: "",
           options,
         })
-        await browser.runtime.sendMessage<VideoDownloadProgressMessage>({
-          command: "video-download-progress",
+        await browser.runtime.sendMessage<DownloadProgressMessage>({
+          command: "download-progress",
           completed: videoResources.length,
           total: selectedResources.length,
+          errors: 0,
         })
       } else if (location.href.endsWith("browse")) {
         // A list of videos is being displayed
         const downloadVideoResources: VideoResource[] = []
         for (let i = 0; i < selectedResources.length; i++) {
           const selectedResource = selectedResources[i]
-          const videoResource = videoResources.find(r => r.href === selectedResource.href)
+          const videoResource = videoResources.find((r) => r.href === selectedResource.href)
           if (videoResource) {
-            videoResource.src = await getVideoResourceSrc(videoResource, options)
-            browser.runtime.sendMessage<VideoDownloadProgressMessage>({
-              command: "video-download-progress",
+            videoResource.src = await getVideoResourceSrc(
+              videoResource,
+              options as ExtensionOptions
+            )
+            browser.runtime.sendMessage<DownloadProgressMessage>({
+              command: "download-progress",
               completed: i + 1,
               total: selectedResources.length,
+              errors: 0,
             })
             downloadVideoResources.push(videoResource)
 
@@ -198,14 +203,14 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
       console.error(err)
       sendLog({ errorMessage: err.message, url: location.href })
       error = true
-      browser.runtime.sendMessage<ErrorViewMessage>({
+      browser.runtime.sendMessage<Message>({
         command: "error-view",
       })
     }
   }
 
   if (command === "cancel-download") {
-    browser.runtime.sendMessage<CancelDownloadMessage>({
+    browser.runtime.sendMessage<Message>({
       command: "cancel-download",
     })
     cancel = true

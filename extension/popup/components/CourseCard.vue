@@ -35,13 +35,11 @@
       </div>
 
       <div class="download-row">
-        <div class="action" @click="() => onMarkAsSeenClick(course)">
-          Mark as seen
-        </div>
+        <div class="action" @click="() => onMarkAsSeenClick(course)">Mark as seen</div>
         <button
           v-if="newResources.length > 0"
           class="download-button"
-          @click="e => onDownloadClick(e, course)"
+          @click="(e) => onDownloadClick(e, course)"
         >
           Download new resources
         </button>
@@ -55,14 +53,33 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
+import { defineComponent, PropType } from "vue"
+import {
+  DashboardCrawlMessage,
+  MarkAsSeenMessage,
+  Activity,
+  Resource,
+  ExtensionOptions,
+} from "moodle-buddy-types"
+
+import Course from "../../models/Course"
 import { sendEvent } from "../../shared/helpers"
 
-export default {
+export default defineComponent({
   props: {
-    course: Object,
-    activeTab: Object,
-    options: Object,
+    course: {
+      type: Object as PropType<Course>,
+      required: true,
+    },
+    activeTab: {
+      type: Object as PropType<browser.tabs.Tab>,
+      required: true,
+    },
+    options: {
+      type: Object as PropType<ExtensionOptions>,
+      required: true,
+    },
   },
   data() {
     return {
@@ -73,16 +90,16 @@ export default {
     }
   },
   computed: {
-    newResources() {
-      return this.resources.filter(n => n.isNew)
+    newResources(): Resource[] {
+      return this.resources.filter((n) => n.isNew)
     },
-    newActivities() {
-      return this.activities.filter(n => n.isNew)
+    newActivities(): Activity[] {
+      return this.activities.filter((n) => n.isNew)
     },
-    allNewNodes() {
-      return this.newResources.concat(this.newActivities)
+    allNewNodes(): Array<Resource | Activity> {
+      return [...this.newResources, ...this.newActivities]
     },
-    hasUpdates() {
+    hasUpdates(): boolean {
       return (
         this.counts.nNewFiles > 0 || this.counts.nNewFolders > 0 || this.counts.nNewActivities > 0
       )
@@ -90,40 +107,46 @@ export default {
   },
   watch: {
     showDetails(value) {
+      const arrow = this.$refs.arrow as HTMLDivElement
       if (value) {
-        this.$refs.arrow.style.marginTop = "-2px"
-        this.$refs.arrow.style.transform = "rotate(135deg)"
+        arrow.style.marginTop = "-2px"
+        arrow.style.transform = "rotate(135deg)"
       } else {
-        this.$refs.arrow.style.marginTop = "0px"
-        this.$refs.arrow.style.transform = "rotate(45deg)"
+        arrow.style.marginTop = "0px"
+        arrow.style.transform = "rotate(45deg)"
       }
     },
   },
   methods: {
-    onCourseLinkClick(link) {
+    onCourseLinkClick(link: string) {
       sendEvent("go-to-course", true)
       browser.tabs.create({
         url: link,
       })
       window.close()
     },
-    onDownloadClick(e, course) {
+    onDownloadClick(e: Event, course: Course) {
       sendEvent("download-dashboard-page", true, { numberOfFiles: this.newResources.length })
-      e.target.disabled = true
-      browser.tabs.sendMessage(this.activeTab.id, {
-        command: "crawl",
-        link: course.link,
-      })
+      const target = e.target as HTMLButtonElement
+      target.disabled = true
+      if (this?.activeTab?.id) {
+        browser.tabs.sendMessage<DashboardCrawlMessage>(this.activeTab.id, {
+          command: "crawl",
+          link: course.link,
+        })
+      }
     },
-    onMarkAsSeenClick(course) {
+    onMarkAsSeenClick(course: Course) {
       sendEvent("mark-as-seen-dashboard-page", true)
       course.counts.nNewFiles = 0
       course.counts.nNewFolders = 0
       course.counts.nNewActivities = 0
-      browser.tabs.sendMessage(this.activeTab.id, {
-        command: "mark-as-seen",
-        link: course.link,
-      })
+      if (this?.activeTab?.id) {
+        browser.tabs.sendMessage<MarkAsSeenMessage>(this.activeTab.id, {
+          command: "mark-as-seen",
+          link: course.link,
+        })
+      }
     },
     onDetailClick() {
       this.showDetails = !this.showDetails
@@ -140,7 +163,7 @@ export default {
       this.showDetails = this.options.alwaysShowDetails
     }
   },
-}
+})
 </script>
 
 <style scoped>

@@ -1,13 +1,13 @@
 import pLimit from "p-limit"
 
-import { DownloadMessage, DownloadProgressMessage, Message } from "extension/types/messages.types"
-import { ExtensionOptions, ExtensionStorage } from "extension/types/extension.types"
+import { DownloadMessage, DownloadProgressMessage, Message } from "moodle-buddy-types"
+import { ExtensionOptions, ExtensionStorage } from "moodle-buddy-types"
 import {
   FileResource,
   FolderResource,
   Resource,
   VideoResource,
-} from "extension/models/Course.types"
+} from "moodle-buddy-types"
 import {
   parseFileNameFromPluginFileURL,
   getDownloadButton,
@@ -211,9 +211,9 @@ class Downloader {
     if (this.isCancelled) return
 
     // Remove illegal characters from possible filename parts
-    const cleanCourseName = sanitizeFileName(this.courseName, "")
-    const cleanCourseShortcut = sanitizeFileName(this.courseShortcut, "_")
-    const cleanSectionName = sanitizeFileName(section)
+    const cleanCourseName = sanitizeFileName(this.courseName, "") || "Unknown Course"
+    const cleanCourseShortcut = sanitizeFileName(this.courseShortcut, "_") || "Unknown Shortcut"
+    const cleanSectionName = sanitizeFileName(section) || "Unknown Section"
     const cleanFileName = sanitizeFileName(fileName).replace("{slash}", "/")
 
     let filePath = cleanFileName
@@ -446,7 +446,7 @@ async function onDownload(message: DownloadMessage) {
   downloaders[downloader.id] = downloader
 }
 
-browser.downloads.onChanged.addListener(async downloadDelta => {
+browser.downloads.onChanged.addListener(async (downloadDelta) => {
   const { state, id } = downloadDelta
 
   if (state === undefined) return

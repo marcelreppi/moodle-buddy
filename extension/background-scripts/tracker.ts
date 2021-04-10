@@ -1,4 +1,4 @@
-import { ExtensionStorage } from "extension/types/extension.types"
+import { ExtensionStorage } from "moodle-buddy-types"
 import {
   AdditionalPayload,
   DownloadData,
@@ -7,7 +7,7 @@ import {
   LogData,
   PageData,
   Payload,
-} from "extension/types/tracker.types"
+} from "moodle-buddy-types"
 import { isFirefox, getActiveTab } from "../shared/helpers"
 
 const isDev = process.env.NODE_ENV !== "production"

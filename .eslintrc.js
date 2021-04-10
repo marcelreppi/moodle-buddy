@@ -3,7 +3,6 @@ module.exports = {
   extends: [
     "airbnb-typescript/base",
     "plugin:prettier/recommended",
-    "prettier/@typescript-eslint",
     "plugin:vue/essential",
     "@vue/typescript/recommended",
   ],
@@ -20,6 +19,7 @@ module.exports = {
         semi: false,
         singleQuote: false,
         printWidth: 100,
+        endOfLine: "auto",
       },
     ],
     quotes: [

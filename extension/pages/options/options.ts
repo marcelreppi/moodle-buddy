@@ -1,35 +1,38 @@
-let restoredOptions = null
+import { ExtensionOptions, ExtensionStorage, EventMessage, Message } from "moodle-buddy-types"
 
-function restore() {
-  browser.storage.local.get("options").then(({ options = {} }) => {
-    restoredOptions = options
+let restoredOptions: ExtensionOptions
+
+async function restore() {
+  browser.storage.local.get<ExtensionStorage>("options").then(({ options }) => {
+    restoredOptions = options as ExtensionOptions
     const inputs = document.querySelectorAll("input")
-    inputs.forEach(input => {
+    inputs.forEach((input) => {
       switch (input.type) {
         case "checkbox":
-          input.checked = options[input.id]
+          input.checked = options[input.id] as boolean
           break
         case "radio":
           input.checked = input.value === options[input.name]
           break
         default:
-          input.value = options[input.id]
+          input.value = options[input.id] as string
           break
       }
     })
 
     // Fake event to trigger the checkURL event callback
-    document.getElementById("defaultMoodleURL").dispatchEvent(new Event("input"))
+    document.getElementById("defaultMoodleURL")?.dispatchEvent(new Event("input"))
   })
 }
 
-let timeout = null
-async function save(e) {
+let timeout: ReturnType<typeof setTimeout>
+
+async function save(e: Event) {
   e.preventDefault()
 
-  const updatedOptions = {}
+  const updatedOptions = {} as ExtensionOptions
   const inputs = document.querySelectorAll("input")
-  inputs.forEach(input => {
+  inputs.forEach((input) => {
     switch (input.type) {
       case "checkbox":
         updatedOptions[input.id] = input.checked
@@ -48,7 +51,7 @@ async function save(e) {
     }
   })
 
-  const changedOptions = {}
+  const changedOptions = {} as ExtensionOptions
   for (const option of Object.keys(updatedOptions)) {
     if (updatedOptions[option] !== restoredOptions[option]) {
       changedOptions[option] = {
@@ -60,17 +63,19 @@ async function save(e) {
 
   clearTimeout(timeout)
   timeout = setTimeout(async () => {
-    await browser.runtime.sendMessage({
+    await browser.runtime.sendMessage<EventMessage>({
       command: "event",
       event: "modify-options",
+      saveURL: false,
       eventData: changedOptions,
     })
   }, 500)
 
   if (updatedOptions.disableInteractionTracking) {
-    await browser.runtime.sendMessage({
+    await browser.runtime.sendMessage<EventMessage>({
       command: "event",
       event: "disable-tracking",
+      saveURL: false,
     })
   }
 
@@ -79,25 +84,33 @@ async function save(e) {
   })
 }
 
-function checkURL(e) {
+function checkURL(e: Event) {
   const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/gi
-  const inputURL = e.target.value
-  if (inputURL !== "" && !inputURL.match(validURLRegex)) {
-    document.getElementById("invalid-url").style.display = "block"
-  } else {
-    document.getElementById("invalid-url").style.display = "none"
+
+  const target = e.target as HTMLInputElement
+  const inputURL = target.value
+  const invalidURLHint: HTMLDivElement | null = document.querySelector<HTMLDivElement>(
+    "#invalid-url"
+  )
+  if (invalidURLHint) {
+    if (inputURL !== "" && !inputURL.match(validURLRegex)) {
+      invalidURLHint.style.display = "block"
+    } else {
+      invalidURLHint.style.display = "none"
+    }
   }
 }
 
-async function clearCourseData(e) {
-  await browser.runtime.sendMessage({
+async function clearCourseData(e: Event) {
+  await browser.runtime.sendMessage<Message>({
     command: "clear-course-data",
   })
 
-  e.target.disabled = true
+  const target = e.target as HTMLButtonElement
+  target.disabled = true
 }
 
 document.addEventListener("DOMContentLoaded", restore)
 document.addEventListener("input", save)
-document.getElementById("defaultMoodleURL").addEventListener("input", checkURL)
-document.getElementById("clear-button").addEventListener("click", clearCourseData)
+document.getElementById("defaultMoodleURL")?.addEventListener("input", checkURL)
+document.getElementById("clear-button")?.addEventListener("click", clearCourseData)

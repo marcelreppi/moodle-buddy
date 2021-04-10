@@ -2,9 +2,8 @@ import {
   CourseCrawlMessage,
   CourseScanResultMessage,
   DownloadMessage,
-  ErrorViewMessage,
   Message,
-} from "extension/types/messages.types"
+} from "moodle-buddy-types"
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { updateIconFromCourses, sendLog } from "../shared/helpers"
 
@@ -28,7 +27,7 @@ if (isMoodlePage) {
         console.log(course)
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err)
       error = true
       sendLog({ errorMessage: err.message, url: location.href })
@@ -44,7 +43,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     // updateIconFromCourses(course)
 
     if (error) {
-      browser.runtime.sendMessage<ErrorViewMessage>({
+      browser.runtime.sendMessage<Message>({
         command: "error-view",
       })
       return

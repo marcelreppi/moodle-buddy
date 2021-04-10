@@ -1,12 +1,13 @@
-import { ExtensionStorage } from "extension/types/extension.types"
 import {
+  ExtensionStorage,
+  SupportedPage,
   ExecuteScriptMessage,
   Message,
   PageDataMessage,
-  SetIconMessage,
   StateMessage,
-} from "extension/types/messages.types"
-import { PageData } from "extension/types/tracker.types"
+  PageData,
+} from "moodle-buddy-types"
+
 import { getMoodleBaseURL, getURLRegex } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"
 
@@ -25,7 +26,7 @@ async function setDefaultMoodleURL() {
 }
 
 async function runDetector() {
-  let page = ""
+  let page: SupportedPage = ""
 
   const isMoodlePage = checkForMoodle()
 
@@ -56,7 +57,7 @@ async function runDetector() {
   const isSupportedPage = page !== ""
 
   if (isSupportedPage) {
-    browser.runtime.sendMessage<SetIconMessage>({
+    browser.runtime.sendMessage<Message>({
       command: "set-icon",
     })
 
@@ -80,11 +81,7 @@ async function runDetector() {
       browser.runtime.sendMessage<StateMessage>({
         command: "state",
         page,
-        options,
-        nUpdates,
-        userHasRated,
-        totalDownloadedFiles,
-        rateHintLevel,
+        state: { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel },
       })
 
       if (isSupportedPage) {

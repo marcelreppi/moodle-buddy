@@ -12,16 +12,21 @@
   </div>
 </template>
 
-<script>
-const actionByType = {
+<script lang="ts">
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { defineComponent, PropType } from "vue"
+
+type Actions = "scan" | "download"
+const actionText: Record<Actions, string> = {
   scan: "Scanning",
   download: "Downloading",
 }
 
-export default {
+export default defineComponent({
   props: {
     type: {
-      type: String,
+      type: String as PropType<Actions>,
       required: true,
     },
     onDone: {
@@ -43,23 +48,24 @@ export default {
       progress: 0,
       done: false,
       cancelable: ["download"],
+      $Progress: this.$Progress as any,
     }
   },
   computed: {
-    progressText() {
+    progressText(): string {
       if (this.progress === 100) {
         return "Done!"
       }
 
       return [
-        `${actionByType[this.type]}...`,
+        `${actionText[this.type]}...`,
         `${this.completed}/${this.total !== -1 ? this.total : "?"}`,
         `${this.errors > 0 ? `(${this.errors} Error(s))` : ""}`,
       ].join(" ")
     },
   },
   methods: {
-    setProgress(total, completed = 0, errors = 0) {
+    setProgress(total: number, completed = 0, errors = 0) {
       this.total = total
       this.completed = completed
       this.errors = errors
@@ -92,7 +98,7 @@ export default {
   created() {
     this.resetProgress()
   },
-}
+})
 </script>
 
 <style>
