@@ -23,7 +23,6 @@ interface CourseData {
   downloadFiles: Ref<boolean>
   downloadFolders: Ref<boolean>
   onlyNewResources: Ref<boolean>
-  nResources: ComputedRef<number>
   nNewResources: ComputedRef<number>
   newResources: ComputedRef<Resource[]>
   newActivities: ComputedRef<Activity[]>
@@ -33,8 +32,8 @@ interface CourseData {
   disableFilesCb: ComputedRef<boolean>
   disableFoldersCb: ComputedRef<boolean>
   scanResultHandler: (message: Message) => void
-  disableDownload: ComputedRef<boolean>
   onDownload: () => void
+  onMarkAsSeenClick: () => void
 }
 
 export default function useCourseData(
@@ -57,7 +56,6 @@ export default function useCourseData(
   const downloadFolders = ref(true)
   const onlyNewResources = ref(false)
 
-  const nResources = computed(() => nFiles.value + nFolders.value)
   const nNewResources = computed(() => nNewFiles.value + nNewFolders.value)
   const newResources = computed(() => resources.value.filter((n) => n.isNew))
   const newActivities = computed(() => activities.value.filter((n) => n.isNew))
@@ -103,7 +101,8 @@ export default function useCourseData(
       downloadFolders.value = nFolders.value !== 0
     }
   }
-  watch(nResources, handleCheckboxes)
+  watch(nFiles, handleCheckboxes)
+  watch(nFolders, handleCheckboxes)
   watch(onlyNewResources, handleCheckboxes)
 
   const scanResultHandler = (message: Message) => {
@@ -132,16 +131,25 @@ export default function useCourseData(
     }
   }
 
-  const disableDownload = computed(() => {
-    return !downloadFiles.value && !downloadFolders.value
-  })
-
   const onDownload = () => {
     const eventParts = ["download-course-page", selectionTab.value]
     if (onlyNewResources.value) {
       eventParts.push("only-new")
     }
     sendEvent(eventParts.join("-"), true, { numberOfFiles: selectedResources.value.length })
+  }
+
+  const onMarkAsSeenClick = () => {
+    sendEvent("mark-as-seen-course-page", true)
+    onlyNewResources.value = false
+    nNewFiles.value = 0
+    nNewFolders.value = 0
+    nNewActivities.value = 0
+    if (props.activeTab.id) {
+      browser.tabs.sendMessage<Message>(props.activeTab.id, {
+        command: "mark-as-seen",
+      })
+    }
   }
 
   return {
@@ -156,7 +164,6 @@ export default function useCourseData(
     downloadFiles,
     downloadFolders,
     onlyNewResources,
-    nResources,
     nNewResources,
     newResources,
     newActivities,
@@ -166,7 +173,7 @@ export default function useCourseData(
     disableFilesCb,
     disableFoldersCb,
     scanResultHandler,
-    disableDownload,
     onDownload,
+    onMarkAsSeenClick,
   }
 }

@@ -162,7 +162,7 @@
         ref="progressBar"
         type="download"
         :onDone="onDownloadFinished"
-        :onCancel="onCancel"
+        :onCancel="onDownloadCancel"
         class="w-5/6"
       ></progress-bar>
 
@@ -178,7 +178,7 @@
 </template>
 
 <script lang="ts">
-import { computed, onUpdated, PropType, ref } from "vue"
+import { computed, ComputedRef, onUpdated, PropType, Ref, ref } from "vue"
 import {
   SelectionTab,
   ExtensionOptions,
@@ -223,85 +223,38 @@ export default {
     }>
   ) {
     const loading = ref(true)
-    const useMoodleFileName = ref(false)
-    const prependCourseToFileName = ref(false)
-    const prependCourseShortcutToFileName = ref(false)
-    const showDetails = ref(false)
-    const showDetailResources = ref<Resource[]>([])
-    const showDownloadOptions = ref(true)
-    const selectionTab = ref<SelectionTab>("simple")
-    const downloadInProgress = ref(false)
-    const downloadProgressText = ref("")
-    const progressBar = ref(null)
 
-    let nResources = ref(0)
-    let resources = ref<Resource[]>([])
-    let selectedResources = ref<Resource[]>([])
-    let newResources = ref<Resource[]>([])
-
+    // Global resource variables
+    let nResources: ComputedRef<number>
+    let resources: Ref<Resource[]>
+    let selectedResources: Ref<Resource[]>
+    let newResources: Ref<Resource[]>
     let scanResultHandler: (message: Message) => void
 
+    // Selection tab
+    const selectionTab = ref<SelectionTab>("simple")
     const setSelectionTab = (tab: SelectionTab) => {
       selectionTab.value = tab
     }
 
-    const onDownloadFinished = () => {
-      setTimeout(() => {
-        downloadInProgress.value = false
-      }, 3000)
-    }
-
+    // Options
+    const showDownloadOptions = ref(props.options.showDownloadOptions)
+    const useMoodleFileName = ref(props.options.useMoodleFileName)
+    const prependCourseToFileName = ref(props.options.prependCourseToFileName)
+    const prependCourseShortcutToFileName = ref(props.options.prependCourseShortcutToFileName)
     const showOptionsPage = () => {
       browser.runtime.openOptionsPage()
     }
 
+    // Detail overlay
+    const showDetails = ref(false)
+    const showDetailResources = ref<Resource[]>([])
     const setResourceSelected = (href: string, value: boolean) => {
       const resource = resources.value.find((r) => r.href === href)
       if (resource) {
         resource.selected = value
       }
     }
-
-    const onCancel = () => {
-      browser.runtime.sendMessage<Message>({
-        command: "cancel-download",
-      })
-      downloadInProgress.value = false
-      sendEvent("cancel-download", true)
-    }
-
-    let disableDownload = computed(() => {
-      if (downloadInProgress.value) {
-        return true
-      }
-
-      if (nResources.value === 0) {
-        return true
-      }
-
-      if (selectionTab.value === "detailed") {
-        return resources.value.every((r) => !r.selected)
-      }
-
-      return false
-    })
-
-    const onDownloadCommon = () => {
-      downloadInProgress.value = true
-
-      if (props.activeTab.id) {
-        browser.tabs.sendMessage<CourseCrawlMessage>(props.activeTab.id, {
-          command: "crawl",
-          selectedResources: selectedResources.value.map((r) => ({ ...r })), // Resolve proxy
-          options: {
-            useMoodleFileName: useMoodleFileName.value,
-            prependCourseToFileName: prependCourseToFileName.value,
-            prependCourseShortcutToFileName: prependCourseShortcutToFileName.value,
-          },
-        })
-      }
-    }
-
     const toggleDetails = (onlyNew = false) => {
       if (onlyNew) {
         showDetailResources.value = newResources.value
@@ -316,14 +269,71 @@ export default {
       }
     }
 
+    // Download functionality
+    const downloadInProgress = ref(false)
+    const progressBar = ref(null)
+    const onDownloadFinished = () => {
+      setTimeout(() => {
+        downloadInProgress.value = false
+      }, 3000)
+    }
+    const onDownloadCancel = () => {
+      browser.runtime.sendMessage<Message>({
+        command: "cancel-download",
+      })
+      downloadInProgress.value = false
+      sendEvent("cancel-download", true)
+    }
+    let allResourceCbChecked = computed(() => false)
+    const disableDownload = computed(() => {
+      if (downloadInProgress.value) {
+        return true
+      }
+
+      if (nResources.value === 0) {
+        return true
+      }
+
+      if (selectionTab.value === "simple") {
+        return allResourceCbChecked.value
+      }
+
+      if (selectionTab.value === "detailed") {
+        return resources.value.every((r) => !r.selected)
+      }
+
+      return false
+    })
+    let onDownloadCustom: () => void
+    const onDownload = () => {
+      downloadInProgress.value = true
+
+      onDownloadCustom()
+
+      if (props.activeTab.id) {
+        browser.tabs.sendMessage<CourseCrawlMessage>(props.activeTab.id, {
+          command: "crawl",
+          selectedResources: selectedResources.value.map((r) => ({ ...r })), // Resolve proxy
+          options: {
+            useMoodleFileName: useMoodleFileName.value,
+            prependCourseToFileName: prependCourseToFileName.value,
+            prependCourseShortcutToFileName: prependCourseShortcutToFileName.value,
+          },
+        })
+      }
+    }
+
+    // Lifecycle hooks
     onUpdated(() => {
       if (downloadInProgress.value) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const progressBarRef = progressBar.value as any
+        // Set initial progress
         progressBarRef.setProgress(selectedResources.value.length)
       }
     })
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let setupReturn: Record<string, any> = {
       loading,
       useMoodleFileName,
@@ -334,165 +344,80 @@ export default {
       showDownloadOptions,
       selectionTab,
       downloadInProgress,
-      downloadProgressText,
       progressBar,
       setSelectionTab,
       onDownloadFinished,
       disableDownload,
       showOptionsPage,
       setResourceSelected,
-      onCancel,
+      onDownload,
+      onDownloadCancel,
       toggleDetails,
     }
 
+    // View-dependent setup
     if (props.view === "course") {
+      const courseData = useCourseData(props, selectionTab)
       const {
         nFiles,
-        nNewFiles,
         nFolders,
-        nNewFolders,
-        nActivities,
-        nNewActivities,
         resources: courseResources,
-        activities,
         downloadFiles,
         downloadFolders,
-        onlyNewResources,
-        nResources: nCourseResources,
-        nNewResources,
         newResources: newCourseResources,
-        newActivities,
         selectedResources: selectedCourseResources,
-        showNewResourceInfo,
-        showNewActivityInfo,
-        disableFilesCb,
-        disableFoldersCb,
         scanResultHandler: courseScanResultHandler,
-        disableDownload: disableDownloadCourse,
         onDownload: onDownloadCourse,
-      } = useCourseData(props, selectionTab)
+      } = courseData
 
-      nResources = nCourseResources
+      // Overwrite global resource variables
+      nResources = computed(() => nFiles.value + nFolders.value)
       resources = courseResources
       selectedResources = selectedCourseResources
       newResources = newCourseResources
       scanResultHandler = courseScanResultHandler
 
-      const onMarkAsSeenClick = () => {
-        sendEvent("mark-as-seen-course-page", true)
-        onlyNewResources.value = false
-        nNewFiles.value = 0
-        nNewFolders.value = 0
-        nNewActivities.value = 0
-        if (props.activeTab.id) {
-          browser.tabs.sendMessage<Message>(props.activeTab.id, {
-            command: "mark-as-seen",
-          })
-        }
-      }
-
-      disableDownload = computed(() => {
-        if (downloadInProgress.value) {
-          return true
-        }
-
-        if (nResources.value === 0) {
-          return true
-        }
-
-        if (selectionTab.value === "simple") {
-          return disableDownloadCourse.value
-        }
-
-        if (selectionTab.value === "detailed") {
-          return resources.value.every((r) => !r.selected)
-        }
-
-        return false
-      })
-
-      const onDownload = () => {
-        onDownloadCommon()
-        onDownloadCourse()
-      }
+      // Overwrite custom view handlers
+      onDownloadCustom = onDownloadCourse
+      allResourceCbChecked = computed(() => !downloadFiles.value && !downloadFolders.value)
 
       setupReturn = {
+        ...courseData,
         ...setupReturn,
-        nFiles,
-        nNewFiles,
-        nFolders,
-        nNewFolders,
-        nActivities,
-        nNewActivities,
-        resources,
-        activities,
-        downloadFiles,
-        downloadFolders,
-        onlyNewResources,
         nResources,
-        nNewResources,
+        resources,
         newResources,
-        newActivities,
         selectedResources,
-        showNewResourceInfo,
-        showNewActivityInfo,
-        disableFilesCb,
-        disableFoldersCb,
         scanResultHandler,
-        disableDownload,
-        onMarkAsSeenClick,
-        onDownload,
       }
     } else if (props.view === "videoservice") {
+      const videoserviceData = useVideoserviceData(selectionTab)
       const {
         nVideos,
         videoResources,
         downloadVideos,
         selectedResources: selectedVideoResources,
-        disableVideoCb,
         onDownload: onDownloadVideo,
         scanResultHandler: videoScanResultHandler,
-      } = useVideoserviceData(selectionTab)
+      } = videoserviceData
 
-      nResources = nVideos
+      // Overwrite global resource variables
+      nResources = computed(() => nVideos.value)
       resources = videoResources
       selectedResources = selectedVideoResources
       scanResultHandler = videoScanResultHandler
 
-      disableDownload = computed(() => {
-        if (downloadInProgress.value) {
-          return true
-        }
-
-        if (nResources.value === 0) {
-          return true
-        }
-
-        if (selectionTab.value === "simple") {
-          return !downloadVideos.value
-        }
-
-        if (selectionTab.value === "detailed") {
-          return resources.value.every((r) => !r.selected)
-        }
-
-        return false
-      })
-
-      const onDownload = () => {
-        onDownloadCommon()
-        onDownloadVideo()
-      }
+      // Overwrite custom view handlers
+      onDownloadCustom = onDownloadVideo
+      allResourceCbChecked = computed(() => !downloadVideos.value)
 
       setupReturn = {
+        ...videoserviceData,
         ...setupReturn,
         nResources,
         resources,
         selectedResources,
         scanResultHandler,
-        onDownload,
-        downloadVideos,
-        disableVideoCb,
       }
     }
 
@@ -513,11 +438,6 @@ export default {
     }
 
     browser.runtime.onMessage.addListener(messageListener)
-
-    showDownloadOptions.value = props.options.showDownloadOptions
-    useMoodleFileName.value = props.options.useMoodleFileName
-    prependCourseToFileName.value = props.options.prependCourseToFileName
-    prependCourseShortcutToFileName.value = props.options.prependCourseShortcutToFileName
 
     if (props.activeTab.id) {
       // Scan for resources
