@@ -13,7 +13,7 @@ console.log(`Webpack is in ${process.env.NODE_ENV} mode`)
 const polyfills = ["core-js/stable", "regenerator-runtime/runtime"]
 
 const entries = {
-  "popup/app.bundle": ["babel-polyfill", join(__dirname, "extension", "popup", "main.ts")],
+  "popup/app.bundle": ["@babel/polyfill", join(__dirname, "extension", "popup", "main.ts")],
 }
 
 // Content scripts
@@ -78,9 +78,12 @@ module.exports = {
       },
       {
         test: /\.js$/,
-        loader: "babel-loader",
-        options: {
-          presets: ["@babel/preset-env"],
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: [["@babel/preset-env", { targets: "defaults" }]],
+          },
         },
       },
       {
@@ -93,31 +96,7 @@ module.exports = {
       },
       {
         test: /\.(gif|png|jpe?g|svg)$/i,
-        loader: "image-webpack-loader",
-        enforce: "pre",
-        options: {
-          mozjpeg: {
-            progressive: true,
-            quality: 50,
-          },
-          // optipng.enabled: false will disable optipng
-          optipng: {
-            enabled: false,
-          },
-          pngquant: {
-            quality: [0.3, 0.65],
-            speed: 6,
-          },
-        },
-      },
-      {
-        test: /\.(gif|png|jpe?g|svg)$/i,
-        loader: "url-loader",
-        options: {
-          limit: 10 * 1024,
-          outputPath: "/popup/images",
-          publicPath: "/popup/images",
-        },
+        type: "asset/resource",
       },
     ],
   },

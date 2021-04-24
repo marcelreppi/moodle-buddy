@@ -2,26 +2,26 @@ module.exports = {
   root: true,
   extends: [
     "airbnb-typescript/base",
-    "plugin:prettier/recommended",
-    "plugin:vue/essential",
     "@vue/typescript/recommended",
+    "plugin:vue/vue3-recommended",
+    "plugin:prettier/recommended",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: "tsconfig.eslint.json",
   },
-  rules: {
-    "prettier/prettier": [
-      "error",
-      {
-        trailingComma: "es5",
-        tabWidth: 2,
-        semi: false,
-        singleQuote: false,
-        printWidth: 100,
-        endOfLine: "auto",
+  plugins: ["prettier"],
+  overrides: [
+    {
+      files: ["**/*.vue"],
+      parser: "vue-eslint-parser",
+      rules: {
+        "@typescript-eslint/explicit-module-boundary-types": 0,
       },
-    ],
+    },
+  ],
+  rules: {
+    "prettier/prettier": "error",
     quotes: [
       2,
       "double",
@@ -58,13 +58,4 @@ module.exports = {
   globals: {
     browser: "readonly",
   },
-  overrides: [
-    {
-      files: ["**/*.vue"],
-      parser: "vue-eslint-parser",
-      rules: {
-        "@typescript-eslint/explicit-module-boundary-types": 0,
-      },
-    },
-  ],
 }
