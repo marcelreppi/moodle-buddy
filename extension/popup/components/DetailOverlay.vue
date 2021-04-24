@@ -12,7 +12,10 @@
       <div v-if="files.length > 0">
         <div class="font-bold">Files</div>
         <div class="pl-3 break-normal">
-          <div v-for="(file, i) in files" :key="i">‣ {{ file.name }}</div>
+          <div v-for="(file, i) in files" :key="i">
+            <div class="inline-block right-arrow"></div>
+            {{ file.name }}
+          </div>
         </div>
       </div>
       <div v-if="folders.length > 0">
@@ -57,4 +60,14 @@ export default defineComponent({
 })
 </script>
 
-<style></style>
+<style>
+.right-arrow {
+  width: 0;
+  height: 0;
+  border-top: 3px solid transparent;
+  border-bottom: 3px solid transparent;
+  border-left: 6px solid var(--mb-red);
+  margin-bottom: 3px;
+  margin-right: 2px;
+}
+</style>

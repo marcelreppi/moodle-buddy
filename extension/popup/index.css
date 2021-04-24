@@ -11,6 +11,9 @@
       "Segoe UI Symbol";
     font-weight: 350;
   }
+  :root {
+    --mb-red: #c50e20;
+  }
 }
 
 @layer components {
