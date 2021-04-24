@@ -166,11 +166,7 @@
         class="w-5/6"
       ></progress-bar>
 
-      <button
-        class="py-2 mt-5 font-bold disabled:bg-gray-300 disabled:cursor-default disabled:no-underline btn"
-        :disabled="disableDownload"
-        @click="onDownload"
-      >
+      <button class="py-2 mt-5 font-bold btn" :disabled="disableDownload" @click="onDownload">
         Download
       </button>
     </div>

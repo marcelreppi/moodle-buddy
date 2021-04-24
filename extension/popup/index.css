@@ -31,7 +31,15 @@
   }
 
   .btn:hover {
-    @apply opacity-95 underline;
+    @apply opacity-95 underline cursor-pointer;
+  }
+
+  .btn:disabled {
+    @apply bg-gray-300 cursor-default no-underline;
+  }
+
+  .custom-hover {
+    @apply hover:text-mb-red hover:cursor-pointer hover:underline;
   }
 }
 

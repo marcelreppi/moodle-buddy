@@ -2,7 +2,7 @@
   <div class="w-full h-full px-3 pt-4 pb-2" :class="{ chrome: !isFirefox }">
     <div class="flex items-center justify-center mb-2 text-xl">
       Moodle Buddy
-      <img class="w-5 h-5 ml-1" src="../icons/48.png" alt="logo" />
+      <img class="w-5 h-5 ml-2" src="../icons/48.png" alt="logo" />
     </div>
 
     <div class="relative w-full h-full">
