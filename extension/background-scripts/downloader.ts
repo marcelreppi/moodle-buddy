@@ -190,6 +190,13 @@ class Downloader {
   }
 
   private async onUpdate() {
+    // Check if view needs to be updated
+    // Only update view if the current download is the most recent one
+    const isMostRecent = this.id === Math.max(...Object.keys(downloaders).map(parseFloat))
+    if (isMostRecent) {
+      this.updateView()
+    }
+
     // Check if all downloads have completed
     if (this.isDone() && !this.sentData) {
       // All downloads have finished
@@ -475,13 +482,6 @@ browser.downloads.onChanged.addListener(async downloadDelta => {
 
   if (state.current === "complete") {
     await downloader.onCompleted(id)
-  }
-
-  // Check if view needs to be updated
-  // Only update view if the current download is the most recent one
-  const isMostRecent = downloader.id === Math.max(...Object.keys(downloaders).map(parseFloat))
-  if (isMostRecent) {
-    downloader.updateView()
   }
 
   if (downloader.isDone()) {

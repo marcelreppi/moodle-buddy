@@ -53,15 +53,22 @@ export default defineComponent({
   },
   computed: {
     progressText(): string {
+      const textPieces = []
+
       if (this.progress === 100) {
-        return "Done!"
+        textPieces.push("Done!")
+      } else {
+        textPieces.push(
+          `${actionText[this.type]}...`,
+          `${this.completed}/${this.total !== -1 ? this.total : "?"}`
+        )
       }
 
-      return [
-        `${actionText[this.type]}...`,
-        `${this.completed}/${this.total !== -1 ? this.total : "?"}`,
-        `${this.errors > 0 ? `(${this.errors} Error(s))` : ""}`,
-      ].join(" ")
+      if (this.errors > 0) {
+        textPieces.push(`(${this.errors} Error${this.errors === 1 ? "" : "s"})`)
+      }
+
+      return textPieces.join(" ")
     },
   },
   created() {
