@@ -115,5 +115,3 @@ export default defineComponent({
   opacity: 0;
 }
 </style>
-
-<style></style>
