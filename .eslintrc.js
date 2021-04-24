@@ -21,7 +21,19 @@ module.exports = {
     },
   ],
   rules: {
-    "prettier/prettier": "error",
+    // "prettier/prettier": "error",
+    "prettier/prettier": [
+      "error",
+      {
+        trailingComma: "es5",
+        tabWidth: 2,
+        semi: false,
+        singleQuote: false,
+        printWidth: 100,
+        endOfLine: "auto",
+        arrowParens: "avoid",
+      },
+    ],
     quotes: [
       2,
       "double",
