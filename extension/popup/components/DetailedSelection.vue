@@ -1,15 +1,15 @@
 <template>
   <div class="detailed-selection">
-    <input type="text" v-model="searchInput" placeholder="Search..." />
+    <input v-model="searchInput" type="text" placeholder="Search..." />
     <div
+      ref="selectionContainer"
       class="selection scrollbar"
+      :style="selectionContainerStyle"
       @mousedown="() => setMouseDown(true)"
       @mouseup="() => setMouseDown(false)"
-      ref="selectionContainer"
-      :style="selectionContainerStyle"
     >
       <div v-if="filteredResources.length > 0">
-        <label class="category" @input="(e) => onCategoryClick(e, 'all')">
+        <label class="category" @input="e => onCategoryClick(e, 'all')">
           <span>All</span>
           <div>
             <input ref="allCb" type="checkbox" />
@@ -18,7 +18,7 @@
       </div>
 
       <div v-if="fileResources.length > 0">
-        <label class="category" @input="(e) => onCategoryClick(e, 'file')">
+        <label class="category" @input="e => onCategoryClick(e, 'file')">
           <span>Files</span>
           <div>
             <input ref="filesCb" type="checkbox" />
@@ -26,8 +26,8 @@
         </label>
         <label
           v-for="(r, i) in fileResources"
-          :key="`fileCb${i}`"
           :id="`fileCb${i}`"
+          :key="`fileCb${i}`"
           :data-href="r.href"
           class="resource"
           @mousemove="onMouseOver"
@@ -36,13 +36,13 @@
           <span class="resource">{{ r.name }}</span>
           <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
           <div>
-            <input :data-href="r.href" :ref="`fileCb${i}`" type="checkbox" :checked="r.selected" />
+            <input :ref="`fileCb${i}`" :data-href="r.href" type="checkbox" :checked="r.selected" />
           </div>
         </label>
       </div>
 
       <div v-if="folderResources.length > 0">
-        <label class="category" @input="(e) => onCategoryClick(e, 'folder')">
+        <label class="category" @input="e => onCategoryClick(e, 'folder')">
           <span>Folders</span>
           <div>
             <input ref="foldersCb" type="checkbox" />
@@ -50,8 +50,8 @@
         </label>
         <label
           v-for="(r, i) in folderResources"
-          :key="`folderCb${i}`"
           :id="`folderCb${i}`"
+          :key="`folderCb${i}`"
           :data-href="r.href"
           class="resource"
           @mousemove="onMouseOver"
@@ -61,8 +61,8 @@
           <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
           <div>
             <input
-              :data-href="r.href"
               :ref="`folderCb${i}`"
+              :data-href="r.href"
               type="checkbox"
               :checked="r.selected"
             />
@@ -108,13 +108,13 @@ export default defineComponent({
     filteredResources(): Resource[] {
       if (this.searchInput === "") {
         if (this.onlyNewResources) {
-          return this.resources.filter((r) => r.isNew)
+          return this.resources.filter(r => r.isNew)
         }
 
         return this.resources
       }
 
-      return this.resources.filter((r) => {
+      return this.resources.filter(r => {
         let isMatch = false
         if ((r as FileResource).isFile) {
           isMatch = Boolean(r.name.match(new RegExp(this.searchInput, "gi")))
@@ -132,11 +132,21 @@ export default defineComponent({
       })
     },
     fileResources(): Resource[] {
-      return this.filteredResources.filter((r) => (r as FileResource).isFile)
+      return this.filteredResources.filter(r => (r as FileResource).isFile)
     },
     folderResources(): Resource[] {
-      return this.filteredResources.filter((r) => (r as FolderResource).isFolder)
+      return this.filteredResources.filter(r => (r as FolderResource).isFolder)
     },
+  },
+  mounted() {
+    const height = (this.$refs.selectionContainer as HTMLDivElement).clientHeight
+
+    if (height > 150) {
+      this.selectionContainerStyle.height = "150px"
+      this.selectionContainerStyle["overflow-y"] = "scroll"
+    } else {
+      this.selectionContainerStyle.height = `${height}px`
+    }
   },
   methods: {
     onMouseOver(e: Event) {
@@ -176,11 +186,11 @@ export default defineComponent({
       const target = e.target as HTMLInputElement
 
       Object.keys(this.$refs)
-        .filter((refKey) => {
+        .filter(refKey => {
           const searchCategory = category === "all" ? "" : category
           return refKey.match(new RegExp(`.*${searchCategory}Cb`))
         })
-        .forEach((refKey) => {
+        .forEach(refKey => {
           const inputRef = this.$refs[refKey] as HTMLInputElement
           if (inputRef === null) return // User has filtered while clicking so some refs are undefined
 
@@ -195,16 +205,6 @@ export default defineComponent({
         allCbRef.checked = false
       }
     },
-  },
-  mounted() {
-    const height = (this.$refs.selectionContainer as HTMLDivElement).clientHeight
-
-    if (height > 150) {
-      this.selectionContainerStyle.height = "150px"
-      this.selectionContainerStyle["overflow-y"] = "scroll"
-    } else {
-      this.selectionContainerStyle.height = `${height}px`
-    }
   },
 })
 </script>

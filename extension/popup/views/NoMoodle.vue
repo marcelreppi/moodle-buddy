@@ -13,11 +13,10 @@
       <div>Paste the URL below:</div>
       <div>
         <input
+          v-model="urlInput"
           class="w-64 mr-1 border border-gray-400 rounded-md focus:border-gray-500"
           type="text"
           name=""
-          id=""
-          v-model="urlInput"
         />
         <button class="py-0.5 btn" @click="onSaveClick">Save</button>
       </div>
@@ -49,7 +48,10 @@ import { sendEvent, validURLRegex } from "../../shared/helpers"
 
 export default defineComponent({
   props: {
-    openInfoPage: Function,
+    openInfoPage: {
+      type: Function,
+      required: true,
+    },
     options: {
       type: Object as PropType<ExtensionOptions>,
       required: true,
@@ -66,14 +68,14 @@ export default defineComponent({
       showInvalidURL: false,
     }
   },
-  watch: {
-    options(newOptions) {
-      this.moodleURL = newOptions ? newOptions.defaultMoodleURL : ""
-    },
-  },
   computed: {
     showDefaultURLInput(): boolean {
       return this.moodleURL === ""
+    },
+  },
+  watch: {
+    options(newOptions) {
+      this.moodleURL = newOptions ? newOptions.defaultMoodleURL : ""
     },
   },
   methods: {

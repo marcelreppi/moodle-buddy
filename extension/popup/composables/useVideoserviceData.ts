@@ -18,7 +18,7 @@ export default function useVideoserviceData(selectionTab: Ref<SelectionTab>): Vi
   const downloadVideos = ref(true)
 
   const selectedResources = computed(() => {
-    return videoResources.value.filter((n) => {
+    return videoResources.value.filter(n => {
       if (selectionTab.value === "simple") {
         return true
       }
@@ -41,7 +41,7 @@ export default function useVideoserviceData(selectionTab: Ref<SelectionTab>): Vi
   const scanResultHandler = (message: Message) => {
     const { videoResources: scannedVideoResources } = message as VideoScanResultMessage
     nVideos.value = scannedVideoResources.length
-    videoResources.value = scannedVideoResources.map((r) => {
+    videoResources.value = scannedVideoResources.map(r => {
       return { ...r, selected: false, isFile: true }
     })
   }

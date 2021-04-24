@@ -18,10 +18,7 @@ let browserId = "unknown"
 const search = location.search.substring(1)
 if (search !== "") {
   const queryObject = JSON.parse(
-    `{"${decodeURI(search)
-      .replace(/"/g, '\\"')
-      .replace(/&/g, '","')
-      .replace(/=/g, '":"')}"}`
+    `{"${decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"')}"}`
   )
 
   if (queryObject.browserId) {

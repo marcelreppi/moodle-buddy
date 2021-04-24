@@ -4,11 +4,11 @@
     <div v-else class="content-container">
       <div
         v-if="view === 'course' && showNewActivityInfo"
-        class="flex flex-col items-center px-3 text-center"
         id="new-activities"
+        class="flex flex-col items-center px-3 text-center"
       >
         <span>The following activities were added to the course:</span>
-        <div class="font-semibold" v-for="(node, i) in newActivities" :key="i">
+        <div v-for="(node, i) in newActivities" :key="i" class="font-semibold">
           {{ node.name }}
         </div>
         <hr />
@@ -121,8 +121,8 @@
       <detailed-selection
         v-else
         :resources="resources"
-        :setResourceSelected="setResourceSelected"
-        :onlyNewResources="view === 'course' ? onlyNewResources : null"
+        :set-resource-selected="setResourceSelected"
+        :only-new-resources="view === 'course' ? onlyNewResources : null"
       />
 
       <detail-overlay
@@ -161,8 +161,8 @@
         v-if="downloadInProgress"
         ref="progressBar"
         type="download"
-        :onDone="onDownloadFinished"
-        :onCancel="onDownloadCancel"
+        :on-done="onDownloadFinished"
+        :on-cancel="onDownloadCancel"
         class="w-5/6"
       ></progress-bar>
 
@@ -250,7 +250,7 @@ export default {
     const showDetails = ref(false)
     const showDetailResources = ref<Resource[]>([])
     const setResourceSelected = (href: string, value: boolean) => {
-      const resource = resources.value.find((r) => r.href === href)
+      const resource = resources.value.find(r => r.href === href)
       if (resource) {
         resource.selected = value
       }
@@ -299,7 +299,7 @@ export default {
       }
 
       if (selectionTab.value === "detailed") {
-        return resources.value.every((r) => !r.selected)
+        return resources.value.every(r => !r.selected)
       }
 
       return false
@@ -313,7 +313,7 @@ export default {
       if (props.activeTab.id) {
         browser.tabs.sendMessage<CourseCrawlMessage>(props.activeTab.id, {
           command: "crawl",
-          selectedResources: selectedResources.value.map((r) => ({ ...r })), // Resolve proxy
+          selectedResources: selectedResources.value.map(r => ({ ...r })), // Resolve proxy
           options: {
             useMoodleFileName: useMoodleFileName.value,
             prependCourseToFileName: prependCourseToFileName.value,
@@ -453,7 +453,7 @@ export default {
 
 <style scoped>
 .tab {
-  @apply flex justify-center items-center border-b-[3px] border-gray-300 hover:cursor-pointer text-sm text-gray-600 pb-[0.375rem];
+  @apply flex justify-center items-center border-b-[3px] border-gray-300 hover:cursor-pointer text-sm text-gray-600 pb-1.5;
 }
 
 .active-tab {

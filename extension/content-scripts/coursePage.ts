@@ -27,7 +27,7 @@ if (isMoodlePage) {
         console.log(course)
       }
     })
-    .catch((err) => {
+    .catch(err => {
       console.error(err)
       error = true
       sendLog({ errorMessage: err.message, url: location.href })

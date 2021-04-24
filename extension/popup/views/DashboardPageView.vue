@@ -2,7 +2,7 @@
   <div class="content-container">
     <div v-if="courses === null" class="text-center">
       <div>Scanning courses for updates...</div>
-      <progress-bar type="scan" ref="progressBar"></progress-bar>
+      <progress-bar ref="progressBar" type="scan"></progress-bar>
     </div>
     <div v-else-if="courses.length === 0" class="text-center">
       <div>No courses found</div>

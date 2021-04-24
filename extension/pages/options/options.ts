@@ -6,7 +6,7 @@ async function restore() {
   browser.storage.local.get<ExtensionStorage>("options").then(({ options }) => {
     restoredOptions = options as ExtensionOptions
     const inputs = document.querySelectorAll("input")
-    inputs.forEach((input) => {
+    inputs.forEach(input => {
       switch (input.type) {
         case "checkbox":
           input.checked = options[input.id] as boolean
@@ -32,7 +32,7 @@ async function save(e: Event) {
 
   const updatedOptions = {} as ExtensionOptions
   const inputs = document.querySelectorAll("input")
-  inputs.forEach((input) => {
+  inputs.forEach(input => {
     switch (input.type) {
       case "checkbox":
         updatedOptions[input.id] = input.checked

@@ -1,13 +1,17 @@
 import pLimit from "p-limit"
 
-import { DownloadMessage, DownloadProgressMessage, Message } from "moodle-buddy-types"
-import { ExtensionOptions, ExtensionStorage } from "moodle-buddy-types"
 import {
+  DownloadMessage,
+  DownloadProgressMessage,
+  Message,
+  ExtensionOptions,
+  ExtensionStorage,
   FileResource,
   FolderResource,
   Resource,
   VideoResource,
 } from "moodle-buddy-types"
+
 import {
   parseFileNameFromPluginFileURL,
   getDownloadButton,
@@ -446,7 +450,7 @@ async function onDownload(message: DownloadMessage) {
   downloaders[downloader.id] = downloader
 }
 
-browser.downloads.onChanged.addListener(async (downloadDelta) => {
+browser.downloads.onChanged.addListener(async downloadDelta => {
   const { state, id } = downloadDelta
 
   if (state === undefined) return

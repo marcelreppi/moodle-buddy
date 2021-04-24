@@ -39,7 +39,7 @@
         <button
           v-if="newResources.length > 0"
           class="download-button"
-          @click="(e) => onDownloadClick(e, course)"
+          @click="e => onDownloadClick(e, course)"
         >
           Download new resources
         </button>
@@ -91,10 +91,10 @@ export default defineComponent({
   },
   computed: {
     newResources(): Resource[] {
-      return this.resources.filter((n) => n.isNew)
+      return this.resources.filter(n => n.isNew)
     },
     newActivities(): Activity[] {
-      return this.activities.filter((n) => n.isNew)
+      return this.activities.filter(n => n.isNew)
     },
     allNewNodes(): Array<Resource | Activity> {
       return [...this.newResources, ...this.newActivities]
@@ -116,6 +116,13 @@ export default defineComponent({
         arrow.style.transform = "rotate(45deg)"
       }
     },
+  },
+  mounted() {
+    if (!this.options) return
+
+    if (this.hasUpdates) {
+      this.showDetails = this.options.alwaysShowDetails
+    }
   },
   methods: {
     onCourseLinkClick(link: string) {
@@ -155,13 +162,6 @@ export default defineComponent({
         sendEvent("show-details-dashboard-page", true)
       }
     },
-  },
-  mounted() {
-    if (!this.options) return
-
-    if (this.hasUpdates) {
-      this.showDetails = this.options.alwaysShowDetails
-    }
   },
 })
 </script>

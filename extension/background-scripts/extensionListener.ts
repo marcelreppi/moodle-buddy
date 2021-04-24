@@ -1,8 +1,8 @@
-import { CourseData } from "moodle-buddy-types"
-import { uuidv4, setIcon, setBadgeText } from "./helpers"
-import { sendEvent, sendPageData, sendFeedback, sendLog } from "./tracker"
-import { ExtensionOptions, ExtensionStorage, StoredCourseData } from "moodle-buddy-types"
 import {
+  CourseData,
+  ExtensionOptions,
+  ExtensionStorage,
+  StoredCourseData,
   EventMessage,
   ExecuteScriptMessage,
   FeedbackMessage,
@@ -11,6 +11,8 @@ import {
   PageDataMessage,
   SetBadgeMessage,
 } from "moodle-buddy-types"
+import { uuidv4, setIcon, setBadgeText } from "./helpers"
+import { sendEvent, sendPageData, sendFeedback, sendLog } from "./tracker"
 
 const defaultOptions: ExtensionOptions = {
   onlyNewResources: false,

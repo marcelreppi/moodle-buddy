@@ -57,10 +57,10 @@ export default function useCourseData(
   const onlyNewResources = ref(false)
 
   const nNewResources = computed(() => nNewFiles.value + nNewFolders.value)
-  const newResources = computed(() => resources.value.filter((n) => n.isNew))
-  const newActivities = computed(() => activities.value.filter((n) => n.isNew))
+  const newResources = computed(() => resources.value.filter(n => n.isNew))
+  const newActivities = computed(() => activities.value.filter(n => n.isNew))
   const selectedResources = computed(() => {
-    return resources.value.filter((n) => {
+    return resources.value.filter(n => {
       if (selectionTab.value === "simple") {
         if (!downloadFiles.value && (n as FileResource).isFile) return false
         if (!downloadFolders.value && (n as FolderResource).isFolder) return false
@@ -112,7 +112,7 @@ export default function useCourseData(
     nNewFiles.value = counts.nNewFiles
     nFolders.value = counts.nFolders
     nNewFolders.value = counts.nNewFolders
-    resources.value = detectedResources.map((r) => ({ ...r, selected: false }))
+    resources.value = detectedResources.map(r => ({ ...r, selected: false }))
 
     nActivities.value = counts.nActivities
     nNewActivities.value = counts.nNewActivities

@@ -7,8 +7,9 @@ import {
   MarkAsSeenMessage,
   Message,
   ScanInProgressMessage,
+  ExtensionStorage,
 } from "moodle-buddy-types"
-import { ExtensionStorage } from "moodle-buddy-types"
+
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { getURLRegex, updateIconFromCourses, sendLog } from "../shared/helpers"
 import Course from "../models/Course"
@@ -46,7 +47,7 @@ function sendScanProgress() {
 function sendScanResults() {
   browser.runtime.sendMessage<DashboardScanResultMessage>({
     command: "scan-result",
-    courses: courses.map((c) => ({
+    courses: courses.map(c => ({
       name: c.name,
       link: c.link,
       isNew: c.isFirstScan,
@@ -71,7 +72,7 @@ async function scanOverview(retry = 0) {
     sendScanProgress()
 
     // Sleep some time to wait for full page load
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await new Promise(resolve => setTimeout(resolve, 2000))
 
     // Save hash of settings to check for changes
     lastSettingsHash = shajs("sha224").update(JSON.stringify(getOverviewSettings())).digest("hex")
@@ -85,7 +86,7 @@ async function scanOverview(retry = 0) {
       const courseNodes = overviewNode.querySelectorAll("[data-region='course-content']")
 
       if (courseNodes.length !== 0) {
-        courseLinks = Array.from(courseNodes).map((n) => parseCourseLink(n.innerHTML))
+        courseLinks = Array.from(courseNodes).map(n => parseCourseLink(n.innerHTML))
       } else {
         useFallback = true
       }
@@ -99,8 +100,8 @@ async function scanOverview(retry = 0) {
       if (searchRoot) {
         const coursePageRegex = getURLRegex("course")
         courseLinks = Array.from(searchRoot.querySelectorAll("a"))
-          .filter((n) => n.href.match(coursePageRegex) && !hasHiddenParent(n))
-          .map((n) => n.href)
+          .filter(n => n.href.match(coursePageRegex) && !hasHiddenParent(n))
+          .map(n => n.href)
       }
     }
 
@@ -146,7 +147,7 @@ async function scanOverview(retry = 0) {
       }
 
       browser.storage.local.set({
-        overviewCourseLinks: courses.map((c) => c.link),
+        overviewCourseLinks: courses.map(c => c.link),
       })
 
       updateIconFromCourses(courses)
@@ -210,7 +211,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
 
   if (command === "mark-as-seen") {
     const { link } = message as MarkAsSeenMessage
-    const i = courses.findIndex((c) => c.link === link)
+    const i = courses.findIndex(c => c.link === link)
     const course = courses[i]
 
     // Update course
@@ -222,13 +223,13 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
 
   if (command === "crawl") {
     const { link } = message as DashboardCrawlMessage
-    const i = courses.findIndex((c) => c.link === link)
+    const i = courses.findIndex(c => c.link === link)
     const course = courses[i]
 
     const { options }: ExtensionStorage = await browser.storage.local.get("options")
 
     // Only download new resources
-    const downloadNodes = course.resources.filter((r) => r.isNew)
+    const downloadNodes = course.resources.filter(r => r.isNew)
 
     browser.runtime.sendMessage<DownloadMessage>({
       command: "download",

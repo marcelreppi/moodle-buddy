@@ -7,29 +7,29 @@
 
     <div class="relative w-full h-full">
       <error-view v-if="showErrorView" />
-      <div class="box-border relative flex flex-col items-center justify-center w-full" v-else>
+      <div v-else class="box-border relative flex flex-col items-center justify-center w-full">
         <dashboard-page-view
           v-if="showDashboardPageView"
-          :activeTab="activeTab"
+          :active-tab="activeTab"
           :options="options"
         ></dashboard-page-view>
         <main-view
           v-if="showCourseView"
-          :activeTab="activeTab"
+          :active-tab="activeTab"
           :options="options"
           view="course"
         ></main-view>
         <main-view
           v-if="showVideoServiceView"
-          :activeTab="activeTab"
+          :active-tab="activeTab"
           :options="options"
           view="videoservice"
         ></main-view>
         <no-moodle
           v-if="showNoMoodle"
-          :openInfoPage="onInfoClick"
+          :open-info-page="onInfoClick"
           :options="options"
-          :nUpdates="nUpdates"
+          :n-updates="nUpdates"
         ></no-moodle>
       </div>
 
@@ -37,7 +37,10 @@
         v-if="showRatingHint"
         class="absolute top-0 left-0 right-0 flex flex-col items-center justify-center px-5 space-y-2 text-center bg-white border -bottom-3 shadow-custom"
       >
-        <div>You have downloaded more than {{ rateHintLevels[rateHintLevel] }} files 🎉</div>
+        <div>
+          You have downloaded more than
+          {{ rateHintLevels[rateHintLevel] }} files 🎉
+        </div>
         <div>Thank you very much! 😄👌</div>
         <div>
           I would really appreciate your rating and review in the
@@ -84,6 +87,7 @@ import {
   StateMessage,
   ExtensionOptions,
   SupportedPage,
+  // eslint-disable-next-line import/no-unresolved
 } from "moodle-buddy-types"
 
 import { sendEvent, getActiveTab, isFirefox, navigateTo } from "../shared/helpers"
@@ -146,6 +150,60 @@ export default defineComponent({
       return this.showCourseView && !this.userHasRated && this.totalDownloadedFiles > fileThreshold
     },
   },
+  created() {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+      const { command } = message as Message
+
+      if (command === "state") {
+        const { page, state } = message as StateMessage
+        this.cacheStorageData(state)
+        this.page = page
+
+        if (process.env.NODE_ENV === "debug") {
+          let filename = ""
+          if (this.activeTab && this.activeTab.url) {
+            filename = this.activeTab.url.split("/").pop() || ""
+          }
+
+          if (filename.includes("course")) {
+            this.page = "course"
+          }
+
+          if (filename.includes("dashboard")) {
+            this.page = "dashboard"
+          }
+
+          if (filename.includes("videoservice")) {
+            this.page = "videoservice"
+          }
+        }
+
+        if (this.page !== "") {
+          sendEvent(`view-${this.page}-page`, true)
+        }
+      }
+
+      if (command === "error-view") {
+        this.showErrorView = true
+      }
+    }
+    browser.runtime.onMessage.addListener(messageListener)
+
+    getActiveTab().then(tab => {
+      this.activeTab = tab
+      // Get state on load from detector
+      if (this.activeTab?.id) {
+        browser.tabs.sendMessage<Message>(this.activeTab.id, {
+          command: "get-state",
+        })
+        // .catch(() => {
+        //   // When detector is not available fetch state from storage manually
+        //   browser.storage.local.get().then(this.cacheStorageData)
+        // })
+      }
+    })
+  },
   methods: {
     onReportBugClick() {
       navigateTo("/pages/contact/contact.html")
@@ -189,60 +247,6 @@ export default defineComponent({
       this.totalDownloadedFiles = totalDownloadedFiles
       this.rateHintLevel = rateHintLevel
     },
-  },
-  created() {
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
-      const { command } = message as Message
-
-      if (command === "state") {
-        const { page, state } = message as StateMessage
-        this.cacheStorageData(state)
-        this.page = page
-
-        if (process.env.NODE_ENV === "debug") {
-          let filename = ""
-          if (this.activeTab && this.activeTab.url) {
-            filename = this.activeTab.url.split("/").pop() || ""
-          }
-
-          if (filename.includes("course")) {
-            this.page = "course"
-          }
-
-          if (filename.includes("dashboard")) {
-            this.page = "dashboard"
-          }
-
-          if (filename.includes("videoservice")) {
-            this.page = "videoservice"
-          }
-        }
-
-        if (this.page !== "") {
-          sendEvent(`view-${this.page}-page`, true)
-        }
-      }
-
-      if (command === "error-view") {
-        this.showErrorView = true
-      }
-    }
-    browser.runtime.onMessage.addListener(messageListener)
-
-    getActiveTab().then((tab) => {
-      this.activeTab = tab
-      // Get state on load from detector
-      if (this.activeTab?.id) {
-        browser.tabs.sendMessage<Message>(this.activeTab.id, {
-          command: "get-state",
-        })
-        // .catch(() => {
-        //   // When detector is not available fetch state from storage manually
-        //   browser.storage.local.get().then(this.cacheStorageData)
-        // })
-      }
-    })
   },
 })
 </script>

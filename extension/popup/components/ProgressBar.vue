@@ -64,6 +64,9 @@ export default defineComponent({
       ].join(" ")
     },
   },
+  created() {
+    this.resetProgress()
+  },
   methods: {
     setProgress(total: number, completed = 0, errors = 0) {
       this.total = total
@@ -94,9 +97,6 @@ export default defineComponent({
       // Set a small number to make something visible
       this.$Progress.set(5)
     },
-  },
-  created() {
-    this.resetProgress()
   },
 })
 </script>

@@ -1,5 +1,6 @@
-import Course from "extension/models/Course"
 import { EventMessage, LogMessage, SetBadgeMessage, LogData } from "moodle-buddy-types"
+
+import Course from "extension/models/Course"
 
 export function navigateTo(link: string): void {
   browser.tabs.create({

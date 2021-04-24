@@ -35,15 +35,18 @@ export default defineComponent({
       type: Object as PropType<Resource[]>,
       required: true,
     },
-    toggleDetails: Function,
+    toggleDetails: {
+      type: Function,
+      required: true,
+    },
   },
-  setup({ resources }) {
+  setup(props) {
     const files = computed<Resource[]>(() => {
-      return resources.filter((n) => (n as FileResource).isFile)
+      return props.resources.filter(n => (n as FileResource).isFile)
     })
 
     const folders = computed<Resource[]>(() => {
-      return resources.filter((n) => (n as FolderResource).isFolder)
+      return props.resources.filter(n => (n as FolderResource).isFolder)
     })
 
     return {
