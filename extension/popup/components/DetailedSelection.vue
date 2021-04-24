@@ -1,10 +1,14 @@
 <template>
-  <div class="detailed-selection">
-    <input v-model="searchInput" type="text" placeholder="Search..." />
+  <div class="flex flex-col items-center w-5/6 pt-1">
+    <input
+      v-model="searchInput"
+      class="w-full px-2 pb-1.5 text-sm border-b border-gray-300"
+      type="text"
+      placeholder="Search..."
+    />
     <div
       ref="selectionContainer"
-      class="selection scrollbar"
-      :style="selectionContainerStyle"
+      class="flex flex-col w-full pr-3.5 mt-1 text-sm max-h-56 overflow-y-scroll scrollbar"
       @mousedown="() => setMouseDown(true)"
       @mouseup="() => setMouseDown(false)"
     >
@@ -12,7 +16,7 @@
         <label class="category" @input="e => onCategoryClick(e, 'all')">
           <span>All</span>
           <div>
-            <input ref="allCb" type="checkbox" />
+            <input ref="allCb" class="mt-1" type="checkbox" />
           </div>
         </label>
       </div>
@@ -21,7 +25,7 @@
         <label class="category" @input="e => onCategoryClick(e, 'file')">
           <span>Files</span>
           <div>
-            <input ref="filesCb" type="checkbox" />
+            <input ref="filesCb" class="mt-1" type="checkbox" />
           </div>
         </label>
         <label
@@ -36,7 +40,13 @@
           <span class="resource">{{ r.name }}</span>
           <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
           <div>
-            <input :ref="`fileCb${i}`" :data-href="r.href" type="checkbox" :checked="r.selected" />
+            <input
+              :ref="`fileCb${i}`"
+              :data-href="r.href"
+              type="checkbox"
+              :checked="r.selected"
+              class="mt-1"
+            />
           </div>
         </label>
       </div>
@@ -45,7 +55,7 @@
         <label class="category" @input="e => onCategoryClick(e, 'folder')">
           <span>Folders</span>
           <div>
-            <input ref="foldersCb" type="checkbox" />
+            <input ref="foldersCb" class="mt-1" type="checkbox" />
           </div>
         </label>
         <label
@@ -65,6 +75,7 @@
               :data-href="r.href"
               type="checkbox"
               :checked="r.selected"
+              class="mt-1"
             />
           </div>
         </label>
@@ -98,10 +109,6 @@ export default defineComponent({
     return {
       mouseDown: false,
       searchInput: "",
-      selectionContainerStyle: {
-        height: "auto",
-        "overflow-y": "hidden",
-      },
     }
   },
   computed: {
@@ -137,16 +144,6 @@ export default defineComponent({
     folderResources(): Resource[] {
       return this.filteredResources.filter(r => (r as FolderResource).isFolder)
     },
-  },
-  mounted() {
-    const height = (this.$refs.selectionContainer as HTMLDivElement).clientHeight
-
-    if (height > 150) {
-      this.selectionContainerStyle.height = "150px"
-      this.selectionContainerStyle["overflow-y"] = "scroll"
-    } else {
-      this.selectionContainerStyle.height = `${height}px`
-    }
   },
   methods: {
     onMouseOver(e: Event) {
@@ -210,32 +207,6 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.detailed-selection {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 80%;
-  padding-top: 5px;
-}
-
-input[type="text"] {
-  font-family: inherit;
-  font-size: 13px;
-  padding: 0 10px 5px 10px;
-  border: 0;
-  border-bottom: 1px solid #dcdcdc;
-  width: 100%;
-}
-
-.selection {
-  display: flex;
-  flex-direction: column;
-  font-size: 13px;
-  margin-top: 5px;
-  width: 100%;
-  padding-right: 10px;
-}
-
 label.resource {
   display: grid;
   grid-template-columns: minmax(0, 10fr) 1fr 1fr;

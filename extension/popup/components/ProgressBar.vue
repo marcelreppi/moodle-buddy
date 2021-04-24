@@ -1,12 +1,12 @@
 <template>
-  <div class="progress-bar-container">
-    <div class="progress-bar-label">
-      <div style="text-align: left">{{ progressText }}</div>
-      <div v-if="cancelable.includes(type)" class="cancel-button">
+  <div class="flex flex-col items-center w-full mt-5">
+    <div class="flex justify-between w-full text-sm">
+      <div class="text-left">{{ progressText }}</div>
+      <div v-if="cancelable.includes(type)" class="flex-row-reverse">
         <button v-if="!done" class="link" @click="onCancel">Cancel</button>
       </div>
     </div>
-    <div class="progress-bar">
+    <div class="w-full mt-1 border border-gray-300">
       <vue-progress-bar></vue-progress-bar>
     </div>
   </div>
@@ -101,30 +101,4 @@ export default defineComponent({
 })
 </script>
 
-<style>
-.progress-bar-container {
-  margin-top: 20px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.progress-bar-label {
-  display: grid;
-  grid-template-columns: auto 20px;
-  font-size: 13px;
-  width: 100%;
-}
-
-.cancel-button {
-  display: flex;
-  flex-direction: row-reverse;
-}
-
-.progress-bar {
-  margin-top: 3px;
-  border: 1px solid #dcdcdc;
-  width: 100%;
-}
-</style>
+<style></style>
