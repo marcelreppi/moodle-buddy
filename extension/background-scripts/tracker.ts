@@ -99,7 +99,11 @@ export async function sendFeedback(payload: FeedbackData): Promise<void> {
 export async function sendLog(payload: LogData): Promise<void> {
   const { errorMessage } = payload
 
-  const skipMessages = ["Failed to fetch", "Download canceled by the user"]
+  const skipMessages = [
+    "Failed to fetch",
+    "Download canceled by the user",
+    "QUOTA_BYTES quota exceeded",
+  ]
   if (errorMessage && skipMessages.includes(errorMessage)) {
     return
   }
