@@ -1,6 +1,7 @@
 import { computed, ComputedRef, Ref, ref } from "vue"
-import { Message, SelectionTab, VideoResource, VideoScanResultMessage } from "moodle-buddy-types"
+import { Message, VideoResource, VideoScanResultMessage } from "moodle-buddy-types"
 import { sendEvent } from "../../shared/helpers"
+import { SelectionTab } from "../types"
 
 interface VideoserviceData {
   nVideos: Ref<number>
@@ -19,11 +20,11 @@ export default function useVideoserviceData(selectionTab: Ref<SelectionTab>): Vi
 
   const selectedResources = computed(() => {
     return videoResources.value.filter(n => {
-      if (selectionTab.value === "simple") {
+      if (selectionTab.value.id === "simple") {
         return true
       }
 
-      if (selectionTab.value === "detailed") {
+      if (selectionTab.value.id === "detailed") {
         return n.selected
       }
 

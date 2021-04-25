@@ -6,10 +6,10 @@ import {
   FolderResource,
   Message,
   Resource,
-  SelectionTab,
 } from "moodle-buddy-types"
 import { computed, ComputedRef, Ref, ref, watch } from "vue"
 import { sendEvent } from "../../shared/helpers"
+import { SelectionTab } from "../types"
 
 interface CourseData {
   nFiles: Ref<number>
@@ -61,7 +61,7 @@ export default function useCourseData(
   const newActivities = computed(() => activities.value.filter(n => n.isNew))
   const selectedResources = computed(() => {
     return resources.value.filter(n => {
-      if (selectionTab.value === "simple") {
+      if (selectionTab.value.id === "simple") {
         if (!downloadFiles.value && (n as FileResource).isFile) return false
         if (!downloadFolders.value && (n as FolderResource).isFolder) return false
         if (onlyNewResources.value && !n.isNew) return false
@@ -69,7 +69,7 @@ export default function useCourseData(
         return true
       }
 
-      if (selectionTab.value === "detailed") {
+      if (selectionTab.value.id === "detailed") {
         return n.selected
       }
 
@@ -132,7 +132,7 @@ export default function useCourseData(
   }
 
   const onDownload = () => {
-    const eventParts = ["download-course-page", selectionTab.value]
+    const eventParts = ["download-course-page", selectionTab.value.id]
     if (onlyNewResources.value) {
       eventParts.push("only-new")
     }

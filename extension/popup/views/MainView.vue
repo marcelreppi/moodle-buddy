@@ -59,71 +59,63 @@
       </div>
 
       <!-- Resource Selection -->
-      <div class="grid w-5/6 grid-cols-2 my-3">
-        <div
-          class="tab"
-          :class="{ 'active-tab': selectionTab === 'simple' }"
-          @click="() => setSelectionTab('simple')"
-        >
-          Simple
-        </div>
-        <div
-          class="tab"
-          :class="{ 'active-tab': selectionTab === 'detailed' }"
-          @click="() => setSelectionTab('detailed')"
-        >
-          Detailed
-        </div>
-      </div>
+      <selection-tab
+        class="w-5/6"
+        :tabs="selectionTabs"
+        :selection-tab="selectionTab"
+        :set-selection-tab="setSelectionTab"
+      >
+        <template #simple>
+          <div class="flex flex-col items-center">
+            <div>
+              <div v-if="view === 'course'">
+                <label>
+                  <input v-model="downloadFiles" type="checkbox" :disabled="disableFilesCb" />
+                  <span class="ml-1">
+                    <span v-if="onlyNewResources">{{ nNewFiles }}</span>
+                    <span v-else>{{ nFiles }}</span>
+                    file(s) (PDF, etc.)
+                  </span>
+                </label>
+              </div>
+              <div v-if="view === 'course'">
+                <label>
+                  <input v-model="downloadFolders" type="checkbox" :disabled="disableFoldersCb" />
+                  <span class="ml-1">
+                    <span v-if="onlyNewResources">{{ nNewFolders }}</span>
+                    <span v-else>{{ nFolders }}</span>
+                    folder(s)
+                  </span>
+                </label>
+              </div>
+              <div v-if="view === 'videoservice'">
+                <label>
+                  <input v-model="downloadVideos" type="checkbox" :disabled="disableVideoCb" />
+                  <span class="ml-1">
+                    <span>{{ nResources }}</span>
+                    video(s)
+                  </span>
+                </label>
+              </div>
+            </div>
 
-      <div v-if="selectionTab === 'simple'" class="flex flex-col items-center">
-        <div>
-          <div v-if="view === 'course'">
-            <label>
-              <input v-model="downloadFiles" type="checkbox" :disabled="disableFilesCb" />
-              <span class="ml-1">
-                <span v-if="onlyNewResources">{{ nNewFiles }}</span>
-                <span v-else>{{ nFiles }}</span>
-                file(s) (PDF, etc.)
-              </span>
-            </label>
+            <button
+              class="mt-2 text-sm text-gray-600 underline hover:cursor-pointer hover:text-mb-red disabled:text-gray-300 disabled:cursor-default"
+              :disabled="disableDownload"
+              @click="toggleDetails(false)"
+            >
+              Show details on selected resources
+            </button>
           </div>
-          <div v-if="view === 'course'">
-            <label>
-              <input v-model="downloadFolders" type="checkbox" :disabled="disableFoldersCb" />
-              <span class="ml-1">
-                <span v-if="onlyNewResources">{{ nNewFolders }}</span>
-                <span v-else>{{ nFolders }}</span>
-                folder(s)
-              </span>
-            </label>
-          </div>
-          <div v-if="view === 'videoservice'">
-            <label>
-              <input v-model="downloadVideos" type="checkbox" :disabled="disableVideoCb" />
-              <span class="ml-1">
-                <span>{{ nResources }}</span>
-                video(s)
-              </span>
-            </label>
-          </div>
-        </div>
-
-        <button
-          class="mt-2 text-sm text-gray-600 underline hover:cursor-pointer hover:text-mb-red disabled:text-gray-300 disabled:cursor-default"
-          :disabled="disableDownload"
-          @click="toggleDetails(false)"
-        >
-          Show details on selected resources
-        </button>
-      </div>
-
-      <detailed-selection
-        v-else
-        :resources="resources"
-        :set-resource-selected="setResourceSelected"
-        :only-new-resources="view === 'course' ? onlyNewResources : null"
-      />
+        </template>
+        <template #detailed>
+          <detailed-selection
+            :resources="resources"
+            :set-resource-selected="setResourceSelected"
+            :only-new-resources="view === 'course' ? onlyNewResources : null"
+          />
+        </template>
+      </selection-tab>
 
       <detail-overlay
         v-if="showDetails"
@@ -174,9 +166,8 @@
 </template>
 
 <script lang="ts">
-import { computed, ComputedRef, onUpdated, PropType, Ref, ref } from "vue"
+import { computed, ComputedRef, defineComponent, onUpdated, PropType, Ref, ref } from "vue"
 import {
-  SelectionTab,
   ExtensionOptions,
   CourseCrawlMessage,
   Message,
@@ -187,15 +178,18 @@ import {
 import DetailOverlay from "../components/DetailOverlay.vue"
 import DetailedSelection from "../components/DetailedSelection.vue"
 import ProgressBar from "../components/ProgressBar.vue"
+import SelectionTabComponent from "../components/SelectionTab.vue"
 import { sendEvent } from "../../shared/helpers"
+import useSelectionTab from "../composables/useSelectionTab"
 import useCourseData from "../composables/useCourseData"
 import useVideoserviceData from "../composables/useVideoserviceData"
 
-export default {
+export default defineComponent({
   components: {
     DetailOverlay,
     DetailedSelection,
     ProgressBar,
+    SelectionTab: SelectionTabComponent,
   },
   props: {
     view: {
@@ -211,13 +205,7 @@ export default {
       required: true,
     },
   },
-  setup(
-    props: Readonly<{
-      view: "course" | "videoservice"
-      activeTab: browser.tabs.Tab
-      options: ExtensionOptions
-    }>
-  ) {
+  setup(props) {
     const loading = ref(true)
 
     // Global resource variables
@@ -227,11 +215,17 @@ export default {
     let newResources: Ref<Resource[]>
     let scanResultHandler: (message: Message) => void
 
-    // Selection tab
-    const selectionTab = ref<SelectionTab>("simple")
-    const setSelectionTab = (tab: SelectionTab) => {
-      selectionTab.value = tab
-    }
+    // Selection Tab
+    const { selectionTab, selectionTabs, setSelectionTab } = useSelectionTab([
+      {
+        id: "simple",
+        title: "Simple",
+      },
+      {
+        id: "detailed",
+        title: "Detailed",
+      },
+    ])
 
     // Options
     const showDownloadOptions = ref(props.options.showDownloadOptions)
@@ -252,10 +246,10 @@ export default {
       }
     }
     const toggleDetails = (onlyNew = false) => {
-      if (onlyNew) {
+      showDetailResources.value = selectedResources.value
+
+      if (props.view === "course" && onlyNew) {
         showDetailResources.value = newResources.value
-      } else {
-        showDetailResources.value = selectedResources.value
       }
 
       showDetails.value = !showDetails.value
@@ -290,11 +284,11 @@ export default {
         return true
       }
 
-      if (selectionTab.value === "simple") {
+      if (selectionTab.value.id === "simple") {
         return allResourceCbChecked.value
       }
 
-      if (selectionTab.value === "detailed") {
+      if (selectionTab.value.id === "detailed") {
         return resources.value.every(r => !r.selected)
       }
 
@@ -338,10 +332,8 @@ export default {
       showDetails,
       showDetailResources,
       showDownloadOptions,
-      selectionTab,
       downloadInProgress,
       progressBar,
-      setSelectionTab,
       onDownloadFinished,
       disableDownload,
       showOptionsPage,
@@ -349,6 +341,9 @@ export default {
       onDownload,
       onDownloadCancel,
       toggleDetails,
+      selectionTab,
+      selectionTabs,
+      setSelectionTab,
     }
 
     // View-dependent setup
@@ -444,7 +439,7 @@ export default {
 
     return setupReturn
   },
-}
+})
 </script>
 
 <style scoped>

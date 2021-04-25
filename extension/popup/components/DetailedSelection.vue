@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center w-5/6 pt-1">
+  <div class="flex flex-col items-center pt-1">
     <input
       v-model="searchInput"
       class="w-full px-2 pb-1.5 text-sm border-b border-gray-300"
