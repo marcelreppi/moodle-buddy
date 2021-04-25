@@ -122,14 +122,8 @@ export default defineComponent({
       }
 
       return this.resources.filter(r => {
-        let isMatch = false
-        if ((r as FileResource).isFile) {
-          isMatch = Boolean(r.name.match(new RegExp(this.searchInput, "gi")))
-        }
-
-        if ((r as FolderResource).isFolder) {
-          isMatch = Boolean(r.name.match(new RegExp(this.searchInput, "gi")))
-        }
+        const regex = new RegExp(this.searchInput, "gi")
+        const isMatch = Boolean(r.name.match(regex))
 
         if (this.onlyNewResources) {
           return r.isNew && isMatch

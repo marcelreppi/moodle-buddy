@@ -176,7 +176,7 @@ import {
 } from "moodle-buddy-types"
 
 import DetailOverlay from "../components/DetailOverlay.vue"
-import DetailedSelection from "../components/DetailedSelection.vue"
+import DetailedSelection from "../components/DetailedResourceSelection.vue"
 import ProgressBar from "../components/ProgressBar.vue"
 import SelectionTabComponent from "../components/SelectionTab.vue"
 import { sendEvent } from "../../shared/helpers"

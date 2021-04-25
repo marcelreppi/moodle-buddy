@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col px-4 py-3 my-2 border border-gray-200 rounded-md">
+  <div class="flex flex-col w-full px-4 py-3 my-2 border border-gray-200 rounded-md">
     <div class="flex items-start justify-between">
       <div>
         {{ course.name }}

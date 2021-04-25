@@ -7,15 +7,42 @@
     <div v-else-if="courses.length === 0" class="text-center">
       <div>No courses found</div>
     </div>
-    <div v-else class="w-full px-2 overflow-y-auto max-h-80 scrollbar">
-      <CourseCard
-        v-for="(course, i) in courses"
-        :key="i"
-        :course="course"
-        :active-tab="activeTab"
-        :options="options"
-      />
-    </div>
+    <selection-tab
+      v-else
+      class="w-full px-3"
+      :tabs="selectionTabs"
+      :selection-tab="selectionTab"
+      :set-selection-tab="setSelectionTab"
+    >
+      <template #updates>
+        <div class="flex flex-col items-center px-2 overflow-y-auto max-h-80 scrollbar">
+          <course-card
+            v-for="(course, i) in courses"
+            :key="i"
+            :course="course"
+            :active-tab="activeTab"
+            :options="options"
+          />
+        </div>
+      </template>
+      <template #download>
+        <div class="flex flex-col items-center">
+          <detailed-selection :courses="courses"></detailed-selection>
+
+          <progress-bar
+            v-if="downloadInProgress"
+            ref="progressBar"
+            type="download"
+            :on-done="onDownloadFinished"
+            :on-cancel="onDownloadCancel"
+            class="w-5/6"
+          ></progress-bar>
+
+          <!-- <button class="py-2 mt-5 font-bold btn" :disabled="disableDownload" @click="onDownload"> -->
+          <button class="py-2 mt-5 font-bold btn">Download</button>
+        </div>
+      </template>
+    </selection-tab>
   </div>
 </template>
 
@@ -30,14 +57,19 @@ import {
 } from "moodle-buddy-types"
 
 import { sendEvent } from "../../shared/helpers"
+import useSelectionTab from "../composables/useSelectionTab"
 
 import CourseCard from "../components/CourseCard.vue"
 import ProgressBar from "../components/ProgressBar.vue"
+import SelectionTab from "../components/SelectionTab.vue"
+import DetailedSelection from "../components/DetailedCourseSelection.vue"
 
 export default defineComponent({
   components: {
     CourseCard,
     ProgressBar,
+    SelectionTab,
+    DetailedSelection,
   },
   props: {
     activeTab: {
@@ -48,6 +80,25 @@ export default defineComponent({
       type: Object as PropType<ExtensionOptions>,
       required: true,
     },
+  },
+  setup() {
+    // Selection Tab
+    const { selectionTab, selectionTabs, setSelectionTab } = useSelectionTab([
+      {
+        id: "updates",
+        title: "Updates",
+      },
+      {
+        id: "download",
+        title: "Download",
+      },
+    ])
+
+    return {
+      selectionTab,
+      selectionTabs,
+      setSelectionTab,
+    }
   },
   data() {
     return {
