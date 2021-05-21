@@ -225,13 +225,17 @@ class Downloader {
     if (this.isCancelled) return
 
     // Remove illegal characters from possible filename parts
-    const cleanCourseName = sanitizeFileName(this.courseName, "") || "Unknown Course"
     const cleanCourseShortcut = sanitizeFileName(this.courseShortcut, "_") || "Unknown Shortcut"
+    const cleanCourseName = sanitizeFileName(this.courseName, "") || "Unknown Course"
     const cleanSectionName = sanitizeFileName(section) || "Unknown Section"
     const cleanFileName = sanitizeFileName(fileName).replace("{slash}", "/")
 
     let filePath = cleanFileName
     // Apply all options to filename
+    if (this.options.prependCourseSectionToFileName) {
+      filePath = `${cleanSectionName}_${filePath}`
+    }
+
     if (this.options.prependCourseToFileName) {
       filePath = `${cleanCourseName}_${filePath}`
     }

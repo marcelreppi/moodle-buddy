@@ -12,6 +12,7 @@ const defaultOptions = {
   showDownloadOptions: false,
   prependCourseShortcutToFileName: false,
   prependCourseToFileName: false,
+  prependCourseSectionToFileName: false,
   alwaysShowDetails: false,
   disableInteractionTracking: false,
   defaultMoodleURL: "",

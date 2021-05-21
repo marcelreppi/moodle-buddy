@@ -136,6 +136,12 @@
             <span class="ml-1">Prepend course name to each file name</span>
           </label>
         </div>
+        <div>
+          <label>
+            <input v-model="prependCourseSectionToFileName" type="checkbox" />
+            <span class="ml-1">Prepend course section names to each file name</span>
+          </label>
+        </div>
       </div>
 
       <div
@@ -232,6 +238,7 @@ export default defineComponent({
     const useMoodleFileName = ref(props.options.useMoodleFileName)
     const prependCourseToFileName = ref(props.options.prependCourseToFileName)
     const prependCourseShortcutToFileName = ref(props.options.prependCourseShortcutToFileName)
+    const prependCourseSectionToFileName = ref(props.options.prependCourseSectionToFileName)
     const showOptionsPage = () => {
       browser.runtime.openOptionsPage()
     }
@@ -308,6 +315,7 @@ export default defineComponent({
             useMoodleFileName: useMoodleFileName.value,
             prependCourseToFileName: prependCourseToFileName.value,
             prependCourseShortcutToFileName: prependCourseShortcutToFileName.value,
+            prependCourseSectionToFileName: prependCourseSectionToFileName.value,
           },
         })
       }
@@ -329,6 +337,7 @@ export default defineComponent({
       useMoodleFileName,
       prependCourseToFileName,
       prependCourseShortcutToFileName,
+      prependCourseSectionToFileName,
       showDetails,
       showDetailResources,
       showDownloadOptions,

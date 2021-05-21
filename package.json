@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@aacassandra/vue3-progressbar": "^1.0.3",
-    "moodle-buddy-types": "^1.0.2",
+    "moodle-buddy-types": "^1.0.3",
     "normalize.css": "^8.0.1",
     "p-limit": "^3.1.0",
     "sha.js": "^2.4.11",
