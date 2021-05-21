@@ -53,6 +53,8 @@ async function scanForVideos() {
           isNew: false,
           isFile: true,
           type: "videoservice",
+          resourceIndex: 1,
+          sectionIndex: 1,
         }
         videoResources.push(videoResource)
         return
@@ -76,7 +78,7 @@ async function scanForVideos() {
           return nodes
         }, [] as HTMLAnchorElement[])
 
-      videoNodes.forEach(n => {
+      videoNodes.forEach((n, i) => {
         const videoResource: VideoResource = {
           href: n.href,
           src: "",
@@ -85,6 +87,8 @@ async function scanForVideos() {
           isNew: false,
           isFile: true,
           type: "videoservice",
+          resourceIndex: i + 1,
+          sectionIndex: 1,
         }
         videoResources.push(videoResource)
       })

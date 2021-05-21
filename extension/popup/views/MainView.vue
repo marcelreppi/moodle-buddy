@@ -132,14 +132,32 @@
         </div>
         <div>
           <label>
-            <input v-model="prependCourseToFileName" type="checkbox" />
+            <input v-model="prependCourseNameToFileName" type="checkbox" />
             <span class="ml-1">Prepend course name to each file name</span>
           </label>
         </div>
         <div>
           <label>
-            <input v-model="prependCourseSectionToFileName" type="checkbox" />
-            <span class="ml-1">Prepend course section names to each file name</span>
+            <input v-model="prependSectionToFileName" type="checkbox" />
+            <span class="ml-1">Prepend section name to each file name</span>
+          </label>
+        </div>
+        <div>
+          <label>
+            <input v-model="prependSectionIndexToFileName" type="checkbox" />
+            <span class="ml-1">
+              Prepend section index to each file name (a number in the order that the sections
+              appear in the course)
+            </span>
+          </label>
+        </div>
+        <div>
+          <label>
+            <input v-model="prependFileIndexToFileName" type="checkbox" />
+            <span class="ml-1">
+              Prepend file index to each file name (a number in the order that the files appear in
+              the course)
+            </span>
           </label>
         </div>
       </div>
@@ -236,9 +254,11 @@ export default defineComponent({
     // Options
     const showDownloadOptions = ref(props.options.showDownloadOptions)
     const useMoodleFileName = ref(props.options.useMoodleFileName)
-    const prependCourseToFileName = ref(props.options.prependCourseToFileName)
+    const prependCourseNameToFileName = ref(props.options.prependCourseNameToFileName)
     const prependCourseShortcutToFileName = ref(props.options.prependCourseShortcutToFileName)
-    const prependCourseSectionToFileName = ref(props.options.prependCourseSectionToFileName)
+    const prependSectionToFileName = ref(props.options.prependSectionToFileName)
+    const prependSectionIndexToFileName = ref(props.options.prependSectionIndexToFileName)
+    const prependFileIndexToFileName = ref(props.options.prependFileIndexToFileName)
     const showOptionsPage = () => {
       browser.runtime.openOptionsPage()
     }
@@ -313,9 +333,11 @@ export default defineComponent({
           selectedResources: selectedResources.value.map(r => ({ ...r })), // Resolve proxy
           options: {
             useMoodleFileName: useMoodleFileName.value,
-            prependCourseToFileName: prependCourseToFileName.value,
+            prependCourseNameToFileName: prependCourseNameToFileName.value,
             prependCourseShortcutToFileName: prependCourseShortcutToFileName.value,
-            prependCourseSectionToFileName: prependCourseSectionToFileName.value,
+            prependSectionToFileName: prependSectionToFileName.value,
+            prependSectionIndexToFileName: prependSectionIndexToFileName.value,
+            prependFileIndexToFileName: prependFileIndexToFileName.value,
           },
         })
       }
@@ -335,9 +357,11 @@ export default defineComponent({
     let setupReturn: Record<string, any> = {
       loading,
       useMoodleFileName,
-      prependCourseToFileName,
+      prependCourseNameToFileName,
       prependCourseShortcutToFileName,
-      prependCourseSectionToFileName,
+      prependSectionToFileName,
+      prependSectionIndexToFileName,
+      prependFileIndexToFileName,
       showDetails,
       showDetailResources,
       showDownloadOptions,

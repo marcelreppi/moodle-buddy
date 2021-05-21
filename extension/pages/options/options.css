@@ -24,6 +24,14 @@ input[type="number"] {
   margin: 5px 0px 10px 10px;
 }
 
+input[type="checkbox"] {
+  position: absolute;
+}
+input[type="checkbox"] ~ label {
+  padding-left: 1.7em;
+  display: inline-block;
+}
+
 .form-subsection {
   margin: 7px 0px 7px 5px;
   font-weight: 500;

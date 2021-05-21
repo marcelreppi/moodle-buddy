@@ -58,3 +58,13 @@ export function getFileTypeFromURL(url: string): string {
 
   return ""
 }
+
+export function padNumber(n: number, padding = 0): string {
+  const nString = String(n)
+
+  if (nString.length < padding) {
+    return "0".repeat(padding - nString.length) + nString
+  }
+
+  return nString
+}

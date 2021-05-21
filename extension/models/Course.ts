@@ -25,6 +25,8 @@ class Course {
   activities: Activity[]
   previousSeenActivities: string[] | null
 
+  sectionIndices: Record<string, number>
+
   constructor(link: string, HTMLDocument: HTMLDocument) {
     this.link = link
     this.HTMLDocument = HTMLDocument
@@ -49,6 +51,16 @@ class Course {
 
     this.activities = []
     this.previousSeenActivities = null
+
+    this.sectionIndices = {}
+  }
+
+  private getSectionIndex(section: string): number {
+    if (this.sectionIndices[section] === undefined) {
+      this.sectionIndices[section] = Object.keys(this.sectionIndices).length
+    }
+
+    return this.sectionIndices[section] + 1
   }
 
   private addResource(resource: Resource, isFolder = false): void {
@@ -74,13 +86,18 @@ class Course {
     if (href === "") return
 
     this.counts.nFiles++
+
+    const section = parser.parseSectionName(node, this.HTMLDocument)
+    const sectionIndex = this.getSectionIndex(section)
     const resource: FileResource = {
       href,
       name: parser.parseFileNameFromNode(node),
-      section: parser.parseSectionName(node, this.HTMLDocument),
+      section,
       isFile: true,
       type: "file",
       isNew: false,
+      resourceIndex: this.counts.nFiles,
+      sectionIndex,
     }
 
     this.addResource(resource)
@@ -95,14 +112,18 @@ class Course {
     if (detectedURLs.includes(href)) return
 
     this.counts.nFiles++
+    const section = parser.parseSectionName(node, this.HTMLDocument)
+    const sectionIndex = this.getSectionIndex(section)
     const resource: FileResource = {
       href,
       name: parser.parseFileNameFromPluginFileURL(href),
-      section: parser.parseSectionName(node, this.HTMLDocument),
+      section,
       isFile: true,
       type: "pluginfile",
       partOfFolder,
       isNew: false,
+      resourceIndex: this.counts.nFiles,
+      sectionIndex,
     }
 
     this.addResource(resource)
@@ -123,13 +144,17 @@ class Course {
           if (href === "") return
 
           this.counts.nFiles++
+          const section = parser.parseSectionName(node, this.HTMLDocument)
+          const sectionIndex = this.getSectionIndex(section)
           const resourceNode: FileResource = {
             href,
             name: parser.parseFileNameFromNode(node),
-            section: parser.parseSectionName(node, this.HTMLDocument),
+            section,
             isFile: true,
             type: "url",
             isNew: false,
+            resourceIndex: this.counts.nFiles,
+            sectionIndex,
           }
 
           this.addResource(resourceNode)
@@ -139,14 +164,18 @@ class Course {
   }
 
   private addFolder(node: HTMLElement, options: ExtensionOptions) {
+    const section = parser.parseSectionName(node, this.HTMLDocument)
+    const sectionIndex = this.getSectionIndex(section)
     const resource: FolderResource = {
       href: parser.parseURLFromNode(node, "folder", options),
       name: parser.parseFileNameFromNode(node),
-      section: parser.parseSectionName(node, this.HTMLDocument),
+      section,
       type: "folder",
       isFolder: true,
       isInline: false,
       isNew: false,
+      resourceIndex: this.counts.nFiles,
+      sectionIndex,
     }
 
     if (resource.href === "") {

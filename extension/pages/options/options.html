@@ -44,9 +44,7 @@
           </li>
           <li>Refresh the overview page</li>
           <li>Open Moodle Buddy and wait for one full scan</li>
-          <li>
-            Tick the checkbox below
-          </li>
+          <li>Tick the checkbox below</li>
         </ul>
       </div>
       <div class="interval">
@@ -82,9 +80,7 @@
       <div class="form-section">Default download options</div>
 
       <div>
-        <label for="maxConcurrentDownloads">
-          Maximum concurrent downloads
-        </label>
+        <label for="maxConcurrentDownloads">Maximum concurrent downloads</label>
         <input type="number" id="maxConcurrentDownloads" min="1" step="1" />
       </div>
       <div>
@@ -107,8 +103,8 @@
           Download everything into a "Moodle" subfolder
         </label>
       </div>
-      <div style="margin-top: 10px;">
-        <div style="margin-left: 5px;">Possible subfolder structures:</div>
+      <div style="margin-top: 10px">
+        <div style="margin-left: 5px">Possible subfolder structures:</div>
         <input
           type="radio"
           id="fs1"
@@ -150,24 +146,42 @@
         </label>
       </div>
       <div>
-        <input type="checkbox" id="prependCourseToFileName" />
-        <label for="prependCourseToFileName">
+        <input type="checkbox" id="prependCourseNameToFileName" />
+        <label for="prependCourseNameToFileName">
           Prepend course name to each file name
         </label>
       </div>
       <div>
-        <input type="checkbox" id="prependCourseSectionToFileName" />
-        <label for="prependCourseSectionToFileName">
+        <input type="checkbox" id="prependSectionToFileName" />
+        <label for="prependSectionToFileName">
           Prepend course section names to each file name
+        </label>
+      </div>
+      <div>
+        <input type="checkbox" id="prependSectionIndexToFileName" />
+        <label for="prependSectionIndexToFileName">
+          Prepend section index to each file name
+          <br />
+          (A number in the order that the sections appear in the course)
+          <br />
+          (Hint: The index may not always be 100% correct)
+        </label>
+      </div>
+      <div>
+        <input type="checkbox" id="prependFileIndexToFileName" />
+        <label for="prependFileIndexToFileName">
+          Prepend file index to each file name
+          <br />
+          (A number in the order that the files appear in the course)
+          <br />
+          (Hint: The index may not always be 100% correct)
         </label>
       </div>
 
       <div class="form-section">Dashboard page options</div>
 
       <div>
-        <label for="maxCoursesOnDashboardPage">
-          Maximum scanned courses
-        </label>
+        <label for="maxCoursesOnDashboardPage">Maximum scanned courses</label>
         <input type="number" id="maxCoursesOnDashboardPage" min="1" step="1" />
       </div>
       <div>
