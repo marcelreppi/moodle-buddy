@@ -33,11 +33,12 @@ jobs:
           echo "Reading version from manifest.json..."
           EXT_VERSION=$(cat build/manifest.json | grep \"version\" | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
           echo "Detected version $EXT_VERSION"
-          if [ ${{ env.TAG }} != v$EXT_VERSION ]; then echo "Tag (${{ env.TAG }}) and extension version don't match (v${EXT_VERSION})" && exit 1; fi
-          mv moodle-buddy.zip moodle-buddy-v$EXT_VERSION.zip
           echo "EXT_VERSION=$EXT_VERSION" >> $GITHUB_ENV
+          mv moodle-buddy.zip moodle-buddy-v$EXT_VERSION.zip
         env:
           API_URL: ${{ secrets.API_URL }}
+      - name: Check if tag matches extension version
+        run: if [ ${{ env.TAG }} != v$EXT_VERSION ]; then echo "Tag (${{ env.TAG }}) and extension version don't match (v${EXT_VERSION})" && exit 1; else echo "Tag (${{ env.TAG }}) and extension version match (v${EXT_VERSION})"; fi
       - name: Check for release notes
         uses: andstor/file-existence-action@v1.0.1
         with:
