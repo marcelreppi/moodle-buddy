@@ -24,6 +24,8 @@ jobs:
           echo API_URL=${{ secrets.API_URL }} >> .env
       - name: Build
         run: |
+          echo ${{ github.ref }}
+          echo ${{ github.workflow }}
           npm run publish
           echo "Reading version from manifest.json..."
           EXT_VERSION=$(cat build/manifest.json | grep \"version\" | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
