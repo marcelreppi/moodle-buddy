@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: actions
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -19,6 +20,8 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run publish
+        env:
+          API_URL: ${{ secrets.API_URL }}
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
