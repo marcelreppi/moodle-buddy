@@ -1,13 +1,21 @@
 cd ..
 
-rm moodle-buddy.zip
-rm moodle-buddy-code.zip
+rm *.zip
 
 npm run build
 
+echo -e "\n"
+
 # Make extension zip
 cd build
-zip -r ../moodle-buddy .
+
+# Get version
+echo "Reading version from manifest.json..."
+EXT_VERSION=$(cat manifest.json | grep \"version\" | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
+echo "Detected version $EXT_VERSION"
+echo -e "\n"
+
+zip -r "../moodle-buddy.zip" .
 cd ..
 
 # Copy all necessary files to tmp directory
@@ -16,6 +24,6 @@ cp -r extension screenshots webpack.config.js package.json package-lock.json REA
 cd tmp
 
 # Make zip of all the code for updating the extension
-zip -r ../moodle-buddy-code .
+zip -r ../moodle-buddy-code.zip .
 cd ..
 rm -rf tmp
