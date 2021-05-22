@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment: actions
+    environment: production
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -19,12 +19,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build
-        run: npm run publish
+        run: |
+          npm run publish
+          echo "Reading version from manifest.json..."
+          EXT_VERSION=$(cat build/manifest.json | grep \"version\" | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
+          echo "Detected version $EXT_VERSION"
+          mv moodle-buddy.zip moodle-buddy-v$EXT_VERSION.zip
         env:
           API_URL: ${{ secrets.API_URL }}
-      - name: Release
+      - name: GitHub release
         uses: softprops/action-gh-release@v1
         with:
-          files: "moodle-buddy.zip"
+          files: "moodle-buddy-v$EXT_VERSION.zip"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
