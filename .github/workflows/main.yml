@@ -32,7 +32,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           name: "Version ${{ env.EXT_VERSION }}"
-          body_path: "https://raw.githubusercontent.com/marcelreppi/moodle-buddy/main/release-notes/v${{ env.EXT_VERSION }}.md"
+          body_path: "release-notes/v${{ env.EXT_VERSION }}.md"
           files: "moodle-buddy-v${{ env.EXT_VERSION }}.zip"
           fail_on_unmatched_files: true
         env:
