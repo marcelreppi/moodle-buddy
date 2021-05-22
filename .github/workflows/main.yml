@@ -25,11 +25,13 @@ jobs:
           EXT_VERSION=$(cat build/manifest.json | grep \"version\" | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
           echo "Detected version $EXT_VERSION"
           mv moodle-buddy.zip moodle-buddy-v$EXT_VERSION.zip
+          echo "EXT_VERSION=$EXT_VERSION" >> $GITHUB_ENV
         env:
           API_URL: ${{ secrets.API_URL }}
       - name: GitHub release
         uses: softprops/action-gh-release@v1
         with:
-          files: "moodle-buddy-v$EXT_VERSION.zip"
+          name: "Version ${{ env.EXT_VERSION }}"
+          files: "moodle-buddy-v${{ env.EXT_VERSION }}.zip"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
