@@ -28,6 +28,10 @@ jobs:
           echo "EXT_VERSION=$EXT_VERSION" >> $GITHUB_ENV
         env:
           API_URL: ${{ secrets.API_URL }}
+      - name: Check for release notes
+        uses: andstor/file-existence-action@v1.0.1
+        with:
+          files: "release-notes/v${{ env.EXT_VERSION }}.0.md"
       - name: GitHub release
         uses: softprops/action-gh-release@v1
         with:
