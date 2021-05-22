@@ -33,8 +33,7 @@ jobs:
           echo "Reading version from manifest.json..."
           EXT_VERSION=$(cat build/manifest.json | grep \"version\" | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
           echo "Detected version $EXT_VERSION"
-          echo ${{ env.TAG }}
-          if [ ${{ env.TAG }} != $EXT_VERSION ] then exit 1 fi
+          if [ ${{ env.TAG }} != v$EXT_VERSION ] then echo "Tag (${{ env.TAG }}) and extension version don't match (v${EXT_VERSION})" exit 1 fi
           mv moodle-buddy.zip moodle-buddy-v$EXT_VERSION.zip
           echo "EXT_VERSION=$EXT_VERSION" >> $GITHUB_ENV
         env:
