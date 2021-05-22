@@ -1,0 +1,24 @@
+name: Main
+
+on:
+  push:
+    tags:
+      - 'v*.*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: |
+          npm run publish
+          TAG=$(git describe --tags --abbrev=0)
+          mv moodle-buddy.zip moodle-buddy-${TAG}.zip
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: "moodle-buddy"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
