@@ -20,6 +20,8 @@ jobs:
         run: npm ci
       - name: Build
         run: |
+          echo "${{ env.API_URL }}"
+          echo "$API_URL"
           npm run publish
           echo "Reading version from manifest.json..."
           EXT_VERSION=$(cat build/manifest.json | grep \"version\" | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
@@ -31,7 +33,7 @@ jobs:
       - name: Check for release notes
         uses: andstor/file-existence-action@v1.0.1
         with:
-          files: "release-notes/v${{ env.EXT_VERSION }}.0.md"
+          files: "release-notes/v${{ env.EXT_VERSION }}.md"
           allow_failure: true
       - name: GitHub release
         uses: softprops/action-gh-release@v1
