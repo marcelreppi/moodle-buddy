@@ -3,7 +3,7 @@ name: Main
 on:
   push:
     tags:
-      - 'v*.*'
+      - "v*.*"
 
 jobs:
   build:
@@ -11,14 +11,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Install dependencies
+        run: npm ci
       - name: Build
-        run: |
-          npm run publish
-          TAG=$(git describe --tags --abbrev=0)
-          mv moodle-buddy.zip moodle-buddy-${TAG}.zip
+        run: npm run publish
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: "moodle-buddy"
+          files: "moodle-buddy.zip"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
