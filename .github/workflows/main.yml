@@ -32,6 +32,7 @@ jobs:
         uses: andstor/file-existence-action@v1.0.1
         with:
           files: "release-notes/v${{ env.EXT_VERSION }}.0.md"
+          allow_failure: true
       - name: GitHub release
         uses: softprops/action-gh-release@v1
         with:
