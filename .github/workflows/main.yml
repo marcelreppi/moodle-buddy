@@ -18,11 +18,12 @@ jobs:
           node-version: "15"
       - name: Install dependencies
         run: npm ci
+      - name: Create .env file
+        run: |
+          touch .env
+          echo API_URL=${{ secrets.API_URL }} >> .env
       - name: Build
         run: |
-          API_URL=${{ env.API_URL }}
-          echo $API_URL
-          echo "${API_URL}"
           npm run publish
           echo "Reading version from manifest.json..."
           EXT_VERSION=$(cat build/manifest.json | grep \"version\" | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
