@@ -97,6 +97,9 @@ module.exports = {
       {
         test: /\.(gif|png|jpe?g|svg)$/i,
         type: "asset/resource",
+        generator: {
+          filename: "images/[hash][ext][query]",
+        },
       },
     ],
   },
