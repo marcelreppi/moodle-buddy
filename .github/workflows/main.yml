@@ -20,8 +20,9 @@ jobs:
         run: npm ci
       - name: Build
         run: |
-          echo "${{ env.API_URL }}"
-          echo "$API_URL"
+          API_URL=${{ env.API_URL }}
+          echo $API_URL
+          echo "${API_URL}"
           npm run publish
           echo "Reading version from manifest.json..."
           EXT_VERSION=$(cat build/manifest.json | grep \"version\" | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
