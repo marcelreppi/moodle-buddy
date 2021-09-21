@@ -52,9 +52,22 @@ The plugin is available for both **Firefox** and **Chrome**.
 * Download new resources directly from the dashboard page
 * Scans your courses in the background (if you are logged in) and notifies you if there are updates
 
-# Copyright
+# Licensing
 
-Copyright © 2020 Marcel Reppenhagen All Rights Reserved
+Usage of this codebase is permitted according to the GNU Affero General Public License v3 (AGPL-3.0).
+
+**READ THE [FULL LICENSE](LICENSE) BEFORE USING.**
+
+You MUST:
+* Respect the copyright which is held by the maintainers of this project
+* Disclose all changes you made to the code and also publish any code directly based on this code
+* Give attribution to the original maintainers when using this project (especially when used commercially)
+
+You can not:
+* Sublicense this codebase
+* Expect any liability, warranty or similar by the original maintainers. However, we want to improve this project as much as possible so feedback is heard!
+
+
 
 # For Developers
 
