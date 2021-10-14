@@ -8,23 +8,23 @@
     <div class="relative w-full h-full">
       <error-view v-if="showErrorView" />
       <div v-else class="box-border relative flex flex-col items-center justify-center w-full">
-        <dashboard-page-view
+        <dashboard-view
           v-if="showDashboardPageView"
           :active-tab="activeTab"
           :options="options"
-        ></dashboard-page-view>
-        <main-view
+        ></dashboard-view>
+        <files-view
           v-if="showCourseView"
           :active-tab="activeTab"
           :options="options"
           view="course"
-        ></main-view>
-        <main-view
+        ></files-view>
+        <files-view
           v-if="showVideoServiceView"
           :active-tab="activeTab"
           :options="options"
           view="videoservice"
-        ></main-view>
+        ></files-view>
         <no-moodle
           v-if="showNoMoodle"
           :open-info-page="onInfoClick"
@@ -91,15 +91,15 @@ import {
 } from "types"
 
 import { sendEvent, getActiveTab, isFirefox, navigateTo } from "../shared/helpers"
-import MainView from "./views/MainView.vue"
-import DashboardPageView from "./views/DashboardPageView.vue"
+import FilesView from "./views/FilesView.vue"
+import DashboardView from "./views/DashboardView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
 import ErrorView from "./views/ErrorView.vue"
 
 export default defineComponent({
   components: {
-    MainView,
-    DashboardPageView,
+    FilesView,
+    DashboardView,
     NoMoodle,
     ErrorView,
   },
