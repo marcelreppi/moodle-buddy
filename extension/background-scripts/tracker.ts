@@ -7,7 +7,7 @@ import {
   LogData,
   PageData,
   Payload,
-} from "moodle-buddy-types"
+} from "types"
 
 import { isFirefox, getActiveTab } from "../shared/helpers"
 

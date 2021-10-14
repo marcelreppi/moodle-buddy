@@ -27,7 +27,7 @@ import {
   ScanInProgressMessage,
   DashboardCourseData,
   ExtensionOptions,
-} from "moodle-buddy-types"
+} from "types"
 
 import { sendEvent } from "../../shared/helpers"
 import useSelectionTab from "../composables/useSelectionTab"

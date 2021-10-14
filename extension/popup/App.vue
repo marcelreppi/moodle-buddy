@@ -88,7 +88,7 @@ import {
   ExtensionOptions,
   SupportedPage,
   // eslint-disable-next-line import/no-unresolved
-} from "moodle-buddy-types"
+} from "types"
 
 import { sendEvent, getActiveTab, isFirefox, navigateTo } from "../shared/helpers"
 import MainView from "./views/MainView.vue"

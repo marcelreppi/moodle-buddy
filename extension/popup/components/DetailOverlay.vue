@@ -30,7 +30,7 @@
 
 <script lang="ts">
 import { computed, defineComponent, PropType } from "vue"
-import { FileResource, FolderResource, Resource } from "moodle-buddy-types"
+import { FileResource, FolderResource, Resource } from "types"
 
 export default defineComponent({
   props: {

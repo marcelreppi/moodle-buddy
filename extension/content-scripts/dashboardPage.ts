@@ -8,7 +8,7 @@ import {
   Message,
   ScanInProgressMessage,
   ExtensionStorage,
-} from "moodle-buddy-types"
+} from "types"
 
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { getURLRegex, updateIconFromCourses, sendLog } from "../shared/helpers"

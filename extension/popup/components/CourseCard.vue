@@ -85,7 +85,7 @@ import {
   Activity,
   Resource,
   ExtensionOptions,
-} from "moodle-buddy-types"
+} from "types"
 
 import Course from "../../models/Course"
 import { sendEvent } from "../../shared/helpers"

@@ -7,7 +7,7 @@ import {
   Message,
   VideoScanResultMessage,
   VideoResource,
-} from "moodle-buddy-types"
+} from "types"
 
 import { getQuerySelector, parseCourseNameFromCoursePage } from "../shared/parser"
 import { sendLog } from "../shared/helpers"

@@ -10,7 +10,7 @@ import {
   FolderResource,
   Resource,
   VideoResource,
-} from "moodle-buddy-types"
+} from "types"
 
 import {
   parseFileNameFromPluginFileURL,

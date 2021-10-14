@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": "./extension",
     "typeRoots": [
       "node_modules/@types",
-      "node_modules/web-ext-types",
-      "node_modules/moodle-buddy-types"
+      "node_modules/web-ext-types"
     ],
     "target": "es6",
     "module": "ES6",
@@ -31,7 +31,6 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
-    "baseUrl": ".",
     // Make it work with existing JS files
     "allowJs": true,
   },
@@ -40,5 +39,5 @@
   ],
   "include": [
     "./extension/**/*"
-  ]
+  ],
 }

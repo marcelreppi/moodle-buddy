@@ -10,7 +10,7 @@ import {
   Message,
   PageDataMessage,
   SetBadgeMessage,
-} from "moodle-buddy-types"
+} from "types"
 import { uuidv4, setIcon, setBadgeText } from "./helpers"
 import { sendEvent, sendPageData, sendFeedback, sendLog } from "./tracker"
 

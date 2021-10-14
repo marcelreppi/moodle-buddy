@@ -1,5 +1,5 @@
 import { computed, ComputedRef, Ref, ref } from "vue"
-import { Message, VideoResource, VideoScanResultMessage } from "moodle-buddy-types"
+import { Message, VideoResource, VideoScanResultMessage } from "types"
 import { sendEvent } from "../../shared/helpers"
 import { SelectionTab } from "../types"
 

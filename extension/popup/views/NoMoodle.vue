@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { ExtensionOptions } from "moodle-buddy-types"
+import { ExtensionOptions } from "types"
 import { defineComponent, PropType } from "vue"
 import { sendEvent, validURLRegex } from "../../shared/helpers"
 

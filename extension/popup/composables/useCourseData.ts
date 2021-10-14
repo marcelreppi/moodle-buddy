@@ -6,7 +6,7 @@ import {
   FolderResource,
   Message,
   Resource,
-} from "moodle-buddy-types"
+} from "types"
 import { computed, ComputedRef, Ref, ref, watch } from "vue"
 import { sendEvent } from "../../shared/helpers"
 import { SelectionTab } from "../types"

@@ -1,4 +1,4 @@
-import { ExtensionOptions } from "moodle-buddy-types"
+import { ExtensionOptions } from "types"
 import { getURLRegex } from "./helpers"
 
 export function checkForMoodle(): boolean {

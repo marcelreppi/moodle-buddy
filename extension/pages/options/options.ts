@@ -1,4 +1,4 @@
-import { ExtensionOptions, ExtensionStorage, EventMessage, Message } from "moodle-buddy-types"
+import { ExtensionOptions, ExtensionStorage, EventMessage, Message } from "types"
 
 let restoredOptions: ExtensionOptions
 

@@ -6,7 +6,7 @@ import {
   PageDataMessage,
   StateMessage,
   PageData,
-} from "moodle-buddy-types"
+} from "types"
 
 import { getMoodleBaseURL, getURLRegex } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"

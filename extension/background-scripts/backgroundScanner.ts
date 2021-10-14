@@ -1,4 +1,4 @@
-import { ExtensionStorage } from "moodle-buddy-types"
+import { ExtensionStorage } from "types"
 import { getURLRegex, getUpdatesFromCourses } from "../shared/helpers"
 import { setBadgeText } from "./helpers"
 import Course from "../models/Course"

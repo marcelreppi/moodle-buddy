@@ -7,7 +7,7 @@ import {
   FileResource,
   FolderResource,
   CourseData,
-} from "moodle-buddy-types"
+} from "types"
 import * as parser from "../shared/parser"
 import { getMoodleBaseURL } from "../shared/helpers"
 
