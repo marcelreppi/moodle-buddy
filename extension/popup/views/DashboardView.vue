@@ -27,7 +27,7 @@ import {
   ScanInProgressMessage,
   DashboardCourseData,
   ExtensionOptions,
-} from "types"
+} from "../../types"
 
 import { sendEvent } from "../../shared/helpers"
 import useSelectionTab from "../composables/useSelectionTab"

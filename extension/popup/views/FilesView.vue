@@ -197,7 +197,7 @@ import {
   Message,
   DownloadProgressMessage,
   Resource,
-} from "types"
+} from "../../types"
 
 import DetailOverlay from "../components/DetailOverlay.vue"
 import DetailedSelection from "../components/DetailedResourceSelection.vue"

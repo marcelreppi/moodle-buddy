@@ -6,10 +6,10 @@ import {
   FolderResource,
   Message,
   Resource,
+  SelectionTab,
 } from "types"
 import { computed, ComputedRef, Ref, ref, watch } from "vue"
 import { sendEvent } from "../../shared/helpers"
-import { SelectionTab } from "../types"
 
 interface CourseData {
   nFiles: Ref<number>

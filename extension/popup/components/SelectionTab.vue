@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { PropType, Ref, defineComponent } from "vue"
-import { SelectionTab } from "../types"
+import { SelectionTab } from "../../types"
 
 export default defineComponent({
   props: {

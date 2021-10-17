@@ -1,7 +1,6 @@
 import { computed, ComputedRef, Ref, ref } from "vue"
-import { Message, VideoResource, VideoScanResultMessage } from "types"
+import { Message, VideoResource, VideoScanResultMessage, SelectionTab } from "types"
 import { sendEvent } from "../../shared/helpers"
-import { SelectionTab } from "../types"
 
 interface VideoserviceData {
   nVideos: Ref<number>

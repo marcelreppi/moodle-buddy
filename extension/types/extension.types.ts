@@ -39,3 +39,8 @@ export interface ExtensionStorage extends browser.storage.StorageObject {
 }
 
 export type SupportedPage = "course" | "dashboard" | "videoservice" | ""
+
+export interface SelectionTab {
+  id: string
+  title: string
+}

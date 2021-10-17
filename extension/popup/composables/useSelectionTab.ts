@@ -1,5 +1,5 @@
 import { Ref, ref } from "vue"
-import { SelectionTab } from "../types"
+import { SelectionTab } from "types"
 
 interface UseSelectionTabReturn {
   selectionTab: Ref<SelectionTab>
