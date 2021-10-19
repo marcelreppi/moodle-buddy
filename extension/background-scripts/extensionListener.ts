@@ -11,33 +11,11 @@ import {
   PageDataMessage,
   SetBadgeMessage,
 } from "types"
+import defaultExtensionOptions from "../shared/defaultExtensionOptions"
 import { uuidv4, setIcon, setBadgeText } from "./helpers"
 import { sendEvent, sendPageData, sendFeedback, sendLog } from "./tracker"
 
-const defaultOptions: ExtensionOptions = {
-  onlyNewResources: false,
-  useMoodleFileName: true,
-  showDownloadOptions: false,
-  prependCourseShortcutToFileName: false,
-  prependCourseNameToFileName: false,
-  prependSectionToFileName: false,
-  prependSectionIndexToFileName: false,
-  prependFileIndexToFileName: false,
-  alwaysShowDetails: false,
-  disableInteractionTracking: false,
-  defaultMoodleURL: "",
-  autoSetMoodleURL: true,
-  backgroundScanInterval: 30,
-  enableBackgroundScanning: true,
-  downloadFolderAsZip: true,
-  saveToMoodleFolder: false,
-  folderStructure: "CourseFile",
-  includeVideo: true,
-  includeAudio: true,
-  includeImage: false,
-  maxConcurrentDownloads: 100,
-  maxCoursesOnDashboardPage: 100,
-}
+const defaultOptions = defaultExtensionOptions
 
 const initialStorage: ExtensionStorage = {
   options: defaultOptions,
