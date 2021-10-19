@@ -20,17 +20,16 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "vue"
+import { defineComponent } from "vue"
 import {
   DashboardScanResultMessage,
   Message,
   ScanInProgressMessage,
   DashboardCourseData,
-  ExtensionOptions,
 } from "../../types"
+import { activeTab, options } from "../state"
 
 import { sendEvent } from "../../shared/helpers"
-import useSelectionTab from "../composables/useSelectionTab"
 
 import CourseCard from "../components/CourseCard.vue"
 import ProgressBar from "../components/ProgressBar.vue"
@@ -40,33 +39,10 @@ export default defineComponent({
     CourseCard,
     ProgressBar,
   },
-  props: {
-    activeTab: {
-      type: Object as PropType<browser.tabs.Tab>,
-      required: true,
-    },
-    options: {
-      type: Object as PropType<ExtensionOptions>,
-      required: true,
-    },
-  },
   setup() {
-    // Selection Tab
-    const { selectionTab, selectionTabs, setSelectionTab } = useSelectionTab([
-      {
-        id: "updates",
-        title: "Updates",
-      },
-      {
-        id: "download",
-        title: "Download",
-      },
-    ])
-
     return {
-      selectionTab,
-      selectionTabs,
-      setSelectionTab,
+      activeTab,
+      options,
     }
   },
   data() {

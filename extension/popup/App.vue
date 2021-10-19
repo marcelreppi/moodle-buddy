@@ -9,32 +9,16 @@
       <error-view v-if="showErrorView" />
       <rating-hint
         v-else-if="showRatingHint()"
-        :active-tab="activeTab"
         :rate-hint-level="rateHintLevel"
         :total-downloaded-files="totalDownloadedFiles"
       ></rating-hint>
       <div v-else class="box-border relative flex flex-col items-center justify-center w-full">
-        <dashboard-view
-          v-if="showDashboardPageView"
-          :active-tab="activeTab"
-          :options="options"
-        ></dashboard-view>
-        <files-view
-          v-if="showCourseView"
-          :active-tab="activeTab"
-          :options="options"
-          view="course"
-        ></files-view>
-        <files-view
-          v-if="showVideoServiceView"
-          :active-tab="activeTab"
-          :options="options"
-          view="videoservice"
-        ></files-view>
+        <dashboard-view v-if="showDashboardPageView"></dashboard-view>
+        <files-view v-if="showCourseView" view="course"></files-view>
+        <files-view v-if="showVideoServiceView" view="videoservice"></files-view>
         <no-moodle
           v-if="showNoMoodle"
           :open-info-page="onInfoClick"
-          :options="options"
           :n-updates="nUpdates"
         ></no-moodle>
       </div>
@@ -63,16 +47,17 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script setup lang="ts">
+import { ref, computed } from "vue"
+import { Message, StateMessage, SupportedPage } from "../types"
 import {
-  Message,
-  StateData,
-  StateMessage,
-  ExtensionOptions,
-  SupportedPage,
-  // eslint-disable-next-line import/no-unresolved
-} from "types"
+  activeTab,
+  options,
+  nUpdates,
+  userHasRated,
+  totalDownloadedFiles,
+  rateHintLevel,
+} from "./state"
 
 import { sendEvent, getActiveTab, isFirefox, navigateTo } from "../shared/helpers"
 import FilesView from "./views/FilesView.vue"
@@ -82,129 +67,80 @@ import ErrorView from "./views/ErrorView.vue"
 import RatingHint from "./components/RatingHint.vue"
 import useRating from "./composables/useRating"
 
-export default defineComponent({
-  components: {
-    FilesView,
-    DashboardView,
-    NoMoodle,
-    ErrorView,
-    RatingHint,
-  },
-  data() {
-    return {
-      isFirefox,
-      activeTab: undefined as browser.tabs.Tab | undefined,
-      isSupportedPage: false,
-      page: "" as SupportedPage,
-      showErrorView: false,
-      options: {} as ExtensionOptions,
-      nUpdates: 0,
-      userHasRated: false,
-      totalDownloadedFiles: 0,
-      rateHintLevel: 1,
-    }
-  },
-  computed: {
-    showDashboardPageView(): boolean {
-      return this.page === "dashboard"
-    },
-    showCourseView(): boolean {
-      return this.page === "course"
-    },
-    showVideoServiceView(): boolean {
-      return this.page === "videoservice"
-    },
-    showNoMoodle(): boolean {
-      return this.page === ""
-    },
-  },
-  created() {
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
-      const { command } = message as Message
+const page = ref<SupportedPage>("")
 
-      if (command === "state") {
-        const { page, state } = message as StateMessage
-        this.cacheStorageData(state)
-        this.page = page
+const showDashboardPageView = computed(() => page.value === "dashboard")
+const showCourseView = computed(() => page.value === "course")
+const showVideoServiceView = computed(() => page.value === "videoservice")
+const showNoMoodle = computed(() => page.value === "")
+const showErrorView = ref(false)
 
-        if (process.env.NODE_ENV === "debug") {
-          let filename = ""
-          if (this.activeTab && this.activeTab.url) {
-            filename = this.activeTab.url.split("/").pop() || ""
-          }
+const onReportBugClick = () => navigateTo("/pages/contact/contact.html")
+const onInfoClick = () => {
+  navigateTo("/pages/information/information.html")
+  sendEvent("info-click", false)
+}
+const onDonateClick = () => {
+  navigateTo("https://paypal.me/marcelreppi")
+  sendEvent("donate-click", false)
+}
+const onOptionsClick = () => {
+  browser.runtime.openOptionsPage()
+  sendEvent("options-click", false)
+}
 
-          if (filename.includes("course")) {
-            this.page = "course"
-          }
+const { onRateClick, showRatingHint } = useRating()
 
-          if (filename.includes("dashboard")) {
-            this.page = "dashboard"
-          }
+// eslint-disable-next-line @typescript-eslint/ban-types
+const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+  const { command } = message as Message
 
-          if (filename.includes("videoservice")) {
-            this.page = "videoservice"
-          }
-        }
+  if (command === "state") {
+    const { page: detectedPage, state } = message as StateMessage
+    page.value = detectedPage
+    options.value = state.options
+    nUpdates.value = state.nUpdates
+    userHasRated.value = state.userHasRated
+    totalDownloadedFiles.value = state.totalDownloadedFiles
+    rateHintLevel.value = state.rateHintLevel
 
-        if (this.page !== "") {
-          sendEvent(`view-${this.page}-page`, true)
-        }
+    if (process.env.NODE_ENV === "debug") {
+      let filename = ""
+      if (activeTab.value && activeTab.value.url) {
+        filename = activeTab.value.url.split("/").pop() || ""
       }
 
-      if (command === "error-view") {
-        this.showErrorView = true
+      if (filename.includes("course")) {
+        page.value = "course"
+      }
+
+      if (filename.includes("dashboard")) {
+        page.value = "dashboard"
+      }
+
+      if (filename.includes("videoservice")) {
+        page.value = "videoservice"
       }
     }
-    browser.runtime.onMessage.addListener(messageListener)
 
-    getActiveTab().then(tab => {
-      this.activeTab = tab
-      // Get state on load from detector
-      if (this.activeTab?.id) {
-        browser.tabs.sendMessage<Message>(this.activeTab.id, {
-          command: "get-state",
-        })
-        // .catch(() => {
-        //   // When detector is not available fetch state from storage manually
-        //   browser.storage.local.get().then(this.cacheStorageData)
-        // })
-      }
+    if (page.value !== "") {
+      sendEvent(`view-${page.value}-page`, true)
+    }
+  }
+
+  if (command === "error-view") {
+    showErrorView.value = true
+  }
+}
+browser.runtime.onMessage.addListener(messageListener)
+
+getActiveTab().then(tab => {
+  activeTab.value = tab
+  // Get state on load from detector
+  if (activeTab.value?.id) {
+    browser.tabs.sendMessage<Message>(activeTab.value.id, {
+      command: "get-state",
     })
-  },
-  methods: {
-    onReportBugClick() {
-      navigateTo("/pages/contact/contact.html")
-    },
-    onInfoClick() {
-      navigateTo("/pages/information/information.html")
-      sendEvent("info-click", false)
-    },
-    onDonateClick() {
-      navigateTo("https://paypal.me/marcelreppi")
-      sendEvent("donate-click", false)
-    },
-    onOptionsClick() {
-      browser.runtime.openOptionsPage()
-      sendEvent("options-click", false)
-    },
-    onRateClick() {
-      return useRating().onRateClick()
-    },
-    showRatingHint() {
-      return (
-        !this.userHasRated &&
-        useRating().showRatingHint(this.rateHintLevel, this.totalDownloadedFiles)
-      )
-    },
-    cacheStorageData(data: StateData) {
-      const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = data
-      this.options = options
-      this.nUpdates = nUpdates
-      this.userHasRated = userHasRated
-      this.totalDownloadedFiles = totalDownloadedFiles
-      this.rateHintLevel = rateHintLevel
-    },
-  },
+  }
 })
 </script>

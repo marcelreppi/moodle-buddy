@@ -1,9 +1,10 @@
-import { getActiveTab, isFirefox, navigateTo, sendEvent } from "../../shared/helpers"
+import { isFirefox, navigateTo, sendEvent } from "../../shared/helpers"
 import { Message } from "../../types"
+import { activeTab, userHasRated, rateHintLevel, totalDownloadedFiles } from "../state"
 
 interface UseRatingComposable {
   rateHintLevels: Record<string, number>
-  showRatingHint: (rateHintLevel: number, totalDownloadedFiles: number) => boolean
+  showRatingHint: () => boolean
   onRateClick: () => void
   onAvoidRateClick: () => void
 }
@@ -26,16 +27,15 @@ export default function useRating(): UseRatingComposable {
     ? "https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/"
     : "https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo"
 
-  const showRatingHint = (rateHintLevel: number, totalDownloadedFiles: number) => {
-    const fileThreshold = rateHintLevels[rateHintLevel] || Infinity
-    return totalDownloadedFiles > fileThreshold
+  const showRatingHint = () => {
+    const fileThreshold = rateHintLevels[rateHintLevel.value] || Infinity
+    return !userHasRated.value && totalDownloadedFiles.value > fileThreshold
   }
 
   const onRateClick = async () => {
-    const activeTab = await getActiveTab()
-    if (!activeTab?.id) return
+    if (!activeTab.value?.id) return
 
-    browser.tabs.sendMessage<Message>(activeTab.id, {
+    browser.tabs.sendMessage<Message>(activeTab.value.id, {
       command: "rate-click",
     })
     navigateTo(rateLink)
@@ -43,10 +43,9 @@ export default function useRating(): UseRatingComposable {
   }
 
   const onAvoidRateClick = async () => {
-    const activeTab = await getActiveTab()
-    if (!activeTab?.id) return
+    if (!activeTab.value?.id) return
 
-    browser.tabs.sendMessage<Message>(activeTab.id, {
+    browser.tabs.sendMessage<Message>(activeTab.value.id, {
       command: "avoid-rate-click",
     })
     sendEvent("avoid-rating-hint")

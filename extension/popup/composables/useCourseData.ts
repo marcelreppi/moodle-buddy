@@ -1,7 +1,6 @@
 import {
   Activity,
   CourseScanResultMessage,
-  ExtensionOptions,
   FileResource,
   FolderResource,
   Message,
@@ -10,6 +9,7 @@ import {
 } from "types"
 import { computed, ComputedRef, Ref, ref, watch } from "vue"
 import { sendEvent } from "../../shared/helpers"
+import { activeTab, options } from "../state"
 
 interface CourseData {
   nFiles: Ref<number>
@@ -36,14 +36,7 @@ interface CourseData {
   onMarkAsSeenClick: () => void
 }
 
-export default function useCourseData(
-  props: Readonly<{
-    view: "course" | "videoservice"
-    activeTab: browser.tabs.Tab
-    options: ExtensionOptions
-  }>,
-  selectionTab: Ref<SelectionTab>
-): CourseData {
+export default function useCourseData(selectionTab: Ref<SelectionTab>): CourseData {
   const nFiles = ref(-1)
   const nNewFiles = ref(-1)
   const nFolders = ref(-1)
@@ -119,12 +112,12 @@ export default function useCourseData(
     activities.value = detectedActivities
 
     if (nNewResources.value > 0) {
-      onlyNewResources.value = props.options.onlyNewResources
+      onlyNewResources.value = options.value?.onlyNewResources ?? false
     }
 
     if (nNewActivities.value > 0) {
-      if (props.activeTab.id) {
-        browser.tabs.sendMessage<Message>(props.activeTab.id, {
+      if (activeTab.value?.id) {
+        browser.tabs.sendMessage<Message>(activeTab.value.id, {
           command: "update-activities",
         })
       }
@@ -145,8 +138,8 @@ export default function useCourseData(
     nNewFiles.value = 0
     nNewFolders.value = 0
     nNewActivities.value = 0
-    if (props.activeTab.id) {
-      browser.tabs.sendMessage<Message>(props.activeTab.id, {
+    if (activeTab.value?.id) {
+      browser.tabs.sendMessage<Message>(activeTab.value.id, {
         command: "mark-as-seen",
       })
     }

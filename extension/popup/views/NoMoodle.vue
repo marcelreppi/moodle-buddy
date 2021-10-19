@@ -42,18 +42,14 @@
 </template>
 
 <script lang="ts">
-import { ExtensionOptions } from "types"
-import { defineComponent, PropType } from "vue"
+import { defineComponent } from "vue"
+import { options } from "../state"
 import { sendEvent, validURLRegex } from "../../shared/helpers"
 
 export default defineComponent({
   props: {
     openInfoPage: {
       type: Function,
-      required: true,
-    },
-    options: {
-      type: Object as PropType<ExtensionOptions>,
       required: true,
     },
     nUpdates: {
@@ -63,7 +59,7 @@ export default defineComponent({
   },
   data() {
     return {
-      moodleURL: Object.keys(this.options).length === 0 ? this.options.defaultMoodleURL : "",
+      moodleURL: options.value !== undefined ? options.value.defaultMoodleURL : "",
       urlInput: "",
       showInvalidURL: false,
     }
@@ -89,7 +85,7 @@ export default defineComponent({
       }
       this.moodleURL = this.urlInput
       await browser.storage.local.set({
-        options: { ...this.options, defaultMoodleURL: this.moodleURL },
+        options: { ...options.value, defaultMoodleURL: this.moodleURL },
       })
     },
     async navigateToMoodle() {

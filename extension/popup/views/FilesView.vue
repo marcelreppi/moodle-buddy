@@ -191,13 +191,8 @@
 
 <script lang="ts">
 import { computed, ComputedRef, defineComponent, onUpdated, PropType, Ref, ref } from "vue"
-import {
-  ExtensionOptions,
-  CourseCrawlMessage,
-  Message,
-  DownloadProgressMessage,
-  Resource,
-} from "../../types"
+import { CourseCrawlMessage, Message, DownloadProgressMessage, Resource } from "../../types"
+import { activeTab, options } from "../state"
 
 import DetailOverlay from "../components/DetailOverlay.vue"
 import DetailedSelection from "../components/DetailedResourceSelection.vue"
@@ -207,6 +202,7 @@ import { sendEvent } from "../../shared/helpers"
 import useSelectionTab from "../composables/useSelectionTab"
 import useCourseData from "../composables/useCourseData"
 import useVideoserviceData from "../composables/useVideoserviceData"
+import defaultExtensionOptions from "../../shared/defaultExtensionOptions"
 
 export default defineComponent({
   components: {
@@ -218,14 +214,6 @@ export default defineComponent({
   props: {
     view: {
       type: String as PropType<"course" | "videoservice">,
-      required: true,
-    },
-    activeTab: {
-      type: Object as PropType<browser.tabs.Tab>,
-      required: true,
-    },
-    options: {
-      type: Object as PropType<ExtensionOptions>,
       required: true,
     },
   },
@@ -252,13 +240,17 @@ export default defineComponent({
     ])
 
     // Options
-    const showDownloadOptions = ref(props.options.showDownloadOptions)
-    const useMoodleFileName = ref(props.options.useMoodleFileName)
-    const prependCourseNameToFileName = ref(props.options.prependCourseNameToFileName)
-    const prependCourseShortcutToFileName = ref(props.options.prependCourseShortcutToFileName)
-    const prependSectionToFileName = ref(props.options.prependSectionToFileName)
-    const prependSectionIndexToFileName = ref(props.options.prependSectionIndexToFileName)
-    const prependFileIndexToFileName = ref(props.options.prependFileIndexToFileName)
+    const showDownloadOptions = computed(() => options.value?.showDownloadOptions)
+    const useMoodleFileName = computed(() => options.value?.useMoodleFileName)
+    const prependCourseNameToFileName = computed(() => options.value?.prependCourseNameToFileName)
+    const prependCourseShortcutToFileName = computed(
+      () => options.value?.prependCourseShortcutToFileName
+    )
+    const prependSectionToFileName = computed(() => options.value?.prependSectionToFileName)
+    const prependSectionIndexToFileName = computed(
+      () => options.value?.prependSectionIndexToFileName
+    )
+    const prependFileIndexToFileName = computed(() => options.value?.prependFileIndexToFileName)
     const showOptionsPage = () => {
       browser.runtime.openOptionsPage()
     }
@@ -327,17 +319,26 @@ export default defineComponent({
 
       onDownloadCustom()
 
-      if (props.activeTab.id) {
-        browser.tabs.sendMessage<CourseCrawlMessage>(props.activeTab.id, {
+      if (activeTab.value?.id) {
+        browser.tabs.sendMessage<CourseCrawlMessage>(activeTab.value.id, {
           command: "crawl",
           selectedResources: selectedResources.value.map(r => ({ ...r })), // Resolve proxy
           options: {
-            useMoodleFileName: useMoodleFileName.value,
-            prependCourseNameToFileName: prependCourseNameToFileName.value,
-            prependCourseShortcutToFileName: prependCourseShortcutToFileName.value,
-            prependSectionToFileName: prependSectionToFileName.value,
-            prependSectionIndexToFileName: prependSectionIndexToFileName.value,
-            prependFileIndexToFileName: prependFileIndexToFileName.value,
+            useMoodleFileName: useMoodleFileName.value ?? defaultExtensionOptions.useMoodleFileName,
+            prependCourseNameToFileName:
+              prependCourseNameToFileName.value ??
+              defaultExtensionOptions.prependCourseNameToFileName,
+            prependCourseShortcutToFileName:
+              prependCourseShortcutToFileName.value ??
+              defaultExtensionOptions.prependCourseShortcutToFileName,
+            prependSectionToFileName:
+              prependSectionToFileName.value ?? defaultExtensionOptions.prependSectionToFileName,
+            prependSectionIndexToFileName:
+              prependSectionIndexToFileName.value ??
+              defaultExtensionOptions.prependSectionIndexToFileName,
+            prependFileIndexToFileName:
+              prependFileIndexToFileName.value ??
+              defaultExtensionOptions.prependFileIndexToFileName,
           },
         })
       }
@@ -381,7 +382,7 @@ export default defineComponent({
 
     // View-dependent setup
     if (props.view === "course") {
-      const courseData = useCourseData(props, selectionTab)
+      const courseData = useCourseData(selectionTab)
       const {
         nFiles,
         nFolders,
@@ -463,9 +464,9 @@ export default defineComponent({
 
     browser.runtime.onMessage.addListener(messageListener)
 
-    if (props.activeTab.id) {
+    if (activeTab.value?.id) {
       // Scan for resources
-      browser.tabs.sendMessage<Message>(props.activeTab.id, {
+      browser.tabs.sendMessage<Message>(activeTab.value.id, {
         command: "scan",
       })
     }

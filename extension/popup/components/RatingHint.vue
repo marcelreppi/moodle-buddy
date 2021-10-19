@@ -23,13 +23,10 @@
 
 <script setup lang="ts">
 import { defineProps } from "vue"
-
 import useRating from "../composables/useRating"
-
 import { isFirefox } from "../../shared/helpers"
 
 defineProps<{
-  activeTab: browser.tabs.Tab | undefined
   rateHintLevel: number
   totalDownloadedFiles: number
 }>()
