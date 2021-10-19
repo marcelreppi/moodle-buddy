@@ -35,9 +35,7 @@ export async function getActiveTab(): Promise<browser.tabs.Tab | undefined> {
 }
 
 declare const InstallTrigger: unknown
-export function isFirefox(): boolean {
-  return typeof InstallTrigger !== "undefined"
-}
+export const isFirefox = typeof InstallTrigger !== "undefined"
 
 export function getUpdatesFromCourses(courses: Course[]): number {
   const courseList = courses.flat()

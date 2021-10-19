@@ -37,7 +37,7 @@ async function sendToLambda(path: string, payload: AdditionalPayload) {
 
   const requestBody: Payload = {
     ...payload,
-    browser: isFirefox() ? "firefox" : "chrome",
+    browser: isFirefox ? "firefox" : "chrome",
     browserId,
     dev: isDev,
   }

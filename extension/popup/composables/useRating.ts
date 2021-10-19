@@ -22,7 +22,7 @@ export default function useRating(): UseRatingComposable {
     10: 10000,
   } as Record<string, number>
 
-  const rateLink = isFirefox()
+  const rateLink = isFirefox
     ? "https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/"
     : "https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo"
 

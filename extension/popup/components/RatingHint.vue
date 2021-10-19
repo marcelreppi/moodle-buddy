@@ -9,7 +9,7 @@
     <div>Thank you very much! 😄👌</div>
     <div>
       I would really appreciate your rating and review in the
-      {{ isFirefox() ? "Firefox Add-on Store" : "Chrome Web Store" }} 🙏
+      {{ isFirefox ? "Firefox Add-on Store" : "Chrome Web Store" }} 🙏
     </div>
 
     <div class="pt-3">
