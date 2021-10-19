@@ -69,14 +69,15 @@ export interface DashboardCrawlMessage extends Message {
   link: string
 }
 
-interface CrawlOptions {
-  useMoodleFileName: ExtensionOptions["useMoodleFileName"]
-  prependCourseNameToFileName: ExtensionOptions["prependCourseNameToFileName"]
-  prependCourseShortcutToFileName: ExtensionOptions["prependCourseShortcutToFileName"]
-  prependSectionToFileName: ExtensionOptions["prependSectionToFileName"]
-  prependSectionIndexToFileName: ExtensionOptions["prependSectionIndexToFileName"]
-  prependFileIndexToFileName: ExtensionOptions["prependFileIndexToFileName"]
-}
+type CrawlOptions = Pick<
+  ExtensionOptions,
+  | "useMoodleFileName"
+  | "prependCourseNameToFileName"
+  | "prependCourseShortcutToFileName"
+  | "prependSectionToFileName"
+  | "prependSectionIndexToFileName"
+  | "prependFileIndexToFileName"
+>
 
 export interface CourseCrawlMessage extends Message {
   command: "crawl"
