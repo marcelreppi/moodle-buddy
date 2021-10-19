@@ -7,6 +7,12 @@
 
     <div class="relative w-full h-full">
       <error-view v-if="showErrorView" />
+      <rating-hint
+        v-else-if="showRatingHint()"
+        :active-tab="activeTab"
+        :rate-hint-level="rateHintLevel"
+        :total-downloaded-files="totalDownloadedFiles"
+      ></rating-hint>
       <div v-else class="box-border relative flex flex-col items-center justify-center w-full">
         <dashboard-view
           v-if="showDashboardPageView"
@@ -31,28 +37,6 @@
           :options="options"
           :n-updates="nUpdates"
         ></no-moodle>
-      </div>
-
-      <div
-        v-if="showRatingHint"
-        class="absolute top-0 left-0 right-0 flex flex-col items-center justify-center px-5 space-y-2 text-center bg-white border -bottom-3 shadow-custom"
-      >
-        <div>
-          You have downloaded more than
-          {{ rateHintLevels[rateHintLevel] }} files 🎉
-        </div>
-        <div>Thank you very much! 😄👌</div>
-        <div>
-          I would really appreciate your rating and review in the
-          {{ isFirefox ? "Firefox Add-on Store" : "Chrome Web Store" }} 🙏
-        </div>
-
-        <div class="pt-3">
-          <button class="btn" @click="onRateClick">Rate Moodle Buddy</button>
-          <div class="mt-2 text-xs text-gray-400 cursor-pointer" @click="onAvoidRateClick">
-            I will have to disappoint you...
-          </div>
-        </div>
       </div>
     </div>
 
@@ -95,6 +79,8 @@ import FilesView from "./views/FilesView.vue"
 import DashboardView from "./views/DashboardView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
 import ErrorView from "./views/ErrorView.vue"
+import RatingHint from "./components/RatingHint.vue"
+import useRating from "./composables/useRating"
 
 export default defineComponent({
   components: {
@@ -102,6 +88,7 @@ export default defineComponent({
     DashboardView,
     NoMoodle,
     ErrorView,
+    RatingHint,
   },
   data() {
     return {
@@ -115,21 +102,6 @@ export default defineComponent({
       userHasRated: false,
       totalDownloadedFiles: 0,
       rateHintLevel: 1,
-      rateHintLevels: {
-        1: 50,
-        2: 100,
-        3: 250,
-        4: 500,
-        5: 1000,
-        6: 1500,
-        7: 3000,
-        8: 5000,
-        9: 7500,
-        10: 10000,
-      } as Record<string, number>,
-      rateLink: isFirefox()
-        ? "https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/"
-        : "https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo",
     }
   },
   computed: {
@@ -144,10 +116,6 @@ export default defineComponent({
     },
     showNoMoodle(): boolean {
       return this.page === ""
-    },
-    showRatingHint(): boolean {
-      const fileThreshold = this.rateHintLevels[this.rateHintLevel] || Infinity
-      return this.showCourseView && !this.userHasRated && this.totalDownloadedFiles > fileThreshold
     },
   },
   created() {
@@ -216,28 +184,18 @@ export default defineComponent({
       navigateTo("https://paypal.me/marcelreppi")
       sendEvent("donate-click", false)
     },
-    onRateClick() {
-      if (!this.activeTab?.id) return
-
-      this.userHasRated = true
-      browser.tabs.sendMessage<Message>(this.activeTab.id, {
-        command: "rate-click",
-      })
-      navigateTo(this.rateLink)
-      sendEvent("rate-click", false)
-    },
     onOptionsClick() {
       browser.runtime.openOptionsPage()
       sendEvent("options-click", false)
     },
-    onAvoidRateClick() {
-      if (!this.activeTab?.id) return
-
-      this.userHasRated = true
-      browser.tabs.sendMessage<Message>(this.activeTab.id, {
-        command: "avoid-rate-click",
-      })
-      sendEvent("avoid-rating-hint")
+    onRateClick() {
+      return useRating().onRateClick()
+    },
+    showRatingHint() {
+      return (
+        !this.userHasRated &&
+        useRating().showRatingHint(this.rateHintLevel, this.totalDownloadedFiles)
+      )
     },
     cacheStorageData(data: StateData) {
       const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = data
