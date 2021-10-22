@@ -67,12 +67,12 @@ import ErrorView from "./views/ErrorView.vue"
 import RatingHint from "./components/RatingHint.vue"
 import useRating from "./composables/useRating"
 
-const page = ref<SupportedPage>("")
+const page = ref<SupportedPage>()
 
 const showDashboardPageView = computed(() => page.value === "dashboard")
 const showCourseView = computed(() => page.value === "course")
 const showVideoServiceView = computed(() => page.value === "videoservice")
-const showNoMoodle = computed(() => page.value === "")
+const showNoMoodle = computed(() => page.value === undefined)
 const showErrorView = ref(false)
 
 const onReportBugClick = () => navigateTo("/pages/contact/contact.html")
@@ -102,29 +102,6 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     userHasRated.value = state.userHasRated
     totalDownloadedFiles.value = state.totalDownloadedFiles
     rateHintLevel.value = state.rateHintLevel
-
-    if (process.env.NODE_ENV === "debug") {
-      let filename = ""
-      if (activeTab.value && activeTab.value.url) {
-        filename = activeTab.value.url.split("/").pop() || ""
-      }
-
-      if (filename.includes("course")) {
-        page.value = "course"
-      }
-
-      if (filename.includes("dashboard")) {
-        page.value = "dashboard"
-      }
-
-      if (filename.includes("videoservice")) {
-        page.value = "videoservice"
-      }
-    }
-
-    if (page.value !== "") {
-      sendEvent(`view-${page.value}-page`, true)
-    }
   }
 
   if (command === "error-view") {
@@ -139,6 +116,9 @@ getActiveTab().then((tab) => {
   if (activeTab.value?.id) {
     browser.tabs.sendMessage<Message>(activeTab.value.id, {
       command: "get-state",
+    })
+    browser.tabs.sendMessage<Message>(activeTab.value.id, {
+      command: "track-page-view",
     })
   }
 })

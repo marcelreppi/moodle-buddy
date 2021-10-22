@@ -22,14 +22,9 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from "vue"
 import useRating from "../composables/useRating"
 import { isFirefox } from "../../shared/helpers"
-
-defineProps<{
-  rateHintLevel: number
-  totalDownloadedFiles: number
-}>()
+import { rateHintLevel } from "../state"
 
 const { rateHintLevels, onRateClick, onAvoidRateClick } = useRating()
 </script>

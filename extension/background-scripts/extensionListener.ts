@@ -144,7 +144,7 @@ const messageListener: browser.runtime.onMessageEvent = async (
     case "execute-script":
       const { scriptName } = message as ExecuteScriptMessage
       browser.tabs.executeScript(undefined, {
-        file: `content-scripts/${scriptName}Page.js`,
+        file: `content-scripts/${scriptName}.js`,
       })
       break
     default:

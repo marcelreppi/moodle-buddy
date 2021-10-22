@@ -27,6 +27,7 @@ type Command =
   | "rate-click"
   | "avoid-rate-click"
   | "clear-course"
+  | "track-page-view"
 
 export interface Message {
   command: Command
@@ -59,9 +60,10 @@ export interface LogMessage extends Message {
   logData: LogData
 }
 
+export type ScriptName = "detector" | "coursePage" | "videoservicePage" | "dashboardPage"
 export interface ExecuteScriptMessage extends Message {
   command: "execute-script"
-  scriptName: SupportedPage
+  scriptName: ScriptName
 }
 
 export interface DashboardCrawlMessage extends Message {

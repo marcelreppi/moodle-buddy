@@ -23,7 +23,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["shared/browser-polyfill.js", "content-scripts/detector.js"]
+      "js": ["shared/browser-polyfill.js", "content-scripts/index.js"]
     }
   ],
   "background": {

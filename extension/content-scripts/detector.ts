@@ -6,10 +6,17 @@ import {
   PageDataMessage,
   StateMessage,
   PageData,
+  ScriptName,
 } from "types"
 
-import { getMoodleBaseURL, getURLRegex } from "../shared/helpers"
+import { getMoodleBaseURL, getURLRegex, sendEvent } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"
+
+const pageToScriptMapping: Record<NonNullable<SupportedPage>, ScriptName> = {
+  course: "coursePage",
+  dashboard: "dashboardPage",
+  videoservice: "videoservicePage",
+}
 
 async function setDefaultMoodleURL() {
   const { options }: ExtensionStorage = await browser.storage.local.get("options")
@@ -26,7 +33,7 @@ async function setDefaultMoodleURL() {
 }
 
 async function runDetector() {
-  let page: SupportedPage = ""
+  let page: SupportedPage
 
   const isMoodlePage = checkForMoodle()
 
@@ -51,12 +58,11 @@ async function runDetector() {
       const filename = location.href.split("/").pop()
       if (filename?.includes("course")) page = "course"
       if (filename?.includes("dashboard")) page = "dashboard"
+      if (filename?.includes("videoservice")) page = "videoservice"
     }
   }
 
-  const isSupportedPage = page !== ""
-
-  if (isSupportedPage) {
+  if (page !== undefined) {
     browser.runtime.sendMessage<Message>({
       command: "set-icon",
     })
@@ -65,7 +71,7 @@ async function runDetector() {
 
     browser.runtime.sendMessage<ExecuteScriptMessage>({
       command: "execute-script",
-      scriptName: page,
+      scriptName: pageToScriptMapping[page],
     })
   }
 
@@ -80,17 +86,19 @@ async function runDetector() {
         page,
         state: { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel },
       })
+    }
 
-      if (isSupportedPage) {
-        const pageData: PageData = {
-          page,
-          content: document.querySelector("html")?.outerHTML || "",
-        }
-        browser.runtime.sendMessage<PageDataMessage>({
-          command: "page-data",
-          pageData,
-        })
+    if (command === "track-page-view") {
+      sendEvent(`view-${page}-page`, true)
+
+      const pageData: PageData = {
+        page,
+        content: document.querySelector("html")?.outerHTML || "",
       }
+      browser.runtime.sendMessage<PageDataMessage>({
+        command: "page-data",
+        pageData,
+      })
     }
 
     if (command === "rate-click") {

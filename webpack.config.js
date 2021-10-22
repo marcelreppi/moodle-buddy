@@ -24,10 +24,11 @@ const addContentEntry = (filename) => {
   entries[outputPath] = inputPath
 }
 
+addContentEntry("index.ts")
+addContentEntry("detector.ts")
 addContentEntry("coursePage.ts")
 addContentEntry("dashboardPage.ts")
 addContentEntry("videoservicePage.ts")
-addContentEntry("detector.ts")
 
 // Background scripts
 const addBackgroundEntry = (filename) => {
