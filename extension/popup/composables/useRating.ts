@@ -1,10 +1,12 @@
-import { isFirefox, navigateTo, sendEvent } from "../../shared/helpers"
+import { computed, ComputedRef } from "vue"
+import { sendEvent } from "../../shared/helpers"
 import { Message } from "../../types"
 import { activeTab, userHasRated, rateHintLevel, totalDownloadedFiles } from "../state"
+import useNavigation from "./useNavigation"
 
 interface UseRatingComposable {
   rateHintLevels: Record<string, number>
-  showRatingHint: () => boolean
+  showRatingHint: ComputedRef<boolean>
   onRateClick: () => void
   onAvoidRateClick: () => void
 }
@@ -26,23 +28,19 @@ export default function useRating(): UseRatingComposable {
     13: 50000,
   } as Record<string, number>
 
-  const rateLink = isFirefox
-    ? "https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/"
-    : "https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo"
-
-  const showRatingHint = () => {
+  const showRatingHint = computed(() => {
     const fileThreshold = rateHintLevels[rateHintLevel.value] || Infinity
     return !userHasRated.value && totalDownloadedFiles.value > fileThreshold
-  }
+  })
 
+  const { openRatingPage } = useNavigation()
   const onRateClick = async () => {
     if (!activeTab.value?.id) return
 
     browser.tabs.sendMessage<Message>(activeTab.value.id, {
       command: "rate-click",
     })
-    navigateTo(rateLink)
-    sendEvent("rate-click", false)
+    openRatingPage()
   }
 
   const onAvoidRateClick = async () => {

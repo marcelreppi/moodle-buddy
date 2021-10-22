@@ -6,42 +6,41 @@
     </div>
 
     <div class="relative w-full h-full">
-      <error-view v-if="showErrorView" />
-      <rating-hint
-        v-else-if="showRatingHint()"
-        :rate-hint-level="rateHintLevel"
-        :total-downloaded-files="totalDownloadedFiles"
-      ></rating-hint>
-      <div v-else class="box-border relative flex flex-col items-center justify-center w-full">
-        <dashboard-view v-if="showDashboardPageView"></dashboard-view>
-        <files-view v-if="showCourseView" view="course"></files-view>
-        <files-view v-if="showVideoServiceView" view="videoservice"></files-view>
-        <no-moodle
-          v-if="showNoMoodle"
-          :open-info-page="onInfoClick"
-          :n-updates="nUpdates"
-        ></no-moodle>
+      <div class="box-border relative flex flex-col items-center justify-center w-full">
+        <svg v-if="showLoading" class="my-10" viewBox="25 25 50 50">
+          <circle cx="50" cy="50" r="20"></circle>
+        </svg>
+        <template v-else>
+          <error-view v-if="showErrorView" />
+          <rating-hint v-else-if="showRatingHint"></rating-hint>
+          <template v-else>
+            <dashboard-view v-if="showDashboardPageView"></dashboard-view>
+            <files-view v-if="showCourseView" view="course"></files-view>
+            <files-view v-if="showVideoServiceView" view="videoservice"></files-view>
+            <no-moodle v-if="showNoMoodle"></no-moodle>
+          </template>
+        </template>
       </div>
     </div>
 
     <footer class="flex items-center justify-between text-xs mt-7">
       <span>
-        <div class="link" @click="onReportBugClick">Report a bug</div>
+        <div class="link" @click="openContactPage">Report a bug</div>
       </span>
       <span>
         <div class="link" @click="onRateClick">Rate</div>
       </span>
       <span>
-        <div class="link" @click="onDonateClick">Donate</div>
+        <div class="link" @click="openDonatePage">Donate</div>
       </span>
       <span>
-        <div class="link" @click="onOptionsClick">Options</div>
+        <div class="link" @click="openOptionsPage">Options</div>
       </span>
       <img
         class="w-4 h-4 hover:cursor-pointer"
         src="../static/information.png"
         alt="info"
-        @click="onInfoClick"
+        @click="openInfoPage"
       />
     </footer>
   </div>
@@ -57,15 +56,17 @@ import {
   userHasRated,
   totalDownloadedFiles,
   rateHintLevel,
+  updateState,
 } from "./state"
 
-import { sendEvent, getActiveTab, isFirefox, navigateTo } from "../shared/helpers"
+import { getActiveTab, isFirefox } from "../shared/helpers"
 import FilesView from "./views/FilesView.vue"
 import DashboardView from "./views/DashboardView.vue"
 import NoMoodle from "./views/NoMoodle.vue"
 import ErrorView from "./views/ErrorView.vue"
 import RatingHint from "./components/RatingHint.vue"
 import useRating from "./composables/useRating"
+import useNavigation from "./composables/useNavigation"
 
 const page = ref<SupportedPage>()
 
@@ -74,21 +75,9 @@ const showCourseView = computed(() => page.value === "course")
 const showVideoServiceView = computed(() => page.value === "videoservice")
 const showNoMoodle = computed(() => page.value === undefined)
 const showErrorView = ref(false)
+const showLoading = ref(true)
 
-const onReportBugClick = () => navigateTo("/pages/contact/contact.html")
-const onInfoClick = () => {
-  navigateTo("/pages/information/information.html")
-  sendEvent("info-click", false)
-}
-const onDonateClick = () => {
-  navigateTo("https://paypal.me/marcelreppi")
-  sendEvent("donate-click", false)
-}
-const onOptionsClick = () => {
-  browser.runtime.openOptionsPage()
-  sendEvent("options-click", false)
-}
-
+const { openContactPage, openDonatePage, openInfoPage, openOptionsPage } = useNavigation()
 const { onRateClick, showRatingHint } = useRating()
 
 const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
@@ -107,19 +96,58 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
   if (command === "error-view") {
     showErrorView.value = true
   }
+
+  showLoading.value = false
 }
 browser.runtime.onMessage.addListener(messageListener)
 
 getActiveTab().then((tab) => {
   activeTab.value = tab
-  // Get state on load from detector
+
   if (activeTab.value?.id) {
-    browser.tabs.sendMessage<Message>(activeTab.value.id, {
-      command: "get-state",
-    })
+    updateState()
     browser.tabs.sendMessage<Message>(activeTab.value.id, {
       command: "track-page-view",
     })
   }
 })
 </script>
+
+<style scoped>
+/* Loading Spinner */
+svg {
+  width: 3.75em;
+  transform-origin: center;
+  animation: rotate 2s linear infinite;
+}
+
+circle {
+  fill: none;
+  stroke: var(--mb-red);
+  stroke-width: 2;
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: dash 1.5s ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes dash {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dashoffset: -125px;
+  }
+}
+</style>

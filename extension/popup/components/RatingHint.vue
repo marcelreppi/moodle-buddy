@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col items-center justify-center p-5 space-y-2 text-center bg-white border -bottom-3 shadow-custom"
+    class="flex flex-col items-center justify-center p-5 space-y-2 text-center bg-white border -bottom-3 shadow-custom rounded"
   >
     <div>
       You have downloaded more than
