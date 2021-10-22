@@ -145,7 +145,6 @@ export function getQuerySelector(type: QuerySelectorTypes, options: ExtensionOpt
       selector = imageSelector
       break
     case "media":
-      // eslint-disable-next-line no-case-declarations
       const mediaSelectors = []
       if (options.includeVideo) {
         mediaSelectors.push(videoSelector)

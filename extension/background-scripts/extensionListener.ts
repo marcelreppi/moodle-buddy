@@ -108,7 +108,6 @@ browser.runtime.onInstalled.addListener(async details => {
 })
 
 const messageListener: browser.runtime.onMessageEvent = async (
-  // eslint-disable-next-line @typescript-eslint/ban-types
   message: object,
   sender: browser.runtime.MessageSender
 ) => {

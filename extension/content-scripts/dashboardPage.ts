@@ -168,7 +168,6 @@ if (isMoodlePage) {
   scanOverview()
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
   const { command } = message as Message
   if (command === "scan") {

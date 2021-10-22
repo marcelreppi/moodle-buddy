@@ -69,10 +69,7 @@ async function runDetector() {
     })
   }
 
-  const messageListener: browser.runtime.onMessageEvent = async (
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    message: object
-  ) => {
+  const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
     const localStorage: ExtensionStorage = await browser.storage.local.get()
     const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = localStorage
     const { command } = message as Message

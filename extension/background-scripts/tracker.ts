@@ -59,7 +59,6 @@ async function sendToLambda(path: string, payload: AdditionalPayload) {
     } catch (error) {
       console.error(error)
       setTimeout(() => {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         sendLog({ errorMessage: error.message })
       }, 5000)
     }

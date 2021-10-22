@@ -347,14 +347,12 @@ export default defineComponent({
     // Lifecycle hooks
     onUpdated(() => {
       if (downloadInProgress.value) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const progressBarRef = progressBar.value as any
         // Set initial progress
         progressBarRef.setProgress(selectedResources.value.length)
       }
     })
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let setupReturn: Record<string, any> = {
       loading,
       useMoodleFileName,
@@ -446,7 +444,6 @@ export default defineComponent({
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-types
     const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
       const { command } = message as Message
       if (command === "scan-result") {
@@ -456,7 +453,6 @@ export default defineComponent({
 
       if (command === "download-progress") {
         const { completed, total, errors } = message as DownloadProgressMessage
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const progressBarRef = progressBar.value as any
         progressBarRef.setProgress(total, completed, errors)
       }

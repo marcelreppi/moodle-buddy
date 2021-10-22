@@ -1,0 +1,9 @@
+{
+  "tabWidth": 2,
+  "useTabs": false,
+  "endOfLine": "auto",
+  "semi": false,
+  "htmlWhitespaceSensitivity": "ignore",
+  "printWidth": 100,
+  "trailingComma": "es5"
+}

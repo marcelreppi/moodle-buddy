@@ -34,7 +34,6 @@ async function scanForVideos() {
       if (mainHTML) {
         const { textContent } = mainHTML
         if (textContent) {
-          // eslint-disable-next-line prefer-destructuring
           fileName = textContent
             .split("\n")
             .map(t => t.trim())
@@ -130,7 +129,6 @@ async function getVideoResourceSrc(
   })
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
   const { command } = message as Message
   if (command === "scan") {

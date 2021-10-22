@@ -51,14 +51,11 @@ export default defineComponent({
     }
   },
   computed: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     progressBarRef(): any {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return this.$refs.progressBar as any
     },
   },
   created() {
-    // eslint-disable-next-line @typescript-eslint/ban-types
     const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
       const { command } = message as Message
       if (command === "scan-in-progress") {
