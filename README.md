@@ -26,9 +26,9 @@ The plugin is available for both **Firefox** and **Chrome**.
 
 1. Log into your university's Moodle system
 2. Visit any of the following Moodle webpages:
-    * Moodle Dashboard/Course Overview (URL ending on /my)
-    * Any Moodle course page (URL includes /course)
-    * Moodle video page (URL includes /videoservice)
+   - Moodle Dashboard/Course Overview (URL ending on /my)
+   - Any Moodle course page (URL includes /course)
+   - Moodle video page (URL includes /videoservice)
 3. Click the Moodle Buddy icon in the extension bar of your browser
 4. Explore all the features Moodle Buddy has to offer
 
@@ -38,19 +38,19 @@ The plugin is available for both **Firefox** and **Chrome**.
 
 ### Course Page
 
-* Download all course resources with one click
-* Scans single Moodle courses for new resources
-* Scans single Moodle courses for new activities (Assignment Uploads, Forums, etc.)
-* Shows you when new resources or activities have been detected
-* Download only new resources from a course
-* Filter downloadable resources for files and folders
-* Modify file names of the downloaded resources
+- Download all course resources with one click
+- Scans single Moodle courses for new resources
+- Scans single Moodle courses for new activities (Assignment Uploads, Forums, etc.)
+- Shows you when new resources or activities have been detected
+- Download only new resources from a course
+- Filter downloadable resources for files and folders
+- Modify file names of the downloaded resources
 
 ### Dashboard
 
-* Shows updates (resources & activities) for all courses from the dashboard page
-* Download new resources directly from the dashboard page
-* Scans your courses in the background (if you are logged in) and notifies you if there are updates
+- Shows updates (resources & activities) for all courses from the dashboard page
+- Download new resources directly from the dashboard page
+- Scans your courses in the background (if you are logged in) and notifies you if there are updates
 
 # Licensing
 
@@ -59,28 +59,28 @@ Usage of this codebase is permitted according to the GNU Affero General Public L
 **READ THE [FULL LICENSE](LICENSE) BEFORE USING.**
 
 You MUST:
-* Respect the copyright which is held by the maintainers of this project
-* Disclose all changes you made to the code and also publish any code directly based on this code
-* Give attribution to the original maintainers when using this project (especially when used commercially)
+
+- Respect the copyright which is held by the maintainers of this project
+- Disclose all changes you made to the code and also publish any code directly based on this code
+- Give attribution to the original maintainers when using this project (especially when used commercially)
 
 You can not:
-* Sublicense this codebase
-* Expect any liability, warranty or similar by the original maintainers. However, we want to improve this project as much as possible so feedback is heard!
 
-
+- Sublicense this codebase
+- Expect any liability, warranty or similar by the original maintainers. However, we want to improve this project as much as possible so feedback is heard!
 
 # For Developers
 
 ## Build
 
 1. Open one terminal and run `npm run dev`
-   * This runs webpack and reloads the bundle on every file change.
+   - This runs webpack and reloads the bundle on every file change.
 2. Open a second terminal and run `npm start`
-   * This starts **Firefox Nightly** with the plugin installed and reloads the plugin on every file change.
-   * Alternatively, run `npm run start:ff` to use regular Firefox
-   * If you want to use Chrome for the development you can load an unpacked extension pointing to the `build` directory. Make sure to reload the extension after every file change.
+   - This starts **Firefox Nightly** with the plugin installed and reloads the plugin on every file change.
+   - Alternatively, run `npm run start:ff` to use regular Firefox
+   - If you want to use Chrome for the development you can load an unpacked extension pointing to the `build` directory. Make sure to reload the extension after every file change.
 
 ## Debugging
 
-* When using Firefox I suggest opening the *Browser Console* with the shortcut `CTRL + Shift + J`
-* Make sure to click the Cog Icon and enable *Show Content Messages*. This makes the log statements from the code show up in the console.
+- When using Firefox I suggest opening the _Browser Console_ with the shortcut `CTRL + Shift + J`
+- Make sure to click the Cog Icon and enable _Show Content Messages_. This makes the log statements from the code show up in the console.

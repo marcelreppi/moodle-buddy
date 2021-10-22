@@ -36,8 +36,8 @@ async function scanForVideos() {
         if (textContent) {
           fileName = textContent
             .split("\n")
-            .map(t => t.trim())
-            .filter(t => {
+            .map((t) => t.trim())
+            .filter((t) => {
               return Boolean(t)
             })[0]
         }
@@ -66,9 +66,9 @@ async function scanForVideos() {
       )
 
       videoNodes = Array.from(videoServiceURLs)
-        .filter(n => n.href.endsWith("view"))
+        .filter((n) => n.href.endsWith("view"))
         .reduce((nodes, current) => {
-          const links = nodes.map(n => n.href)
+          const links = nodes.map((n) => n.href)
           if (!links.includes(current.href)) {
             if (current.textContent !== "") {
               nodes.push(current)
@@ -104,7 +104,7 @@ async function getVideoResourceSrc(
   options: ExtensionOptions
 ): Promise<string> {
   return new Promise<string>((resolve, reject) => {
-    const videoNode = videoNodes.find(n => n.href === videoResource.href)
+    const videoNode = videoNodes.find((n) => n.href === videoResource.href)
     if (videoNode) {
       videoNode?.click()
 
@@ -172,7 +172,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
         const downloadVideoResources: VideoResource[] = []
         for (let i = 0; i < selectedResources.length; i++) {
           const selectedResource = selectedResources[i]
-          const videoResource = videoResources.find(r => r.href === selectedResource.href)
+          const videoResource = videoResources.find((r) => r.href === selectedResource.href)
           if (videoResource) {
             videoResource.src = await getVideoResourceSrc(
               videoResource,

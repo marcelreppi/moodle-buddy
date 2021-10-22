@@ -60,7 +60,7 @@
         <button
           v-if="newResources.length > 0"
           class="mt-2 text-sm font-bold btn"
-          @click="e => onDownloadClick(e, course)"
+          @click="(e) => onDownloadClick(e, course)"
         >
           Download new resources
         </button>
@@ -115,10 +115,10 @@ export default defineComponent({
   },
   computed: {
     newResources(): Resource[] {
-      return this.resources.filter(n => n.isNew)
+      return this.resources.filter((n) => n.isNew)
     },
     newActivities(): Activity[] {
-      return this.activities.filter(n => n.isNew)
+      return this.activities.filter((n) => n.isNew)
     },
     allNewNodes(): Array<Resource | Activity> {
       return [...this.newResources, ...this.newActivities]

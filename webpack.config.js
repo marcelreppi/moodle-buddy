@@ -17,7 +17,7 @@ const entries = {
 }
 
 // Content scripts
-const addContentEntry = filename => {
+const addContentEntry = (filename) => {
   const [filenameWithoutExtension] = filename.split(".")
   const inputPath = polyfills.concat(join(__dirname, "extension", "content-scripts", filename))
   const outputPath = `content-scripts/${filenameWithoutExtension}`
@@ -30,7 +30,7 @@ addContentEntry("videoservicePage.ts")
 addContentEntry("detector.ts")
 
 // Background scripts
-const addBackgroundEntry = filename => {
+const addBackgroundEntry = (filename) => {
   const [filenameWithoutExtension] = filename.split(".")
   const inputPath = polyfills.concat(join(__dirname, "extension", "background-scripts", filename))
   const outputPath = `background-scripts/${filenameWithoutExtension}`
@@ -42,7 +42,7 @@ addBackgroundEntry("extensionListener.ts")
 addBackgroundEntry("backgroundScanner.ts")
 
 // Page scripts
-const addPageEntry = filename => {
+const addPageEntry = (filename) => {
   const [filenameWithoutExtension] = filename.split(".")
   const inputPath = polyfills.concat(
     join(__dirname, "extension", "pages", filenameWithoutExtension, filename)

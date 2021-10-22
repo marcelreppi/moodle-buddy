@@ -9,8 +9,8 @@ async function sendToLambda(path, body) {
     },
     body: JSON.stringify(body),
   })
-    .then(res => console.info(res))
-    .catch(error => console.log(error))
+    .then((res) => console.info(res))
+    .catch((error) => console.log(error))
 }
 
 let browserId = "unknown"

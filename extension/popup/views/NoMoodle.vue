@@ -36,7 +36,11 @@
     <ul class="list-disc">
       <li>on your university's Moodle page</li>
       <li>logged in</li>
-      <li>on a <span class="link" @click="openInfoPage">supported</span> Moodle webpage</li>
+      <li>
+        on a
+        <span class="link" @click="openInfoPage">supported</span>
+        Moodle webpage
+      </li>
     </ul>
   </div>
 </template>

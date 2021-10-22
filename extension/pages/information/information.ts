@@ -22,7 +22,7 @@ document.querySelector("#privacy-link")?.addEventListener("click", () => {
   })
 })
 
-document.querySelectorAll(".options-link")?.forEach(n => {
+document.querySelectorAll(".options-link")?.forEach((n) => {
   n.addEventListener("click", () => {
     browser.runtime.sendMessage<EventMessage>({
       command: "event",
@@ -41,7 +41,7 @@ document.querySelector("#donate-link")?.addEventListener("click", () => {
   })
 })
 
-document.querySelectorAll(".contact-link")?.forEach(n => {
+document.querySelectorAll(".contact-link")?.forEach((n) => {
   n.addEventListener("click", () => {
     browser.tabs.create({
       url: "/pages/contact/contact.html",

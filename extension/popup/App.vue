@@ -133,7 +133,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
 }
 browser.runtime.onMessage.addListener(messageListener)
 
-getActiveTab().then(tab => {
+getActiveTab().then((tab) => {
   activeTab.value = tab
   // Get state on load from detector
   if (activeTab.value?.id) {

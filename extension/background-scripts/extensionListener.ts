@@ -89,7 +89,7 @@ async function onUpdate() {
   // })
 }
 
-browser.runtime.onInstalled.addListener(async details => {
+browser.runtime.onInstalled.addListener(async (details) => {
   switch (details.reason) {
     case "install":
       await onInstall()

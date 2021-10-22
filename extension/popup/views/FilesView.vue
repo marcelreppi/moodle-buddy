@@ -259,7 +259,7 @@ export default defineComponent({
     const showDetails = ref(false)
     const showDetailResources = ref<Resource[]>([])
     const setResourceSelected = (href: string, value: boolean) => {
-      const resource = resources.value.find(r => r.href === href)
+      const resource = resources.value.find((r) => r.href === href)
       if (resource) {
         resource.selected = value
       }
@@ -308,7 +308,7 @@ export default defineComponent({
       }
 
       if (selectionTab.value.id === "detailed") {
-        return resources.value.every(r => !r.selected)
+        return resources.value.every((r) => !r.selected)
       }
 
       return false
@@ -322,7 +322,7 @@ export default defineComponent({
       if (activeTab.value?.id) {
         browser.tabs.sendMessage<CourseCrawlMessage>(activeTab.value.id, {
           command: "crawl",
-          selectedResources: selectedResources.value.map(r => ({ ...r })), // Resolve proxy
+          selectedResources: selectedResources.value.map((r) => ({ ...r })), // Resolve proxy
           options: {
             useMoodleFileName: useMoodleFileName.value ?? defaultExtensionOptions.useMoodleFileName,
             prependCourseNameToFileName:

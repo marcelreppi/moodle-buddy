@@ -45,11 +45,11 @@ export default defineComponent({
   },
   setup(props) {
     const files = computed<Resource[]>(() => {
-      return props.resources.filter(n => (n as FileResource).isFile)
+      return props.resources.filter((n) => (n as FileResource).isFile)
     })
 
     const folders = computed<Resource[]>(() => {
-      return props.resources.filter(n => (n as FolderResource).isFolder)
+      return props.resources.filter((n) => (n as FolderResource).isFolder)
     })
 
     return {

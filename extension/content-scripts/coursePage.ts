@@ -1,9 +1,4 @@
-import {
-  CourseCrawlMessage,
-  CourseScanResultMessage,
-  DownloadMessage,
-  Message,
-} from "types"
+import { CourseCrawlMessage, CourseScanResultMessage, DownloadMessage, Message } from "types"
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { updateIconFromCourses, sendLog } from "../shared/helpers"
 
@@ -27,7 +22,7 @@ if (isMoodlePage) {
         console.log(course)
       }
     })
-    .catch(err => {
+    .catch((err) => {
       console.error(err)
       error = true
       sendLog({ errorMessage: err.message, url: location.href })

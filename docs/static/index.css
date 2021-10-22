@@ -5,7 +5,8 @@
 
 html,
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-weight: 350;
   font-size: 22px;
 }
@@ -27,7 +28,7 @@ nav {
   width: 60rem;
 }
 
-nav>a {
+nav > a {
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -40,7 +41,7 @@ nav img {
   height: auto;
 }
 
-nav>div {
+nav > div {
   display: flex;
   font-size: 0.9em;
   justify-content: center;
@@ -93,7 +94,7 @@ section::before {
 .dl-link {
   font-size: 26px;
   width: 12em;
-  padding: .8rem;
+  padding: 0.8rem;
   /* border: 1px solid black; */
   border-radius: 5px;
   color: white;
@@ -110,7 +111,7 @@ section::before {
 
 .dl-link img {
   width: 1em;
-  margin-right: .5em;
+  margin-right: 0.5em;
 }
 
 #dl-chrome {
@@ -121,7 +122,7 @@ section::before {
   background: rgb(255 137 2);
 }
 
-#banner>div:nth-child(2) {
+#banner > div:nth-child(2) {
   display: flex;
   align-items: center;
 }
@@ -150,7 +151,8 @@ section::before {
 }
 
 @media (max-width: 1400px) {
-  html, body {
+  html,
+  body {
     font-size: 18px;
   }
 
@@ -196,7 +198,7 @@ section::before {
   }
 
   :root {
-    --nav-height: 3rem; 
+    --nav-height: 3rem;
   }
 }
 

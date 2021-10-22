@@ -13,7 +13,7 @@
       @mouseup="() => setMouseDown(false)"
     >
       <div v-if="filteredResources.length > 0">
-        <label class="category" @input="e => onCategoryClick(e, 'all')">
+        <label class="category" @input="(e) => onCategoryClick(e, 'all')">
           <span>All</span>
           <div>
             <input ref="allCb" class="mt-1" type="checkbox" />
@@ -22,7 +22,7 @@
       </div>
 
       <div v-if="fileResources.length > 0">
-        <label class="category" @input="e => onCategoryClick(e, 'file')">
+        <label class="category" @input="(e) => onCategoryClick(e, 'file')">
           <span>Files</span>
           <div>
             <input ref="filesCb" class="mt-1" type="checkbox" />
@@ -52,7 +52,7 @@
       </div>
 
       <div v-if="folderResources.length > 0">
-        <label class="category" @input="e => onCategoryClick(e, 'folder')">
+        <label class="category" @input="(e) => onCategoryClick(e, 'folder')">
           <span>Folders</span>
           <div>
             <input ref="foldersCb" class="mt-1" type="checkbox" />
@@ -115,13 +115,13 @@ export default defineComponent({
     filteredResources(): Resource[] {
       if (this.searchInput === "") {
         if (this.onlyNewResources) {
-          return this.resources.filter(r => r.isNew)
+          return this.resources.filter((r) => r.isNew)
         }
 
         return this.resources
       }
 
-      return this.resources.filter(r => {
+      return this.resources.filter((r) => {
         const regex = new RegExp(this.searchInput, "gi")
         const isMatch = Boolean(r.name.match(regex))
 
@@ -133,10 +133,10 @@ export default defineComponent({
       })
     },
     fileResources(): Resource[] {
-      return this.filteredResources.filter(r => (r as FileResource).isFile)
+      return this.filteredResources.filter((r) => (r as FileResource).isFile)
     },
     folderResources(): Resource[] {
-      return this.filteredResources.filter(r => (r as FolderResource).isFolder)
+      return this.filteredResources.filter((r) => (r as FolderResource).isFolder)
     },
   },
   methods: {
@@ -177,11 +177,11 @@ export default defineComponent({
       const target = e.target as HTMLInputElement
 
       Object.keys(this.$refs)
-        .filter(refKey => {
+        .filter((refKey) => {
           const searchCategory = category === "all" ? "" : category
           return refKey.match(new RegExp(`.*${searchCategory}Cb`))
         })
-        .forEach(refKey => {
+        .forEach((refKey) => {
           const inputRef = this.$refs[refKey] as HTMLInputElement
           if (inputRef === null) return // User has filtered while clicking so some refs are undefined
 
