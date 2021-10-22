@@ -29,7 +29,7 @@
         </div>
       </transition>
     </div>
-    <div v-else class="mb-3 link" @click="navigateToMoodle">Go to my Moodle</div>
+    <div v-else class="mb-3 link" @click="openMoodlePage">Go to my Moodle</div>
     <hr class="w-5/6 my-2" />
     <div>This is an unsupported webpage.</div>
     <div class="mt-3">Make sure you are...</div>
@@ -45,62 +45,36 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
-import { options } from "../state"
-import { sendEvent, validURLRegex } from "../../shared/helpers"
+<script setup lang="ts">
+import { computed, ref } from "vue"
+import { options, nUpdates, updateState } from "../state"
+import { validURLRegex } from "../../shared/helpers"
+import useNavigation from "../composables/useNavigation"
 
-export default defineComponent({
-  props: {
-    openInfoPage: {
-      type: Function,
-      required: true,
-    },
-    nUpdates: {
-      type: Number,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      moodleURL: options.value !== undefined ? options.value.defaultMoodleURL : "",
-      urlInput: "",
-      showInvalidURL: false,
-    }
-  },
-  computed: {
-    showDefaultURLInput(): boolean {
-      return this.moodleURL === ""
-    },
-  },
-  watch: {
-    options(newOptions) {
-      this.moodleURL = newOptions ? newOptions.defaultMoodleURL : ""
-    },
-  },
-  methods: {
-    async onSaveClick() {
-      if (!this.urlInput.match(validURLRegex)) {
-        this.showInvalidURL = true
-        setTimeout(() => {
-          this.showInvalidURL = false
-        }, 2000)
-        return
-      }
-      this.moodleURL = this.urlInput
-      await browser.storage.local.set({
-        options: { ...options.value, defaultMoodleURL: this.moodleURL },
-      })
-    },
-    async navigateToMoodle() {
-      await browser.tabs.create({
-        url: this.moodleURL,
-      })
-      sendEvent("go-to-moodle", false)
-      window.close()
-    },
-  },
-})
+const { openMoodlePage, openInfoPage } = useNavigation()
+
+const showDefaultURLInput = computed(
+  () => options.value === undefined || options.value.defaultMoodleURL === ""
+)
+
+const urlInput = ref("")
+const showInvalidURL = ref(false)
+
+const onSaveClick = async () => {
+  console.log(urlInput.value)
+  if (!urlInput.value.match(validURLRegex)) {
+    showInvalidURL.value = true
+    setTimeout(() => {
+      showInvalidURL.value = false
+    }, 2000)
+    return
+  }
+
+  await browser.storage.local.set({
+    options: { ...options.value, defaultMoodleURL: urlInput.value },
+  })
+  updateState()
+}
 </script>
 
 <style scoped>
