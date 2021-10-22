@@ -1,5 +1,5 @@
 import { Activity, Counts, Resource, VideoResource } from "./course.types"
-import { ExtensionOptions, SupportedPage } from "./extension.types"
+import { ExtensionOptions, ExtensionStorage, SupportedPage } from "./extension.types"
 import { FeedbackData, LogData, PageData } from "./tracker.types"
 
 type Command =
@@ -61,6 +61,7 @@ export interface LogMessage extends Message {
 }
 
 export type ScriptName = "detector" | "coursePage" | "videoservicePage" | "dashboardPage"
+
 export interface ExecuteScriptMessage extends Message {
   command: "execute-script"
   scriptName: ScriptName
@@ -126,17 +127,16 @@ export interface MarkAsSeenMessage extends Message {
   link: string
 }
 
-export interface StateData {
-  options: ExtensionOptions
-  nUpdates: number
-  userHasRated: boolean
-  totalDownloadedFiles: number
-  rateHintLevel: number
+export interface StateData
+  extends Pick<
+    ExtensionStorage,
+    "options" | "nUpdates" | "userHasRated" | "totalDownloadedFiles" | "rateHintLevel"
+  > {
+  page: SupportedPage
 }
 
 export interface StateMessage extends Message {
   command: "state"
-  page: SupportedPage
   state: StateData
 }
 

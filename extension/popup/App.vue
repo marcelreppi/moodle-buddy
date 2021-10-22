@@ -95,8 +95,8 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
   const { command } = message as Message
 
   if (command === "state") {
-    const { page: detectedPage, state } = message as StateMessage
-    page.value = detectedPage
+    const { state } = message as StateMessage
+    page.value = state.page
     options.value = state.options
     nUpdates.value = state.nUpdates
     userHasRated.value = state.userHasRated

@@ -32,34 +32,39 @@ async function setDefaultMoodleURL() {
   })
 }
 
+function getSupportedPage(): SupportedPage | undefined {
+  const dashboardPageRegex = getURLRegex("dashboard")
+  const isDashboardPage = Boolean(location.href.match(dashboardPageRegex))
+  if (isDashboardPage) return "dashboard"
+
+  const coursePageRegex = getURLRegex("course")
+  const courseResourcesPageRegex = getURLRegex("courseResources")
+  const isCoursePage = Boolean(
+    location.href.match(coursePageRegex) || location.href.match(courseResourcesPageRegex)
+  )
+  if (isCoursePage) return "course"
+
+  const videoServicePageRegex = getURLRegex("videoservice")
+  const isVideoServicePage = Boolean(location.href.match(videoServicePageRegex))
+  if (isVideoServicePage) return "videoservice"
+
+  if (process.env.NODE_ENV === "debug") {
+    const filename = location.href.split("/").pop()
+    if (filename?.includes("course")) return "course"
+    if (filename?.includes("dashboard")) return "dashboard"
+    if (filename?.includes("videoservice")) return "videoservice"
+  }
+
+  return undefined
+}
+
 async function runDetector() {
   let page: SupportedPage
 
   const isMoodlePage = checkForMoodle()
 
   if (isMoodlePage) {
-    const dashboardPageRegex = getURLRegex("dashboard")
-    const isDashboardPage = Boolean(location.href.match(dashboardPageRegex))
-
-    const coursePageRegex = getURLRegex("course")
-    const courseResourcesPageRegex = getURLRegex("courseResources")
-    const isCoursePage = Boolean(
-      location.href.match(coursePageRegex) || location.href.match(courseResourcesPageRegex)
-    )
-
-    const videoServicePageRegex = getURLRegex("videoservice")
-    const isVideoServicePage = Boolean(location.href.match(videoServicePageRegex))
-
-    if (isCoursePage) page = "course"
-    if (isDashboardPage) page = "dashboard"
-    if (isVideoServicePage) page = "videoservice"
-
-    if (process.env.NODE_ENV === "debug") {
-      const filename = location.href.split("/").pop()
-      if (filename?.includes("course")) page = "course"
-      if (filename?.includes("dashboard")) page = "dashboard"
-      if (filename?.includes("videoservice")) page = "videoservice"
-    }
+    page = getSupportedPage()
   }
 
   if (page !== undefined) {
@@ -75,17 +80,20 @@ async function runDetector() {
     })
   }
 
-  const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+  async function updateVueState() {
     const localStorage: ExtensionStorage = await browser.storage.local.get()
     const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = localStorage
+    browser.runtime.sendMessage<StateMessage>({
+      command: "state",
+      state: { page, options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel },
+    })
+  }
+
+  const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
     const { command } = message as Message
 
     if (command === "get-state") {
-      browser.runtime.sendMessage<StateMessage>({
-        command: "state",
-        page,
-        state: { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel },
-      })
+      updateVueState()
     }
 
     if (command === "track-page-view") {
@@ -105,12 +113,15 @@ async function runDetector() {
       await browser.storage.local.set({
         userHasRated: true,
       })
+      updateVueState()
     }
 
     if (command === "avoid-rate-click") {
+      const { rateHintLevel }: ExtensionStorage = await browser.storage.local.get()
       await browser.storage.local.set({
         rateHintLevel: rateHintLevel + 1,
       })
+      updateVueState()
     }
   }
   browser.runtime.onMessage.addListener(messageListener)
