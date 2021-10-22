@@ -20,9 +20,8 @@
 
       <div class="form-section">Background Scanning</div>
       <div>
-        When background scanning is enabled Moodle Buddy will periodically crawl
-        your Moodle course overview page for any updates and notify you when
-        there is anything new.
+        When background scanning is enabled Moodle Buddy will periodically crawl your Moodle course
+        overview page for any updates and notify you when there is anything new.
 
         <p>To ensure it works properly you must do the following:</p>
 
@@ -38,10 +37,7 @@
             <i>/my</i>
             , for example https://mymoodle.com/my)
           </li>
-          <li>
-            Customize your overview to show all the courses that you want to
-            have scanned
-          </li>
+          <li>Customize your overview to show all the courses that you want to have scanned</li>
           <li>Refresh the overview page</li>
           <li>Open Moodle Buddy and wait for one full scan</li>
           <li>Tick the checkbox below</li>
@@ -58,9 +54,7 @@
 
       <div class="form-section">Notifications</div>
       <div>
-        <button id="clear-button" class="clear-button">
-          Clear stored course data
-        </button>
+        <button id="clear-button" class="clear-button">Clear stored course data</button>
       </div>
 
       <div class="form-section">File detection options</div>
@@ -99,26 +93,14 @@
       <div class="form-subsection">Download organization</div>
       <div>
         <input type="checkbox" id="saveToMoodleFolder" />
-        <label for="saveToMoodleFolder">
-          Download everything into a "Moodle" subfolder
-        </label>
+        <label for="saveToMoodleFolder">Download everything into a "Moodle" subfolder</label>
       </div>
       <div style="margin-top: 10px">
         <div style="margin-left: 5px">Possible subfolder structures:</div>
-        <input
-          type="radio"
-          id="fs1"
-          name="folderStructure"
-          value="CourseFile"
-        />
+        <input type="radio" id="fs1" name="folderStructure" value="CourseFile" />
         <label for="fs1">Course name / File</label>
         <br />
-        <input
-          type="radio"
-          id="fs2"
-          name="folderStructure"
-          value="CourseSectionFile"
-        />
+        <input type="radio" id="fs2" name="folderStructure" value="CourseSectionFile" />
         <label for="fs2">Course name / Section name / File</label>
         <br />
         <input type="radio" id="fs3" name="folderStructure" value="None" />
@@ -129,15 +111,11 @@
       <div class="form-subsection">File name</div>
       <div>
         <input type="checkbox" id="showDownloadOptions" />
-        <label for="showDownloadOptions">
-          Show the download options to modify the filename
-        </label>
+        <label for="showDownloadOptions">Show the download options to modify the filename</label>
       </div>
       <div>
         <input type="checkbox" id="useMoodleFileName" />
-        <label for="useMoodleFileName">
-          Use Moodle file name as actual file name
-        </label>
+        <label for="useMoodleFileName">Use Moodle file name as actual file name</label>
       </div>
       <div>
         <input type="checkbox" id="prependCourseShortcutToFileName" />
@@ -147,15 +125,11 @@
       </div>
       <div>
         <input type="checkbox" id="prependCourseNameToFileName" />
-        <label for="prependCourseNameToFileName">
-          Prepend course name to each file name
-        </label>
+        <label for="prependCourseNameToFileName">Prepend course name to each file name</label>
       </div>
       <div>
         <input type="checkbox" id="prependSectionToFileName" />
-        <label for="prependSectionToFileName">
-          Prepend course section names to each file name
-        </label>
+        <label for="prependSectionToFileName">Prepend course section names to each file name</label>
       </div>
       <div>
         <input type="checkbox" id="prependSectionIndexToFileName" />
@@ -186,36 +160,26 @@
       </div>
       <div>
         <input type="checkbox" id="alwaysShowDetails" />
-        <label for="alwaysShowDetails">
-          Always show details on new resources
-        </label>
+        <label for="alwaysShowDetails">Always show details on new resources</label>
       </div>
 
       <div class="form-section">Anonymized usage data</div>
 
       <div>
         <p>
-          A few interactions are tracked when the plugin is used such as when
-          the plugin is installed or the "Download" button is clicked.
+          A few interactions are tracked when the plugin is used such as when the plugin is
+          installed or the "Download" button is clicked.
         </p>
         <p>
-          The following data is collected: event name, date, time, browser type,
-          random browser ID, Moodle URL.
+          The following data is collected: event name, date, time, browser type, random browser ID,
+          Moodle URL.
         </p>
-        <p>
-          I use this data to monitor the usage, detect errors and improve the
-          features.
-        </p>
-        <p>
-          I would really appreciate it if you don't disable it! It really helps
-          me a lot!
-        </p>
+        <p>I use this data to monitor the usage, detect errors and improve the features.</p>
+        <p>I would really appreciate it if you don't disable it! It really helps me a lot!</p>
         <p>If you still wish to turn it off you can do it here:</p>
         <div>
           <input type="checkbox" id="disableInteractionTracking" />
-          <label for="disableInteractionTracking">
-            Disable anonymized usage monitoring
-          </label>
+          <label for="disableInteractionTracking">Disable anonymized usage monitoring</label>
         </div>
       </div>
     </div>

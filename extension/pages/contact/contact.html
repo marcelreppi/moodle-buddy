@@ -1,74 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="./contact.css" />
+    <link rel="shortcut icon" type="image/png" href="../../icons/48.png" />
+    <title>Moodle Buddy</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <link rel="stylesheet" href="./contact.css" />
-  <link rel="shortcut icon" type="image/png" href="../../icons/48.png" />
-  <title>Moodle Buddy</title>
-</head>
+  <body>
+    <div class="container">
+      <div class="title">
+        Moodle Buddy
+        <img class="title-icon" src="../../icons/48.png" />
+      </div>
 
-<body>
-  <div class="container">
-    <div class="title">
-      Moodle Buddy
-      <img class="title-icon" src="../../icons/48.png" />
-    </div>
+      <div class="content-container">
+        <div class="section-title">Report a bug or submit a feature request</div>
+        <div class="section-content">
+          <p>
+            Send an email to
+            <a href="mailto:hello@moodlebuddy.com">hello@moodlebuddy.com</a>
+          </p>
+          <div>or</div>
+          <p>submit the form below.</p>
+          <p>
+            If the plugin does not work on your Moodle platform I will need your help to support it
+            because I do not have any login credentials to test the plugin. Otherwise, I will most
+            likely not be able add support for your Moodle platform.
+          </p>
+          <p>
+            It would be extremely helpful if you leave your E-Mail, so I can contact you for some
+            assistance.
+          </p>
+          <div class="form">
+            <div>E-Mail</div>
+            <input type="email" id="form-email" placeholder="Not required but recommended" />
+            <div>Moodle Platform / URL</div>
+            <input
+              type="text"
+              id="form-platform"
+              placeholder="E.g. Technical University of Berlin"
+            />
+            <div>Subject</div>
+            <input type="text" id="form-subject" placeholder="Something is not working..." />
+            <div>Content</div>
+            <textarea
+              id="form-content"
+              cols="60"
+              rows="10"
+              placeholder="Please explain what is happening..."
+            ></textarea>
 
-    <div class="content-container">
-      <div class="section-title">Report a bug or submit a feature request</div>
-      <div class="section-content">
-        <p>Send an email to <a href="mailto:hello@moodlebuddy.com">hello@moodlebuddy.com</a></p>
-        <div>or</div>
-        <p>submit the form below.</p>
-        <p>
-          If the plugin does not work on your Moodle platform I will need your help to support it because I do not
-          have any login credentials to test the plugin.
-          Otherwise, I will most likely not be able add support for your Moodle platform.
-        </p>
-        <p>It would be extremely helpful if you leave your E-Mail, so I can contact you for some assistance.</p>
-        <div class="form">
-          <div>E-Mail</div>
-          <input type="email" id="form-email" placeholder="Not required but recommended">
-          <div>Moodle Platform / URL</div>
-          <input type="text" id="form-platform" placeholder="E.g. Technical University of Berlin">
-          <div>Subject</div>
-          <input type="text" id="form-subject" placeholder="Something is not working...">
-          <div>Content</div>
-          <textarea id="form-content" cols="60" rows="10" placeholder="Please explain what is happening..."></textarea>
+            <div class="missing">
+              <div>Please fill out all the fields</div>
+            </div>
 
-          <div class="missing">
-            <div>Please fill out all the fields</div>
+            <button id="form-button">Submit</button>
           </div>
+        </div>
 
-          <button id="form-button">Submit</button>
+        <div class="success">
+          <div>Success!</div>
+          <div>Thank you very much for your feedback!</div>
         </div>
       </div>
 
-      <div class="success">
-        <div>Success!</div>
-        <div>Thank you very much for your feedback!</div>
-      </div>
-
-    </div>
-
-    <div class="footer">
-      <div class="footer-row">
-        <span>
-          Inofficial Plugin made by
-          <a href="https://twitter.com/marcelreppi">marcelreppi</a>
-        </span>
-        <span class="footer-right-section">
-          <span id="version"></span>
-        </span>
+      <div class="footer">
+        <div class="footer-row">
+          <span>
+            Inofficial Plugin made by
+            <a href="https://twitter.com/marcelreppi">marcelreppi</a>
+          </span>
+          <span class="footer-right-section">
+            <span id="version"></span>
+          </span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <script src="/shared/browser-polyfill.js"></script>
-  <script src="contact.js"></script>
-</body>
-
+    <script src="/shared/browser-polyfill.js"></script>
+    <script src="contact.js"></script>
+  </body>
 </html>
