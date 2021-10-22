@@ -97,6 +97,8 @@ async function runDetector() {
     }
 
     if (command === "track-page-view") {
+      if (page === undefined) return
+
       sendEvent(`view-${page}-page`, true)
 
       const pageData: PageData = {
