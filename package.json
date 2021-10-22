@@ -11,7 +11,8 @@
     "nuke": "rm -rf build",
     "publish": "cd scripts && sh build.sh",
     "test": "cd test && node --max-old-space-size=4096 -r esm index.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "prettify": "prettier --write ."
   },
   "repository": {
     "type": "git",
