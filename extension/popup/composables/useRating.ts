@@ -21,6 +21,9 @@ export default function useRating(): UseRatingComposable {
     8: 5000,
     9: 7500,
     10: 10000,
+    11: 15000,
+    12: 25000,
+    13: 50000,
   } as Record<string, number>
 
   const rateLink = isFirefox
