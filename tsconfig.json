@@ -1,10 +1,16 @@
 {
   "compilerOptions": {
     "baseUrl": "./extension",
-    "typeRoots": ["node_modules/@types", "node_modules/web-ext-types"],
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/web-ext-types"
+    ],
     "target": "es6",
     "module": "ES6",
-    "lib": ["dom", "es6", "es2017", "esnext.asynciterable", "ES2019"],
+    "lib": [
+      "dom",
+      "ES2019"
+    ],
     "sourceMap": true,
     "outDir": "./dist",
     "moduleResolution": "node",
@@ -25,6 +31,10 @@
     // Make it work with existing JS files
     "allowJs": true
   },
-  "exclude": ["node_modules"],
-  "include": ["extension/**/*"]
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "extension/**/*"
+  ]
 }
