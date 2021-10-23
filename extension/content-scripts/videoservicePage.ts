@@ -6,7 +6,7 @@ import {
   DownloadMessage,
   Message,
   VideoScanResultMessage,
-  VideoResource,
+  VideoServiceResource,
 } from "types"
 
 import { getQuerySelector, parseCourseNameFromCoursePage } from "../shared/parser"
@@ -14,7 +14,7 @@ import { sendLog } from "../shared/helpers"
 
 const courseName = parseCourseNameFromCoursePage(document)
 let videoNodes: HTMLAnchorElement[] = []
-let videoResources: VideoResource[] = []
+let videoResources: VideoServiceResource[] = []
 let cancel = false
 let error = false
 
@@ -44,13 +44,12 @@ async function scanForVideos() {
       }
 
       if (videoElement !== null && fileName !== "") {
-        const videoResource: VideoResource = {
+        const videoResource: VideoServiceResource = {
           href: videoElement.src,
           src: videoElement.src,
           name: fileName,
           section: "",
           isNew: false,
-          isFile: true,
           type: "videoservice",
           resourceIndex: 1,
           sectionIndex: 1,
@@ -78,13 +77,12 @@ async function scanForVideos() {
         }, [] as HTMLAnchorElement[])
 
       videoNodes.forEach((n, i) => {
-        const videoResource: VideoResource = {
+        const videoResource: VideoServiceResource = {
           href: n.href,
           src: "",
           name: n.textContent ? n.textContent.trim() : "Unknown Video",
           section: "",
           isNew: false,
-          isFile: true,
           type: "videoservice",
           resourceIndex: i + 1,
           sectionIndex: 1,
@@ -100,7 +98,7 @@ async function scanForVideos() {
 }
 
 async function getVideoResourceSrc(
-  videoResource: VideoResource,
+  videoResource: VideoServiceResource,
   options: ExtensionOptions
 ): Promise<string> {
   return new Promise<string>((resolve, reject) => {
@@ -169,7 +167,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
         })
       } else if (location.href.endsWith("browse")) {
         // A list of videos is being displayed
-        const downloadVideoResources: VideoResource[] = []
+        const downloadVideoResources: VideoServiceResource[] = []
         for (let i = 0; i < selectedResources.length; i++) {
           const selectedResource = selectedResources[i]
           const videoResource = videoResources.find((r) => r.href === selectedResource.href)

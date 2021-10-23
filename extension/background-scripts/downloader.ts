@@ -9,7 +9,7 @@ import {
   FileResource,
   FolderResource,
   Resource,
-  VideoResource,
+  VideoServiceResource,
 } from "types"
 
 import {
@@ -170,7 +170,7 @@ class Downloader {
             await this.downloadFolder(r as FolderResource)
             break
           case "videoservice":
-            await this.downloadVideoServiceVideo(r as VideoResource)
+            await this.downloadVideoServiceVideo(r as VideoServiceResource)
             break
           default:
             break
@@ -452,7 +452,7 @@ class Downloader {
     }
   }
 
-  private async downloadVideoServiceVideo(resource: VideoResource) {
+  private async downloadVideoServiceVideo(resource: VideoServiceResource) {
     if (this.isCancelled) return
 
     const { name, src, resourceIndex, section, sectionIndex } = resource

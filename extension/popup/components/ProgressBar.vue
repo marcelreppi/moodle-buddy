@@ -2,7 +2,7 @@
   <div class="flex flex-col items-center w-full mt-5">
     <div class="flex justify-between w-full text-sm">
       <div class="text-left">{{ progressText }}</div>
-      <div v-if="cancelable.includes(type)" class="flex-row-reverse">
+      <div v-if="cancelable.includes(action)" class="flex-row-reverse">
         <button v-if="!done" class="link" @click="onCancel">Cancel</button>
       </div>
     </div>
@@ -12,10 +12,8 @@
   </div>
 </template>
 
-<script lang="ts">
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { defineComponent, PropType } from "vue"
+<script setup lang="ts">
+import { computed, getCurrentInstance, ref } from "vue"
 
 type Actions = "scan" | "download"
 const actionText: Record<Actions, string> = {
@@ -23,89 +21,79 @@ const actionText: Record<Actions, string> = {
   download: "Downloading",
 }
 
-export default defineComponent({
-  props: {
-    type: {
-      type: String as PropType<Actions>,
-      required: true,
-    },
-    onDone: {
-      type: Function,
-      required: false,
-      default: () => {},
-    },
-    onCancel: {
-      type: Function,
-      required: false,
-      default: () => {},
-    },
-  },
-  data() {
-    return {
-      total: -1,
-      completed: 0,
-      errors: 0,
-      progress: 0,
-      done: false,
-      cancelable: ["download"],
-      $Progress: this.$Progress as any,
-    }
-  },
-  computed: {
-    progressText(): string {
-      const textPieces = []
+const props = defineProps<{
+  action: Actions
+  onDone?: () => void
+  onCancel?: () => void
+}>()
 
-      if (this.progress === 100) {
-        textPieces.push("Done!")
-      } else {
-        textPieces.push(
-          `${actionText[this.type]}...`,
-          `${this.completed}/${this.total !== -1 ? this.total : "?"}`
-        )
-      }
+const total = ref(-1)
+const completed = ref(0)
+const errors = ref(0)
+const progress = ref(0)
+const done = ref(false)
+const cancelable = ref(["download"])
 
-      if (this.errors > 0) {
-        textPieces.push(`(${this.errors} Error${this.errors === 1 ? "" : "s"})`)
-      }
+const internalInstance = getCurrentInstance()
+const $Progress = internalInstance?.appContext.config.globalProperties.$Progress
 
-      return textPieces.join(" ")
-    },
-  },
-  created() {
-    this.resetProgress()
-  },
-  methods: {
-    setProgress(total: number, completed = 0, errors = 0) {
-      this.total = total
-      this.completed = completed
-      this.errors = errors
+const progressText = computed(() => {
+  const textPieces = []
 
-      if (this.total === 0) {
-        // Handle edge case (eg. empty folders)
-        this.progress = 100
-      } else {
-        this.progress = Math.ceil((this.completed / this.total) * 100) || 5
-      }
+  if (progress.value === 100) {
+    textPieces.push("Done!")
+  } else {
+    textPieces.push(
+      `${actionText[props.action]}...`,
+      `${completed.value}/${total.value !== -1 ? total.value : "?"}`
+    )
+  }
 
-      this.$Progress.set(this.progress)
+  if (errors.value > 0) {
+    textPieces.push(`(${errors.value} Error${errors.value === 1 ? "" : "s"})`)
+  }
 
-      if (this.progress === 100) {
-        this.done = true
-        this.onDone()
-      }
-    },
-    resetProgress() {
-      this.total = -1
-      this.completed = 0
-      this.errors = 0
-      this.progress = 0
-      this.done = false
-
-      // Set a small number to make something visible
-      this.$Progress.set(5)
-    },
-  },
+  return textPieces.join(" ")
 })
+
+const setProgress = (newTotal: number, newCompleted = 0, newErrors = 0) => {
+  total.value = newTotal
+  completed.value = newCompleted
+  errors.value = newErrors
+
+  if (total.value === 0) {
+    // Handle edge case (eg. empty folders)
+    progress.value = 100
+  } else {
+    progress.value = Math.ceil((completed.value / total.value) * 100) || 5
+  }
+
+  $Progress.set(progress.value)
+
+  if (progress.value === 100) {
+    done.value = true
+
+    if (props.onDone) props.onDone()
+  }
+}
+
+const resetProgress = () => {
+  total.value = -1
+  completed.value = 0
+  errors.value = 0
+  progress.value = 0
+  done.value = false
+
+  // Set a small number to make something visible
+  $Progress.set(5)
+}
+
+defineExpose({
+  setProgress,
+  resetProgress,
+})
+
+resetProgress()
 </script>
 
 <style></style>

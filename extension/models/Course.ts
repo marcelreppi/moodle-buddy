@@ -9,7 +9,7 @@ import {
   CourseData,
 } from "types"
 import * as parser from "../shared/parser"
-import { getMoodleBaseURL } from "../shared/helpers"
+import { getMoodleBaseURL, isFolder } from "../shared/helpers"
 
 class Course {
   link: string
@@ -63,14 +63,14 @@ class Course {
     return this.sectionIndices[section] + 1
   }
 
-  private addResource(resource: Resource, isFolder = false): void {
+  private addResource(resource: Resource): void {
     if (this.previousSeenResources === null || this.previousSeenResources.includes(resource.href)) {
       // If course has never been scanned previousSeenResources don't exist
       // Never treat a resource as new when the course is scanned for the first time
       // because we're capturing the initial state of the course
       resource.isNew = false
     } else {
-      if (isFolder) {
+      if (isFolder(resource)) {
         this.counts.nNewFolders++
       } else {
         this.counts.nNewFiles++
@@ -86,14 +86,12 @@ class Course {
     if (href === "") return
 
     this.counts.nFiles++
-
     const section = parser.parseSectionName(node, this.HTMLDocument)
     const sectionIndex = this.getSectionIndex(section)
     const resource: FileResource = {
       href,
       name: parser.parseFileNameFromNode(node),
       section,
-      isFile: true,
       type: "file",
       isNew: false,
       resourceIndex: this.counts.nFiles,
@@ -118,7 +116,6 @@ class Course {
       href,
       name: parser.parseFileNameFromPluginFileURL(href),
       section,
-      isFile: true,
       type: "pluginfile",
       partOfFolder,
       isNew: false,
@@ -150,7 +147,6 @@ class Course {
             href,
             name: parser.parseFileNameFromNode(node),
             section,
-            isFile: true,
             type: "url",
             isNew: false,
             resourceIndex: this.counts.nFiles,
@@ -171,7 +167,6 @@ class Course {
       name: parser.parseFileNameFromNode(node),
       section,
       type: "folder",
-      isFolder: true,
       isInline: false,
       isNew: false,
       resourceIndex: this.counts.nFiles,
@@ -208,10 +203,12 @@ class Course {
     }
 
     this.counts.nFolders++
-    this.addResource(resource, true)
+    this.addResource(resource)
   }
 
   private addActivity(node: HTMLElement, options: ExtensionOptions) {
+    const section = parser.parseSectionName(node, this.HTMLDocument)
+    const sectionIndex = this.getSectionIndex(section)
     const href = parser.parseURLFromNode(node, "activity", options)
     if (href === "") return
 
@@ -219,10 +216,12 @@ class Course {
     const activity: Activity = {
       href,
       name: parser.parseActivityNameFromNode(node),
-      type: parser.parseActivityTypeFromNode(node),
       section: parser.parseSectionName(node, this.HTMLDocument),
-      isActivity: true,
       isNew: false,
+      type: "activity",
+      activityType: parser.parseActivityTypeFromNode(node),
+      resourceIndex: this.counts.nActivities,
+      sectionIndex,
     }
 
     if (

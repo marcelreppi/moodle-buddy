@@ -1,13 +1,6 @@
-import { EventMessage, LogMessage, SetBadgeMessage, LogData } from "types"
+import { EventMessage, LogMessage, SetBadgeMessage, LogData, Resource } from "types"
 
 import Course from "models/Course"
-
-export function navigateTo(link: string): void {
-  browser.tabs.create({
-    url: link,
-  })
-  window.close()
-}
 
 export function sendEvent(
   event: string,
@@ -118,4 +111,20 @@ export function getMoodleBaseURL(string: string): string {
   }
 
   return ""
+}
+
+export function isFile(resource: Resource) {
+  return ["file", "pluginfile", "url"].includes(resource.type)
+}
+
+export function isVideoService(resource: Resource) {
+  return resource.type === "videoservice"
+}
+
+export function isFolder(resource: Resource) {
+  return resource.type === "folder"
+}
+
+export function isActivity(resource: Resource) {
+  return resource.type === "activity"
 }

@@ -1,111 +1,83 @@
 <template>
   <div class="content-container">
-    <div v-if="courses === null" class="text-center">
+    <div v-if="courses === undefined" class="text-center">
       <div>Scanning courses for updates...</div>
-      <progress-bar ref="progressBar" type="scan"></progress-bar>
+      <progress-bar ref="progressBar" action="scan"></progress-bar>
     </div>
     <div v-else-if="courses.length === 0" class="text-center">
       <div>No courses found</div>
     </div>
     <div class="flex flex-col items-center px-2 overflow-y-auto max-h-80 scrollbar">
-      <course-card
-        v-for="(course, i) in courses"
-        :key="i"
-        :course="course"
-        :active-tab="activeTab"
-        :options="options"
-      />
+      <course-card v-for="(course, i) in courses" :key="i" :course="course" />
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue"
+<script setup lang="ts">
+import { ref } from "vue"
+import { sendEvent } from "../../shared/helpers"
 import {
+  DashboardCourseData,
   DashboardScanResultMessage,
   Message,
   ScanInProgressMessage,
-  DashboardCourseData,
 } from "../../types"
-import { activeTab, options } from "../state"
-
-import { sendEvent } from "../../shared/helpers"
-
 import CourseCard from "../components/CourseCard.vue"
 import ProgressBar from "../components/ProgressBar.vue"
+import { activeTab } from "../state"
 
-export default defineComponent({
-  components: {
-    CourseCard,
-    ProgressBar,
-  },
-  setup() {
-    return {
-      activeTab,
-      options,
+const courses = ref<DashboardCourseData[]>()
+
+const progressBar = ref<any>(null)
+
+const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+  const { command } = message as Message
+  if (command === "scan-in-progress") {
+    const { total, completed } = message as ScanInProgressMessage
+    if (total !== 0) {
+      progressBar.value.setProgress(total, completed)
+    } else {
+      progressBar.value.resetProgress()
     }
-  },
-  data() {
-    return {
-      courses: null as DashboardCourseData[] | null,
+    return
+  }
+
+  if (command === "scan-result") {
+    const { courses: dashboardCourses } = message as DashboardScanResultMessage
+    courses.value = dashboardCourses
+
+    if (courses.value.length === 0) {
+      sendEvent("empty-dashboard", true)
     }
-  },
-  computed: {
-    progressBarRef(): any {
-      return this.$refs.progressBar as any
-    },
-  },
-  created() {
-    const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
-      const { command } = message as Message
-      if (command === "scan-in-progress") {
-        const { total, completed } = message as ScanInProgressMessage
-        if (total !== 0) {
-          this.progressBarRef.setProgress(total, completed)
-        } else {
-          this.progressBarRef.resetProgress()
-        }
-        return
+
+    courses.value.sort((a, b) => {
+      if (
+        a.counts.nNewFiles > b.counts.nNewFiles ||
+        a.counts.nNewFolders > b.counts.nNewFolders ||
+        a.counts.nNewActivities > b.counts.nNewActivities
+      ) {
+        return -1
       }
 
-      if (command === "scan-result") {
-        const { courses } = message as DashboardScanResultMessage
-        this.courses = courses
-
-        if (this.courses.length === 0) {
-          sendEvent("empty-dashboard", true)
-        }
-
-        this.courses.sort((a, b) => {
-          if (
-            a.counts.nNewFiles > b.counts.nNewFiles ||
-            a.counts.nNewFolders > b.counts.nNewFolders ||
-            a.counts.nNewActivities > b.counts.nNewActivities
-          ) {
-            return -1
-          }
-
-          if (
-            a.counts.nNewFiles < b.counts.nNewFiles ||
-            a.counts.nNewFolders < b.counts.nNewFolders ||
-            a.counts.nNewActivities < b.counts.nNewActivities
-          ) {
-            return 1
-          }
-
-          return 0
-        })
+      if (
+        a.counts.nNewFiles < b.counts.nNewFiles ||
+        a.counts.nNewFolders < b.counts.nNewFolders ||
+        a.counts.nNewActivities < b.counts.nNewActivities
+      ) {
+        return 1
       }
-    }
-    browser.runtime.onMessage.addListener(messageListener)
 
-    if (this?.activeTab?.id) {
-      browser.tabs.sendMessage<Message>(this.activeTab.id, {
-        command: "scan",
-      })
-    }
-  },
-})
+      return 0
+    })
+  }
+}
+browser.runtime.onMessage.addListener(messageListener)
+
+if (activeTab.value?.id) {
+  browser.tabs.sendMessage<Message>(activeTab.value.id, {
+    command: "scan",
+  })
+}
 </script>
 
 <style></style>

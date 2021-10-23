@@ -1,9 +1,12 @@
+export type ResourceTypes = FileResourceTypes | "folder" | "activity"
+export type FileResourceTypes = "file" | "pluginfile" | "url" | "videoservice"
+
 export interface Resource {
   href: string
   name: string
   section: string
   isNew: boolean
-  type: "file" | "pluginfile" | "videoservice" | "url" | "folder"
+  type: ResourceTypes
   partOfFolder?: string
   selected?: boolean // Only used on the frontend
   resourceIndex: number
@@ -11,28 +14,22 @@ export interface Resource {
 }
 
 export interface FileResource extends Resource {
-  type: "file" | "pluginfile" | "videoservice" | "url"
-  isFile: true
+  type: FileResourceTypes
 }
 
-export interface VideoResource extends FileResource {
-  src: string
+export interface VideoServiceResource extends Resource {
   type: "videoservice"
+  src: string
 }
 
 export interface FolderResource extends Resource {
   type: "folder"
-  isFolder: true
   isInline: boolean
 }
 
-export interface Activity {
-  href: string
-  name: string
-  type: string
-  section: string
-  isActivity: true
-  isNew: boolean
+export interface Activity extends Resource {
+  type: "activity"
+  activityType: string
 }
 
 export interface Counts {

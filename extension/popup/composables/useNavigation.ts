@@ -1,5 +1,10 @@
-import { isFirefox, navigateTo, sendEvent } from "../../shared/helpers"
+import { isFirefox, sendEvent } from "../../shared/helpers"
 import { options } from "../state"
+
+function navigateTo(url: string) {
+  browser.tabs.create({ url })
+  window.close()
+}
 
 export default function useNavigation() {
   const openContactPage = () => navigateTo("/pages/contact/contact.html")
@@ -22,10 +27,16 @@ export default function useNavigation() {
     navigateTo(rateLink)
     sendEvent("rate-click", false)
   }
-  const openMoodlePage = async () => {
-    await browser.tabs.create({ url: options.value?.defaultMoodleURL })
+
+  const openMoodlePage = () => {
+    if (options.value === undefined) return
+
+    navigateTo(options.value.defaultMoodleURL)
     sendEvent("go-to-moodle", false)
-    window.close()
+  }
+  const openCoursePage = (url: string) => {
+    navigateTo(url)
+    sendEvent("go-to-course", true)
   }
 
   return {
@@ -35,5 +46,6 @@ export default function useNavigation() {
     openOptionsPage,
     openRatingPage,
     openMoodlePage,
+    openCoursePage,
   }
 }

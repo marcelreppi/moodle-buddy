@@ -28,36 +28,18 @@
   </div>
 </template>
 
-<script lang="ts">
-import { computed, defineComponent, PropType } from "vue"
-import { FileResource, FolderResource, Resource } from "types"
+<script setup lang="ts">
+import { Resource } from "types"
+import { computed } from "vue"
+import { isFile, isFolder } from "../../shared/helpers"
 
-export default defineComponent({
-  props: {
-    resources: {
-      type: Object as PropType<Resource[]>,
-      required: true,
-    },
-    toggleDetails: {
-      type: Function,
-      required: true,
-    },
-  },
-  setup(props) {
-    const files = computed<Resource[]>(() => {
-      return props.resources.filter((n) => (n as FileResource).isFile)
-    })
+const props = defineProps<{
+  resources: Resource[]
+  toggleDetails: () => void
+}>()
 
-    const folders = computed<Resource[]>(() => {
-      return props.resources.filter((n) => (n as FolderResource).isFolder)
-    })
-
-    return {
-      files,
-      folders,
-    }
-  },
-})
+const files = computed<Resource[]>(() => props.resources.filter(isFile))
+const folders = computed<Resource[]>(() => props.resources.filter(isFolder))
 </script>
 
 <style>

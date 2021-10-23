@@ -176,7 +176,7 @@
       <progress-bar
         v-if="downloadInProgress"
         ref="progressBar"
-        type="download"
+        action="download"
         :on-done="onDownloadFinished"
         :on-cancel="onDownloadCancel"
         class="w-5/6"

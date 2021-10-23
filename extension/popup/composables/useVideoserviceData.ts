@@ -1,12 +1,12 @@
 import { computed, ComputedRef, Ref, ref } from "vue"
-import { Message, VideoResource, VideoScanResultMessage, SelectionTab } from "types"
+import { Message, VideoServiceResource, VideoScanResultMessage, SelectionTab } from "types"
 import { sendEvent } from "../../shared/helpers"
 
 interface VideoserviceData {
   nVideos: Ref<number>
-  videoResources: Ref<VideoResource[]>
+  videoResources: Ref<VideoServiceResource[]>
   downloadVideos: Ref<boolean>
-  selectedResources: ComputedRef<VideoResource[]>
+  selectedResources: ComputedRef<VideoServiceResource[]>
   disableVideoCb: ComputedRef<boolean>
   onDownload: () => void
   scanResultHandler: (message: Message) => void
@@ -14,7 +14,7 @@ interface VideoserviceData {
 
 export default function useVideoserviceData(selectionTab: Ref<SelectionTab>): VideoserviceData {
   const nVideos = ref(0)
-  const videoResources = ref<VideoResource[]>([])
+  const videoResources = ref<VideoServiceResource[]>([])
   const downloadVideos = ref(true)
 
   const selectedResources = computed(() => {

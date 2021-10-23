@@ -1,14 +1,6 @@
-import {
-  Activity,
-  CourseScanResultMessage,
-  FileResource,
-  FolderResource,
-  Message,
-  Resource,
-  SelectionTab,
-} from "types"
+import { Activity, CourseScanResultMessage, Message, Resource, SelectionTab } from "types"
 import { computed, ComputedRef, Ref, ref, watch } from "vue"
-import { sendEvent } from "../../shared/helpers"
+import { isFile, isFolder, sendEvent } from "../../shared/helpers"
 import { activeTab, options } from "../state"
 
 interface CourseData {
@@ -55,8 +47,8 @@ export default function useCourseData(selectionTab: Ref<SelectionTab>): CourseDa
   const selectedResources = computed(() => {
     return resources.value.filter((n) => {
       if (selectionTab.value.id === "simple") {
-        if (!downloadFiles.value && (n as FileResource).isFile) return false
-        if (!downloadFolders.value && (n as FolderResource).isFolder) return false
+        if (!downloadFiles.value && isFile(n)) return false
+        if (!downloadFolders.value && isFolder(n)) return false
         if (onlyNewResources.value && !n.isNew) return false
 
         return true

@@ -85,8 +85,9 @@
 </template>
 
 <script lang="ts">
+import { Resource } from "types"
 import { defineComponent, PropType } from "vue"
-import { FileResource, FolderResource, Resource } from "types"
+import { isFile, isFolder } from "../../shared/helpers"
 
 type CbCategory = "all" | "file" | "folder"
 
@@ -133,10 +134,10 @@ export default defineComponent({
       })
     },
     fileResources(): Resource[] {
-      return this.filteredResources.filter((r) => (r as FileResource).isFile)
+      return this.filteredResources.filter(isFile)
     },
     folderResources(): Resource[] {
-      return this.filteredResources.filter((r) => (r as FolderResource).isFolder)
+      return this.filteredResources.filter(isFolder)
     },
   },
   methods: {

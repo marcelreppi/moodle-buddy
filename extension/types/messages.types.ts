@@ -1,4 +1,4 @@
-import { Activity, Counts, Resource, VideoResource } from "./course.types"
+import { Activity, Counts, Resource, VideoServiceResource } from "./course.types"
 import { ExtensionOptions, ExtensionStorage, SupportedPage } from "./extension.types"
 import { FeedbackData, LogData, PageData } from "./tracker.types"
 
@@ -119,7 +119,7 @@ export interface DashboardScanResultMessage extends ScanResultMessage {
 }
 
 export interface VideoScanResultMessage extends ScanResultMessage {
-  videoResources: VideoResource[]
+  videoResources: VideoServiceResource[]
 }
 
 export interface MarkAsSeenMessage extends Message {
