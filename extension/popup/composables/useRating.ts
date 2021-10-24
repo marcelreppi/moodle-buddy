@@ -13,9 +13,9 @@ interface UseRatingComposable {
 
 export default function useRating(): UseRatingComposable {
   const rateHintLevels = {
-    1: 1,
-    2: 2,
-    3: 3,
+    1: 50,
+    2: 100,
+    3: 250,
     4: 500,
     5: 1000,
     6: 1500,
