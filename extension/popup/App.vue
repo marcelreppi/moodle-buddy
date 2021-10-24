@@ -17,7 +17,7 @@
             <dashboard-view v-if="showDashboardPageView"></dashboard-view>
             <files-view v-if="showCourseView" view="course"></files-view>
             <files-view v-if="showVideoServiceView" view="videoservice"></files-view>
-            <no-moodle v-if="showNoMoodle"></no-moodle>
+            <no-moodle-view v-if="showNoMoodle"></no-moodle-view>
           </template>
         </template>
       </div>
@@ -62,7 +62,7 @@ import {
 import { getActiveTab, isFirefox } from "../shared/helpers"
 import FilesView from "./views/FilesView.vue"
 import DashboardView from "./views/DashboardView.vue"
-import NoMoodle from "./views/NoMoodle.vue"
+import NoMoodleView from "./views/NoMoodleView.vue"
 import ErrorView from "./views/ErrorView.vue"
 import RatingHint from "./components/RatingHint.vue"
 import useRating from "./composables/useRating"
