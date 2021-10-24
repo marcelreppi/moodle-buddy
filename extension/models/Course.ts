@@ -9,11 +9,12 @@ import {
   CourseData,
 } from "types"
 import * as parser from "../shared/parser"
-import { getMoodleBaseURL, isFolder } from "../shared/helpers"
+import { isFolder } from "../shared/resourceHelpers"
+import { getMoodleBaseURL } from "../shared/regexHelpers"
 
 class Course {
   link: string
-  HTMLDocument: HTMLDocument
+  HTMLDocument: Document
   name: string
   shortcut: string
   isFirstScan: boolean
@@ -27,7 +28,7 @@ class Course {
 
   sectionIndices: Record<string, number>
 
-  constructor(link: string, HTMLDocument: HTMLDocument) {
+  constructor(link: string, HTMLDocument: Document) {
     this.link = link
     this.HTMLDocument = HTMLDocument
     this.name = parser.parseCourseNameFromCoursePage(HTMLDocument)

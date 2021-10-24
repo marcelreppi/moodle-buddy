@@ -1,5 +1,5 @@
 import { ExtensionOptions } from "types"
-import { getURLRegex } from "./helpers"
+import { getURLRegex } from "./regexHelpers"
 
 export function checkForMoodle(): boolean {
   // Check for unique moodle DOM element

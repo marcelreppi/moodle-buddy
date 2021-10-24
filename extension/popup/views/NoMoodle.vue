@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { options, nUpdates, updateState } from "../state"
-import { validURLRegex } from "../../shared/helpers"
+import { validURLRegex } from "../../shared/regexHelpers"
 import useNavigation from "../composables/useNavigation"
 
 const { openMoodlePage, openInfoPage } = useNavigation()

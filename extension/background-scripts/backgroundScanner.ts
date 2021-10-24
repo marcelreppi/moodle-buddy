@@ -1,7 +1,8 @@
 import { ExtensionStorage } from "types"
-import { getURLRegex, getUpdatesFromCourses } from "../shared/helpers"
+import { getUpdatesFromCourses } from "../shared/helpers"
 import { setBadgeText } from "./helpers"
 import Course from "../models/Course"
+import { getURLRegex } from "../shared/regexHelpers"
 
 // browser.storage.local.clear()
 

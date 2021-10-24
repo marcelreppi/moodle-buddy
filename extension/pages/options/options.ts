@@ -1,4 +1,5 @@
 import { ExtensionOptions, ExtensionStorage, EventMessage, Message } from "types"
+import { validURLRegex } from "../../shared/regexHelpers"
 
 let restoredOptions: ExtensionOptions
 
@@ -85,8 +86,6 @@ async function save(e: Event) {
 }
 
 function checkURL(e: Event) {
-  const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/gi
-
   const target = e.target as HTMLInputElement
   const inputURL = target.value
   const invalidURLHint: HTMLDivElement | null = document.querySelector<HTMLDivElement>(

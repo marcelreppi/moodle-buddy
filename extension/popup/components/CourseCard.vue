@@ -76,7 +76,8 @@
 <script setup lang="ts">
 import { DashboardCourseData, DashboardCrawlMessage, MarkAsSeenMessage, Resource } from "types"
 import { computed, onMounted, ref } from "vue"
-import { isActivity, isFile, isFolder, sendEvent } from "../../shared/helpers"
+import { sendEvent } from "../../shared/helpers"
+import { isFile, isFolder, isActivity } from "../../shared/resourceHelpers"
 import useNavigation from "../composables/useNavigation"
 import { activeTab, options } from "../state"
 

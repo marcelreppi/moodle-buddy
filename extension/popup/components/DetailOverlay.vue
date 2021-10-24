@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { Resource } from "types"
 import { computed } from "vue"
-import { isFile, isFolder } from "../../shared/helpers"
+import { isFile, isFolder } from "../../shared/resourceHelpers"
 
 const props = defineProps<{
   resources: Resource[]

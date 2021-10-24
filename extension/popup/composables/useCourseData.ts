@@ -1,6 +1,7 @@
 import { Activity, CourseScanResultMessage, Message, Resource, SelectionTab } from "types"
 import { computed, ComputedRef, Ref, ref, watch } from "vue"
-import { isFile, isFolder, sendEvent } from "../../shared/helpers"
+import { sendEvent } from "../../shared/helpers"
+import { isFile, isFolder } from "../../shared/resourceHelpers"
 import { activeTab, options } from "../state"
 
 interface CourseData {

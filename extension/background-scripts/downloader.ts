@@ -18,7 +18,7 @@ import {
   getDownloadIdTag,
   getQuerySelector,
 } from "../shared/parser"
-import { getURLRegex, getMoodleBaseURL } from "../shared/helpers"
+import { getURLRegex, getMoodleBaseURL } from "../shared/regexHelpers"
 import { getFileTypeFromURL, sanitizeFileName, padNumber } from "./helpers"
 import { sendLog, sendDownloadData } from "./tracker"
 

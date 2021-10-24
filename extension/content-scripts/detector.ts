@@ -9,8 +9,9 @@ import {
   ScriptName,
 } from "types"
 
-import { getMoodleBaseURL, getURLRegex, sendEvent } from "../shared/helpers"
+import { sendEvent } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"
+import { getMoodleBaseURL, getURLRegex } from "../shared/regexHelpers"
 
 const pageToScriptMapping: Record<NonNullable<SupportedPage>, ScriptName> = {
   course: "coursePage",

@@ -11,8 +11,9 @@ import {
 } from "types"
 
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
-import { getURLRegex, updateIconFromCourses, sendLog } from "../shared/helpers"
+import { updateIconFromCourses, sendLog } from "../shared/helpers"
 import Course from "../models/Course"
+import { getURLRegex } from "../shared/regexHelpers"
 
 let error = false
 let scanInProgress = true

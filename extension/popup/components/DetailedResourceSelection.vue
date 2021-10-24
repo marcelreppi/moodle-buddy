@@ -87,7 +87,7 @@
 <script lang="ts">
 import { Resource } from "types"
 import { defineComponent, PropType } from "vue"
-import { isFile, isFolder } from "../../shared/helpers"
+import { isFile, isFolder } from "../../shared/resourceHelpers"
 
 type CbCategory = "all" | "file" | "folder"
 
