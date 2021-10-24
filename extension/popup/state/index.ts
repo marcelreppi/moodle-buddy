@@ -1,15 +1,17 @@
 import { ref } from "vue"
-import { ExtensionOptions, Message, StoredCourseData } from "../../types"
+import { ExtensionOptions, Message, SelectionTab, StoredCourseData } from "../../types"
 
 export const activeTab = ref<browser.tabs.Tab>()
 export const options = ref<ExtensionOptions>()
-export const browserId = ref<string>("")
+export const browserId = ref("")
 export const overviewCourseLinks = ref<string[]>()
-export const nUpdates = ref<number>(0)
-export const userHasRated = ref<boolean>(false)
-export const totalDownloadedFiles = ref<number>(0)
-export const rateHintLevel = ref<number>(1)
+export const nUpdates = ref(0)
+export const userHasRated = ref(false)
+export const totalDownloadedFiles = ref(0)
+export const rateHintLevel = ref(1)
 export const courseData = ref<StoredCourseData>()
+export const currentSelectionTab = ref<SelectionTab>()
+export const onlyNewResources = ref(false)
 
 export function updateState() {
   if (activeTab.value?.id) {

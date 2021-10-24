@@ -87,7 +87,8 @@
 <script lang="ts">
 import { Resource } from "types"
 import { defineComponent, PropType } from "vue"
-import { isFile, isFolder } from "../../shared/resourceHelpers"
+import { isFile, isFolder, setResourceSelected } from "../../shared/resourceHelpers"
+import { onlyNewResources } from "../state"
 
 type CbCategory = "all" | "file" | "folder"
 
@@ -96,14 +97,6 @@ export default defineComponent({
     resources: {
       type: Object as PropType<Resource[]>,
       required: true,
-    },
-    setResourceSelected: {
-      type: Function,
-      required: true,
-    },
-    onlyNewResources: {
-      type: Boolean,
-      default: false,
     },
   },
   data() {
@@ -115,7 +108,7 @@ export default defineComponent({
   computed: {
     filteredResources(): Resource[] {
       if (this.searchInput === "") {
-        if (this.onlyNewResources) {
+        if (onlyNewResources.value) {
           return this.resources.filter((r) => r.isNew)
         }
 
@@ -126,7 +119,7 @@ export default defineComponent({
         const regex = new RegExp(this.searchInput, "gi")
         const isMatch = Boolean(r.name.match(regex))
 
-        if (this.onlyNewResources) {
+        if (onlyNewResources.value) {
           return r.isNew && isMatch
         }
 
@@ -149,7 +142,7 @@ export default defineComponent({
         cbRef.checked = true
         const dataset = target.parentElement?.dataset
         if (dataset && "href" in dataset) {
-          this.setResourceSelected(dataset.href, true)
+          setResourceSelected(this.resources, dataset.href ?? "", true)
         }
       }
     },
@@ -160,7 +153,7 @@ export default defineComponent({
       const target = e.target as HTMLInputElement
       const { dataset } = target
       if (dataset && "href" in dataset) {
-        this.setResourceSelected(dataset.href, target.checked)
+        setResourceSelected(this.resources, dataset.href ?? "", target.checked)
       }
 
       if (!target.checked) {
@@ -189,7 +182,7 @@ export default defineComponent({
           inputRef.checked = target.checked
 
           const { href } = inputRef.dataset
-          this.setResourceSelected(href, inputRef.checked)
+          setResourceSelected(this.resources, href ?? "", inputRef.checked)
         })
 
       if (!target.checked) {

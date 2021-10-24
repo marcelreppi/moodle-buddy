@@ -5,38 +5,30 @@
         v-for="(tab, i) in tabs"
         :key="i"
         class="w-full tab"
-        :class="{ 'active-tab': selectionTab.id === tab.id }"
-        @click="() => setSelectionTab(tab)"
+        :class="{ 'active-tab': currentSelectionTab?.id === tab.id }"
+        @click="() => setCurrentSelectionTab(tab)"
       >
         {{ tab.title }}
       </div>
     </div>
     <div v-for="(tab, i) in tabs" :key="i">
-      <slot v-if="selectionTab.id === tab.id" :name="tab.id"></slot>
+      <slot v-if="currentSelectionTab?.id === tab.id" :name="tab.id"></slot>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { PropType, Ref, defineComponent } from "vue"
+<script setup lang="ts">
 import { SelectionTab } from "../../types"
+import { currentSelectionTab } from "../state"
 
-export default defineComponent({
-  props: {
-    tabs: {
-      type: Array as PropType<SelectionTab[]>,
-      required: true,
-    },
-    selectionTab: {
-      type: Object as PropType<Ref<SelectionTab>>,
-      required: true,
-    },
-    setSelectionTab: {
-      type: Function,
-      required: true,
-    },
-  },
-})
+const props = defineProps<{
+  tabs: SelectionTab[]
+}>()
+
+const setCurrentSelectionTab = (tab: SelectionTab) => {
+  currentSelectionTab.value = tab
+}
+currentSelectionTab.value = props.tabs[0]
 </script>
 
 <style>

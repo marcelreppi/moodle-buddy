@@ -15,8 +15,8 @@
           <rating-hint v-else-if="showRatingHint"></rating-hint>
           <template v-else>
             <dashboard-view v-if="showDashboardPageView"></dashboard-view>
-            <files-view v-if="showCourseView" view="course"></files-view>
-            <files-view v-if="showVideoServiceView" view="videoservice"></files-view>
+            <course-view v-if="showCourseView"></course-view>
+            <video-service-view v-if="showVideoServiceView"></video-service-view>
             <no-moodle-view v-if="showNoMoodle"></no-moodle-view>
           </template>
         </template>
@@ -60,7 +60,8 @@ import {
 } from "./state"
 
 import { getActiveTab, isFirefox } from "../shared/helpers"
-import FilesView from "./views/FilesView.vue"
+import CourseView from "./views/CourseView.vue"
+import VideoServiceView from "./views/VideoServiceView.vue"
 import DashboardView from "./views/DashboardView.vue"
 import NoMoodleView from "./views/NoMoodleView.vue"
 import ErrorView from "./views/ErrorView.vue"
