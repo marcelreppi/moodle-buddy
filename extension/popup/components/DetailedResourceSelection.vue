@@ -16,7 +16,7 @@
         <label class="category" @input="(e) => onCategoryClick(e, 'all')">
           <span>All</span>
           <div>
-            <input ref="allCb" class="mt-1" type="checkbox" />
+            <input :ref="setCbRef('allCb')" class="mt-1" type="checkbox" />
           </div>
         </label>
       </div>
@@ -25,7 +25,7 @@
         <label class="category" @input="(e) => onCategoryClick(e, 'file')">
           <span>Files</span>
           <div>
-            <input ref="filesCb" class="mt-1" type="checkbox" />
+            <input :ref="setCbRef('filesCb')" class="mt-1" type="checkbox" />
           </div>
         </label>
         <label
@@ -41,7 +41,7 @@
           <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
           <div>
             <input
-              :ref="`fileCb${i}`"
+              :ref="setCbRef(`fileCb${i}`)"
               :data-href="r.href"
               type="checkbox"
               :checked="r.selected"
@@ -55,7 +55,7 @@
         <label class="category" @input="(e) => onCategoryClick(e, 'folder')">
           <span>Folders</span>
           <div>
-            <input ref="foldersCb" class="mt-1" type="checkbox" />
+            <input :ref="setCbRef('foldersCb')" class="mt-1" type="checkbox" />
           </div>
         </label>
         <label
@@ -71,7 +71,7 @@
           <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
           <div>
             <input
-              :ref="`folderCb${i}`"
+              :ref="setCbRef(`folderCb${i}`)"
               :data-href="r.href"
               type="checkbox"
               :checked="r.selected"
@@ -84,114 +84,95 @@
   </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { Resource } from "types"
-import { defineComponent, PropType } from "vue"
+import { computed, reactive, ref } from "vue"
 import { isFile, isFolder, setResourceSelected } from "../../shared/resourceHelpers"
+import useNavigation from "../composables/useNavigation"
 import { onlyNewResources } from "../state"
 
 type CbCategory = "all" | "file" | "folder"
 
-export default defineComponent({
-  props: {
-    resources: {
-      type: Object as PropType<Resource[]>,
-      required: true,
-    },
-  },
-  data() {
-    return {
-      mouseDown: false,
-      searchInput: "",
+const props = defineProps<{
+  resources: Resource[]
+}>()
+
+const mouseDown = ref(false)
+const searchInput = ref("")
+
+const allCb = ref<HTMLInputElement>()
+const cbRefs = reactive<Record<string, any>>({})
+const setCbRef = (key: string) => (el: any) => (el ? (cbRefs[key] = el) : null)
+
+const filteredResources = computed(() => {
+  if (searchInput.value === "") {
+    if (onlyNewResources.value) {
+      return props.resources.filter((r) => r.isNew)
     }
-  },
-  computed: {
-    filteredResources(): Resource[] {
-      if (this.searchInput === "") {
-        if (onlyNewResources.value) {
-          return this.resources.filter((r) => r.isNew)
-        }
 
-        return this.resources
-      }
+    return props.resources
+  }
 
-      return this.resources.filter((r) => {
-        const regex = new RegExp(this.searchInput, "gi")
-        const isMatch = Boolean(r.name.match(regex))
+  return props.resources.filter((r) => {
+    const regex = new RegExp(searchInput.value, "gi")
+    const isMatch = Boolean(r.name.match(regex))
 
-        if (onlyNewResources.value) {
-          return r.isNew && isMatch
-        }
+    if (onlyNewResources.value) {
+      return r.isNew && isMatch
+    }
 
-        return isMatch
-      })
-    },
-    fileResources(): Resource[] {
-      return this.filteredResources.filter(isFile)
-    },
-    folderResources(): Resource[] {
-      return this.filteredResources.filter(isFolder)
-    },
-  },
-  methods: {
-    onMouseOver(e: Event) {
-      if (this.mouseDown) {
-        const target = e.target as HTMLInputElement
-        const cbId = target.parentElement?.id || ""
-        const cbRef = this.$refs[cbId] as HTMLInputElement
-        cbRef.checked = true
-        const dataset = target.parentElement?.dataset
-        if (dataset && "href" in dataset) {
-          setResourceSelected(this.resources, dataset.href ?? "", true)
-        }
-      }
-    },
-    setMouseDown(isDown: boolean) {
-      this.mouseDown = isDown
-    },
-    onCheck(e: Event) {
-      const target = e.target as HTMLInputElement
-      const { dataset } = target
-      if (dataset && "href" in dataset) {
-        setResourceSelected(this.resources, dataset.href ?? "", target.checked)
-      }
-
-      if (!target.checked) {
-        const allCbRef = this.$refs.allCb as HTMLInputElement
-        allCbRef.checked = false
-      }
-    },
-    onLinkClick(e: Event) {
-      browser.tabs.create({
-        url: (e.target as HTMLAnchorElement).href,
-      })
-      window.close()
-    },
-    onCategoryClick(e: Event, category: CbCategory) {
-      const target = e.target as HTMLInputElement
-
-      Object.keys(this.$refs)
-        .filter((refKey) => {
-          const searchCategory = category === "all" ? "" : category
-          return refKey.match(new RegExp(`.*${searchCategory}Cb`))
-        })
-        .forEach((refKey) => {
-          const inputRef = this.$refs[refKey] as HTMLInputElement
-          if (inputRef === null) return // User has filtered while clicking so some refs are undefined
-
-          inputRef.checked = target.checked
-
-          const { href } = inputRef.dataset
-          setResourceSelected(this.resources, href ?? "", inputRef.checked)
-        })
-
-      if (!target.checked) {
-        const allCbRef = this.$refs.allCb as HTMLInputElement
-        allCbRef.checked = false
-      }
-    },
-  },
+    return isMatch
+  })
 })
+const fileResources = computed(() => filteredResources.value.filter(isFile))
+const folderResources = computed(() => filteredResources.value.filter(isFolder))
+
+const onMouseOver = (e: Event) => {
+  if (mouseDown.value) {
+    const target = e.target as HTMLInputElement
+    target.checked = true
+    const dataset = target.parentElement?.dataset
+    if (dataset && "href" in dataset) {
+      setResourceSelected(props.resources, dataset.href ?? "", true)
+    }
+  }
+}
+
+const setMouseDown = (isDown: boolean) => (mouseDown.value = isDown)
+
+const onCheck = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  const { dataset } = target
+  if (dataset && "href" in dataset) {
+    setResourceSelected(props.resources, dataset.href ?? "", target.checked)
+  }
+
+  if (!target.checked && allCb.value) {
+    allCb.value.checked = false
+  }
+}
+
+const { openURL } = useNavigation()
+const onLinkClick = (e: Event) => openURL((e.target as HTMLAnchorElement).href)
+
+const onCategoryClick = (e: Event, category: CbCategory) => {
+  const target = e.target as HTMLInputElement
+  Object.keys(cbRefs)
+    .filter((refKey) => {
+      const searchCategory = category === "all" ? "" : category
+      return refKey.match(new RegExp(`.*${searchCategory}Cb`))
+    })
+    .forEach((refKey) => {
+      const inputRef = cbRefs[refKey] as HTMLInputElement
+      if (inputRef === null) return // User has filtered while clicking so some refs are undefined
+      inputRef.checked = target.checked
+      const { href } = inputRef.dataset
+      setResourceSelected(props.resources, href ?? "", inputRef.checked)
+    })
+  if (!target.checked && allCb.value) {
+    allCb.value.checked = false
+  }
+}
 </script>
 
 <style scoped>

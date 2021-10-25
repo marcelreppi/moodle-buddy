@@ -1,19 +1,18 @@
 import { isFirefox, sendEvent } from "../../shared/helpers"
 import { options } from "../state"
 
-function navigateTo(url: string) {
-  browser.tabs.create({ url })
-  window.close()
-}
-
 export default function useNavigation() {
-  const openContactPage = () => navigateTo("/pages/contact/contact.html")
+  const openURL = (url: string) => {
+    browser.tabs.create({ url })
+    window.close()
+  }
+  const openContactPage = () => openURL("/pages/contact/contact.html")
   const openInfoPage = () => {
-    navigateTo("/pages/information/information.html")
+    openURL("/pages/information/information.html")
     sendEvent("info-click", false)
   }
   const openDonatePage = () => {
-    navigateTo("https://paypal.me/marcelreppi")
+    openURL("https://paypal.me/marcelreppi")
     sendEvent("donate-click", false)
   }
   const openOptionsPage = () => {
@@ -24,22 +23,23 @@ export default function useNavigation() {
     const rateLink = isFirefox
       ? "https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/"
       : "https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo"
-    navigateTo(rateLink)
+    openURL(rateLink)
     sendEvent("rate-click", false)
   }
 
   const openMoodlePage = () => {
     if (options.value === undefined) return
 
-    navigateTo(options.value.defaultMoodleURL)
+    openURL(options.value.defaultMoodleURL)
     sendEvent("go-to-moodle", false)
   }
   const openCoursePage = (url: string) => {
-    navigateTo(url)
+    openURL(url)
     sendEvent("go-to-course", true)
   }
 
   return {
+    openURL,
     openContactPage,
     openInfoPage,
     openDonatePage,
