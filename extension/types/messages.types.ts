@@ -60,7 +60,7 @@ export interface LogMessage extends Message {
   logData: LogData
 }
 
-export type ScriptName = "detector" | "coursePage" | "videoservicePage" | "dashboardPage"
+export type ScriptName = "coursePage" | "videoservicePage" | "dashboardPage"
 
 export interface ExecuteScriptMessage extends Message {
   command: "execute-script"
@@ -132,7 +132,7 @@ export interface StateData
     ExtensionStorage,
     "options" | "nUpdates" | "userHasRated" | "totalDownloadedFiles" | "rateHintLevel"
   > {
-  page: SupportedPage
+  page: SupportedPage | undefined
 }
 
 export interface StateMessage extends Message {

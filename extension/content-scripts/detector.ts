@@ -1,15 +1,4 @@
-import {
-  ExtensionStorage,
-  SupportedPage,
-  ExecuteScriptMessage,
-  Message,
-  PageDataMessage,
-  StateMessage,
-  PageData,
-  ScriptName,
-} from "types"
-
-import { sendEvent } from "../shared/helpers"
+import { ExecuteScriptMessage, ExtensionStorage, Message, ScriptName, SupportedPage } from "types"
 import { checkForMoodle } from "../shared/parser"
 import { getMoodleBaseURL, getURLRegex } from "../shared/regexHelpers"
 
@@ -59,8 +48,9 @@ function getSupportedPage(): SupportedPage | undefined {
   return undefined
 }
 
-async function runDetector() {
-  let page: SupportedPage
+export function detectPage(): SupportedPage | undefined {
+  console.log("hi")
+  let page: SupportedPage | undefined
 
   const isMoodlePage = checkForMoodle()
 
@@ -81,53 +71,5 @@ async function runDetector() {
     })
   }
 
-  async function updateVueState() {
-    const localStorage: ExtensionStorage = await browser.storage.local.get()
-    const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = localStorage
-    browser.runtime.sendMessage<StateMessage>({
-      command: "state",
-      state: { page, options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel },
-    })
-  }
-
-  const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
-    const { command } = message as Message
-
-    if (command === "get-state") {
-      updateVueState()
-    }
-
-    if (command === "track-page-view") {
-      if (page === undefined) return
-
-      sendEvent(`view-${page}-page`, true)
-
-      const pageData: PageData = {
-        page,
-        content: document.querySelector("html")?.outerHTML || "",
-      }
-      browser.runtime.sendMessage<PageDataMessage>({
-        command: "page-data",
-        pageData,
-      })
-    }
-
-    if (command === "rate-click") {
-      await browser.storage.local.set({
-        userHasRated: true,
-      })
-      updateVueState()
-    }
-
-    if (command === "avoid-rate-click") {
-      const { rateHintLevel }: ExtensionStorage = await browser.storage.local.get()
-      await browser.storage.local.set({
-        rateHintLevel: rateHintLevel + 1,
-      })
-      updateVueState()
-    }
-  }
-  browser.runtime.onMessage.addListener(messageListener)
+  return page
 }
-
-runDetector()

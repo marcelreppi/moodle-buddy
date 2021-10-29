@@ -25,7 +25,6 @@ const addContentEntry = (filename) => {
 }
 
 addContentEntry("index.ts")
-addContentEntry("detector.ts")
 addContentEntry("coursePage.ts")
 addContentEntry("dashboardPage.ts")
 addContentEntry("videoservicePage.ts")
