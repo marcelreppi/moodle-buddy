@@ -29,6 +29,7 @@
   "background": {
     "scripts": [
       "shared/browser-polyfill.js",
+      "shared/umami.js",
       "background-scripts/extensionListener.js",
       "background-scripts/downloader.js",
       "background-scripts/backgroundScanner.js"

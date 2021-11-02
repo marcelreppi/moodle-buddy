@@ -33,6 +33,9 @@ addExtensionEntry("background-scripts/downloader.ts")
 addExtensionEntry("background-scripts/extensionListener.ts")
 addExtensionEntry("background-scripts/backgroundScanner.ts")
 
+addExtensionEntry("shared/browser-polyfill.js")
+addExtensionEntry("shared/umami.js")
+
 addExtensionEntry("pages/contact/contact.ts")
 addExtensionEntry("pages/information/information.ts")
 addExtensionEntry("pages/install/install.ts")
@@ -101,7 +104,6 @@ module.exports = {
         { from: "./extension/manifest.json", to: "./manifest.json" },
         { from: "./extension/popup/index.html", to: "./popup/index.html" },
         { from: "./extension/pages", to: "./pages", globOptions: { ignore: ["**/*.ts"] } },
-        { from: "./extension/shared", to: "./shared" },
         { from: "./extension/icons", to: "./icons" },
         { from: "./screenshots", to: "./screenshots" },
       ],
