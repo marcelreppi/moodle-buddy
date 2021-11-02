@@ -16,47 +16,29 @@ const entries = {
   "popup/app.bundle": ["@babel/polyfill", join(__dirname, "extension", "popup", "main.ts")],
 }
 
-// Content scripts
-const addContentEntry = (filename) => {
-  const [filenameWithoutExtension] = filename.split(".")
-  const inputPath = polyfills.concat(join(__dirname, "extension", "content-scripts", filename))
-  const outputPath = `content-scripts/${filenameWithoutExtension}`
+const addExtensionEntry = (pathToFile) => {
+  const pathElements = pathToFile.split("/")
+  const [filenameWithoutExtension] = pathElements[pathElements.length - 1].split(".")
+  const inputPath = polyfills.concat(join(__dirname, "extension", ...pathElements))
+  const outputPath = [...pathElements.slice(0, -1), filenameWithoutExtension].join("/")
   entries[outputPath] = inputPath
 }
 
-addContentEntry("index.ts")
-addContentEntry("coursePage.ts")
-addContentEntry("dashboardPage.ts")
-addContentEntry("videoservicePage.ts")
+addExtensionEntry("content-scripts/index.ts")
+addExtensionEntry("content-scripts/coursePage.ts")
+addExtensionEntry("content-scripts/dashboardPage.ts")
+addExtensionEntry("content-scripts/videoservicePage.ts")
 
-// Background scripts
-const addBackgroundEntry = (filename) => {
-  const [filenameWithoutExtension] = filename.split(".")
-  const inputPath = polyfills.concat(join(__dirname, "extension", "background-scripts", filename))
-  const outputPath = `background-scripts/${filenameWithoutExtension}`
-  entries[outputPath] = inputPath
-}
+addExtensionEntry("background-scripts/downloader.ts")
+addExtensionEntry("background-scripts/extensionListener.ts")
+addExtensionEntry("background-scripts/backgroundScanner.ts")
 
-addBackgroundEntry("downloader.ts")
-addBackgroundEntry("extensionListener.ts")
-addBackgroundEntry("backgroundScanner.ts")
-
-// Page scripts
-const addPageEntry = (filename) => {
-  const [filenameWithoutExtension] = filename.split(".")
-  const inputPath = polyfills.concat(
-    join(__dirname, "extension", "pages", filenameWithoutExtension, filename)
-  )
-  const outputPath = `pages/${filenameWithoutExtension}/${filenameWithoutExtension}`
-  entries[outputPath] = inputPath
-}
-
-addPageEntry("contact.ts")
-addPageEntry("information.ts")
-addPageEntry("install.ts")
-// addPageEntry("legal.ts")
-addPageEntry("options.ts")
-addPageEntry("update.ts")
+addExtensionEntry("pages/contact/contact.ts")
+addExtensionEntry("pages/information/information.ts")
+addExtensionEntry("pages/install/install.ts")
+// addExtensionEntry("pages/legal/legal.ts")
+addExtensionEntry("pages/options/options.ts")
+addExtensionEntry("pages/update/update.ts")
 
 module.exports = {
   entry: entries,
