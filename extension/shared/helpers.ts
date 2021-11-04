@@ -1,4 +1,4 @@
-import { EventMessage, LogMessage, SetBadgeMessage, LogData } from "types"
+import { EventMessage, LogMessage, SetBadgeMessage, LogPayloadData } from "types"
 
 import Course from "models/Course"
 
@@ -15,7 +15,7 @@ export function sendEvent(
   })
 }
 
-export function sendLog(logData: LogData): void {
+export function sendLog(logData: LogPayloadData): void {
   browser.runtime.sendMessage<LogMessage>({
     command: "log",
     logData,

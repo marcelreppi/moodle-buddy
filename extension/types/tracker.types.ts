@@ -1,18 +1,19 @@
 import { SupportedPage } from "./extension.types"
 
-export interface Payload {
+export interface BasePayload {
   browser: "firefox" | "chrome"
   browserId: string
   dev: boolean
 }
 
-export interface EventData {
+export interface EventPayloadData {
   event: string
   url: string
   eventData: Record<string, unknown>
 }
+export type EventPayload = BasePayload & EventPayloadData
 
-export interface DownloadData {
+export interface DownloadPayloadData {
   fileCount: number
   byteCount: number
   errorCount: number
@@ -20,21 +21,32 @@ export interface DownloadData {
   addCount: number
   removeCount: number
 }
+export type DownloadPayload = BasePayload & DownloadPayloadData
 
-export interface PageData {
+export interface PagePayloadData {
   content: string
   page: SupportedPage
 }
+export type PagePayload = BasePayload & PagePayloadData
 
-export interface FeedbackData {
+export interface FeedbackPayloadData {
   subject: string
   content: string
 }
+export type FeedbackPayload = BasePayload & FeedbackPayloadData
 
-export interface LogData {
+export interface LogPayloadData {
   errorMessage: string
   url?: string
   fileName?: string
 }
+export type LogPayload = BasePayload & LogPayloadData
 
-export type AdditionalPayload = EventData | DownloadData | PageData | FeedbackData | LogData
+export type AdditionalPayloadData =
+  | EventPayloadData
+  | DownloadPayloadData
+  | PagePayloadData
+  | FeedbackPayloadData
+  | LogPayloadData
+
+export type Payload = EventPayload | DownloadPayload | PagePayload | FeedbackPayload | LogPayload

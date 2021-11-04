@@ -1,11 +1,11 @@
 import {
   ExtensionStorage,
-  AdditionalPayload,
-  DownloadData,
-  EventData,
-  FeedbackData,
-  LogData,
-  PageData,
+  AdditionalPayloadData,
+  DownloadPayloadData,
+  EventPayloadData,
+  FeedbackPayloadData,
+  LogPayloadData,
+  PagePayloadData,
   Payload,
 } from "types"
 
@@ -13,7 +13,7 @@ import { isFirefox, getActiveTab } from "../shared/helpers"
 
 const isDev = process.env.NODE_ENV !== "production"
 
-async function sendToLambda(path: string, payload: AdditionalPayload) {
+async function sendToLambda(path: string, payload: AdditionalPayloadData) {
   const { options, browserId }: ExtensionStorage = await browser.storage.local.get([
     "options",
     "browserId",
@@ -23,7 +23,7 @@ async function sendToLambda(path: string, payload: AdditionalPayload) {
     // console.log("Moodle Buddy Tracking disabled!")
     if (path === "/event") {
       const eventExceptions = ["install", "update"]
-      if (!eventExceptions.includes((payload as EventData).event)) {
+      if (!eventExceptions.includes((payload as EventPayloadData).event)) {
         return
       }
     }
@@ -81,26 +81,26 @@ export async function sendEvent(
     url = activeTab?.url || ""
   }
 
-  const payload: EventData = { event, url, eventData }
+  const payload: EventPayloadData = { event, url, eventData }
   sendToLambda("/event", payload)
 }
 
-export async function sendDownloadData(data: DownloadData): Promise<void> {
+export async function sendDownloadData(data: DownloadPayloadData): Promise<void> {
   sendToLambda("/download", data)
 }
 
-export async function sendPageData(payload: PageData): Promise<void> {
+export async function sendPageData(payload: PagePayloadData): Promise<void> {
   if (!isDev) {
     sendToLambda("/page", payload)
   }
 }
 
-export async function sendFeedback(payload: FeedbackData): Promise<void> {
+export async function sendFeedback(payload: FeedbackPayloadData): Promise<void> {
   sendEvent("feedback", false)
   sendToLambda("/feedback", payload)
 }
 
-export async function sendLog(payload: LogData): Promise<void> {
+export async function sendLog(payload: LogPayloadData): Promise<void> {
   const { errorMessage } = payload
 
   const skipMessages = [

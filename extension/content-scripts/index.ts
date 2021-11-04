@@ -1,6 +1,6 @@
 import { detectPage } from "./detector"
 import { sendEvent } from "../shared/helpers"
-import { ExtensionStorage, Message, PageData, PageDataMessage, StateMessage } from "../types"
+import { ExtensionStorage, Message, PagePayloadData, PageDataMessage, StateMessage } from "../types"
 
 const page = detectPage()
 
@@ -25,7 +25,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
 
     sendEvent(`view-${page}-page`, true)
 
-    const pageData: PageData = {
+    const pageData: PagePayloadData = {
       page,
       content: document.querySelector("html")?.outerHTML || "",
     }

@@ -1,6 +1,6 @@
 import { Activity, Counts, Resource, VideoServiceResource } from "./course.types"
 import { ExtensionOptions, ExtensionStorage, SupportedPage } from "./extension.types"
-import { FeedbackData, LogData, PageData } from "./tracker.types"
+import { FeedbackPayloadData, LogPayloadData, PagePayloadData } from "./tracker.types"
 
 type Command =
   | "get-state"
@@ -42,12 +42,12 @@ export interface EventMessage extends Message {
 
 export interface PageDataMessage extends Message {
   command: "page-data"
-  pageData: PageData
+  pageData: PagePayloadData
 }
 
 export interface FeedbackMessage extends Message {
   command: "feedback"
-  feedbackData: FeedbackData
+  feedbackData: FeedbackPayloadData
 }
 
 export interface SetBadgeMessage extends Message {
@@ -57,7 +57,7 @@ export interface SetBadgeMessage extends Message {
 
 export interface LogMessage extends Message {
   command: "log"
-  logData: LogData
+  logData: LogPayloadData
 }
 
 export type ScriptName = "coursePage" | "videoservicePage" | "dashboardPage"
