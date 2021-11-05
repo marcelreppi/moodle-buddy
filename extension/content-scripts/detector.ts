@@ -49,7 +49,6 @@ function getSupportedPage(): SupportedPage | undefined {
 }
 
 export function detectPage(): SupportedPage | undefined {
-  console.log("hi")
   let page: SupportedPage | undefined
 
   const isMoodlePage = checkForMoodle()

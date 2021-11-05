@@ -18,21 +18,17 @@
     <div v-if="hasUpdates">
       <div class="mt-1 text-xs text-gray-700">
         <div v-if="newResources.length > 0" class="font-bold">
-          <span>{{ course.counts.nNewFiles + course.counts.nNewFolders }}</span>
+          <span>{{ newResources.length }}</span>
           {{ " " }}
           <span>
-            {{
-              course.counts.nNewFiles + course.counts.nNewFolders === 1
-                ? "new resource"
-                : "new resources"
-            }}
+            {{ newResources.length === 1 ? "new resource" : "new resources" }}
           </span>
         </div>
         <div v-if="newActivities.length > 0" class="font-bold">
-          <span>{{ course.counts.nNewActivities }}</span>
+          <span>{{ newActivities.length }}</span>
           {{ " " }}
           <span>
-            {{ course.counts.nNewActivities === 1 ? "new activity" : "new activities" }}
+            {{ newActivities.length === 1 ? "new activity" : "new activities" }}
           </span>
         </div>
         <div class="flex items-center ml-1 mt-0.5" @click="onDetailClick">
@@ -53,7 +49,7 @@
       <div class="flex flex-row-reverse items-center justify-between">
         <div
           class="mt-1.5 text-sm text-gray-600 whitespace-nowrap custom-hover"
-          @click="() => onMarkAsSeenClick(course)"
+          @click="onMarkAsSeenClick"
         >
           Mark as seen
         </div>
@@ -89,17 +85,16 @@ const props = defineProps<{
   course: DashboardCourseData
 }>()
 
-const showDetails = ref(false)
-const resources = props.course.resources
-const activities = props.course.activities
-const counts = props.course.counts
+const emit = defineEmits<{
+  (e: "mark-as-seen"): void
+}>()
 
-const newResources = computed(() => resources.filter((n) => n.isNew))
-const newActivities = computed(() => activities.filter((n) => n.isNew))
+const showDetails = ref(false)
+
+const newResources = computed(() => props.course.resources.filter((n) => n.isNew))
+const newActivities = computed(() => props.course.activities.filter((n) => n.isNew))
 const allNewNodes = computed(() => [...newResources.value, ...newActivities.value])
-const hasUpdates = computed(
-  () => counts.nNewFiles > 0 || counts.nNewFolders > 0 || counts.nNewActivities > 0
-)
+const hasUpdates = computed(() => allNewNodes.value.length > 0)
 
 const getResourceLabel = (resource: Resource): string => {
   if (isFile(resource)) return "File"
@@ -123,17 +118,22 @@ const onDownloadClick = (e: Event, course: DashboardCourseData) => {
   }
 }
 
-const onMarkAsSeenClick = (course: DashboardCourseData) => {
+const onMarkAsSeenClick = () => {
   sendEvent("mark-as-seen-dashboard-page", true)
-  course.counts.nNewFiles = 0
-  course.counts.nNewFolders = 0
-  course.counts.nNewActivities = 0
+
+  props.course.resources.forEach((r) => (r.isNew = false))
+  props.course.counts.nNewFiles = 0
+  props.course.counts.nNewFolders = 0
+  props.course.counts.nNewActivities = 0
+
   if (activeTab.value?.id) {
     browser.tabs.sendMessage<MarkAsSeenMessage>(activeTab.value.id, {
       command: "mark-as-seen",
-      link: course.link,
+      link: props.course.link,
     })
   }
+
+  emit("mark-as-seen")
 }
 
 const onDetailClick = () => {

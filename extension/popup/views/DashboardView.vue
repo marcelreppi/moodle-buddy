@@ -8,7 +8,12 @@
       <div>No courses found</div>
     </div>
     <div class="flex flex-col items-center px-2 overflow-y-auto max-h-80 scrollbar">
-      <course-card v-for="(course, i) in courses" :key="i" :course="course" />
+      <course-card
+        v-for="(course, i) in courses"
+        :key="i"
+        :course="course"
+        @mark-as-seen="sortCoursesByNewestResourcesAndActivities"
+      />
     </div>
   </div>
 </template>
@@ -30,6 +35,27 @@ const courses = ref<DashboardCourseData[]>()
 
 const progressBar = ref<any>(null)
 
+const sortCoursesByNewestResourcesAndActivities = () =>
+  courses.value?.sort((c1: DashboardCourseData, c2: DashboardCourseData) => {
+    if (
+      c1.counts.nNewFiles > c2.counts.nNewFiles ||
+      c1.counts.nNewFolders > c2.counts.nNewFolders ||
+      c1.counts.nNewActivities > c2.counts.nNewActivities
+    ) {
+      return -1
+    }
+
+    if (
+      c1.counts.nNewFiles < c2.counts.nNewFiles ||
+      c1.counts.nNewFolders < c2.counts.nNewFolders ||
+      c1.counts.nNewActivities < c2.counts.nNewActivities
+    ) {
+      return 1
+    }
+
+    return 0
+  })
+
 const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
   const { command } = message as Message
   if (command === "scan-in-progress") {
@@ -50,25 +76,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
       sendEvent("empty-dashboard", true)
     }
 
-    courses.value.sort((a, b) => {
-      if (
-        a.counts.nNewFiles > b.counts.nNewFiles ||
-        a.counts.nNewFolders > b.counts.nNewFolders ||
-        a.counts.nNewActivities > b.counts.nNewActivities
-      ) {
-        return -1
-      }
-
-      if (
-        a.counts.nNewFiles < b.counts.nNewFiles ||
-        a.counts.nNewFolders < b.counts.nNewFolders ||
-        a.counts.nNewActivities < b.counts.nNewActivities
-      ) {
-        return 1
-      }
-
-      return 0
-    })
+    sortCoursesByNewestResourcesAndActivities()
   }
 }
 browser.runtime.onMessage.addListener(messageListener)
