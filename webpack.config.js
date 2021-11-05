@@ -33,7 +33,6 @@ addExtensionEntry("background-scripts/downloader.ts")
 addExtensionEntry("background-scripts/extensionListener.ts")
 addExtensionEntry("background-scripts/backgroundScanner.ts")
 
-addExtensionEntry("shared/browser-polyfill.js")
 addExtensionEntry("shared/umami.js")
 
 addExtensionEntry("pages/contact/contact.ts")
@@ -103,6 +102,10 @@ module.exports = {
       patterns: [
         { from: "./extension/manifest.json", to: "./manifest.json" },
         { from: "./extension/popup/index.html", to: "./popup/index.html" },
+        {
+          from: "node_modules/webextension-polyfill/dist/browser-polyfill.js",
+          to: "./shared/browser-polyfill.js",
+        },
         { from: "./extension/pages", to: "./pages", globOptions: { ignore: ["**/*.ts"] } },
         { from: "./extension/icons", to: "./icons" },
         { from: "./screenshots", to: "./screenshots" },
