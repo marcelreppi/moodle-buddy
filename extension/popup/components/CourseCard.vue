@@ -21,7 +21,11 @@
           <span>{{ course.counts.nNewFiles + course.counts.nNewFolders }}</span>
           {{ " " }}
           <span>
-            {{ course.counts.nNewActivities === 1 ? "new resource" : "new resources" }}
+            {{
+              course.counts.nNewFiles + course.counts.nNewFolders === 1
+                ? "new resource"
+                : "new resources"
+            }}
           </span>
         </div>
         <div v-if="newActivities.length > 0" class="font-bold">
