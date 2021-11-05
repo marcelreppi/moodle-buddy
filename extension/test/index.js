@@ -1,6 +1,6 @@
 import fs from "fs"
 import { JSDOM } from "jsdom"
-import Course from "../extension/models/Course"
+import Course from "../src/models/Course"
 
 const dir = "files"
 const files = fs.readdirSync(dir)

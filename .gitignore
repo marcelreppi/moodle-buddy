@@ -9,5 +9,3 @@ test/**
 *.rest
 *.zip
 *.env*
-
-notes.md

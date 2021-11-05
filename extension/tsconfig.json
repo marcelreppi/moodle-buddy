@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": "./extension",
+    "baseUrl": "src",
     "typeRoots": [
       "node_modules/@types",
       "node_modules/web-ext-types"
@@ -35,6 +35,6 @@
     "node_modules"
   ],
   "include": [
-    "extension/**/*"
+    "src/**/*"
   ]
 }

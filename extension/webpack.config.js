@@ -13,13 +13,13 @@ console.log(`Webpack is in ${process.env.NODE_ENV} mode`)
 const polyfills = ["core-js/stable", "regenerator-runtime/runtime"]
 
 const entries = {
-  "popup/app.bundle": ["@babel/polyfill", join(__dirname, "extension", "popup", "main.ts")],
+  "popup/app.bundle": ["@babel/polyfill", join(__dirname, "src", "popup", "main.ts")],
 }
 
 const addExtensionEntry = (pathToFile) => {
   const pathElements = pathToFile.split("/")
   const [filenameWithoutExtension] = pathElements[pathElements.length - 1].split(".")
-  const inputPath = polyfills.concat(join(__dirname, "extension", ...pathElements))
+  const inputPath = polyfills.concat(join(__dirname, "src", ...pathElements))
   const outputPath = [...pathElements.slice(0, -1), filenameWithoutExtension].join("/")
   entries[outputPath] = inputPath
 }
@@ -100,15 +100,15 @@ module.exports = {
     new VueLoaderPlugin(),
     new CopyPlugin({
       patterns: [
-        { from: "./extension/manifest.json", to: "./manifest.json" },
-        { from: "./extension/popup/index.html", to: "./popup/index.html" },
+        { from: "./src/manifest.json", to: "./manifest.json" },
+        { from: "./src/popup/index.html", to: "./popup/index.html" },
         {
           from: "node_modules/webextension-polyfill/dist/browser-polyfill.js",
           to: "./shared/browser-polyfill.js",
         },
-        { from: "./extension/pages", to: "./pages", globOptions: { ignore: ["**/*.ts"] } },
-        { from: "./extension/icons", to: "./icons" },
-        { from: "./screenshots", to: "./screenshots" },
+        { from: "./src/pages", to: "./pages", globOptions: { ignore: ["**/*.ts"] } },
+        { from: "./src/icons", to: "./icons" },
+        { from: "../screenshots", to: "./screenshots" },
       ],
     }),
     new Dotenv({
