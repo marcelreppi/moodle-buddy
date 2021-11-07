@@ -15,7 +15,7 @@
   }
 
   section {
-    @apply w-10/12 mx-auto mb-12;
+    @apply max-w-6xl mx-auto mb-12 px-3;
   }
 }
 

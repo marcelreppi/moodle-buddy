@@ -134,6 +134,6 @@ h2 {
 }
 
 .screenshot {
-  @apply max-h-80 shadow border border-gray-200 rounded mt-3;
+  @apply max-h-80 shadow border border-gray-200 rounded mt-3 md:mx-3;
 }
 </style>
