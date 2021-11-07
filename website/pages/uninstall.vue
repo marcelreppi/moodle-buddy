@@ -96,8 +96,13 @@ export default {
       if (this.formContent !== "") {
         this.showLoading = true
         try {
-          await this.sendEvent("feedback")
-          await this.sendToLambda("/feedback", { subject: "Uninstall", content: this.formContent })
+          await Promise.all([
+            this.sendEvent("feedback"),
+            this.sendToLambda("/feedback", {
+              subject: "Uninstall",
+              content: this.formContent,
+            }),
+          ])
           this.showSuccess = true
         } catch (error) {
           this.showError = true
