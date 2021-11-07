@@ -20,10 +20,10 @@
         <div class="tell-me">
           <div>
             <textarea v-model="formContent" cols="60" rows="10"></textarea>
-            <span class="bottom"></span>
-            <span class="right"></span>
+            <span class="bottom" :style="{ bottom: isFirefox ? '2px' : '7px' }"></span>
+            <span class="right" :style="{ bottom: isFirefox ? '2px' : '7px' }"></span>
             <span class="top"></span>
-            <span class="left"></span>
+            <span class="left" :style="{ bottom: isFirefox ? '2px' : '7px' }"></span>
           </div>
 
           <button class="umami--click--uninstall-feedback" @click="submitForm">Submit</button>
@@ -186,7 +186,7 @@ textarea::placeholder {
 .tell-me .right {
   width: 1px;
   top: 0;
-  bottom: 7px;
+  /* bottom: 1px; */
   transform: scaleY(0);
 }
 
@@ -195,7 +195,7 @@ textarea::placeholder {
 }
 
 .tell-me .bottom {
-  bottom: 7px;
+  /* bottom: 1px; */
 }
 
 .tell-me .left {
