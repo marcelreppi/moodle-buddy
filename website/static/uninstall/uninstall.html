@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+
+  <body>
+    <script type="text/javascript">
+      let browserId = ""
+
+      const search = location.search.substring(1)
+      if (search !== "") {
+        const queryObject = JSON.parse(
+          `{"${decodeURI(search).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"')}"}`
+        )
+
+        if (queryObject.browserId) {
+          browserId = queryObject.browserId
+        }
+      }
+
+      let redirectUrl = "https://moodlebuddy.com/uninstall"
+
+      if (browserId !== "") {
+        redirectUrl += `?browserId=${browserId}`
+      }
+
+      window.location.href = redirectUrl
+    </script>
+  </body>
+</html>
