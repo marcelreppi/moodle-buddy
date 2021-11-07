@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+      sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-size: 18px;
+  }
+
+  h2 {
+    @apply text-2xl font-bold;
+  }
+
+  section {
+    @apply w-10/12 mx-auto mb-12;
+  }
+}
+
+@layer components {
+  a.anchor {
+    @apply block relative -top-20 invisible;
+  }
+
+  .link {
+    @apply text-mb-red hover:underline hover:cursor-pointer;
+  }
+}
