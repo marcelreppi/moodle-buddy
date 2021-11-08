@@ -34,7 +34,7 @@ export default {
         content: "Moodle Buddy | Mass file download and notifications for Moodle",
       },
       { name: "og:url", content: "https://moodlebuddy.com" },
-      { name: "og:image", content: "https://moodlebuddy.com/static/mb-128.png" },
+      { name: "og:image", content: "https://moodlebuddy.com/mb-128.png" },
       { name: "og:image:width", content: "128" },
       { name: "og:image:height", content: "128" },
       // Twitter
