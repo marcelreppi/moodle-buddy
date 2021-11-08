@@ -74,7 +74,7 @@
 
 <style scoped>
 .hero {
-  @apply flex flex-col items-center xl:flex-row justify-center space-y-5;
+  @apply flex flex-col items-center xl:flex-row justify-center space-y-5 py-5 md:py-32;
 }
 
 .hero > div:nth-of-type(1) {

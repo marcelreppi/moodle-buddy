@@ -17,10 +17,12 @@
 <style scoped>
 header {
   @apply bg-gray-100 h-16 w-full fixed top-0 flex justify-center md:px-10 lg:px-20;
+  border-radius: 0 0 20px 20px;
+  box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.2);
 }
 
 nav {
-  @apply flex w-full md:max-w-6xl mx-3 md:text-lg;
+  @apply flex w-full md:max-w-6xl mx-4 md:text-lg;
 }
 
 .logo {
