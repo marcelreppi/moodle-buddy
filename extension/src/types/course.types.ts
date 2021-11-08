@@ -11,6 +11,7 @@ export interface Resource {
   selected?: boolean // Only used on the frontend
   resourceIndex: number
   sectionIndex: number
+  lastModified?: string
 }
 
 export interface FileResource extends Resource {
@@ -46,4 +47,5 @@ export interface CourseData extends browser.storage.StorageObject {
   newResources: string[]
   seenActivities: string[]
   newActivities: string[]
+  lastModifiedHeaders?: Record<string, string | undefined>
 }

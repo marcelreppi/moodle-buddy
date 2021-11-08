@@ -12,6 +12,14 @@ import * as parser from "../shared/parser"
 import { isFolder } from "../shared/resourceHelpers"
 import { getMoodleBaseURL } from "../shared/regexHelpers"
 
+async function getLastModifiedHeader(href: string) {
+  const headResponse = await fetch(href, {
+    method: "HEAD",
+  })
+  const lastModified = headResponse.headers.get("last-modified")
+  return lastModified ?? undefined
+}
+
 class Course {
   link: string
   HTMLDocument: Document
@@ -25,6 +33,8 @@ class Course {
 
   activities: Activity[]
   previousSeenActivities: string[] | null
+
+  lastModifiedHeaders: Record<string, string | undefined> | undefined
 
   sectionIndices: Record<string, number>
 
@@ -65,24 +75,30 @@ class Course {
   }
 
   private addResource(resource: Resource): void {
-    if (this.previousSeenResources === null || this.previousSeenResources.includes(resource.href)) {
+    if (this.previousSeenResources !== null) {
+      const hasNotBeenSeenBefore = !this.previousSeenResources.includes(resource.href)
+      const hasBeenUpdated =
+        (this.lastModifiedHeaders ?? {})[resource.href] !== resource.lastModified
+
+      if (hasNotBeenSeenBefore || hasBeenUpdated) {
+        if (isFolder(resource)) {
+          this.counts.nNewFolders++
+        } else {
+          this.counts.nNewFiles++
+        }
+        resource.isNew = true
+      }
+    } else {
       // If course has never been scanned previousSeenResources don't exist
       // Never treat a resource as new when the course is scanned for the first time
       // because we're capturing the initial state of the course
       resource.isNew = false
-    } else {
-      if (isFolder(resource)) {
-        this.counts.nNewFolders++
-      } else {
-        this.counts.nNewFiles++
-      }
-      resource.isNew = true
     }
 
     this.resources.push(resource)
   }
 
-  private addFile(node: HTMLElement, options: ExtensionOptions) {
+  private async addFile(node: HTMLElement, options: ExtensionOptions) {
     const href = parser.parseURLFromNode(node, "file", options)
     if (href === "") return
 
@@ -97,12 +113,13 @@ class Course {
       isNew: false,
       resourceIndex: this.counts.nFiles,
       sectionIndex,
+      lastModified: await getLastModifiedHeader(href),
     }
 
     this.addResource(resource)
   }
 
-  private addPluginFile(node: HTMLElement, options: ExtensionOptions, partOfFolder = ""): void {
+  private async addPluginFile(node: HTMLElement, options: ExtensionOptions, partOfFolder = "") {
     const href = parser.parseURLFromNode(node, "pluginfile", options)
     if (href === "") return
 
@@ -122,12 +139,13 @@ class Course {
       isNew: false,
       resourceIndex: this.counts.nFiles,
       sectionIndex,
+      lastModified: await getLastModifiedHeader(href),
     }
 
     this.addResource(resource)
   }
 
-  private addURLNode(node: HTMLElement, options: ExtensionOptions) {
+  private async addURLNode(node: HTMLElement, options: ExtensionOptions) {
     // Make sure URL is a downloadable file
     const activityIcon: HTMLImageElement | null = node.querySelector("img.activityicon")
     if (activityIcon) {
@@ -152,6 +170,7 @@ class Course {
             isNew: false,
             resourceIndex: this.counts.nFiles,
             sectionIndex,
+            lastModified: await getLastModifiedHeader(href),
           }
 
           this.addResource(resourceNode)
@@ -160,11 +179,13 @@ class Course {
     }
   }
 
-  private addFolder(node: HTMLElement, options: ExtensionOptions) {
+  private async addFolder(node: HTMLElement, options: ExtensionOptions) {
+    const href = parser.parseURLFromNode(node, "folder", options)
+
     const section = parser.parseSectionName(node, this.HTMLDocument)
     const sectionIndex = this.getSectionIndex(section)
     const resource: FolderResource = {
-      href: parser.parseURLFromNode(node, "folder", options),
+      href,
       name: parser.parseFileNameFromNode(node),
       section,
       type: "folder",
@@ -197,17 +218,21 @@ class Course {
           parser.getQuerySelector("pluginfile", options)
         )
         for (const pluginFile of Array.from(folderFiles)) {
-          this.addPluginFile(pluginFile, options, resource.name)
+          await this.addPluginFile(pluginFile, options, resource.name)
         }
         return
       }
+    }
+
+    if (resource.href !== "") {
+      resource.lastModified = await getLastModifiedHeader(href)
     }
 
     this.counts.nFolders++
     this.addResource(resource)
   }
 
-  private addActivity(node: HTMLElement, options: ExtensionOptions) {
+  private async addActivity(node: HTMLElement, options: ExtensionOptions) {
     const section = parser.parseSectionName(node, this.HTMLDocument)
     const sectionIndex = this.getSectionIndex(section)
     const href = parser.parseURLFromNode(node, "activity", options)
@@ -252,6 +277,7 @@ class Course {
       const storedCourseData = courseData[this.link]
       this.previousSeenResources = storedCourseData.seenResources
       this.previousSeenActivities = storedCourseData.seenActivities
+      this.lastModifiedHeaders = storedCourseData.lastModifiedHeaders
     }
 
     const mainHTML = this.HTMLDocument.querySelector("#region-main")
@@ -268,56 +294,62 @@ class Course {
         const isURL = node.classList.contains("url")
 
         if (isFile) {
-          this.addFile(node, options)
+          await this.addFile(node, options)
         } else if (isFolder) {
-          this.addFolder(node, options)
+          await this.addFolder(node, options)
         } else if (isURL) {
-          this.addURLNode(node, options)
+          await this.addURLNode(node, options)
         } else {
-          this.addActivity(node, options)
+          await this.addActivity(node, options)
         }
       }
 
       // Check for pluginfiles that could be anywhere on the page
-      const pluginFileNodes = mainHTML.querySelectorAll<HTMLElement>(
-        parser.getQuerySelector("pluginfile", options)
+      const pluginFileNodes = Array.from(
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", options))
       )
-      const mediaFileNodes = mainHTML.querySelectorAll<HTMLElement>(
-        parser.getQuerySelector("media", options)
+      const mediaFileNodes = Array.from(
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", options))
       )
-      pluginFileNodes.forEach((n) => this.addPluginFile(n, options))
-      mediaFileNodes.forEach((n) => this.addPluginFile(n, options))
+      await Promise.all(pluginFileNodes.map((n) => this.addPluginFile(n, options)))
+      await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n, options)))
     } else {
       // Backup solution that is a little more brute force
-      const fileNodes = mainHTML.querySelectorAll<HTMLElement>(
-        parser.getQuerySelector("file", options)
+      const fileNodes = Array.from(
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("file", options))
       )
-      const pluginFileNodes = mainHTML.querySelectorAll<HTMLElement>(
-        parser.getQuerySelector("pluginfile", options)
+      const pluginFileNodes = Array.from(
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", options))
       )
-      const urlFileNodes = mainHTML.querySelectorAll<HTMLElement>(
-        parser.getQuerySelector("url", options)
+      const urlFileNodes = Array.from(
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("url", options))
       )
-      const mediaFileNodes = mainHTML.querySelectorAll<HTMLElement>(
-        parser.getQuerySelector("media", options)
+      const mediaFileNodes = Array.from(
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", options))
       )
-      const folderNodes = mainHTML.querySelectorAll<HTMLElement>(
-        parser.getQuerySelector("folder", options)
+      const folderNodes = Array.from(
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("folder", options))
       )
-      const activities = mainHTML.querySelectorAll<HTMLElement>(
-        parser.getQuerySelector("activity", options)
+      const activities = Array.from(
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("activity", options))
       )
 
-      fileNodes.forEach((n) => this.addFile(n, options))
-      pluginFileNodes.forEach((n) => this.addPluginFile(n, options))
-      urlFileNodes.forEach((n) => this.addURLNode(n, options))
-      mediaFileNodes.forEach((n) => this.addPluginFile(n, options))
-      folderNodes.forEach((n) => this.addFolder(n, options))
-      activities.forEach((n) => this.addActivity(n, options))
+      await Promise.all(fileNodes.map((n) => this.addFile(n, options)))
+      await Promise.all(pluginFileNodes.map((n) => this.addPluginFile(n, options)))
+      await Promise.all(urlFileNodes.map((n) => this.addURLNode(n, options)))
+      await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n, options)))
+      await Promise.all(folderNodes.map((n) => this.addFolder(n, options)))
+      await Promise.all(activities.map((n) => this.addActivity(n, options)))
     }
 
     if (testLocalStorage) {
       return
+    }
+
+    if (this.lastModifiedHeaders === undefined) {
+      this.lastModifiedHeaders = Object.fromEntries(
+        this.resources.map((r) => [r.href, r.lastModified])
+      )
     }
 
     courseData[this.link] = {
@@ -325,6 +357,7 @@ class Course {
       newResources: this.resources.filter((n) => n.isNew).map((n) => n.href),
       seenActivities: this.activities.filter((n) => !n.isNew).map((n) => n.href),
       newActivities: this.activities.filter((n) => n.isNew).map((n) => n.href),
+      lastModifiedHeaders: this.lastModifiedHeaders,
     }
     await browser.storage.local.set({ courseData })
   }
@@ -332,25 +365,39 @@ class Course {
   async updateStoredResources(downloadedResources?: Resource[]): Promise<CourseData> {
     const { courseData }: ExtensionStorage = await browser.storage.local.get("courseData")
     const storedCourseData = courseData[this.link]
-    const { seenResources, newResources } = storedCourseData
+    const { seenResources, lastModifiedHeaders } = storedCourseData
+
+    const newResources = this.resources.filter((n) => n.isNew)
 
     // Default behavior: Merge all stored new resources
     let toBeMerged = newResources
 
     // If downloaded resources are provided then only merge those
     if (downloadedResources) {
-      toBeMerged = downloadedResources.map((r: Resource) => r.href)
+      toBeMerged = downloadedResources
     }
 
     // Merge already seen resources with new resources
     // Use set to remove duplicates
-    const updatedSeenResources = Array.from(new Set(seenResources.concat(toBeMerged)))
-    const updatedNewResources = newResources.filter((r) => !updatedSeenResources.includes(r))
+    toBeMerged.forEach((r) => {
+      if (lastModifiedHeaders) {
+        lastModifiedHeaders[r.href] = r.lastModified
+      }
+      r.isNew = false
+    })
+    const updatedSeenResources = Array.from(
+      new Set(seenResources.concat(toBeMerged.map((r) => r.href)))
+    )
+
+    const updatedNewResources = newResources
+      .map((r) => r.href)
+      .filter((href) => !updatedSeenResources.includes(href))
 
     const updatedCourseData = {
       ...(storedCourseData as Record<string, unknown>),
       seenResources: updatedSeenResources,
       newResources: updatedNewResources,
+      lastModifiedHeaders,
     } as CourseData
 
     await browser.storage.local.set({

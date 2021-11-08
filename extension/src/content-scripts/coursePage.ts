@@ -6,7 +6,18 @@ import Course from "../models/Course"
 
 const courseLink = parseCourseLink(location.href)
 const course = new Course(courseLink, document)
-let error = false
+let initialScanCompleted = false
+
+function sendScanResults() {
+  browser.runtime.sendMessage<CourseScanResultMessage>({
+    command: "scan-result",
+    course: {
+      resources: course.resources,
+      activities: course.activities,
+      counts: course.counts,
+    },
+  })
+}
 
 // browser.storage.local.clear()
 
@@ -21,11 +32,16 @@ if (isMoodlePage) {
       if (process.env.NODE_ENV !== "production") {
         console.log(course)
       }
+
+      initialScanCompleted = true
+      sendScanResults()
     })
     .catch((err) => {
       console.error(err)
-      error = true
       sendLog({ errorMessage: err.message, url: location.href })
+      browser.runtime.sendMessage<Message>({
+        command: "error-view",
+      })
     })
 }
 
@@ -33,24 +49,9 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
   const { command } = message as Message
 
   if (command === "scan") {
-    // await course.scan()
-    // updateIconFromCourses(course)
-
-    if (error) {
-      browser.runtime.sendMessage<Message>({
-        command: "error-view",
-      })
-      return
+    if (initialScanCompleted) {
+      sendScanResults()
     }
-
-    browser.runtime.sendMessage<CourseScanResultMessage>({
-      command: "scan-result",
-      course: {
-        resources: course.resources,
-        activities: course.activities,
-        counts: course.counts,
-      },
-    })
     return
   }
 
