@@ -225,7 +225,7 @@ class Course {
     }
 
     if (resource.href !== "") {
-      resource.lastModified = await getLastModifiedHeader(href)
+      resource.lastModified = await getLastModifiedHeader(resource.href)
     }
 
     this.counts.nFolders++
