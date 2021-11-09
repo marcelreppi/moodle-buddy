@@ -14,14 +14,17 @@
         <div class="pl-3 break-normal">
           <div v-for="(file, i) in files" :key="i">
             <div class="inline-block right-arrow"></div>
-            {{ file.name }}
+            {{ file.name }} {{ getHintText(file) }}
           </div>
         </div>
       </div>
       <div v-if="folders.length > 0">
         <div class="font-bold">Folders</div>
         <div class="pl-3 break-normal">
-          <div v-for="(folder, i) in folders" :key="i">‣ {{ folder.name }}</div>
+          <div v-for="(folder, i) in folders" :key="i">
+            <div class="inline-block right-arrow"></div>
+            {{ folder.name }} {{ getHintText(folder) }}
+          </div>
         </div>
       </div>
     </div>
@@ -40,6 +43,12 @@ const props = defineProps<{
 
 const files = computed<Resource[]>(() => props.resources.filter(isFile))
 const folders = computed<Resource[]>(() => props.resources.filter(isFolder))
+
+const getHintText = (r: Resource) => {
+  if (r.isNew) return "(new)"
+  if (r.isUpdated) return "(updated)"
+  return ""
+}
 </script>
 
 <style>

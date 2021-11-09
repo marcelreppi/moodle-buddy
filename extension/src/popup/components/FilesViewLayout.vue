@@ -269,7 +269,7 @@ const toggleDetails = (onlyNew = false) => {
   showDetailResources.value = selectedResources.value
 
   if (onlyNew) {
-    showDetailResources.value = newResources.value
+    showDetailResources.value = [...newResources.value, ...updatedResources.value]
   }
 
   showDetails.value = !showDetails.value
