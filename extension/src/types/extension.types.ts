@@ -23,6 +23,7 @@ export interface ExtensionOptions extends browser.storage.StorageObject {
   includeImage: boolean
   maxConcurrentDownloads: number
   maxCoursesOnDashboardPage: number
+  detectFileUpdates: boolean
 }
 
 export type StoredCourseData = Record<string, CourseData> & browser.storage.StorageObject

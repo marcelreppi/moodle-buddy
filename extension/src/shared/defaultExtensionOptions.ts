@@ -23,6 +23,7 @@ const defaultExtensionOptions: ExtensionOptions = {
   includeImage: false,
   maxConcurrentDownloads: 100,
   maxCoursesOnDashboardPage: 100,
+  detectFileUpdates: false,
 }
 
 export default defaultExtensionOptions

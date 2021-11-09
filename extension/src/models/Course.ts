@@ -10,7 +10,9 @@ import {
 import * as parser from "../shared/parser"
 import { getMoodleBaseURL } from "../shared/regexHelpers"
 
-async function getLastModifiedHeader(href: string) {
+async function getLastModifiedHeader(href: string, options: ExtensionOptions) {
+  if (!options.detectFileUpdates) return
+
   const headResponse = await fetch(href, {
     method: "HEAD",
   })
@@ -24,6 +26,7 @@ class Course {
   name: string
   shortcut: string
   isFirstScan: boolean
+  options: ExtensionOptions
 
   resources: Resource[]
   previousSeenResources: string[] | null
@@ -70,10 +73,12 @@ class Course {
         resource.isNew = true
       }
 
-      const hasBeenUpdated =
-        (this.lastModifiedHeaders ?? {})[resource.href] !== resource.lastModified
-      if (!resource.isNew && hasBeenUpdated) {
-        resource.isUpdated = true
+      if (this.options.detectFileUpdates) {
+        const hasBeenUpdated =
+          (this.lastModifiedHeaders ?? {})[resource.href] !== resource.lastModified
+        if (!resource.isNew && hasBeenUpdated) {
+          resource.isUpdated = true
+        }
       }
     } else {
       // If course has never been scanned previousSeenResources don't exist
@@ -86,8 +91,8 @@ class Course {
     this.resources.push(resource)
   }
 
-  private async addFile(node: HTMLElement, options: ExtensionOptions) {
-    const href = parser.parseURLFromNode(node, "file", options)
+  private async addFile(node: HTMLElement) {
+    const href = parser.parseURLFromNode(node, "file", this.options)
     if (href === "") return
 
     const section = parser.parseSectionName(node, this.HTMLDocument)
@@ -101,14 +106,14 @@ class Course {
       isUpdated: false,
       resourceIndex: this.resources.length + 1,
       sectionIndex,
-      lastModified: await getLastModifiedHeader(href),
+      lastModified: await getLastModifiedHeader(href, this.options),
     }
 
     this.addResource(resource)
   }
 
-  private async addPluginFile(node: HTMLElement, options: ExtensionOptions, partOfFolder = "") {
-    const href = parser.parseURLFromNode(node, "pluginfile", options)
+  private async addPluginFile(node: HTMLElement, partOfFolder = "") {
+    const href = parser.parseURLFromNode(node, "pluginfile", this.options)
     if (href === "") return
 
     // Avoid duplicates
@@ -127,13 +132,13 @@ class Course {
       isUpdated: false,
       resourceIndex: this.resources.length + 1,
       sectionIndex,
-      lastModified: await getLastModifiedHeader(href),
+      lastModified: await getLastModifiedHeader(href, this.options),
     }
 
     this.addResource(resource)
   }
 
-  private async addURLNode(node: HTMLElement, options: ExtensionOptions) {
+  private async addURLNode(node: HTMLElement) {
     // Make sure URL is a downloadable file
     const activityIcon: HTMLImageElement | null = node.querySelector("img.activityicon")
     if (activityIcon) {
@@ -144,7 +149,7 @@ class Course {
         const isFile = imgName !== "icon"
         if (isFile) {
           // File has been identified as downloadable
-          const href = parser.parseURLFromNode(node, "url", options)
+          const href = parser.parseURLFromNode(node, "url", this.options)
           if (href === "") return
 
           const section = parser.parseSectionName(node, this.HTMLDocument)
@@ -158,7 +163,7 @@ class Course {
             isUpdated: false,
             resourceIndex: this.resources.length + 1,
             sectionIndex,
-            lastModified: await getLastModifiedHeader(href),
+            lastModified: await getLastModifiedHeader(href, this.options),
           }
 
           this.addResource(resourceNode)
@@ -167,8 +172,8 @@ class Course {
     }
   }
 
-  private async addFolder(node: HTMLElement, options: ExtensionOptions) {
-    const href = parser.parseURLFromNode(node, "folder", options)
+  private async addFolder(node: HTMLElement) {
+    const href = parser.parseURLFromNode(node, "folder", this.options)
 
     const section = parser.parseSectionName(node, this.HTMLDocument)
     const sectionIndex = this.getSectionIndex(section)
@@ -187,7 +192,7 @@ class Course {
     if (resource.href === "") {
       // Folder could be displayed inline
       const downloadButtonVisible = parser.getDownloadButton(node) !== null
-      const { downloadFolderAsZip } = options
+      const { downloadFolderAsZip } = this.options
 
       if (downloadFolderAsZip && downloadButtonVisible) {
         const downloadIdTag = parser.getDownloadIdTag(node)
@@ -204,26 +209,26 @@ class Course {
         // Download folder as individual pluginfiles
         // Look for any pluginfiles
         const folderFiles = node.querySelectorAll<HTMLElement>(
-          parser.getQuerySelector("pluginfile", options)
+          parser.getQuerySelector("pluginfile", this.options)
         )
         for (const pluginFile of Array.from(folderFiles)) {
-          await this.addPluginFile(pluginFile, options, resource.name)
+          await this.addPluginFile(pluginFile, resource.name)
         }
         return
       }
     }
 
     if (resource.href !== "") {
-      resource.lastModified = await getLastModifiedHeader(resource.href)
+      resource.lastModified = await getLastModifiedHeader(resource.href, this.options)
     }
 
     this.addResource(resource)
   }
 
-  private async addActivity(node: HTMLElement, options: ExtensionOptions) {
+  private async addActivity(node: HTMLElement) {
     const section = parser.parseSectionName(node, this.HTMLDocument)
     const sectionIndex = this.getSectionIndex(section)
-    const href = parser.parseURLFromNode(node, "activity", options)
+    const href = parser.parseURLFromNode(node, "activity", this.options)
     if (href === "") return
 
     const activity: Activity = {
@@ -255,6 +260,8 @@ class Course {
     const localStorage: ExtensionStorage = testLocalStorage || (await browser.storage.local.get())
     const { options, courseData } = localStorage
 
+    this.options = options
+
     if (courseData[this.link]) {
       // Course exists in locally stored data
       this.isFirstScan = false
@@ -278,52 +285,52 @@ class Course {
         const isURL = node.classList.contains("url")
 
         if (isFile) {
-          await this.addFile(node, options)
+          await this.addFile(node)
         } else if (isFolder) {
-          await this.addFolder(node, options)
+          await this.addFolder(node)
         } else if (isURL) {
-          await this.addURLNode(node, options)
+          await this.addURLNode(node)
         } else {
-          await this.addActivity(node, options)
+          await this.addActivity(node)
         }
       }
 
       // Check for pluginfiles that could be anywhere on the page
       const pluginFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", options))
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", this.options))
       )
       const mediaFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", options))
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", this.options))
       )
-      await Promise.all(pluginFileNodes.map((n) => this.addPluginFile(n, options)))
-      await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n, options)))
+      await Promise.all(pluginFileNodes.map((n) => this.addPluginFile(n)))
+      await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n)))
     } else {
       // Backup solution that is a little more brute force
       const fileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("file", options))
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("file", this.options))
       )
       const pluginFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", options))
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", this.options))
       )
       const urlFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("url", options))
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("url", this.options))
       )
       const mediaFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", options))
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", this.options))
       )
       const folderNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("folder", options))
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("folder", this.options))
       )
       const activities = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("activity", options))
+        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("activity", this.options))
       )
 
-      await Promise.all(fileNodes.map((n) => this.addFile(n, options)))
-      await Promise.all(pluginFileNodes.map((n) => this.addPluginFile(n, options)))
-      await Promise.all(urlFileNodes.map((n) => this.addURLNode(n, options)))
-      await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n, options)))
-      await Promise.all(folderNodes.map((n) => this.addFolder(n, options)))
-      await Promise.all(activities.map((n) => this.addActivity(n, options)))
+      await Promise.all(fileNodes.map(this.addFile))
+      await Promise.all(pluginFileNodes.map((n) => this.addPluginFile(n)))
+      await Promise.all(urlFileNodes.map(this.addURLNode))
+      await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n)))
+      await Promise.all(folderNodes.map(this.addFolder))
+      await Promise.all(activities.map(this.addActivity))
     }
 
     if (testLocalStorage) {
