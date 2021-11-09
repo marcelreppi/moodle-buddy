@@ -331,35 +331,40 @@ class Downloader {
     let downloadURL = res.url
 
     // Sometimes (e.g. for images) Moodle returns HTML with the file embedded
-    if (res.url.match(getURLRegex("file"))) {
+    if (res.url.match(getURLRegex("file")) || res.url.match(getURLRegex("url"))) {
       const body = await res.text()
       const parser = new DOMParser()
       const resHTML = parser.parseFromString(body, "text/html")
       const mainRegionHTML = resHTML.querySelector("#region-main")
       if (mainRegionHTML) {
+        // There are multiple possibilities how files could be displayed
+
+        // Pluginfiles
         const pluginFileURLRegex = getURLRegex("pluginfile")
         const pluginFileURLMatch = mainRegionHTML.innerHTML.match(pluginFileURLRegex)
-        if (pluginFileURLMatch) {
-          downloadURL = pluginFileURLMatch.shift() || ""
-        } else {
-          // TODO: Update view on fail
-          return
-        }
-      }
-    } else if (res.url.match(getURLRegex("url"))) {
-      const body = await res.text()
-      const parser = new DOMParser()
-      const resHTML = parser.parseFromString(body, "text/html")
-      const mainRegionHTML = resHTML.querySelector("#region-main")
-      if (mainRegionHTML) {
+
+        // Audio element
+        const audioQuerySelector = getQuerySelector("audio", this.options)
+        const audioSrcElement = mainRegionHTML.querySelector(audioQuerySelector)
+
+        // Video element
+        const videoQuerySelector = getQuerySelector("video", this.options)
+        const videoSrcElement = mainRegionHTML.querySelector(videoQuerySelector)
+
+        // External link
         const moodleURL = getMoodleBaseURL(res.url)
         const externalATag: HTMLAnchorElement | null = mainRegionHTML.querySelector(
           `a:not([href^="${moodleURL}"])`
         )
-        if (externalATag) {
+
+        if (pluginFileURLMatch) {
+          downloadURL = pluginFileURLMatch.shift() || ""
+        } else if (audioSrcElement) {
+          downloadURL = (audioSrcElement as HTMLSourceElement).src
+        } else if (videoSrcElement) {
+          downloadURL = (videoSrcElement as HTMLSourceElement).src
+        } else if (externalATag) {
           downloadURL = externalATag.href
-        } else {
-          return
         }
       }
     }

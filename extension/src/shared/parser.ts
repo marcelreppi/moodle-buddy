@@ -111,8 +111,8 @@ export function getQuerySelector(type: QuerySelectorTypes, options: ExtensionOpt
   const folderSelector = `[href*="${baseURL}/mod/folder"]`
   const pluginFileSelector = `[href*="${baseURL}/pluginfile"]:not(.mediafallbacklink)`
   const urlSelector = `[href*="${baseURL}/mod/url"]`
-  const videoSelector = `video source[src*="${baseURL}/pluginfile"]`
-  const audioSelector = `audio source[src*="${baseURL}/pluginfile"]`
+  const videoSelector = `video source`
+  const audioSelector = `audio source`
   const imageSelector = `img[src*="${baseURL}/pluginfile"]`
   const videoServiceSelector = `video[src*="${baseURL}/mod/videoservice/file.php"]`
   // Any link with /mod/xxx except /mod/resource and /mod/folder
