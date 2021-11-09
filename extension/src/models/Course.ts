@@ -72,7 +72,7 @@ class Course {
 
       const hasBeenUpdated =
         (this.lastModifiedHeaders ?? {})[resource.href] !== resource.lastModified
-      if (hasBeenUpdated) {
+      if (!resource.isNew && hasBeenUpdated) {
         resource.isUpdated = true
       }
     } else {
@@ -80,6 +80,7 @@ class Course {
       // Never treat a resource as new when the course is scanned for the first time
       // because we're capturing the initial state of the course
       resource.isNew = false
+      resource.isUpdated = false
     }
 
     this.resources.push(resource)
