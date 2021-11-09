@@ -363,19 +363,28 @@ class Course {
 
     // Merge already seen resources with new resources
     // Use set to remove duplicates
-    toBeMerged.forEach((r) => {
-      if (lastModifiedHeaders) {
-        lastModifiedHeaders[r.href] = r.lastModified
-      }
-      r.isNew = false
-    })
     const updatedSeenResources = Array.from(
       new Set(seenResources.concat(toBeMerged.map((r) => r.href)))
     )
 
     const updatedNewResources = newResources
+      .filter((r) => !updatedSeenResources.includes(r.href))
       .map((r) => r.href)
-      .filter((href) => !updatedSeenResources.includes(href))
+
+    if (lastModifiedHeaders) {
+      const toBeUpdated = toBeMerged
+
+      if (downloadedResources === undefined) {
+        const updatedResources = this.resources.filter((n) => n.isUpdated)
+        toBeUpdated.push(...updatedResources)
+      }
+
+      toBeUpdated.forEach((r) => {
+        lastModifiedHeaders[r.href] = r.lastModified
+        r.isNew = false
+        r.isUpdated = false
+      })
+    }
 
     const updatedCourseData = {
       ...(storedCourseData as Record<string, unknown>),
