@@ -15,7 +15,7 @@
       </div>
 
       <!-- Resource/Activity Overview -->
-      <div class="flex flex-col items-center pt-3">
+      <div class="flex flex-col items-center pt-3 text-center">
         <span>
           There
           {{ nResources === 1 ? "is" : "are" }}
@@ -28,16 +28,46 @@
           available for download
         </span>
 
-        <div v-if="showNewResourceInfo" class="flex flex-col items-center mt-2 mb-1">
+        <div
+          v-if="showNewResourceInfo || showUpdatedResourceInfo"
+          class="flex flex-col items-center mt-2 mb-1"
+        >
           <div>
             Since last visit
-            <span class="font-semibold">{{ nNewResources }} new</span>
-            {{ " " }}
-            <span class="font-semibold">{{ nNewResources === 1 ? "resource" : "resources" }}</span>
-            {{ " " }}
-            <span>{{ nNewResources === 1 ? "was" : "were" }}</span>
-            {{ " " }}
-            added
+            <template v-if="showNewResourceInfo">
+              <span class="font-semibold">
+                {{ nNewResources }}
+                <span class="underline">new</span>
+              </span>
+              {{ " " }}
+              <span class="font-semibold">
+                {{ nNewResources === 1 ? "resource" : "resources" }}
+              </span>
+              {{ " " }}
+              <span>{{ nNewResources === 1 ? "was" : "were" }}</span>
+              {{ " " }}
+              added
+            </template>
+
+            <span v-if="showNewResourceInfo && showUpdatedResourceInfo">
+              <br />
+              and
+            </span>
+
+            <template v-if="showUpdatedResourceInfo">
+              <span class="font-semibold">
+                {{ nUpdatedResources }}
+                <span class="underline">old</span>
+              </span>
+              {{ " " }}
+              <span class="font-semibold">
+                {{ nUpdatedResources === 1 ? "resource" : "resources" }}
+              </span>
+              {{ " " }}
+              <span>{{ nUpdatedResources === 1 ? "was" : "were" }}</span>
+              {{ " " }}
+              updated
+            </template>
           </div>
           <div>
             <label>
@@ -198,6 +228,10 @@ const selectedResources = computed(() => resources.value.filter((r) => r.selecte
 const newResources = computed(() => resources.value.filter((r) => r.isNew))
 const nNewResources = computed(() => newResources.value.length)
 const showNewResourceInfo = computed(() => nNewResources.value > 0)
+
+const updatedResources = computed(() => resources.value.filter((r) => r.isUpdated))
+const nUpdatedResources = computed(() => updatedResources.value.length)
+const showUpdatedResourceInfo = computed(() => nUpdatedResources.value > 0)
 
 // Activity data
 const newActivities = computed(() => props.activities?.filter((n) => n.isNew) ?? [])
