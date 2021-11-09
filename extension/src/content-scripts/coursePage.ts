@@ -14,7 +14,6 @@ function sendScanResults() {
     course: {
       resources: course.resources,
       activities: course.activities,
-      counts: course.counts,
     },
   })
 }

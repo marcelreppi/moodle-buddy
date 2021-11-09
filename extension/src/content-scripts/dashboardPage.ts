@@ -54,7 +54,6 @@ function sendScanResults() {
       isNew: c.isFirstScan,
       resources: c.resources,
       activities: c.activities,
-      counts: c.counts,
     })),
   })
 }

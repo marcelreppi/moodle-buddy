@@ -1,4 +1,4 @@
-import { Activity, Counts, Resource, VideoServiceResource } from "./course.types"
+import { Activity, Resource, VideoServiceResource } from "./course.types"
 import { ExtensionOptions, ExtensionStorage, SupportedPage } from "./extension.types"
 import { FeedbackPayloadData, LogPayloadData, PagePayloadData } from "./tracker.types"
 
@@ -101,7 +101,6 @@ export interface ScanResultMessage extends Message {
 interface CourseScanData {
   resources: Resource[]
   activities: Activity[]
-  counts: Counts
 }
 
 export interface CourseScanResultMessage extends ScanResultMessage {

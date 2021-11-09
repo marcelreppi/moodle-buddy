@@ -33,8 +33,9 @@ export const isFirefox = typeof InstallTrigger !== "undefined"
 export function getUpdatesFromCourses(courses: Course[]): number {
   const courseList = courses.flat()
   const nUpdates = courseList.reduce((sum, c) => {
-    const { nNewFiles, nNewFolders, nNewActivities } = c.counts
-    return sum + nNewFiles + nNewFolders + nNewActivities
+    const nUpdatesInCourse = [...c.resources, ...c.activities].filter((r) => r.isNew || r.isUpdated)
+      .length
+    return sum + nUpdatesInCourse
   }, 0)
   return nUpdates
 }

@@ -1,7 +1,6 @@
 import {
   ExtensionOptions,
   ExtensionStorage,
-  Counts,
   Resource,
   Activity,
   FileResource,
@@ -9,7 +8,6 @@ import {
   CourseData,
 } from "types"
 import * as parser from "../shared/parser"
-import { isFolder } from "../shared/resourceHelpers"
 import { getMoodleBaseURL } from "../shared/regexHelpers"
 
 async function getLastModifiedHeader(href: string) {
@@ -28,7 +26,6 @@ class Course {
   isFirstScan: boolean
 
   resources: Resource[]
-  counts: Counts
   previousSeenResources: string[] | null
 
   activities: Activity[]
@@ -50,14 +47,6 @@ class Course {
 
   private reset(): void {
     this.resources = []
-    this.counts = {
-      nFiles: 0,
-      nNewFiles: 0,
-      nFolders: 0,
-      nNewFolders: 0,
-      nActivities: 0,
-      nNewActivities: 0,
-    }
     this.previousSeenResources = null
 
     this.activities = []
@@ -78,11 +67,6 @@ class Course {
     if (this.previousSeenResources !== null) {
       const hasNotBeenSeenBefore = !this.previousSeenResources.includes(resource.href)
       if (hasNotBeenSeenBefore) {
-        if (isFolder(resource)) {
-          this.counts.nNewFolders++
-        } else {
-          this.counts.nNewFiles++
-        }
         resource.isNew = true
       }
 
@@ -105,7 +89,6 @@ class Course {
     const href = parser.parseURLFromNode(node, "file", options)
     if (href === "") return
 
-    this.counts.nFiles++
     const section = parser.parseSectionName(node, this.HTMLDocument)
     const sectionIndex = this.getSectionIndex(section)
     const resource: FileResource = {
@@ -115,7 +98,7 @@ class Course {
       type: "file",
       isNew: false,
       isUpdated: false,
-      resourceIndex: this.counts.nFiles,
+      resourceIndex: this.resources.length + 1,
       sectionIndex,
       lastModified: await getLastModifiedHeader(href),
     }
@@ -131,7 +114,6 @@ class Course {
     const detectedURLs = this.resources.map((r) => r.href)
     if (detectedURLs.includes(href)) return
 
-    this.counts.nFiles++
     const section = parser.parseSectionName(node, this.HTMLDocument)
     const sectionIndex = this.getSectionIndex(section)
     const resource: FileResource = {
@@ -142,7 +124,7 @@ class Course {
       partOfFolder,
       isNew: false,
       isUpdated: false,
-      resourceIndex: this.counts.nFiles,
+      resourceIndex: this.resources.length + 1,
       sectionIndex,
       lastModified: await getLastModifiedHeader(href),
     }
@@ -164,7 +146,6 @@ class Course {
           const href = parser.parseURLFromNode(node, "url", options)
           if (href === "") return
 
-          this.counts.nFiles++
           const section = parser.parseSectionName(node, this.HTMLDocument)
           const sectionIndex = this.getSectionIndex(section)
           const resourceNode: FileResource = {
@@ -174,7 +155,7 @@ class Course {
             type: "url",
             isNew: false,
             isUpdated: false,
-            resourceIndex: this.counts.nFiles,
+            resourceIndex: this.resources.length + 1,
             sectionIndex,
             lastModified: await getLastModifiedHeader(href),
           }
@@ -198,7 +179,7 @@ class Course {
       isInline: false,
       isNew: false,
       isUpdated: false,
-      resourceIndex: this.counts.nFiles,
+      resourceIndex: this.resources.length + 1,
       sectionIndex,
     }
 
@@ -235,7 +216,6 @@ class Course {
       resource.lastModified = await getLastModifiedHeader(resource.href)
     }
 
-    this.counts.nFolders++
     this.addResource(resource)
   }
 
@@ -245,7 +225,6 @@ class Course {
     const href = parser.parseURLFromNode(node, "activity", options)
     if (href === "") return
 
-    this.counts.nActivities++
     const activity: Activity = {
       href,
       name: parser.parseActivityNameFromNode(node),
@@ -254,17 +233,14 @@ class Course {
       isUpdated: false,
       type: "activity",
       activityType: parser.parseActivityTypeFromNode(node),
-      resourceIndex: this.counts.nActivities,
+      resourceIndex: this.activities.length + 1,
       sectionIndex,
     }
 
     if (
-      this.previousSeenActivities === null ||
-      this.previousSeenActivities.includes(activity.href)
+      this.previousSeenActivities !== null &&
+      !this.previousSeenActivities.includes(activity.href)
     ) {
-      activity.isNew = false
-    } else {
-      this.counts.nNewActivities++
       activity.isNew = true
     }
 
@@ -272,7 +248,6 @@ class Course {
   }
 
   async scan(testLocalStorage?: ExtensionStorage): Promise<void> {
-    // Reset the counts
     this.reset()
 
     //  Local storage course data

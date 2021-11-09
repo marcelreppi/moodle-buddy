@@ -33,13 +33,14 @@ import DetailedResourceSelection from "../components/DetailedResourceSelection.v
 import { options, activeTab, currentSelectionTab, onlyNewResources } from "../state"
 
 // Resources
-const nFiles = ref(-1)
-const nNewFiles = ref(-1)
-const nFolders = ref(-1)
-const nNewFolders = ref(-1)
 const resources = ref<Resource[]>([])
 const activities = ref<Activity[]>([])
+const nFiles = computed(() => resources.value.filter(isFile).length)
+const nNewFiles = computed(() => resources.value.filter((r) => isFile(r) && r.isNew).length)
+const nFolders = computed(() => resources.value.filter(isFolder).length)
+const nNewFolders = computed(() => resources.value.filter((r) => isFolder(r) && r.isNew).length)
 const nNewResources = computed(() => nNewFiles.value + nNewFolders.value)
+const nNewActivities = computed(() => activities.value.filter((a) => a.isNew).length)
 
 // Checkboxes
 const downloadFiles = ref(false)
@@ -118,19 +119,17 @@ const onDownload = (selectedResources: Resource[]) => {
 // Mark as seen
 const onMarkAsSeen = () => {
   sendEvent("mark-as-seen-course-page", true)
-  nNewFiles.value = 0
-  nNewFolders.value = 0
+  resources.value.forEach((r) => {
+    r.isNew = false
+    r.isUpdated = false
+  })
 }
 
 const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
   const { command } = message as Message
   if (command === "scan-result") {
     const { course } = message as CourseScanResultMessage
-    const { resources: detectedResources, activities: detectedActivities, counts } = course
-    nFiles.value = counts.nFiles
-    nNewFiles.value = counts.nNewFiles
-    nFolders.value = counts.nFolders
-    nNewFolders.value = counts.nNewFolders
+    const { resources: detectedResources, activities: detectedActivities } = course
     resources.value = detectedResources.map((r) => ({ ...r, selected: false }))
     activities.value = detectedActivities
 
@@ -138,7 +137,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
       onlyNewResources.value = options.value?.onlyNewResources ?? false
     }
 
-    if (counts.nNewActivities > 0) {
+    if (nNewActivities.value > 0) {
       if (activeTab.value?.id) {
         browser.tabs.sendMessage<Message>(activeTab.value.id, {
           command: "update-activities",

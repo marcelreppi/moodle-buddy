@@ -34,15 +34,6 @@ export interface Activity extends Resource {
   activityType: string
 }
 
-export interface Counts {
-  nFiles: number
-  nNewFiles: number
-  nFolders: number
-  nNewFolders: number
-  nActivities: number
-  nNewActivities: number
-}
-
 export interface CourseData extends browser.storage.StorageObject {
   seenResources: string[]
   newResources: string[]

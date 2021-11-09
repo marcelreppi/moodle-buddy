@@ -35,26 +35,19 @@ const courses = ref<DashboardCourseData[]>()
 
 const progressBar = ref<any>(null)
 
-const sortCoursesByNewestResourcesAndActivities = () =>
+const sortCoursesByNewestResourcesAndActivities = () => {
+  const getTotalCourseUpdates = (course: DashboardCourseData) =>
+    [...course.resources, ...course.activities].filter((r) => r.isNew || r.isUpdated).length
+
   courses.value?.sort((c1: DashboardCourseData, c2: DashboardCourseData) => {
-    if (
-      c1.counts.nNewFiles > c2.counts.nNewFiles ||
-      c1.counts.nNewFolders > c2.counts.nNewFolders ||
-      c1.counts.nNewActivities > c2.counts.nNewActivities
-    ) {
-      return -1
-    }
+    const c1Updates = getTotalCourseUpdates(c1)
+    const c2Updates = getTotalCourseUpdates(c2)
 
-    if (
-      c1.counts.nNewFiles < c2.counts.nNewFiles ||
-      c1.counts.nNewFolders < c2.counts.nNewFolders ||
-      c1.counts.nNewActivities < c2.counts.nNewActivities
-    ) {
-      return 1
-    }
-
+    if (c1Updates > c2Updates) return -1
+    if (c1Updates < c2Updates) return 1
     return 0
   })
+}
 
 const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
   const { command } = message as Message
