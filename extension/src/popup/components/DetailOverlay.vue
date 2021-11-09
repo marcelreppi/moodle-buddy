@@ -2,12 +2,10 @@
   <div
     class="absolute left-0 top-0 flex flex-col w-full h-full bg-white rounded shadow-custom pb-3"
   >
-    <div
-      class="absolute text-lg font-bold top-4 right-6 hover:text-mb-red hover:cursor-pointer"
+    <XIcon
+      class="w-7 absolute right-5 top-3 stroke-current hover:text-mb-red hover:cursor-pointer"
       @click="toggleDetails"
-    >
-      X
-    </div>
+    ></XIcon>
     <div class="px-8 py-4 space-y-2 overflow-auto scrollbar">
       <div v-if="files.length > 0">
         <div class="font-bold">Files</div>
@@ -35,6 +33,7 @@
 import { Resource } from "types"
 import { computed } from "vue"
 import { isFile, isFolder } from "../../shared/resourceHelpers"
+import { XIcon } from "@heroicons/vue/outline"
 
 const props = defineProps<{
   resources: Resource[]
