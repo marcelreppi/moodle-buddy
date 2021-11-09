@@ -9,11 +9,15 @@
     <template #simple-selection>
       <label>
         <input v-model="downloadFiles" type="checkbox" :disabled="disableFilesCb" />
-        <span class="ml-1">{{ onlyNewResources ? nNewFiles : nFiles }} file(s) (PDF, etc.)</span>
+        <span class="ml-1">
+          {{ onlyNewResources ? nNewFiles + nUpdatedFiles : nFiles }} file(s) (PDF, etc.)
+        </span>
       </label>
       <label>
         <input v-model="downloadFolders" type="checkbox" :disabled="disableFoldersCb" />
-        <span class="ml-1">{{ onlyNewResources ? nNewFolders : nFolders }} folder(s)</span>
+        <span class="ml-1">
+          {{ onlyNewResources ? nNewFolders + nUpdatedFolders : nFolders }} folder(s)
+        </span>
       </label>
     </template>
 
@@ -37,9 +41,15 @@ const resources = ref<Resource[]>([])
 const activities = ref<Activity[]>([])
 const nFiles = computed(() => resources.value.filter(isFile).length)
 const nNewFiles = computed(() => resources.value.filter((r) => isFile(r) && r.isNew).length)
+const nUpdatedFiles = computed(() => resources.value.filter((r) => isFile(r) && r.isUpdated).length)
 const nFolders = computed(() => resources.value.filter(isFolder).length)
 const nNewFolders = computed(() => resources.value.filter((r) => isFolder(r) && r.isNew).length)
-const nNewResources = computed(() => nNewFiles.value + nNewFolders.value)
+const nUpdatedFolders = computed(
+  () => resources.value.filter((r) => isFolder(r) && r.isUpdated).length
+)
+const nNewAndUpdatedResources = computed(
+  () => nNewFiles.value + nUpdatedFiles.value + nNewFolders.value + nUpdatedFolders.value
+)
 const nNewActivities = computed(() => activities.value.filter((a) => a.isNew).length)
 
 // Checkboxes
@@ -47,20 +57,20 @@ const downloadFiles = ref(false)
 const downloadFolders = ref(false)
 const disableFilesCb = computed(() => {
   if (onlyNewResources.value) {
-    return nNewFiles.value === 0
+    return nNewFiles.value + nUpdatedFiles.value === 0
   }
   return nFiles.value === 0
 })
 const disableFoldersCb = computed(() => {
   if (onlyNewResources.value) {
-    return nNewFolders.value === 0
+    return nNewFolders.value + nUpdatedFolders.value === 0
   }
   return nFolders.value === 0
 })
 const setCheckboxState = () => {
   if (onlyNewResources.value) {
-    downloadFiles.value = nNewFiles.value !== 0
-    downloadFolders.value = nNewFolders.value !== 0
+    downloadFiles.value = nNewFiles.value + nUpdatedFiles.value !== 0
+    downloadFolders.value = nNewFolders.value + nUpdatedFolders.value !== 0
   } else {
     downloadFiles.value = nFiles.value !== 0
     downloadFolders.value = nFolders.value !== 0
@@ -69,7 +79,7 @@ const setCheckboxState = () => {
 const setFilesSelected = () =>
   resources.value.filter(isFile).forEach((r) => {
     if (onlyNewResources.value) {
-      r.selected = downloadFiles.value && r.isNew
+      r.selected = downloadFiles.value && (r.isNew || r.isUpdated)
     } else {
       r.selected = downloadFiles.value
     }
@@ -78,7 +88,7 @@ const setFilesSelected = () =>
 const setFoldersSelected = () =>
   resources.value.filter(isFolder).forEach((r) => {
     if (onlyNewResources.value) {
-      r.selected = downloadFolders.value && r.isNew
+      r.selected = downloadFolders.value && (r.isNew || r.isUpdated)
     } else {
       r.selected = downloadFolders.value
     }
@@ -133,7 +143,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     resources.value = detectedResources.map((r) => ({ ...r, selected: false }))
     activities.value = detectedActivities
 
-    if (nNewResources.value > 0) {
+    if (nNewAndUpdatedResources.value > 0) {
       onlyNewResources.value = options.value?.onlyNewResources ?? false
     }
 
