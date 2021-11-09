@@ -239,7 +239,6 @@ const showNewActivityInfo = computed(() => newActivities.value.length > 0)
 
 // Mark as seen
 const onMarkAsSeenClick = () => {
-  resources.value.forEach((r) => (r.isNew = false))
   onlyNewResources.value = false
   emit("mark-as-seen")
 
