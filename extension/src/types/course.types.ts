@@ -6,6 +6,7 @@ export interface Resource {
   name: string
   section: string
   isNew: boolean
+  isUpdated: boolean
   type: ResourceTypes
   partOfFolder?: string
   selected?: boolean // Only used on the frontend

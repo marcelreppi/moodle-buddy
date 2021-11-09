@@ -77,16 +77,19 @@ class Course {
   private addResource(resource: Resource): void {
     if (this.previousSeenResources !== null) {
       const hasNotBeenSeenBefore = !this.previousSeenResources.includes(resource.href)
-      const hasBeenUpdated =
-        (this.lastModifiedHeaders ?? {})[resource.href] !== resource.lastModified
-
-      if (hasNotBeenSeenBefore || hasBeenUpdated) {
+      if (hasNotBeenSeenBefore) {
         if (isFolder(resource)) {
           this.counts.nNewFolders++
         } else {
           this.counts.nNewFiles++
         }
         resource.isNew = true
+      }
+
+      const hasBeenUpdated =
+        (this.lastModifiedHeaders ?? {})[resource.href] !== resource.lastModified
+      if (hasBeenUpdated) {
+        resource.isUpdated = true
       }
     } else {
       // If course has never been scanned previousSeenResources don't exist
@@ -111,6 +114,7 @@ class Course {
       section,
       type: "file",
       isNew: false,
+      isUpdated: false,
       resourceIndex: this.counts.nFiles,
       sectionIndex,
       lastModified: await getLastModifiedHeader(href),
@@ -137,6 +141,7 @@ class Course {
       type: "pluginfile",
       partOfFolder,
       isNew: false,
+      isUpdated: false,
       resourceIndex: this.counts.nFiles,
       sectionIndex,
       lastModified: await getLastModifiedHeader(href),
@@ -168,6 +173,7 @@ class Course {
             section,
             type: "url",
             isNew: false,
+            isUpdated: false,
             resourceIndex: this.counts.nFiles,
             sectionIndex,
             lastModified: await getLastModifiedHeader(href),
@@ -191,6 +197,7 @@ class Course {
       type: "folder",
       isInline: false,
       isNew: false,
+      isUpdated: false,
       resourceIndex: this.counts.nFiles,
       sectionIndex,
     }
@@ -244,6 +251,7 @@ class Course {
       name: parser.parseActivityNameFromNode(node),
       section: parser.parseSectionName(node, this.HTMLDocument),
       isNew: false,
+      isUpdated: false,
       type: "activity",
       activityType: parser.parseActivityTypeFromNode(node),
       resourceIndex: this.counts.nActivities,
