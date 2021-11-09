@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <footer class="flex items-center justify-between text-xs mt-7">
+    <footer class="flex items-center justify-between text-xs mt-3">
       <span>
         <div class="link" @click="openContactPage">Report a bug</div>
       </span>

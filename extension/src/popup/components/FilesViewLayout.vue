@@ -1,5 +1,5 @@
 <template>
-  <div class="content-container">
+  <div class="content-container pb-5">
     <div v-if="loading">Scanning course...</div>
     <div v-else class="content-container">
       <div
@@ -82,12 +82,6 @@
         </template>
       </selection-tab>
 
-      <detail-overlay
-        v-if="showDetails"
-        :resources="showDetailResources"
-        :toggle-details="toggleDetails"
-      />
-
       <div v-if="showDownloadOptions" class="mt-5">
         <div>
           <label>
@@ -142,6 +136,12 @@
         Download
       </button>
     </div>
+
+    <detail-overlay
+      v-if="showDetails"
+      :resources="showDetailResources"
+      :toggle-details="toggleDetails"
+    />
   </div>
 </template>
 

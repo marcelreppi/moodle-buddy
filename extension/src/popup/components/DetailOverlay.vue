@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute left-0 flex flex-col w-full h-[110%] bg-white rounded -top-1 shadow-custom py-1"
+    class="absolute left-0 top-0 flex flex-col w-full h-full bg-white rounded shadow-custom pb-3"
   >
     <div
       class="absolute text-lg font-bold top-4 right-6 hover:text-mb-red hover:cursor-pointer"
