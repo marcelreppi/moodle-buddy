@@ -33,8 +33,6 @@ addExtensionEntry("background-scripts/downloader.ts")
 addExtensionEntry("background-scripts/extensionListener.ts")
 addExtensionEntry("background-scripts/backgroundScanner.ts")
 
-addExtensionEntry("shared/umami.js")
-
 addExtensionEntry("pages/contact/contact.ts")
 addExtensionEntry("pages/information/information.ts")
 addExtensionEntry("pages/install/install.ts")

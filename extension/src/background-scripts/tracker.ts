@@ -48,11 +48,6 @@ async function sendToLambda(path: string, payload: AdditionalPayloadData) {
 
   if (process.env.API_URL) {
     try {
-      if (path === "/event") {
-        // @ts-ignore
-        umami(requestBody.event)
-      }
-
       fetch(`${process.env.API_URL}${path}`, {
         method: "POST",
         headers: {
