@@ -17,12 +17,11 @@
     </template>
 
     <template #download-hint>
-      <div class="px-10 mt-5 font-bold text-center">
-        <div>
-          Please don't click anything on the page and wait until the download for every video has
-          been started.
-        </div>
-        <div>Downloading many videos concurrently can be very slow.</div>
+      <div class="mt-5 px-3 font-bold text-center text-sm">
+        Please don't click anything on the page and wait until the download for every video has been
+        started.
+        <br />
+        Downloading many videos concurrently can be very slow.
       </div>
     </template>
   </files-view-layout>
