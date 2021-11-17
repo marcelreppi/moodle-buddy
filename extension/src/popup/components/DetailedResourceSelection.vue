@@ -87,7 +87,12 @@
 <script setup lang="ts">
 import { Resource } from "types"
 import { computed, reactive, ref } from "vue"
-import { isFile, isFolder, setResourceSelected } from "../../shared/resourceHelpers"
+import {
+  isFile,
+  isFolder,
+  isVideoServiceVideo,
+  setResourceSelected,
+} from "../../shared/resourceHelpers"
 import useNavigation from "../composables/useNavigation"
 import { onlyNewResources } from "../state"
 
@@ -124,7 +129,9 @@ const filteredResources = computed(() => {
     return isMatch
   })
 })
-const fileResources = computed(() => filteredResources.value.filter(isFile))
+const fileResources = computed(() =>
+  filteredResources.value.filter((r) => isFile(r) || isVideoServiceVideo(r))
+)
 const folderResources = computed(() => filteredResources.value.filter(isFolder))
 
 const onMouseOver = (e: Event) => {

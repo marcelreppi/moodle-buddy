@@ -29,21 +29,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue"
+import { ref, computed, watch } from "vue"
 import { sendEvent } from "../../shared/helpers"
 import { VideoServiceResource, Message, VideoScanResultMessage, Resource } from "../../types"
 import FilesViewLayout from "../components/FilesViewLayout.vue"
 import DetailedResourceSelection from "../components/DetailedResourceSelection.vue"
 import { activeTab, currentSelectionTab } from "../state"
 
-const filesView = ref(null)
-filesView.value
-
-const nVideos = ref(0)
 const videoResources = ref<VideoServiceResource[]>([])
+const nVideos = computed(() => videoResources.value.length)
 const downloadVideos = ref(true)
 
 const disableVideoCb = computed(() => nVideos.value === 0)
+
+const setVideosSelected = () =>
+  videoResources.value.forEach((r) => (r.selected = downloadVideos.value))
+watch(downloadVideos, setVideosSelected)
+
+// Selection Tab
+watch(currentSelectionTab, () => {
+  if (currentSelectionTab.value?.id === "simple") {
+    downloadVideos.value = true
+  } else if (currentSelectionTab.value?.id === "detailed") {
+    downloadVideos.value = false
+  }
+
+  setVideosSelected()
+})
 
 const onDownload = (selectedResources: Resource[]) => {
   const eventParts = ["download-videoservice-page", currentSelectionTab.value?.id]
@@ -54,10 +66,11 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
   const { command } = message as Message
   if (command === "scan-result") {
     const { videoResources: scannedVideoResources } = message as VideoScanResultMessage
-    nVideos.value = scannedVideoResources.length
     videoResources.value = scannedVideoResources.map((r) => {
-      return { ...r, selected: false, isFile: true }
+      return { ...r, selected: false }
     })
+
+    setVideosSelected()
   }
 }
 browser.runtime.onMessage.addListener(messageListener)

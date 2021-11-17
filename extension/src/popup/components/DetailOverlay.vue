@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { Resource } from "types"
 import { computed } from "vue"
-import { isFile, isFolder } from "../../shared/resourceHelpers"
+import { isFile, isFolder, isVideoServiceVideo } from "../../shared/resourceHelpers"
 import { XIcon } from "@heroicons/vue/outline"
 
 const props = defineProps<{
@@ -40,7 +40,9 @@ const props = defineProps<{
   toggleDetails: () => void
 }>()
 
-const files = computed<Resource[]>(() => props.resources.filter(isFile))
+const files = computed<Resource[]>(() =>
+  props.resources.filter((r) => isFile(r) || isVideoServiceVideo(r))
+)
 const folders = computed<Resource[]>(() => props.resources.filter(isFolder))
 
 const getHintText = (r: Resource) => {
