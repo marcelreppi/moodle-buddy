@@ -6,7 +6,7 @@
       class="w-7 absolute right-5 top-3 stroke-current hover:text-mb-red hover:cursor-pointer"
       @click="toggleDetails"
     ></XIcon>
-    <div class="px-8 py-4 space-y-2 overflow-auto scrollbar">
+    <div class="pl-8 pr-12 py-4 space-y-2 overflow-auto scrollbar">
       <div v-if="files.length > 0">
         <div class="font-bold">Files</div>
         <div class="pl-3 break-normal">
