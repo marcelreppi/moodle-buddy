@@ -1,12 +1,12 @@
 <template>
   <div
-    class="absolute left-0 top-0 flex flex-col w-full h-full bg-white rounded shadow-custom pb-3"
+    class="absolute left-0 top-0 flex flex-col w-full h-full bg-white rounded shadow-custom py-3"
   >
     <XIcon
       class="w-7 absolute right-5 top-3 stroke-current hover:text-mb-red hover:cursor-pointer"
       @click="toggleDetails"
     ></XIcon>
-    <div class="pl-8 pr-12 py-4 space-y-2 overflow-auto scrollbar">
+    <div class="pl-8 pr-12 space-y-2 overflow-auto scrollbar">
       <div v-if="files.length > 0">
         <div class="font-bold">Files</div>
         <div class="pl-3 break-normal">
