@@ -221,14 +221,10 @@ class Downloader {
     }
   }
 
-  private async download(
-    href: string,
-    fileName: string,
-    resourceIndex: number,
-    section: string,
-    sectionIndex: number
-  ) {
+  private async download(href: string, fileName: string, resource: FileResource | FolderResource) {
     if (this.isCancelled) return
+
+    const { lastModified, resourceIndex, section, sectionIndex } = resource
 
     // Remove illegal characters from possible filename parts
     const cleanCourseShortcut = sanitizeFileName(this.courseShortcut, "_") || "Unknown Shortcut"
@@ -237,6 +233,26 @@ class Downloader {
     const cleanFileName = sanitizeFileName(fileName).replace("{slash}", "/")
 
     let filePath = cleanFileName
+
+    if (
+      this.options.detectFileUpdates &&
+      this.options.prependLastModifiedToFileName &&
+      lastModified !== undefined
+    ) {
+      const date = new Date(Date.parse(lastModified))
+      const dateString = [
+        date.getFullYear(),
+        padNumber(date.getMonth() + 1, 2),
+        padNumber(date.getDate(), 2),
+      ].join("-")
+      const timeString = [
+        padNumber(date.getHours(), 2),
+        padNumber(date.getMinutes(), 2),
+        padNumber(date.getSeconds(), 2),
+      ].join("-")
+      filePath = `${dateString}_${timeString}_${filePath}`
+    }
+
     // Apply all options to filename
     if (this.options.prependFileIndexToFileName) {
       filePath = `${padNumber(resourceIndex, 3)}_${filePath}`
@@ -312,14 +328,14 @@ class Downloader {
   private async downloadPluginFile(resource: FileResource) {
     if (this.isCancelled) return
 
-    const { href, partOfFolder, resourceIndex, section, sectionIndex } = resource
+    const { href, partOfFolder } = resource
     let { name: fileName } = resource
     if (partOfFolder) {
       const folderName = sanitizeFileName(partOfFolder)
       fileName = `${folderName}{slash}${fileName}`
     }
 
-    await this.download(href, fileName, resourceIndex, section, sectionIndex)
+    await this.download(href, fileName, resource)
   }
 
   private async downloadFile(resource: FileResource) {
@@ -386,18 +402,17 @@ class Downloader {
 
     downloadURL = downloadURL.replace(/\"\ onclick.*/gi, "") // Fix trailing %22%20onclick issue
 
-    const { resourceIndex, section, sectionIndex } = resource
-    await this.download(downloadURL, fileName, resourceIndex, section, sectionIndex)
+    await this.download(downloadURL, fileName, resource)
   }
 
   private async downloadFolder(resource: FolderResource) {
     if (this.isCancelled) return
 
-    const { name, href, isInline, resourceIndex, section, sectionIndex } = resource
+    const { name, href, isInline } = resource
 
     if (isInline) {
       const fileName = `${sanitizeFileName(name)}.zip`
-      await this.download(href, fileName, resourceIndex, section, sectionIndex)
+      await this.download(href, fileName, resource)
       return
     }
 
@@ -424,7 +439,7 @@ class Downloader {
       const downloadURL = `${baseURL}/mod/folder/download_folder.php?id=${downloadId}`
 
       const fileName = `${sanitizeFileName(name)}.zip`
-      await this.download(downloadURL, fileName, resourceIndex, section, sectionIndex)
+      await this.download(downloadURL, fileName, resource)
     } else {
       // Downloading folder content as individual files
       const fileNodes = resHTML.querySelectorAll<HTMLAnchorElement>(
@@ -435,13 +450,7 @@ class Downloader {
       // Handle empty folders
       if (fileNodes.length === 0) {
         if (process.env.NODE_ENV === "debug") {
-          await this.download(
-            "Debugging folder download",
-            name,
-            resourceIndex,
-            section,
-            sectionIndex
-          )
+          await this.download("Debugging folder download", name, resource)
         }
         return
       }
@@ -452,7 +461,7 @@ class Downloader {
       for (const fileNode of Array.from(fileNodes)) {
         const URLFileName = parseFileNameFromPluginFileURL(fileNode.href)
         const fileName = `${cleanFolderName}{slash}${URLFileName}`
-        await this.download(fileNode.href, fileName, resourceIndex, section, sectionIndex)
+        await this.download(fileNode.href, fileName, resource)
       }
     }
   }
@@ -460,7 +469,7 @@ class Downloader {
   private async downloadVideoServiceVideo(resource: VideoServiceResource) {
     if (this.isCancelled) return
 
-    const { name, src, resourceIndex, section, sectionIndex } = resource
+    const { name, src } = resource
 
     let fileName = parseFileNameFromPluginFileURL(src)
 
@@ -472,7 +481,7 @@ class Downloader {
       }
     }
 
-    await this.download(src, fileName, resourceIndex, section, sectionIndex)
+    await this.download(src, fileName, resource)
   }
 }
 

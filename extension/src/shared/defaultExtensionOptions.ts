@@ -9,6 +9,7 @@ const defaultExtensionOptions: ExtensionOptions = {
   prependSectionToFileName: false,
   prependSectionIndexToFileName: false,
   prependFileIndexToFileName: false,
+  prependLastModifiedToFileName: false,
   alwaysShowDetails: false,
   disableInteractionTracking: false,
   defaultMoodleURL: "",

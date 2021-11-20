@@ -9,6 +9,7 @@ export interface ExtensionOptions extends browser.storage.StorageObject {
   prependSectionToFileName: boolean
   prependSectionIndexToFileName: boolean
   prependFileIndexToFileName: boolean
+  prependLastModifiedToFileName: boolean
   alwaysShowDetails: boolean
   disableInteractionTracking: boolean
   defaultMoodleURL: string
