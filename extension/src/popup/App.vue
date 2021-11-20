@@ -1,5 +1,8 @@
 <template>
   <div class="w-full h-full px-3 pt-4 pb-2" :class="{ chrome: !isFirefox }">
+    <div v-if="isDev" class="flex justify-center text-sm">
+      <a @click="openBackgroundPage" class="link">Open background page</a>
+    </div>
     <div class="flex items-center justify-center mb-2 text-xl">
       Moodle Buddy
       <img class="w-5 h-5 ml-2" src="../icons/48.png" alt="logo" />
@@ -112,6 +115,11 @@ getActiveTab().then((tab) => {
     })
   }
 })
+
+const isDev = process.env.NODE_ENV === "development"
+const openBackgroundPage = () => {
+  browser.tabs.create({ url: browser.extension.getURL("_generated_background_page.html") })
+}
 </script>
 
 <style scoped>
