@@ -7,7 +7,7 @@
     <div v-else-if="courses.length === 0" class="text-center">
       <div>No courses found</div>
     </div>
-    <div class="flex flex-col items-center px-2 overflow-y-auto max-h-80 scrollbar">
+    <div class="flex flex-col items-center px-2 overflow-y-auto w-full max-h-80 scrollbar">
       <course-card
         v-for="(course, i) in courses"
         :key="i"
