@@ -3,7 +3,7 @@
     <div v-if="isDev" class="absolute top-0 left-0 flex justify-center text-sm">
       <a @click="openBackgroundPage" class="link">Open background page</a>
     </div>
-    <div class="flex items-center justify-center mb-2 text-xl">
+    <div class="flex items-center justify-center mb-2 text-lg">
       Moodle Buddy
       <img class="w-5 h-5 ml-2" src="../icons/48.png" alt="logo" />
     </div>
