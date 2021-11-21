@@ -1,6 +1,6 @@
 <template>
-  <div class="w-full h-full px-3 pt-4 pb-2" :class="{ chrome: !isFirefox }">
-    <div v-if="isDev" class="flex justify-center text-sm">
+  <div class="relative w-full h-full px-3 pt-4 pb-2" :class="{ chrome: !isFirefox }">
+    <div v-if="isDev" class="absolute top-0 left-0 flex justify-center text-sm">
       <a @click="openBackgroundPage" class="link">Open background page</a>
     </div>
     <div class="flex items-center justify-center mb-2 text-xl">
