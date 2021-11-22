@@ -25,6 +25,7 @@
     "@aacassandra/vue3-progressbar": "^1.0.3",
     "@heroicons/vue": "^1.0.5",
     "p-limit": "^3.1.0",
+    "sanitize-filename": "^1.6.3",
     "sha.js": "^2.4.11",
     "vue": "^3.2.20"
   },

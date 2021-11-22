@@ -1,3 +1,5 @@
+import sanitize from "sanitize-filename"
+
 export function uuidv4(): string {
   return [1e7, 1e3, 4e3, 8e3, 1e11].join("-").replace(/[018]/g, (c) => {
     const n = parseFloat(c)
@@ -34,13 +36,10 @@ export async function setBadgeText(text: string, tabId?: number): Promise<void> 
 }
 
 export function sanitizeFileName(fileName: string, connectingString = ""): string {
-  return fileName
-    .trim()
-    .replace(/\\|\/|:|\*|\?|"|<|>|\|/gi, connectingString) // Remove illegal chars
-    .replace(/( )\1+/gi, " ") // Remove > 1 white spaces
-    .replace(/^\.*/gi, "") // Remove dots at the start
-    .replace(/\.*$/gi, "") // Remove dots at the end
-    .trim()
+  return sanitize(
+    fileName.replace(/( )\1+/gi, " "), // Remove > 1 white spaces
+    { replacement: connectingString }
+  )
 }
 
 export function getFileTypeFromURL(url: string): string {

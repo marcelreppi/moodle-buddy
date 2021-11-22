@@ -276,13 +276,18 @@ class Downloader {
 
     switch (this.options.folderStructure) {
       case "CourseFile":
-        filePath = `${cleanCourseName}/${filePath}`
+        if (cleanCourseName !== "") {
+          filePath = `${cleanCourseName}/${filePath}`
+        }
+
         break
       case "CourseSectionFile":
-        if (section !== "") {
-          filePath = `${cleanCourseName}/${cleanSectionName}/${filePath}`
-        } else {
-          filePath = `${cleanCourseName}/${filePath}`
+        if (cleanCourseName !== "") {
+          if (cleanSectionName !== "") {
+            filePath = `${cleanCourseName}/${cleanSectionName}/${filePath}`
+          } else {
+            filePath = `${cleanCourseName}/${filePath}`
+          }
         }
         break
       case "None":
