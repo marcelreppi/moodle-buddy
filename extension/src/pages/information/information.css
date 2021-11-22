@@ -99,11 +99,19 @@ body {
   text-align: center;
 }
 
+a,
+a:hover,
+a:focus,
+a:active {
+  text-decoration: none;
+  color: inherit;
+}
+
 .link {
-  color: blue;
-  text-decoration: underline;
+  color: rgba(37, 99, 235);
 }
 
 .link:hover {
   cursor: pointer;
+  color: rgba(96, 165, 250);
 }

@@ -19,11 +19,11 @@
 
 @layer components {
   .link {
-    @apply text-blue-600 underline;
+    @apply text-blue-600;
   }
 
   .link:hover {
-    @apply cursor-pointer;
+    @apply text-blue-400 cursor-pointer;
   }
 
   .content-container {
@@ -35,7 +35,7 @@
   }
 
   .btn:hover {
-    @apply opacity-95 underline cursor-pointer;
+    @apply opacity-95 cursor-pointer bg-mb-red-light;
   }
 
   .btn:disabled {
