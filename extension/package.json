@@ -1,5 +1,7 @@
 {
   "name": "moodle-buddy",
+  "displayName": "Moodle Buddy",
+  "description": "Moodle Buddy offers mass file download and notification functionality for the moodle learning management platform.",
   "version": "1.0.0",
   "author": "Marcel Reppenhagen",
   "scripts": {
@@ -27,24 +29,31 @@
     "p-limit": "^3.1.0",
     "sanitize-filename": "^1.6.3",
     "sha.js": "^2.4.11",
-    "vue": "^3.2.20"
+    "vue": "^3.2.20",
+    "webextension-polyfill": "^0.8.0"
   },
   "devDependencies": {
     "@babel/core": "^7.13.16",
     "@babel/polyfill": "^7.12.1",
     "@babel/preset-env": "^7.13.15",
     "@tailwindcss/jit": "^0.1.18",
+    "@types/fs-extra": "^9.0.13",
     "@types/node": "^16.11.3",
     "@types/p-limit": "^2.2.0",
     "@types/sha.js": "^2.4.0",
+    "@types/webextension-polyfill": "^0.8.2",
+    "@vitejs/plugin-vue": "^1.10.1",
     "@vue/compiler-sfc": "^3.2.20",
     "autoprefixer": "^10.2.5",
     "babel-loader": "^8.2.2",
+    "chokidar": "^3.5.2",
     "copy-webpack-plugin": "^8.1.1",
     "cross-env": "^7.0.3",
     "css-loader": "^5.2.4",
     "dotenv-webpack": "^7.0.2",
+    "esno": "^0.12.1",
     "jsdom": "^16.5.3",
+    "kolorist": "^1.5.0",
     "postcss": "^8.2.12",
     "postcss-loader": "^5.2.0",
     "prettier": "2.2.1",
@@ -52,11 +61,11 @@
     "terser-webpack-plugin": "^5.1.1",
     "ts-loader": "^9.2.6",
     "typescript": "^4.2.4",
+    "vite": "^2.6.14",
     "vue-loader": "^16.8.3",
     "vue-style-loader": "^4.1.3",
     "web-ext": "^6.1.0",
     "web-ext-types": "^3.2.1",
-    "webextension-polyfill": "^0.8.0",
     "webpack": "^5.35.1",
     "webpack-cli": "^4.6.0"
   }
