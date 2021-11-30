@@ -11,6 +11,7 @@ import {
   Resource,
   VideoServiceResource,
 } from "types"
+import { isDebug } from "../shared/helpers"
 
 import {
   parseFileNameFromPluginFileURL,
@@ -300,7 +301,7 @@ class Downloader {
       filePath = `Moodle/${filePath}`
     }
 
-    if (process.env.NODE_ENV === "debug") {
+    if (isDebug) {
       console.log(filePath)
       console.log(href)
       // return
@@ -454,7 +455,7 @@ class Downloader {
 
       // Handle empty folders
       if (fileNodes.length === 0) {
-        if (process.env.NODE_ENV === "debug") {
+        if (isDebug) {
           await this.download("Debugging folder download", name, resource)
         }
         return

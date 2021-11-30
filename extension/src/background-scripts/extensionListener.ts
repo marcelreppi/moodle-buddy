@@ -12,6 +12,7 @@ import {
   SetBadgeMessage,
 } from "types"
 import defaultExtensionOptions from "../shared/defaultExtensionOptions"
+import { isDev } from "../shared/helpers"
 import { uuidv4, setIcon, setBadgeText } from "./helpers"
 import { sendEvent, sendPageData, sendFeedback, sendLog } from "./tracker"
 
@@ -74,7 +75,7 @@ async function onUpdate() {
     options: updatedOptions,
   })
 
-  if (process.env.NODE_ENV === "development") {
+  if (isDev) {
     await browser.storage.local.set({
       ...initialStorage,
       options: defaultOptions,

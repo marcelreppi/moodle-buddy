@@ -8,7 +8,7 @@ const Dotenv = require("dotenv-webpack")
 
 const isProd = process.env.NODE_ENV === "production"
 
-console.log(`Webpack is in ${process.env.NODE_ENV} mode`)
+console.log(`Webpack is in ${process.env.NODE_ENV || "development"} mode`)
 
 const polyfills = ["core-js/stable", "regenerator-runtime/runtime"]
 
@@ -51,6 +51,10 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.vue$/,
+        loader: "vue-loader",
+      },
+      {
         test: /\.ts$/,
         loader: "ts-loader",
         exclude: /node_modules/,
@@ -67,10 +71,6 @@ module.exports = {
             presets: [["@babel/preset-env", { targets: "defaults" }]],
           },
         },
-      },
-      {
-        test: /\.vue$/,
-        loader: "vue-loader",
       },
       {
         test: /\.css$/,

@@ -11,7 +11,7 @@ import {
 } from "types"
 
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
-import { updateIconFromCourses, sendLog } from "../shared/helpers"
+import { updateIconFromCourses, sendLog, isDebug } from "../shared/helpers"
 import Course from "../models/Course"
 import { getURLRegex } from "../shared/regexHelpers"
 
@@ -121,7 +121,7 @@ async function scanOverview(retry = 0) {
 
       scanTotal = courseLinks.length
 
-      if (process.env.NODE_ENV === "debug") {
+      if (isDebug) {
         console.log(courseLinks)
         return
       }

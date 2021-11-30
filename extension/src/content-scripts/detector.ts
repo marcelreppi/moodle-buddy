@@ -1,4 +1,5 @@
 import { ExecuteScriptMessage, ExtensionStorage, Message, ScriptName, SupportedPage } from "types"
+import { isDebug } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"
 import { getMoodleBaseURL, getURLRegex } from "../shared/regexHelpers"
 
@@ -38,7 +39,7 @@ function getSupportedPage(): SupportedPage | undefined {
   const isVideoServicePage = Boolean(location.href.match(videoServicePageRegex))
   if (isVideoServicePage) return "videoservice"
 
-  if (process.env.NODE_ENV === "debug") {
+  if (isDebug) {
     const filename = location.href.split("/").pop()
     if (filename?.includes("course")) return "course"
     if (filename?.includes("dashboard")) return "dashboard"

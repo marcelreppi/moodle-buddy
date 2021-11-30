@@ -62,7 +62,7 @@ import {
   updateState,
 } from "./state"
 
-import { getActiveTab, isFirefox } from "../shared/helpers"
+import { getActiveTab, isFirefox, isDev } from "../shared/helpers"
 import CourseView from "./views/CourseView.vue"
 import VideoServiceView from "./views/VideoServiceView.vue"
 import DashboardView from "./views/DashboardView.vue"
@@ -116,7 +116,6 @@ getActiveTab().then((tab) => {
   }
 })
 
-const isDev = process.env.NODE_ENV === "development"
 const openBackgroundPage = () => {
   browser.tabs.create({ url: browser.extension.getURL("_generated_background_page.html") })
 }

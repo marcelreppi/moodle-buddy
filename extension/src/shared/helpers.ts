@@ -2,6 +2,9 @@ import { EventMessage, LogMessage, SetBadgeMessage, LogPayloadData } from "types
 
 import Course from "models/Course"
 
+export const isDev = process.env.NODE_ENV !== "production"
+export const isDebug = process.env.NODE_ENV === "debug"
+
 export function sendEvent(
   event: string,
   saveURL = true,

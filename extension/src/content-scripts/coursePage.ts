@@ -1,6 +1,6 @@
 import { CourseCrawlMessage, CourseScanResultMessage, DownloadMessage, Message } from "types"
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
-import { updateIconFromCourses, sendLog } from "../shared/helpers"
+import { updateIconFromCourses, sendLog, isDev } from "../shared/helpers"
 
 import Course from "../models/Course"
 
@@ -28,7 +28,7 @@ if (isMoodlePage) {
     .then(() => {
       updateIconFromCourses([course])
 
-      if (process.env.NODE_ENV !== "production") {
+      if (isDev) {
         console.log(course)
       }
 

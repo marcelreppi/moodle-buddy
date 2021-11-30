@@ -9,9 +9,7 @@ import {
   Payload,
 } from "types"
 
-import { isFirefox, getActiveTab } from "../shared/helpers"
-
-const isDev = process.env.NODE_ENV !== "production"
+import { isFirefox, getActiveTab, isDev } from "../shared/helpers"
 
 async function sendToLambda(path: string, payload: AdditionalPayloadData) {
   const { options, browserId }: ExtensionStorage = await browser.storage.local.get([
