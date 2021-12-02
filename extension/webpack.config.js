@@ -51,16 +51,16 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.vue$/,
-        loader: "vue-loader",
-      },
-      {
         test: /\.ts$/,
         loader: "ts-loader",
         exclude: /node_modules/,
         options: {
           appendTsSuffixTo: [/\.vue$/],
         },
+      },
+      {
+        test: /\.vue$/,
+        loader: "vue-loader",
       },
       {
         test: /\.js$/,
@@ -112,7 +112,9 @@ module.exports = {
     new Dotenv({
       path: isProd ? ".env" : ".env.dev",
     }),
-    new webpack.EnvironmentPlugin(["NODE_ENV"]), // Make process.env.NODE_ENV available in code
+    new webpack.EnvironmentPlugin({
+      NODE_ENV: "development",
+    }), // Make process.env.NODE_ENV available in code
     new webpack.DefinePlugin({
       global: "window", // Placeholder for global used in any node_modules
     }),
