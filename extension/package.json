@@ -27,7 +27,7 @@
     "p-limit": "^3.1.0",
     "sanitize-filename": "^1.6.3",
     "sha.js": "^2.4.11",
-    "vue": "^3.2.20"
+    "vue": "^3.2.23"
   },
   "devDependencies": {
     "@babel/core": "^7.13.16",
@@ -37,7 +37,6 @@
     "@types/node": "^16.11.3",
     "@types/p-limit": "^2.2.0",
     "@types/sha.js": "^2.4.0",
-    "@vue/compiler-sfc": "^3.2.20",
     "autoprefixer": "^10.2.5",
     "babel-loader": "^8.2.2",
     "copy-webpack-plugin": "^8.1.1",
