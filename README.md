@@ -71,7 +71,17 @@ You can not:
 
 # For Developers
 
-## Build
+All commands need to be run in the `extension` directory
+
+## Setup
+
+1. Install dependencies
+
+```bash
+npm install
+```
+
+## Development
 
 1. Open one terminal and run `npm run dev`
    - This runs webpack and reloads the bundle on every file change.
@@ -84,3 +94,7 @@ You can not:
 
 - When using Firefox I suggest opening the _Browser Console_ with the shortcut `CTRL + Shift + J`
 - Make sure to click the Cog Icon and enable _Show Content Messages_. This makes the log statements from the code show up in the console.
+
+## Build
+
+1. `npm run build`
