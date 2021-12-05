@@ -13,7 +13,8 @@
     "publish": "cd scripts && sh build.sh",
     "test": "cd test && node --max-old-space-size=4096 -r esm index.js",
     "lint": "tsc --noEmit",
-    "prettify": "prettier --write ."
+    "prettify": "prettier --write .",
+    "release": "cd scripts && sh release.sh"
   },
   "repository": {
     "type": "git",
