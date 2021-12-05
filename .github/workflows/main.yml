@@ -17,9 +17,10 @@ jobs:
         with:
           node-version: "15"
       - name: Install dependencies
-        run: npm ci
+        run: cd extension && npm ci
       - name: Create .env file
         run: |
+          cd extension
           touch .env
           echo API_URL=${{ secrets.API_URL }} >> .env
       - name: Detect tag
@@ -29,6 +30,7 @@ jobs:
           echo "TAG=$TAG" >> $GITHUB_ENV
       - name: Build
         run: |
+          cd extension
           npm run publish
           echo "Reading version from manifest.json..."
           EXT_VERSION=$(cat build/manifest.json | grep \"version\" | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
@@ -38,18 +40,20 @@ jobs:
         env:
           API_URL: ${{ secrets.API_URL }}
       - name: Check if tag matches extension version
-        run: if [ ${{ env.TAG }} != v$EXT_VERSION ]; then echo "Tag (${{ env.TAG }}) and extension version don't match (v${EXT_VERSION})" && exit 1; else echo "Tag (${{ env.TAG }}) and extension version match (v${EXT_VERSION})"; fi
+        run: |
+          cd extension
+          if [ ${{ env.TAG }} != v$EXT_VERSION ]; then echo "Tag (${{ env.TAG }}) and extension version don't match (v${EXT_VERSION})" && exit 1; else echo "Tag (${{ env.TAG }}) and extension version match (v${EXT_VERSION})"; fi
       - name: Check for release notes
         uses: andstor/file-existence-action@v1.0.1
         with:
-          files: "release-notes/v${{ env.EXT_VERSION }}.md"
+          files: "extentsion/release-notes/v${{ env.EXT_VERSION }}.md"
           allow_failure: true
       - name: GitHub release
         uses: softprops/action-gh-release@v1
         with:
           name: "Version ${{ env.EXT_VERSION }}"
-          body_path: "release-notes/v${{ env.EXT_VERSION }}.md"
-          files: "moodle-buddy-v${{ env.EXT_VERSION }}.zip"
+          body_path: "extentsion/release-notes/v${{ env.EXT_VERSION }}.md"
+          files: "extentsion/moodle-buddy-v${{ env.EXT_VERSION }}.zip"
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
