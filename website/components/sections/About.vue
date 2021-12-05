@@ -4,7 +4,7 @@
     <h2>About</h2>
     <div>
       <b>Moodle Buddy</b>
-      offers mass download and notification functionality for the Moodle learning management
+      offers mass file download and notification functionality for the Moodle learning management
       platform. Students can download all learning materials with just one click and see updates to
       their courses immediately.
       <br />

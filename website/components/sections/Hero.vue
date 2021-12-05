@@ -7,7 +7,7 @@
           <div>Moodle Buddy</div>
           <img src="~/assets/images/mb.png" alt="" />
         </div>
-        <h2>Mass download and notifications for the Moodle learning management platform</h2>
+        <h2>Mass file download and notifications for the Moodle learning management platform</h2>
         <p>
           Enhance your Moodle experience with
           <b>Moodle Buddy</b>
