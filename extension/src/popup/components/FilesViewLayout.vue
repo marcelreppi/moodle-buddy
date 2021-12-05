@@ -77,13 +77,13 @@
           </div>
           <div class="grid grid-cols-2 mt-1 gap-x-3">
             <div
-              class="hover:cursor-pointer hover:text-mb-red hover:underline"
+              class="underline text-gray-600 hover:cursor-pointer hover:text-mb-red"
               @click="toggleDetails(true)"
             >
               Show details
             </div>
             <div
-              class="hover:cursor-pointer hover:text-mb-red hover:underline"
+              class="underline text-gray-600 hover:cursor-pointer hover:text-mb-red"
               @click="onMarkAsSeenClick"
             >
               Mark as seen
