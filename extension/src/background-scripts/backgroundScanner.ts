@@ -17,7 +17,7 @@ async function backgroundScan() {
     return
   }
 
-  const courses = []
+  const courses: Course[] = []
   for (const courseLink of overviewCourseLinks) {
     const domParser = new DOMParser()
     const res = await fetch(courseLink)
@@ -29,7 +29,7 @@ async function backgroundScan() {
 
     const resBody = await res.text()
     const HTMLDocument = domParser.parseFromString(resBody, "text/html")
-    const course = new Course(courseLink, HTMLDocument)
+    const course = new Course(courseLink, HTMLDocument, options)
     await course.scan()
     courses.push(course)
   }

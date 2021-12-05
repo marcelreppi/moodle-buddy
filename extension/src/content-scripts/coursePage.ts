@@ -1,14 +1,16 @@
-import { CourseCrawlMessage, CourseScanResultMessage, DownloadMessage, Message } from "types"
+import {
+  CourseCrawlMessage,
+  CourseScanResultMessage,
+  DownloadMessage,
+  ExtensionStorage,
+  Message,
+} from "types"
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { updateIconFromCourses, sendLog, isDev } from "../shared/helpers"
 
 import Course from "../models/Course"
 
-const courseLink = parseCourseLink(location.href)
-const course = new Course(courseLink, document)
-let initialScanCompleted = false
-
-function sendScanResults() {
+function sendScanResults(course) {
   browser.runtime.sendMessage<CourseScanResultMessage>({
     command: "scan-result",
     course: {
@@ -20,8 +22,13 @@ function sendScanResults() {
 
 // browser.storage.local.clear()
 
-const isMoodlePage = checkForMoodle()
-if (isMoodlePage) {
+async function initCoursePage() {
+  const { options }: ExtensionStorage = await browser.storage.local.get("options")
+  const courseLink = parseCourseLink(location.href)
+  const course = new Course(courseLink, document, options)
+
+  let initialScanCompleted = false
+
   // Initial scan
   course
     .scan()
@@ -33,7 +40,7 @@ if (isMoodlePage) {
       }
 
       initialScanCompleted = true
-      sendScanResults()
+      sendScanResults(course)
     })
     .catch((err) => {
       console.error(err)
@@ -42,47 +49,53 @@ if (isMoodlePage) {
         command: "error-view",
       })
     })
-}
 
-const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
-  const { command } = message as Message
+  const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+    const { command } = message as Message
 
-  if (command === "scan") {
-    if (initialScanCompleted) {
-      sendScanResults()
+    if (command === "scan") {
+      if (initialScanCompleted) {
+        sendScanResults(course)
+      }
+      return
     }
-    return
+
+    if (command === "mark-as-seen") {
+      await course.updateStoredResources()
+      await course.updateStoredActivities()
+      await course.scan()
+      updateIconFromCourses([course])
+      return
+    }
+
+    if (command === "update-activities") {
+      await course.updateStoredActivities()
+      await course.scan()
+      updateIconFromCourses([course])
+      return
+    }
+
+    if (command === "crawl") {
+      const { options, selectedResources } = message as CourseCrawlMessage
+
+      browser.runtime.sendMessage<DownloadMessage>({
+        command: "download",
+        resources: selectedResources,
+        courseName: course.name,
+        courseShortcut: course.shortcut,
+        options,
+      })
+
+      await course.updateStoredResources(selectedResources)
+      await course.scan()
+      updateIconFromCourses([course])
+    }
   }
-
-  if (command === "mark-as-seen") {
-    await course.updateStoredResources()
-    await course.updateStoredActivities()
-    await course.scan()
-    updateIconFromCourses([course])
-    return
-  }
-
-  if (command === "update-activities") {
-    await course.updateStoredActivities()
-    await course.scan()
-    updateIconFromCourses([course])
-    return
-  }
-
-  if (command === "crawl") {
-    const { options, selectedResources } = message as CourseCrawlMessage
-
-    browser.runtime.sendMessage<DownloadMessage>({
-      command: "download",
-      resources: selectedResources,
-      courseName: course.name,
-      courseShortcut: course.shortcut,
-      options,
-    })
-
-    await course.updateStoredResources(selectedResources)
-    await course.scan()
-    updateIconFromCourses([course])
-  }
+  browser.runtime.onMessage.addListener(messageListener)
 }
-browser.runtime.onMessage.addListener(messageListener)
+
+const isMoodlePage = checkForMoodle()
+
+if (isMoodlePage) {
+  initCoursePage()
+}

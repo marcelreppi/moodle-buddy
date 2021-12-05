@@ -516,7 +516,7 @@ browser.downloads.onChanged.addListener(async (downloadDelta) => {
   if (state === undefined) return
 
   // Find the downloader to which the download belongs to
-  let downloader = null
+  let downloader: Downloader | undefined
   for (const d of Object.values(downloaders)) {
     if (d.isDownloading(id)) {
       downloader = d

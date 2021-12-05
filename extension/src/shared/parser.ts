@@ -118,7 +118,7 @@ export function getQuerySelector(type: QuerySelectorTypes, options: ExtensionOpt
   // Any link with /mod/xxx except /mod/resource and /mod/folder
   const activityQuerySelector = `[href*="${baseURL}/mod/"]:not(${fileSelector}):not(${folderSelector})`
 
-  let selector = null
+  let selector = ""
   switch (type) {
     case "file":
       selector = fileSelector
@@ -145,7 +145,7 @@ export function getQuerySelector(type: QuerySelectorTypes, options: ExtensionOpt
       selector = imageSelector
       break
     case "media":
-      const mediaSelectors = []
+      const mediaSelectors: string[] = []
       if (options.includeVideo) {
         mediaSelectors.push(videoSelector)
       }

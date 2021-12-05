@@ -315,7 +315,7 @@ const onDownload = () => {
       command: "crawl",
       selectedResources: selectedResources.value.map((r) => ({ ...r })), // Resolve proxy
       options: {
-        useMoodleFileName: useMoodleFileName.value ?? defaultExtensionOptions.useMoodleFileName,
+        useMoodleFileName: useMoodleFileName ?? defaultExtensionOptions.useMoodleFileName,
         prependCourseNameToFileName:
           prependCourseNameToFileName.value ?? defaultExtensionOptions.prependCourseNameToFileName,
         prependCourseShortcutToFileName:

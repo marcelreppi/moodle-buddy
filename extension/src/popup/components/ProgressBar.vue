@@ -38,7 +38,7 @@ const internalInstance = getCurrentInstance()
 const $Progress = internalInstance?.appContext.config.globalProperties.$Progress
 
 const progressText = computed(() => {
-  const textPieces = []
+  const textPieces: string[] = []
 
   if (progress.value === 100) {
     textPieces.push("Done!")

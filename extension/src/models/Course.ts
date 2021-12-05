@@ -38,17 +38,14 @@ class Course {
 
   sectionIndices: Record<string, number>
 
-  constructor(link: string, HTMLDocument: Document) {
+  constructor(link: string, HTMLDocument: Document, options: ExtensionOptions) {
     this.link = link
     this.HTMLDocument = HTMLDocument
+    this.options = options
     this.name = parser.parseCourseNameFromCoursePage(HTMLDocument)
     this.shortcut = parser.parseCourseShortcut(HTMLDocument)
     this.isFirstScan = true
 
-    this.reset()
-  }
-
-  private reset(): void {
     this.resources = []
     this.previousSeenResources = null
 
@@ -254,7 +251,13 @@ class Course {
   }
 
   async scan(testLocalStorage?: ExtensionStorage): Promise<void> {
-    this.reset()
+    this.resources = []
+    this.previousSeenResources = null
+
+    this.activities = []
+    this.previousSeenActivities = null
+
+    this.sectionIndices = {}
 
     //  Local storage course data
     const localStorage: ExtensionStorage = testLocalStorage || (await browser.storage.local.get())

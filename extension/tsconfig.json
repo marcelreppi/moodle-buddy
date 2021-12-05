@@ -15,21 +15,17 @@
     "outDir": "./dist",
     "moduleResolution": "node",
     "removeComments": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false, // false because of compiler producing bullshit
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": false, // false because of https://github.com/vuejs/vue-next/issues/4668
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "strictPropertyInitialization": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "resolveJsonModule": true,
-    // Make it work with existing JS files
-    "allowJs": true
   },
   "exclude": [
     "node_modules"

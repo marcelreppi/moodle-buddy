@@ -139,7 +139,7 @@ async function scanOverview(retry = 0) {
           const resBody = await res.text()
           const HTMLDocument = domParser.parseFromString(resBody, "text/html")
 
-          const course = new Course(link, HTMLDocument)
+          const course = new Course(link, HTMLDocument, options)
           await course.scan()
           courses.push(course)
           scanCompleted++
