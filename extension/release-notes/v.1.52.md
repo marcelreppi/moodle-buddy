@@ -1,0 +1,5 @@
+- Add option to detect file updates for previously scanned files
+- Add option to prepend last modified date to file names
+- Update sorting of course on dashboard page when clicking "Mark as seen"
+- Improve filename sanitization
+- Bug fixes
