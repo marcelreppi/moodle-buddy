@@ -20,10 +20,12 @@ cd ..
 
 # Copy all necessary files to tmp directory
 mkdir tmp
-cp -r extension screenshots webpack.config.js package.json package-lock.json README.md tmp
+mkdir tmp/extension
+cp -r ../screenshots ../README.md tmp
+cp -r src webpack.config.js package.json package-lock.json tsconfig.json tailwind.config.js postcss.config.js tmp/extension
 cd tmp
 
 # Make zip of all the code for updating the extension
-zip -r ../moodle-buddy-code.zip .
+zip -r "../moodle-buddy-code.zip" .
 cd ..
 rm -rf tmp
