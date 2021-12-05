@@ -10,16 +10,14 @@ const isProd = process.env.NODE_ENV === "production"
 
 console.log(`Webpack is in ${process.env.NODE_ENV || "development"} mode`)
 
-const polyfills = ["core-js/stable", "regenerator-runtime/runtime"]
-
 const entries = {
-  "popup/app.bundle": ["@babel/polyfill", join(__dirname, "src", "popup", "main.ts")],
+  "popup/app.bundle": [join(__dirname, "src", "popup", "main.ts")],
 }
 
 const addExtensionEntry = (pathToFile) => {
   const pathElements = pathToFile.split("/")
   const [filenameWithoutExtension] = pathElements[pathElements.length - 1].split(".")
-  const inputPath = polyfills.concat(join(__dirname, "src", ...pathElements))
+  const inputPath = join(__dirname, "src", ...pathElements)
   const outputPath = [...pathElements.slice(0, -1), filenameWithoutExtension].join("/")
   entries[outputPath] = inputPath
 }
@@ -61,16 +59,6 @@ module.exports = {
       {
         test: /\.vue$/,
         loader: "vue-loader",
-      },
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: [["@babel/preset-env", { targets: "defaults" }]],
-          },
-        },
       },
       {
         test: /\.css$/,
