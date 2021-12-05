@@ -5,6 +5,7 @@
   "scripts": {
     "start": "web-ext run -s ./build --firefox=nightly",
     "start:ff": "web-ext run -s ./build",
+    "start:chrome": "web-ext run -s ./build --target=chromium",
     "dev": "npm run nuke && webpack --watch",
     "debug": "npm run nuke && cross-env NODE_ENV=debug webpack --watch",
     "build": "npm run nuke && cross-env NODE_ENV=production webpack",
