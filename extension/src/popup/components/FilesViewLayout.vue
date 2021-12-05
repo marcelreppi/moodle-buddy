@@ -208,15 +208,13 @@ const emit = defineEmits<{
 const loading = ref(true)
 
 // Options
-const showDownloadOptions = computed(() => options.value?.showDownloadOptions)
-const useMoodleFileName = computed(() => options.value?.useMoodleFileName)
-const prependCourseNameToFileName = computed(() => options.value?.prependCourseNameToFileName)
-const prependCourseShortcutToFileName = computed(
-  () => options.value?.prependCourseShortcutToFileName
-)
-const prependSectionToFileName = computed(() => options.value?.prependSectionToFileName)
-const prependSectionIndexToFileName = computed(() => options.value?.prependSectionIndexToFileName)
-const prependFileIndexToFileName = computed(() => options.value?.prependFileIndexToFileName)
+const showDownloadOptions = options.value?.showDownloadOptions
+const useMoodleFileName = options.value?.useMoodleFileName
+const prependCourseNameToFileName = ref(options.value?.prependCourseNameToFileName)
+const prependCourseShortcutToFileName = ref(options.value?.prependCourseShortcutToFileName)
+const prependSectionToFileName = ref(options.value?.prependSectionToFileName)
+const prependSectionIndexToFileName = ref(options.value?.prependSectionIndexToFileName)
+const prependFileIndexToFileName = ref(options.value?.prependFileIndexToFileName)
 
 // Resource data
 const resources = computed(() =>
