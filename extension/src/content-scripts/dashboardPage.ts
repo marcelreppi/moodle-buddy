@@ -130,6 +130,12 @@ async function scanOverview(retry = 0) {
       for (const link of courseLinks) {
         try {
           const res = await fetch(link)
+
+          if (link !== res.url) {
+            // Skipping unexpected resolved link because sometimes there can be a redirect to other Moodle pages
+            continue
+          }
+
           const resBody = await res.text()
           const HTMLDocument = domParser.parseFromString(resBody, "text/html")
 
