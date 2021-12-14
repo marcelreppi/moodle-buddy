@@ -23,7 +23,7 @@ async function setDefaultMoodleURL() {
   })
 }
 
-function getSupportedPage(): SupportedPage | undefined {
+export function getSupportedPage(): SupportedPage | undefined {
   const dashboardPageRegex = getURLRegex("dashboard")
   const isDashboardPage = Boolean(location.href.match(dashboardPageRegex))
   if (isDashboardPage) return "dashboard"

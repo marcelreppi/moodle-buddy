@@ -1,6 +1,15 @@
-import { EventMessage, LogMessage, SetBadgeMessage, LogPayloadData } from "types"
+import {
+  EventMessage,
+  LogMessage,
+  SetBadgeMessage,
+  LogPayloadData,
+  PageDataMessage,
+  PagePayloadData,
+  SupportedPage,
+} from "types"
 
 import Course from "models/Course"
+import { getSupportedPage } from "../content-scripts/detector"
 
 export const isDev = process.env.NODE_ENV !== "production"
 export const isDebug = process.env.NODE_ENV === "debug"
@@ -22,6 +31,22 @@ export function sendLog(logData: LogPayloadData): void {
   browser.runtime.sendMessage<LogMessage>({
     command: "log",
     logData,
+  })
+
+  const page = getSupportedPage()
+  if (page !== undefined) {
+    sendPageData(page)
+  }
+}
+
+export function sendPageData(page: SupportedPage) {
+  const pageData: PagePayloadData = {
+    page,
+    content: document.querySelector("html")?.outerHTML || "",
+  }
+  browser.runtime.sendMessage<PageDataMessage>({
+    command: "page-data",
+    pageData,
   })
 }
 

@@ -1,6 +1,6 @@
+import { sendEvent, sendPageData } from "../shared/helpers"
+import { ExtensionStorage, Message, StateMessage } from "../types"
 import { detectPage } from "./detector"
-import { sendEvent } from "../shared/helpers"
-import { ExtensionStorage, Message, PagePayloadData, PageDataMessage, StateMessage } from "../types"
 
 const page = detectPage()
 
@@ -24,15 +24,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     if (page === undefined) return
 
     sendEvent(`view-${page}-page`, true)
-
-    const pageData: PagePayloadData = {
-      page,
-      content: document.querySelector("html")?.outerHTML || "",
-    }
-    browser.runtime.sendMessage<PageDataMessage>({
-      command: "page-data",
-      pageData,
-    })
+    sendPageData(page)
   }
 
   if (command === "rate-click") {
