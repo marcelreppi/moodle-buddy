@@ -1,6 +1,5 @@
 module.exports = {
-  purge: ["./src/**/*.{vue,js,ts,jsx,tsx,html}"],
-  darkMode: false, // or 'media' or 'class'
+  content: ["./src/**/*.{vue,js,ts,html}"],
   theme: {
     extend: {
       colors: {
