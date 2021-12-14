@@ -4,6 +4,7 @@ export interface BasePayload {
   browser: "firefox" | "chrome"
   browserId: string
   dev: boolean
+  version: string
 }
 
 export interface EventPayloadData {

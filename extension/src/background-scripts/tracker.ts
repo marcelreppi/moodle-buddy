@@ -38,6 +38,7 @@ async function sendToLambda(path: string, payload: AdditionalPayloadData) {
     browser: isFirefox ? "firefox" : "chrome",
     browserId,
     dev: isDev,
+    version: browser.runtime.getManifest().version,
   }
 
   if (isDev) {
