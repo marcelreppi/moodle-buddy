@@ -1,10 +1,14 @@
+const TITLE = "Moodle Buddy | Mass file download and notifications for Moodle"
+const DESCRIPTION =
+  "Moodle Buddy offers mass file download and notification functionality for the Moodle learning management platform. Available as Firefox and Chrome browser extension."
+
 export default {
   // Target: https://go.nuxtjs.dev/config-target
   target: "static",
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: "Moodle Buddy | Mass file download and notifications for Moodle",
+    title: TITLE,
     htmlAttrs: {
       lang: "en",
     },
@@ -16,22 +20,20 @@ export default {
       {
         hid: "description",
         name: "description",
-        content:
-          "Moodle Buddy offers mass file download and notification functionality for the Moodle learning management platform. Available for Firefox and Chrome.",
+        content: DESCRIPTION,
       },
       // Open Graph
       {
         name: "og:title",
-        content: "Moodle Buddy | Mass file download and notifications for Moodle",
+        content: TITLE,
       },
       {
         name: "og:description",
-        content:
-          "Moodle Buddy offers mass file download and notification functionality for the Moodle learning management platform. Available for Firefox and Chrome.",
+        content: DESCRIPTION,
       },
       {
         name: "og:site_name",
-        content: "Moodle Buddy | Mass file download and notifications for Moodle",
+        content: TITLE,
       },
       { name: "og:url", content: "https://moodlebuddy.com" },
       { name: "og:image", content: "https://moodlebuddy.com/mb-128.png" },
@@ -43,7 +45,7 @@ export default {
     ],
     script: [
       {
-        src: "https://umami.moodlebuddy.com/umami.js",
+        src: "https://umami.marcelreppi.com/umami.js",
         async: true,
         defer: true,
         "data-website-id": "f0ddb47e-8e3c-46c7-87bd-1c077fefd501",
