@@ -241,7 +241,7 @@ const onMarkAsSeenClick = () => {
   emit("mark-as-seen")
 
   if (activeTab.value?.id) {
-    browser.tabs.sendMessage<Message>(activeTab.value.id, {
+    chrome.tabs.sendMessage<Message>(activeTab.value.id, {
       command: "mark-as-seen",
     })
   }
@@ -286,7 +286,7 @@ const onDownloadFinished = () => {
   }, 3000)
 }
 const onDownloadCancel = () => {
-  browser.runtime.sendMessage<Message>({
+  chrome.runtime.sendMessage<Message>({
     command: "cancel-download",
   })
   downloadInProgress.value = false
@@ -311,7 +311,7 @@ const onDownload = () => {
   emit("download", selectedResources.value)
 
   if (activeTab.value?.id) {
-    browser.tabs.sendMessage<CourseCrawlMessage>(activeTab.value.id, {
+    chrome.tabs.sendMessage<CourseCrawlMessage>(activeTab.value.id, {
       command: "crawl",
       selectedResources: selectedResources.value.map((r) => ({ ...r })), // Resolve proxy
       options: {
@@ -333,7 +333,7 @@ const onDownload = () => {
   }
 }
 
-const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+chrome.runtime.onMessage.addListener(async (message: object) => {
   const { command } = message as Message
   if (command === "scan-result") {
     loading.value = false
@@ -344,8 +344,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     const progressBarRef = progressBar.value as any
     progressBarRef.setProgress(total, completed, errors)
   }
-}
-browser.runtime.onMessage.addListener(messageListener)
+})
 
 // Lifecycle hooks
 onUpdated(() => {

@@ -1,8 +1,5 @@
 <template>
   <div class="relative w-full h-full px-3 pt-4 pb-2" :class="{ chrome: !isFirefox }">
-    <div v-if="isDev" class="absolute top-0 left-0 flex justify-center text-sm">
-      <a @click="openBackgroundPage" class="link">Open background page</a>
-    </div>
     <div class="flex items-center justify-center mb-2 text-lg">
       Moodle Buddy
       <img class="w-5 h-5 ml-2" src="../icons/48.png" alt="logo" />
@@ -62,7 +59,7 @@ import {
   updateState,
 } from "./state"
 
-import { getActiveTab, isFirefox, isDev } from "../shared/helpers"
+import { getActiveTab, isFirefox } from "../shared/helpers"
 import CourseView from "./views/CourseView.vue"
 import VideoServiceView from "./views/VideoServiceView.vue"
 import DashboardView from "./views/DashboardView.vue"
@@ -84,7 +81,7 @@ const showLoading = ref(true)
 const { openContactPage, openDonatePage, openInfoPage, openOptionsPage } = useNavigation()
 const { onRateClick, showRatingHint } = useRating()
 
-const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+chrome.runtime.onMessage.addListener(async (message: object) => {
   const { command } = message as Message
 
   if (command === "state") {
@@ -102,23 +99,18 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
   }
 
   showLoading.value = false
-}
-browser.runtime.onMessage.addListener(messageListener)
+})
 
 getActiveTab().then((tab) => {
   activeTab.value = tab
 
   if (activeTab.value?.id) {
     updateState()
-    browser.tabs.sendMessage<Message>(activeTab.value.id, {
+    chrome.tabs.sendMessage<Message>(activeTab.value.id, {
       command: "track-page-view",
     })
   }
 })
-
-const openBackgroundPage = () => {
-  browser.tabs.create({ url: browser.extension.getURL("_generated_background_page.html") })
-}
 </script>
 
 <style scoped>

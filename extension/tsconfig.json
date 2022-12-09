@@ -3,7 +3,6 @@
     "baseUrl": "src",
     "typeRoots": [
       "node_modules/@types",
-      "node_modules/web-ext-types"
     ],
     "target": "esnext",
     "module": "esnext",
@@ -26,6 +25,7 @@
     "strictPropertyInitialization": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "skipLibCheck": true
   },
   "exclude": [
     "node_modules"

@@ -1,0 +1,40 @@
+{
+  "manifest_version": 2,
+  "name": "Moodle Buddy",
+  "version": "1.53",
+  "description": "Moodle Buddy offers mass file download and notification functionality for the moodle learning management platform.",
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "permissions": ["<all_urls>", "activeTab", "downloads", "storage"],
+  "browser_action": {
+    "default_icon": {
+      "16": "icons/16-gray.png",
+      "32": "icons/32-gray.png",
+      "48": "icons/48-gray.png",
+      "128": "icons/128-gray.png"
+    },
+    "default_title": "Moodle Buddy",
+    "default_popup": "popup/index.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["shared/browser-polyfill.js", "content-scripts/index.js"]
+    }
+  ],
+  "background": {
+    "scripts": [
+      "shared/browser-polyfill.js",
+      "background-scripts/extensionListener.js",
+      "background-scripts/downloader.js",
+      "background-scripts/backgroundScanner.js"
+    ]
+  },
+  "options_ui": {
+    "page": "pages/options/options.html"
+  }
+}

@@ -34,7 +34,7 @@ export interface Activity extends Resource {
   activityType: string
 }
 
-export interface CourseData extends browser.storage.StorageObject {
+export interface CourseData {
   seenResources: string[]
   newResources: string[]
   seenActivities: string[]

@@ -1,10 +1,10 @@
-import { ExtensionOptions, ExtensionStorage, EventMessage, Message } from "types"
+import { ExtensionOptions, EventMessage, Message, ExtensionStorage } from "types"
 import { validURLRegex } from "../../shared/regexHelpers"
 
 let restoredOptions: ExtensionOptions
 
 async function restore() {
-  browser.storage.local.get<ExtensionStorage>("options").then(({ options }) => {
+  chrome.storage.local.get("options").then(({ options }) => {
     restoredOptions = options as ExtensionOptions
     const inputs = document.querySelectorAll("input")
     inputs.forEach((input) => {
@@ -64,7 +64,7 @@ async function save(e: Event) {
 
   clearTimeout(timeout)
   timeout = setTimeout(async () => {
-    await browser.runtime.sendMessage<EventMessage>({
+    await chrome.runtime.sendMessage<EventMessage>({
       command: "event",
       event: "modify-options",
       saveURL: false,
@@ -73,16 +73,16 @@ async function save(e: Event) {
   }, 500)
 
   if (updatedOptions.disableInteractionTracking) {
-    await browser.runtime.sendMessage<EventMessage>({
+    await chrome.runtime.sendMessage<EventMessage>({
       command: "event",
       event: "disable-tracking",
       saveURL: false,
     })
   }
 
-  await browser.storage.local.set({
+  await chrome.storage.local.set({
     options: updatedOptions,
-  })
+  } as ExtensionStorage)
 }
 
 function checkURL(e: Event) {
@@ -101,7 +101,7 @@ function checkURL(e: Event) {
 }
 
 async function clearCourseData(e: Event) {
-  await browser.runtime.sendMessage<Message>({
+  await chrome.runtime.sendMessage<Message>({
     command: "clear-course-data",
   })
 

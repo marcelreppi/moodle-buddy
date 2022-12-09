@@ -30,11 +30,11 @@ const initialStorage: ExtensionStorage = {
 }
 
 async function onInstall() {
-  await browser.storage.local.set({
+  await chrome.storage.local.set({
     ...initialStorage,
-  })
+  } as ExtensionStorage)
 
-  browser.tabs.create({
+  chrome.tabs.create({
     url: "/pages/install/install.html",
   })
 
@@ -42,8 +42,8 @@ async function onInstall() {
 }
 
 async function onUpdate() {
-  const localStorage: ExtensionStorage = await browser.storage.local.get()
-  const localOptions: ExtensionOptions = localStorage.options as ExtensionOptions
+  const localStorage = (await chrome.storage.local.get()) as ExtensionStorage
+  const localOptions = localStorage.options as ExtensionOptions
 
   // Merge existing options
   let updatedOptions = { ...defaultOptions }
@@ -65,32 +65,32 @@ async function onUpdate() {
     }
   }
   // Remove from localStorage
-  await browser.storage.local.remove(Object.keys(updatedCourseData))
+  await chrome.storage.local.remove(Object.keys(updatedCourseData))
 
   // Merge existing storage data
-  await browser.storage.local.set({
+  await chrome.storage.local.set({
     ...initialStorage,
     ...localStorage,
     courseData: updatedCourseData,
     options: updatedOptions,
-  })
+  } as ExtensionStorage)
 
   if (isDev) {
-    await browser.storage.local.set({
+    await chrome.storage.local.set({
       ...initialStorage,
       options: defaultOptions,
       browserId: localStorage.browserId,
-    })
+    } as ExtensionStorage)
   }
 
   sendEvent("update", false)
 
-  // browser.tabs.create({
+  // chrome.tabs.create({
   //   url: "/pages/update/update.html",
   // })
 }
 
-browser.runtime.onInstalled.addListener(async (details) => {
+chrome.runtime.onInstalled.addListener(async (details) => {
   switch (details.reason) {
     case "install":
       await onInstall()
@@ -102,52 +102,69 @@ browser.runtime.onInstalled.addListener(async (details) => {
       break
   }
 
-  const { browserId } = await browser.storage.local.get("browserId")
-  browser.runtime.setUninstallURL(`https://moodlebuddy.com/uninstall?browserId=${browserId}`)
+  const { browserId } = await chrome.storage.local.get("browserId")
+  chrome.runtime.setUninstallURL(`https://moodlebuddy.com/uninstall?browserId=${browserId}`)
 })
 
-const messageListener: browser.runtime.onMessageEvent = async (
-  message: object,
-  sender: browser.runtime.MessageSender
-) => {
-  const { command } = message as Message
-  switch (command) {
-    case "event":
-      const { event, saveURL, eventData } = message as EventMessage
-      sendEvent(event, saveURL, eventData)
-      break
-    case "page-data":
-      const { pageData } = message as PageDataMessage
-      sendPageData(pageData)
-      break
-    case "feedback":
-      const { feedbackData } = message as FeedbackMessage
-      sendFeedback(feedbackData)
-      break
-    case "set-icon":
-      setIcon(sender.tab?.id)
-      break
-    case "set-badge":
-      const { text } = message as SetBadgeMessage
-      setBadgeText(text, sender.tab?.id)
-      break
-    case "log":
-      const { logData } = message as LogMessage
-      sendLog(logData)
-      break
-    case "clear-course-data":
-      await browser.storage.local.set({
-        courseData: initialStorage.courseData,
-      })
-      break
-    case "execute-script":
-      const { scriptName } = message as ExecuteScriptMessage
-      browser.tabs.executeScript(undefined, {
-        file: `content-scripts/${scriptName}.js`,
-      })
-      break
-    default:
-      break
+chrome.runtime.onMessage.addListener(
+  async (message: object, sender: chrome.runtime.MessageSender) => {
+    const { command } = message as Message
+    switch (command) {
+      case "event":
+        const { event, saveURL, eventData } = message as EventMessage
+        sendEvent(event, saveURL, eventData)
+        break
+      case "page-data":
+        const { pageData } = message as PageDataMessage
+        sendPageData(pageData)
+        break
+      case "feedback":
+        const { feedbackData } = message as FeedbackMessage
+        sendFeedback(feedbackData)
+        break
+      case "set-icon":
+        setIcon(sender.tab?.id)
+        break
+      case "set-badge":
+        const { text } = message as SetBadgeMessage
+        setBadgeText(text, sender.tab?.id)
+        break
+      case "log":
+        const { logData } = message as LogMessage
+        sendLog(logData)
+        break
+      case "clear-course-data":
+        await chrome.storage.local.set({
+          courseData: initialStorage.courseData,
+        } as ExtensionStorage)
+        break
+      case "execute-script":
+        if (!sender.tab?.id) {
+          throw new Error("Error on event execute-script: Sender tab id was empty")
+        }
+        const { scriptName } = message as ExecuteScriptMessage
+        chrome.scripting.executeScript({
+          target: {
+            tabId: sender.tab?.id,
+          },
+          files: [`content-scripts/${scriptName}.js`],
+        })
+        break
+      default:
+        break
+    }
   }
-}
-browser.runtime.onMessage.addListener(messageListener)
+)
+
+chrome.tabs.onCreated.addListener(async (tab) => {
+  console.log("tabs.onCreated")
+
+  console.log(await chrome.storage.local.get())
+
+  const { nUpdates } = (await chrome.storage.local.get("nUpdates")) as ExtensionStorage
+  console.log(nUpdates)
+
+  if (nUpdates > 0) {
+    setBadgeText(nUpdates.toString(), tab.id)
+  }
+})

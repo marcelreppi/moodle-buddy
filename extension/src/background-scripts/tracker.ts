@@ -12,10 +12,10 @@ import {
 import { isFirefox, getActiveTab, isDev } from "../shared/helpers"
 
 async function sendToLambda(path: string, payload: AdditionalPayloadData) {
-  const { options, browserId }: ExtensionStorage = await browser.storage.local.get([
+  const { options, browserId } = (await chrome.storage.local.get([
     "options",
     "browserId",
-  ])
+  ])) as ExtensionStorage
 
   if (options.disableInteractionTracking) {
     // console.log("Moodle Buddy Tracking disabled!")
@@ -38,7 +38,7 @@ async function sendToLambda(path: string, payload: AdditionalPayloadData) {
     browser: isFirefox ? "firefox" : "chrome",
     browserId,
     dev: isDev,
-    version: browser.runtime.getManifest().version,
+    version: chrome.runtime.getManifest().version,
   }
 
   if (isDev) {
