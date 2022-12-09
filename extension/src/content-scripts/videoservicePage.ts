@@ -23,7 +23,7 @@ async function scanForVideos() {
     videoResources = []
     videoNodes = []
 
-    const { options }: ExtensionStorage = await browser.storage.local.get("options")
+    const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
 
     if (location.href.endsWith("view")) {
       const videoURLSelector = getQuerySelector("videoservice", options)
@@ -129,19 +129,19 @@ async function getVideoResourceSrc(
   })
 }
 
-const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+chrome.runtime.onMessage.addListener(async (message: object) => {
   const { command } = message as Message
   if (command === "scan") {
     await scanForVideos()
 
     if (error) {
-      browser.runtime.sendMessage<Message>({
+      chrome.runtime.sendMessage<Message>({
         command: "error-view",
       })
       return
     }
 
-    browser.runtime.sendMessage<VideoScanResultMessage>({
+    chrome.runtime.sendMessage<VideoScanResultMessage>({
       command: "scan-result",
       videoResources,
     })
@@ -154,14 +154,14 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     try {
       if (location.href.endsWith("view")) {
         // A single video is being diplayed
-        await browser.runtime.sendMessage<DownloadMessage>({
+        await chrome.runtime.sendMessage<DownloadMessage>({
           command: "download",
           resources: videoResources,
           courseName,
           courseShortcut: "",
           options,
         })
-        await browser.runtime.sendMessage<DownloadProgressMessage>({
+        await chrome.runtime.sendMessage<DownloadProgressMessage>({
           command: "download-progress",
           completed: videoResources.length,
           total: selectedResources.length,
@@ -178,7 +178,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
               videoResource,
               options as ExtensionOptions
             )
-            browser.runtime.sendMessage<DownloadProgressMessage>({
+            chrome.runtime.sendMessage<DownloadProgressMessage>({
               command: "download-progress",
               completed: i + 1,
               total: selectedResources.length,
@@ -193,7 +193,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
           }
         }
 
-        browser.runtime.sendMessage<DownloadMessage>({
+        chrome.runtime.sendMessage<DownloadMessage>({
           command: "download",
           resources: downloadVideoResources,
           courseName,
@@ -205,17 +205,16 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
       console.error(err)
       sendLog({ errorMessage: err.message, url: location.href })
       error = true
-      browser.runtime.sendMessage<Message>({
+      chrome.runtime.sendMessage<Message>({
         command: "error-view",
       })
     }
   }
 
   if (command === "cancel-download") {
-    browser.runtime.sendMessage<Message>({
+    chrome.runtime.sendMessage<Message>({
       command: "cancel-download",
     })
     cancel = true
   }
-}
-browser.runtime.onMessage.addListener(messageListener)
+})

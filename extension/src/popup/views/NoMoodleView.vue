@@ -29,7 +29,7 @@
         </div>
       </transition>
     </div>
-    <div v-else class="mb-3 link" @click="openMoodlePage">Go to my Moodle</div>
+    <div v-else class="mb-3 link" @click="goToMoodle()">Go to my Moodle</div>
     <hr class="w-5/6 my-2" />
     <div>This is an unsupported webpage.</div>
     <div class="mt-3">Make sure you are...</div>
@@ -50,6 +50,7 @@ import { computed, ref } from "vue"
 import { options, nUpdates, updateState } from "../state"
 import { validURLRegex } from "../../shared/regexHelpers"
 import useNavigation from "../composables/useNavigation"
+import { ExtensionStorage } from "../../types"
 
 const { openMoodlePage, openInfoPage } = useNavigation()
 
@@ -70,10 +71,15 @@ const onSaveClick = async () => {
     return
   }
 
-  await browser.storage.local.set({
+  await chrome.storage.local.set({
     options: { ...options.value, defaultMoodleURL: urlInput.value },
-  })
+  } as ExtensionStorage)
   updateState()
+}
+
+function goToMoodle() {
+  nUpdates.value = 0
+  openMoodlePage()
 }
 </script>
 

@@ -38,7 +38,7 @@ function hasHiddenParent(element: HTMLElement): boolean {
 }
 
 function sendScanProgress() {
-  browser.runtime.sendMessage<ScanInProgressMessage>({
+  chrome.runtime.sendMessage<ScanInProgressMessage>({
     command: "scan-in-progress",
     completed: scanCompleted,
     total: scanTotal,
@@ -46,7 +46,7 @@ function sendScanProgress() {
 }
 
 function sendScanResults() {
-  browser.runtime.sendMessage<DashboardScanResultMessage>({
+  chrome.runtime.sendMessage<DashboardScanResultMessage>({
     command: "scan-result",
     courses: courses.map((c) => ({
       name: c.name,
@@ -66,7 +66,7 @@ async function scanOverview(retry = 0) {
     scanCompleted = 0
     courses = []
 
-    const { options }: ExtensionStorage = await browser.storage.local.get("options")
+    const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
     let courseLinks: string[] = []
 
     sendScanProgress()
@@ -152,9 +152,9 @@ async function scanOverview(retry = 0) {
         sendScanProgress()
       }
 
-      browser.storage.local.set({
+      chrome.storage.local.set({
         overviewCourseLinks: courses.map((c) => c.link),
-      })
+      } as ExtensionStorage)
 
       updateIconFromCourses(courses)
     }
@@ -174,11 +174,11 @@ if (isMoodlePage) {
   scanOverview()
 }
 
-const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+chrome.runtime.onMessage.addListener(async (message: object) => {
   const { command } = message as Message
   if (command === "scan") {
     if (error) {
-      browser.runtime.sendMessage<Message>({
+      chrome.runtime.sendMessage<Message>({
         command: "error-view",
       })
       return
@@ -188,7 +188,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
       sendScanProgress()
     } else {
       if (error) {
-        browser.runtime.sendMessage<Message>({
+        chrome.runtime.sendMessage<Message>({
           command: "error-view",
         })
         return
@@ -231,12 +231,12 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     const i = courses.findIndex((c) => c.link === link)
     const course = courses[i]
 
-    const { options }: ExtensionStorage = await browser.storage.local.get("options")
+    const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
 
     // Only download new resources
     const downloadNodes = course.resources.filter((r) => r.isNew)
 
-    browser.runtime.sendMessage<DownloadMessage>({
+    chrome.runtime.sendMessage<DownloadMessage>({
       command: "download",
       resources: downloadNodes,
       courseName: course.name,
@@ -250,5 +250,4 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     await course.scan()
     updateIconFromCourses(courses)
   }
-}
-browser.runtime.onMessage.addListener(messageListener)
+})

@@ -5,15 +5,16 @@ import { detectPage } from "./detector"
 const page = detectPage()
 
 async function updateVueState() {
-  const localStorage: ExtensionStorage = await browser.storage.local.get()
+  const localStorage = (await chrome.storage.local.get()) as ExtensionStorage
   const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = localStorage
-  browser.runtime.sendMessage<StateMessage>({
+  console.log({ localStorage })
+  chrome.runtime.sendMessage<StateMessage>({
     command: "state",
     state: { page, options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel },
   })
 }
 
-const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+chrome.runtime.onMessage.addListener(async (message: object) => {
   const { command } = message as Message
 
   if (command === "get-state") {
@@ -28,18 +29,17 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
   }
 
   if (command === "rate-click") {
-    await browser.storage.local.set({
+    await chrome.storage.local.set({
       userHasRated: true,
-    })
+    } as ExtensionStorage)
     updateVueState()
   }
 
   if (command === "avoid-rate-click") {
-    const { rateHintLevel }: ExtensionStorage = await browser.storage.local.get()
-    await browser.storage.local.set({
+    const { rateHintLevel } = (await chrome.storage.local.get()) as ExtensionStorage
+    await chrome.storage.local.set({
       rateHintLevel: rateHintLevel + 1,
-    })
+    } as ExtensionStorage)
     updateVueState()
   }
-}
-browser.runtime.onMessage.addListener(messageListener)
+})

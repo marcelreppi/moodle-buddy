@@ -1,4 +1,5 @@
 import pLimit from "p-limit"
+import { parseHTML } from "linkedom"
 
 import {
   DownloadMessage,
@@ -83,7 +84,7 @@ class Downloader {
     this.isCancelled = true
 
     for (const id of this.inProgress) {
-      await browser.downloads.cancel(id)
+      await chrome.downloads.cancel(id)
     }
 
     const remainingFiles =
@@ -109,7 +110,7 @@ class Downloader {
   }
 
   async onCompleted(id: number) {
-    const downloadItem = await browser.downloads.search({ id })
+    const downloadItem = await chrome.downloads.search({ id })
     this.byteCount += downloadItem[0].fileSize
     this.inProgress.delete(id)
     this.finished.push(id)
@@ -126,7 +127,7 @@ class Downloader {
   }
 
   updateView() {
-    browser.runtime.sendMessage<DownloadProgressMessage>({
+    chrome.runtime.sendMessage<DownloadProgressMessage>({
       command: "download-progress",
       completed: this.finished.length,
       total: this.fileCount,
@@ -212,12 +213,12 @@ class Downloader {
         addCount: this.addCount,
         removeCount: this.removeCount,
       })
-      const { totalDownloadedFiles }: ExtensionStorage = await browser.storage.local.get(
+      const { totalDownloadedFiles } = (await chrome.storage.local.get(
         "totalDownloadedFiles"
-      )
-      await browser.storage.local.set({
+      )) as ExtensionStorage
+      await chrome.storage.local.set({
         totalDownloadedFiles: totalDownloadedFiles + this.fileCount,
-      })
+      } as ExtensionStorage)
       this.sentData = true
     }
   }
@@ -314,7 +315,7 @@ class Downloader {
 
       if (this.inProgress.size < this.options.maxConcurrentDownloads) {
         try {
-          const id = await browser.downloads.download({ url: href, filename: filePath })
+          const id = await chrome.downloads.download({ url: href, filename: filePath })
           await this.onDownloadStart(id)
         } catch (err) {
           console.error(err)
@@ -355,9 +356,8 @@ class Downloader {
     // Sometimes (e.g. for images) Moodle returns HTML with the file embedded
     if (res.url.match(getURLRegex("file")) || res.url.match(getURLRegex("url"))) {
       const body = await res.text()
-      const parser = new DOMParser()
-      const resHTML = parser.parseFromString(body, "text/html")
-      const mainRegionHTML = resHTML.querySelector("#region-main")
+      const { document } = parseHTML(body)
+      const mainRegionHTML = document.querySelector("#region-main")
       if (mainRegionHTML) {
         // There are multiple possibilities how files could be displayed
 
@@ -425,8 +425,7 @@ class Downloader {
     // Fetch the href to get the actual download URL
     const res = await fetch(href)
     const body = await res.text()
-    const parser = new DOMParser()
-    const resHTML = parser.parseFromString(body, "text/html").body
+    const { document } = parseHTML(body)
 
     const baseURL = getMoodleBaseURL(res.url)
 
@@ -434,11 +433,11 @@ class Downloader {
     // 1. "Download Folder" button is shown --> Download zip via button
     // 2. "Download Folder" button is hidden --> Download all files separately
 
-    const downloadButton = getDownloadButton(resHTML)
+    const downloadButton = getDownloadButton(document.body)
 
     const { downloadFolderAsZip } = this.options
     if (downloadFolderAsZip && downloadButton !== null) {
-      const downloadIdTag = getDownloadIdTag(resHTML)
+      const downloadIdTag = getDownloadIdTag(document.body)
 
       if (downloadIdTag === null) return
       const downloadId = downloadIdTag.getAttribute("value")
@@ -448,7 +447,7 @@ class Downloader {
       await this.download(downloadURL, fileName, resource)
     } else {
       // Downloading folder content as individual files
-      const fileNodes = resHTML.querySelectorAll<HTMLAnchorElement>(
+      const fileNodes = document.querySelectorAll<HTMLAnchorElement>(
         getQuerySelector("pluginfile", this.options)
       )
       await this.removeFiles(1)
@@ -500,7 +499,9 @@ async function onCancel() {
 
 async function onDownload(message: DownloadMessage) {
   const { courseName, courseShortcut, resources, options: userOptions } = message
-  const { options: storageOptions }: ExtensionStorage = await browser.storage.local.get("options")
+  const { options: storageOptions } = (await chrome.storage.local.get(
+    "options"
+  )) as ExtensionStorage
 
   const options = { ...storageOptions, ...userOptions }
 
@@ -510,7 +511,7 @@ async function onDownload(message: DownloadMessage) {
   downloaders[downloader.id] = downloader
 }
 
-browser.downloads.onChanged.addListener(async (downloadDelta) => {
+chrome.downloads.onChanged.addListener(async (downloadDelta) => {
   const { state, id } = downloadDelta
 
   if (state === undefined) return
@@ -548,7 +549,7 @@ browser.downloads.onChanged.addListener(async (downloadDelta) => {
   }
 })
 
-const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+chrome.runtime.onMessage.addListener(async (message: object) => {
   const { command } = message as Message
   switch (command) {
     case "cancel-download":
@@ -560,5 +561,4 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     default:
       break
   }
-}
-browser.runtime.onMessage.addListener(messageListener)
+})

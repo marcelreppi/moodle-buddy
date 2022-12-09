@@ -11,7 +11,7 @@ import { updateIconFromCourses, sendLog, isDev } from "../shared/helpers"
 import Course from "../models/Course"
 
 function sendScanResults(course) {
-  browser.runtime.sendMessage<CourseScanResultMessage>({
+  chrome.runtime.sendMessage<CourseScanResultMessage>({
     command: "scan-result",
     course: {
       resources: course.resources,
@@ -20,10 +20,10 @@ function sendScanResults(course) {
   })
 }
 
-// browser.storage.local.clear()
+// chrome.storage.local.clear()
 
 async function initCoursePage() {
-  const { options }: ExtensionStorage = await browser.storage.local.get("options")
+  const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
   const courseLink = parseCourseLink(location.href)
   const course = new Course(courseLink, document, options)
 
@@ -45,12 +45,12 @@ async function initCoursePage() {
     .catch((err) => {
       console.error(err)
       sendLog({ errorMessage: err.message, url: location.href })
-      browser.runtime.sendMessage<Message>({
+      chrome.runtime.sendMessage<Message>({
         command: "error-view",
       })
     })
 
-  const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+  chrome.runtime.onMessage.addListener(async (message: object) => {
     const { command } = message as Message
 
     if (command === "scan") {
@@ -78,7 +78,7 @@ async function initCoursePage() {
     if (command === "crawl") {
       const { options, selectedResources } = message as CourseCrawlMessage
 
-      browser.runtime.sendMessage<DownloadMessage>({
+      chrome.runtime.sendMessage<DownloadMessage>({
         command: "download",
         resources: selectedResources,
         courseName: course.name,
@@ -90,8 +90,7 @@ async function initCoursePage() {
       await course.scan()
       updateIconFromCourses([course])
     }
-  }
-  browser.runtime.onMessage.addListener(messageListener)
+  })
 }
 
 const isMoodlePage = checkForMoodle()

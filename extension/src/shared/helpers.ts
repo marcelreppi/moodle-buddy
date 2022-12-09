@@ -19,7 +19,7 @@ export function sendEvent(
   saveURL = true,
   eventData: Record<string, unknown> = {}
 ): void {
-  browser.runtime.sendMessage<EventMessage>({
+  chrome.runtime.sendMessage<EventMessage>({
     command: "event",
     event,
     saveURL,
@@ -28,7 +28,7 @@ export function sendEvent(
 }
 
 export function sendLog(logData: LogPayloadData): void {
-  browser.runtime.sendMessage<LogMessage>({
+  chrome.runtime.sendMessage<LogMessage>({
     command: "log",
     logData,
   })
@@ -44,15 +44,15 @@ export function sendPageData(page: SupportedPage) {
     page,
     content: document.querySelector("html")?.outerHTML || "",
   }
-  browser.runtime.sendMessage<PageDataMessage>({
+  chrome.runtime.sendMessage<PageDataMessage>({
     command: "page-data",
     pageData,
   })
 }
 
-export async function getActiveTab(): Promise<browser.tabs.Tab | undefined> {
-  const tabs = await browser.tabs.query({ active: true, currentWindow: true })
-  return tabs.shift()
+export async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
+  return tabs?.shift()
 }
 
 declare const InstallTrigger: unknown
@@ -73,12 +73,12 @@ export function updateIconFromCourses(courses: Course[]): void {
 
   // If there are no further updates reset the icon
   if (nUpdates === 0) {
-    browser.runtime.sendMessage<SetBadgeMessage>({
+    chrome.runtime.sendMessage<SetBadgeMessage>({
       command: "set-badge",
       text: "",
     })
   } else {
-    browser.runtime.sendMessage<SetBadgeMessage>({
+    chrome.runtime.sendMessage<SetBadgeMessage>({
       command: "set-badge",
       text: nUpdates.toString(),
     })

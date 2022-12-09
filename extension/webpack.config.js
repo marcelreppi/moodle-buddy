@@ -5,8 +5,13 @@ const CopyPlugin = require("copy-webpack-plugin")
 const { VueLoaderPlugin } = require("vue-loader")
 const TerserPlugin = require("terser-webpack-plugin")
 const Dotenv = require("dotenv-webpack")
+const CreateFileWebpack = require("create-file-webpack")
+const WatchExternalFilesPlugin = require("webpack-watch-external-files-plugin")
 
-const isProd = process.env.NODE_ENV === "production"
+const { IS_PROD } = require("./scripts/utils")
+const getManifest = require("./src/manifest")
+
+const BUILD_DIR = join(__dirname, "build")
 
 console.log(`Webpack is in ${process.env.NODE_ENV || "development"} mode`)
 
@@ -27,9 +32,10 @@ addExtensionEntry("content-scripts/coursePage.ts")
 addExtensionEntry("content-scripts/dashboardPage.ts")
 addExtensionEntry("content-scripts/videoservicePage.ts")
 
-addExtensionEntry("background-scripts/downloader.ts")
-addExtensionEntry("background-scripts/extensionListener.ts")
-addExtensionEntry("background-scripts/backgroundScanner.ts")
+// addExtensionEntry("background-scripts/downloader.ts")
+// addExtensionEntry("background-scripts/extensionListener.ts")
+// addExtensionEntry("background-scripts/backgroundScanner.ts")
+addExtensionEntry("background-scripts/index.ts")
 
 addExtensionEntry("pages/contact/contact.ts")
 addExtensionEntry("pages/information/information.ts")
@@ -41,11 +47,12 @@ addExtensionEntry("pages/update/update.ts")
 module.exports = {
   entry: entries,
   output: {
-    path: join(__dirname, "build"),
+    path: BUILD_DIR,
     filename: "[name].js",
   },
-  mode: isProd ? "production" : "development",
-  devtool: isProd ? undefined : "inline-source-map",
+  mode: IS_PROD ? "production" : "development",
+  devtool: IS_PROD ? undefined : "inline-source-map",
+  watch: !IS_PROD,
   module: {
     rules: [
       {
@@ -79,6 +86,8 @@ module.exports = {
   resolve: {
     alias: {
       vue: "@vue/runtime-dom",
+      canvas: "./canvas-shim.cjs",
+      perf_hooks: false,
     },
     extensions: ["*", ".js", ".ts", ".vue", ".json"],
   },
@@ -86,19 +95,14 @@ module.exports = {
     new VueLoaderPlugin(),
     new CopyPlugin({
       patterns: [
-        { from: "./src/manifest.json", to: "./manifest.json" },
         { from: "./src/popup/index.html", to: "./popup/index.html" },
-        {
-          from: "node_modules/webextension-polyfill/dist/browser-polyfill.js",
-          to: "./shared/browser-polyfill.js",
-        },
         { from: "./src/pages", to: "./pages", globOptions: { ignore: ["**/*.ts"] } },
         { from: "./src/icons", to: "./icons" },
         { from: "../screenshots", to: "./screenshots" },
       ],
     }),
     new Dotenv({
-      path: isProd ? ".env" : ".env.dev",
+      path: IS_PROD ? ".env" : ".env.dev",
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
@@ -106,9 +110,14 @@ module.exports = {
     new webpack.DefinePlugin({
       global: "window", // Placeholder for global used in any node_modules
     }),
+    new CreateFileWebpack({
+      path: BUILD_DIR,
+      fileName: "manifest.json",
+      content: JSON.stringify(getManifest(), null, 2),
+    }),
   ],
   optimization: {
-    minimize: isProd,
+    minimize: IS_PROD,
     minimizer: [new TerserPlugin()],
   },
 }

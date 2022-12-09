@@ -37,7 +37,7 @@ export default function useRating(): UseRatingComposable {
   const onRateClick = async () => {
     if (!activeTab.value?.id) return
 
-    browser.tabs.sendMessage<Message>(activeTab.value.id, {
+    chrome.tabs.sendMessage<Message>(activeTab.value.id, {
       command: "rate-click",
     })
     openRatingPage()
@@ -46,7 +46,7 @@ export default function useRating(): UseRatingComposable {
   const onAvoidRateClick = async () => {
     if (!activeTab.value?.id) return
 
-    browser.tabs.sendMessage<Message>(activeTab.value.id, {
+    chrome.tabs.sendMessage<Message>(activeTab.value.id, {
       command: "avoid-rate-click",
     })
     sendEvent("avoid-rating-hint")

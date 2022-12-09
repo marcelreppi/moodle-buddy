@@ -3,7 +3,7 @@ import { options } from "../state"
 
 export default function useNavigation() {
   const openURL = (url: string) => {
-    browser.tabs.create({ url })
+    chrome.tabs.create({ url })
     window.close()
   }
   const openContactPage = () => openURL("/pages/contact/contact.html")
@@ -16,7 +16,7 @@ export default function useNavigation() {
     sendEvent("donate-click", false)
   }
   const openOptionsPage = () => {
-    browser.runtime.openOptionsPage()
+    chrome.runtime.openOptionsPage()
     sendEvent("options-click", false)
   }
   const openRatingPage = () => {

@@ -260,7 +260,8 @@ class Course {
     this.sectionIndices = {}
 
     //  Local storage course data
-    const localStorage: ExtensionStorage = testLocalStorage || (await browser.storage.local.get())
+    const localStorage =
+      testLocalStorage || ((await chrome.storage.local.get()) as ExtensionStorage)
     const { options, courseData } = localStorage
 
     this.options = options
@@ -353,11 +354,11 @@ class Course {
       newActivities: this.activities.filter((n) => n.isNew).map((n) => n.href),
       lastModifiedHeaders: this.lastModifiedHeaders,
     }
-    await browser.storage.local.set({ courseData })
+    await chrome.storage.local.set({ courseData } as ExtensionStorage)
   }
 
   async updateStoredResources(downloadedResources?: Resource[]): Promise<CourseData> {
-    const { courseData }: ExtensionStorage = await browser.storage.local.get("courseData")
+    const { courseData } = (await chrome.storage.local.get("courseData")) as ExtensionStorage
     const storedCourseData = courseData[this.link]
     const { seenResources, lastModifiedHeaders } = storedCourseData
 
@@ -397,24 +398,24 @@ class Course {
     }
 
     const updatedCourseData = {
-      ...(storedCourseData as Record<string, unknown>),
+      ...(storedCourseData as CourseData),
       seenResources: updatedSeenResources,
       newResources: updatedNewResources,
       lastModifiedHeaders,
     } as CourseData
 
-    await browser.storage.local.set({
+    await chrome.storage.local.set({
       courseData: {
         ...courseData,
         [this.link]: updatedCourseData,
       },
-    })
+    } as ExtensionStorage)
 
     return updatedCourseData
   }
 
   async updateStoredActivities(): Promise<CourseData> {
-    const { courseData }: ExtensionStorage = await browser.storage.local.get("courseData")
+    const { courseData } = (await chrome.storage.local.get("courseData")) as ExtensionStorage
     const storedCourseData = courseData[this.link]
 
     const { seenActivities, newActivities } = storedCourseData
@@ -422,17 +423,17 @@ class Course {
     const updatedNewActivities: string[] = []
 
     const updatedCourseData = {
-      ...(storedCourseData as Record<string, unknown>),
+      ...(storedCourseData as CourseData),
       seenActivities: updatedSeenActivities,
       newActivities: updatedNewActivities,
     } as CourseData
 
-    await browser.storage.local.set({
+    await chrome.storage.local.set({
       courseData: {
         ...courseData,
         [this.link]: updatedCourseData,
       },
-    })
+    } as ExtensionStorage)
 
     return updatedCourseData
   }

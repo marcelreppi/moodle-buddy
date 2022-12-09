@@ -1,6 +1,6 @@
 import { CourseData } from "./course.types"
 
-export interface ExtensionOptions extends browser.storage.StorageObject {
+export interface ExtensionOptions {
   onlyNewResources: boolean
   useMoodleFileName: boolean
   showDownloadOptions: boolean
@@ -27,9 +27,9 @@ export interface ExtensionOptions extends browser.storage.StorageObject {
   detectFileUpdates: boolean
 }
 
-export type StoredCourseData = Record<string, CourseData> & browser.storage.StorageObject
+export type StoredCourseData = Record<string, CourseData>
 
-export interface ExtensionStorage extends browser.storage.StorageObject {
+export interface ExtensionStorage {
   options: ExtensionOptions
   browserId: string
   overviewCourseLinks: string[]

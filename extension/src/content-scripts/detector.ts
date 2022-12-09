@@ -10,17 +10,17 @@ const pageToScriptMapping: Record<NonNullable<SupportedPage>, ScriptName> = {
 }
 
 async function setDefaultMoodleURL() {
-  const { options }: ExtensionStorage = await browser.storage.local.get("options")
+  const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
 
   if (!options.autoSetMoodleURL) return
 
   const baseURL = getMoodleBaseURL(location.href)
-  await browser.storage.local.set({
+  await chrome.storage.local.set({
     options: {
       ...options,
       defaultMoodleURL: `${baseURL}/my`,
     },
-  })
+  } as ExtensionStorage)
 }
 
 export function getSupportedPage(): SupportedPage | undefined {
@@ -59,13 +59,13 @@ export function detectPage(): SupportedPage | undefined {
   }
 
   if (page !== undefined) {
-    browser.runtime.sendMessage<Message>({
+    chrome.runtime.sendMessage<Message>({
       command: "set-icon",
     })
 
     setDefaultMoodleURL()
 
-    browser.runtime.sendMessage<ExecuteScriptMessage>({
+    chrome.runtime.sendMessage<ExecuteScriptMessage>({
       command: "execute-script",
       scriptName: pageToScriptMapping[page],
     })

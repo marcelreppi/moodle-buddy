@@ -61,7 +61,7 @@ const onDownload = (selectedResources: Resource[]) => {
   sendEvent(eventParts.join("-"), true, { numberOfFiles: selectedResources.length })
 }
 
-const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+chrome.runtime.onMessage.addListener(async (message: object) => {
   const { command } = message as Message
   if (command === "scan-result") {
     const { videoResources: scannedVideoResources } = message as VideoScanResultMessage
@@ -71,11 +71,10 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
 
     setVideosSelected()
   }
-}
-browser.runtime.onMessage.addListener(messageListener)
+})
 
 if (activeTab.value?.id) {
-  browser.tabs.sendMessage<Message>(activeTab.value.id, {
+  chrome.tabs.sendMessage<Message>(activeTab.value.id, {
     command: "scan",
   })
 }
