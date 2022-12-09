@@ -37,7 +37,7 @@ export interface EventMessage extends Message {
   command: "event"
   event: string
   saveURL: boolean
-  eventData?: Record<string, unknown>
+  eventData?: Record<string, any>
 }
 
 export interface PageDataMessage extends Message {

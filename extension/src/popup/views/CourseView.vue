@@ -135,7 +135,7 @@ const onMarkAsSeen = () => {
   })
 }
 
-const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+chrome.runtime.onMessage.addListener(async (message: object) => {
   const { command } = message as Message
   if (command === "scan-result") {
     const { course } = message as CourseScanResultMessage
@@ -149,7 +149,7 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
 
     if (nNewActivities.value > 0) {
       if (activeTab.value?.id) {
-        browser.tabs.sendMessage<Message>(activeTab.value.id, {
+        chrome.tabs.sendMessage<Message>(activeTab.value.id, {
           command: "update-activities",
         })
       }
@@ -159,11 +159,10 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
     setFilesSelected()
     setFoldersSelected()
   }
-}
-browser.runtime.onMessage.addListener(messageListener)
+})
 
 if (activeTab.value?.id) {
-  browser.tabs.sendMessage<Message>(activeTab.value.id, {
+  chrome.tabs.sendMessage<Message>(activeTab.value.id, {
     command: "scan",
   })
 }

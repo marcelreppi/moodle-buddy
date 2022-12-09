@@ -1,3 +1,4 @@
+import {} from "linkedom"
 import { ExtensionOptions } from "types"
 import { getURLRegex } from "./regexHelpers"
 
@@ -178,19 +179,20 @@ export function parseURLFromNode(
     return aTag.href
   }
 
-  if (node instanceof HTMLAnchorElement) {
-    return node.href
+  if (node.tagName === "A") {
+    return (node as HTMLAnchorElement).href
   }
 
   if (type === "pluginfile") {
     // Videos are also pluginfiles but have a different selector
     const mediaTag = node.querySelector(getQuerySelector("media", options))
-    if (mediaTag instanceof HTMLSourceElement || mediaTag instanceof HTMLImageElement) {
-      return mediaTag.src
+    const mediaTags = ["IMG", "VIDEO", "AUDIO"]
+    if (mediaTags.includes(mediaTag?.tagName ?? "")) {
+      return (mediaTag as HTMLSourceElement).src
     }
 
-    if (node instanceof HTMLSourceElement || node instanceof HTMLImageElement) {
-      return node.src
+    if (mediaTags.includes(node?.tagName ?? "")) {
+      return (node as HTMLSourceElement).src
     }
   }
 

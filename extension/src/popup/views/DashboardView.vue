@@ -49,7 +49,7 @@ const sortCoursesByNewestResourcesAndActivities = () => {
   })
 }
 
-const messageListener: browser.runtime.onMessageEvent = async (message: object) => {
+chrome.runtime.onMessage.addListener(async (message: object) => {
   const { command } = message as Message
   if (command === "scan-in-progress") {
     const { total, completed } = message as ScanInProgressMessage
@@ -71,11 +71,10 @@ const messageListener: browser.runtime.onMessageEvent = async (message: object) 
 
     sortCoursesByNewestResourcesAndActivities()
   }
-}
-browser.runtime.onMessage.addListener(messageListener)
+})
 
 if (activeTab.value?.id) {
-  browser.tabs.sendMessage<Message>(activeTab.value.id, {
+  chrome.tabs.sendMessage<Message>(activeTab.value.id, {
     command: "scan",
   })
 }

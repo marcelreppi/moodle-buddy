@@ -1,26 +1,29 @@
-# [Moodle Buddy](https://moodlebuddy.com) ![Icon](website/public/mb.png)
-
-### [Chrome](https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo)
-
-![Version](https://img.shields.io/chrome-web-store/v/nomahjpllnbcpbggnpiehiecfbjmcaeo)
-![Users](https://img.shields.io/chrome-web-store/users/nomahjpllnbcpbggnpiehiecfbjmcaeo)
-![Ratings](https://img.shields.io/chrome-web-store/rating/nomahjpllnbcpbggnpiehiecfbjmcaeo)
-
-### [Firefox](https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/)
-
-![Version](https://img.shields.io/amo/v/moodle-buddy)
-![Users](https://img.shields.io/amo/users/moodle-buddy)
-![Ratings](https://img.shields.io/amo/rating/moodle-buddy)
-
-Moodle Buddy offers mass file download and notification functionality for the Moodle learning management platform. Students can download all learning materials with just one click and see updates to their courses immediately.
+<p style="display: flex; flex-direction: column; align-items: center;">
+   <a href="https://moodlebuddy.com">
+      <img src="website/static/mb.png">
+   </a>
+   <h2 align="center">MoodleBuddy</h2>
+   <p style="width: 600px; margin: auto; text-align: center;">
+      Moodle Buddy offers mass file download and notification functionality for the Moodle learning management platform. Students can download all learning materials with just one click and see updates to their courses immediately.
+   </p>
+</p>
 
 ## Installation
 
 The plugin is available for both **Firefox** and **Chrome**.
 
-### [Click here for **Firefox**](https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/)
+[ ![chrome.google.com/](https://i.imgur.com/unvdmLG.png)](https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo)
 
-### [Click here for **Chrome**](https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo)
+![Version](https://img.shields.io/chrome-web-store/v/nomahjpllnbcpbggnpiehiecfbjmcaeo)
+![Users](https://img.shields.io/chrome-web-store/users/nomahjpllnbcpbggnpiehiecfbjmcaeo)
+![Ratings](https://img.shields.io/chrome-web-store/rating/nomahjpllnbcpbggnpiehiecfbjmcaeo)
+
+[ ![addons.mozilla.org/](https://ffp4g1ylyit3jdyti1hqcvtb-wpengine.netdna-ssl.com/addons/files/2015/11/get-the-addon.png)](https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/)
+
+![Version](https://img.shields.io/amo/v/moodle-buddy)
+![Users](https://img.shields.io/amo/users/moodle-buddy)
+![Ratings](https://img.shields.io/amo/rating/moodle-buddy)
+
 
 ## Usage
 

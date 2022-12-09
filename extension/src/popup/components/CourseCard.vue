@@ -111,7 +111,7 @@ const onDownloadClick = (e: Event, course: DashboardCourseData) => {
   const target = e.target as HTMLButtonElement
   target.disabled = true
   if (activeTab.value?.id) {
-    browser.tabs.sendMessage<DashboardCrawlMessage>(activeTab.value.id, {
+    chrome.tabs.sendMessage<DashboardCrawlMessage>(activeTab.value.id, {
       command: "crawl",
       link: course.link,
     })
@@ -124,7 +124,7 @@ const onMarkAsSeenClick = () => {
   props.course.resources.forEach((r) => (r.isNew = false))
 
   if (activeTab.value?.id) {
-    browser.tabs.sendMessage<MarkAsSeenMessage>(activeTab.value.id, {
+    chrome.tabs.sendMessage<MarkAsSeenMessage>(activeTab.value.id, {
       command: "mark-as-seen",
       link: props.course.link,
     })

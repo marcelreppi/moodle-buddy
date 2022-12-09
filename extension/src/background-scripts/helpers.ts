@@ -1,4 +1,8 @@
 import sanitize from "sanitize-filename"
+import { isFirefox } from "../shared/helpers"
+import { ExtensionStorage } from "../types"
+
+const action = isFirefox ? chrome.browserAction : chrome.action
 
 export function uuidv4(): string {
   return [1e7, 1e3, 4e3, 8e3, 1e11].join("-").replace(/[018]/g, (c) => {
@@ -9,7 +13,7 @@ export function uuidv4(): string {
 
 export async function setIcon(tabId?: number): Promise<void> {
   if (tabId) {
-    await browser.browserAction.setIcon({
+    await action.setIcon({
       path: {
         16: "/icons/16.png",
         32: "/icons/32.png",
@@ -21,17 +25,17 @@ export async function setIcon(tabId?: number): Promise<void> {
 }
 
 // Set default badge
-browser.browserAction.setBadgeBackgroundColor({ color: "#555555" })
-browser.browserAction.setBadgeText({ text: "" })
+action.setBadgeBackgroundColor({ color: "#555555" })
+action.setBadgeText({ text: "" })
 
 export async function setBadgeText(text: string, tabId?: number): Promise<void> {
   if (tabId) {
     // If tabId is given reset global and only set the local one
-    await browser.browserAction.setBadgeText({ text: "" }) // Reset global badge text
-    await browser.browserAction.setBadgeText({ text, tabId }) // Set local badge text
-    await browser.storage.local.set({ nUpdates: 0 }) // Reset background update counter
+    await action.setBadgeText({ text: "" }) // Reset global badge text
+    await action.setBadgeText({ text, tabId }) // Set local badge text
+    await chrome.storage.local.set({ nUpdates: 0 } as ExtensionStorage) // Reset background update counter
   } else {
-    await browser.browserAction.setBadgeText({ text })
+    await action.setBadgeText({ text })
   }
 }
 

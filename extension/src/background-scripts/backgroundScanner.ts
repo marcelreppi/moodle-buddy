@@ -1,25 +1,27 @@
+import { parseHTML } from "linkedom"
 import { ExtensionStorage } from "types"
 import { getUpdatesFromCourses } from "../shared/helpers"
 import { setBadgeText } from "./helpers"
 import Course from "../models/Course"
 import { getURLRegex } from "../shared/regexHelpers"
 
-// browser.storage.local.clear()
+// chrome.storage.local.clear()
 
 async function backgroundScan() {
-  const { options, overviewCourseLinks }: ExtensionStorage = await browser.storage.local.get([
+  const { options, overviewCourseLinks } = (await chrome.storage.local.get([
     "options",
     "overviewCourseLinks",
-  ])
+  ])) as ExtensionStorage
 
   if (!options.enableBackgroundScanning) {
     console.log("Background scanning disabled")
     return
   }
 
+  console.log("Background scanning")
+
   const courses: Course[] = []
   for (const courseLink of overviewCourseLinks) {
-    const domParser = new DOMParser()
     const res = await fetch(courseLink)
 
     if (res.url.match(getURLRegex("login"))) {
@@ -28,7 +30,7 @@ async function backgroundScan() {
     }
 
     const resBody = await res.text()
-    const HTMLDocument = domParser.parseFromString(resBody, "text/html")
+    const { document: HTMLDocument } = parseHTML(resBody)
     const course = new Course(courseLink, HTMLDocument, options)
     await course.scan()
     courses.push(course)
@@ -36,27 +38,33 @@ async function backgroundScan() {
 
   const nUpdates = getUpdatesFromCourses(courses)
 
-  browser.storage.local.set({ nUpdates })
+  chrome.storage.local.set({ nUpdates } as ExtensionStorage)
+
+  console.log({ nUpdates })
 
   // If there are no further updates reset the icon
   if (nUpdates === 0) {
-    setBadgeText("")
+    setBadgeText("", (await chrome.tabs.getCurrent())?.id)
   } else {
-    setBadgeText(nUpdates.toString())
+    const tabs = await chrome.tabs.query({})
+    console.log(tabs)
+    for (const tab of tabs) {
+      setBadgeText(nUpdates.toString(), tab.id)
+    }
   }
 }
 
 async function startBackgroundScanning() {
-  const { options }: ExtensionStorage = await browser.storage.local.get("options")
+  const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
 
   if (!options) {
     setTimeout(() => {
       startBackgroundScanning()
     }, 1000)
   } else {
-    // setTimeout(() => {
-    //   backgroundScan()
-    // }, 1000)
+    setInterval(() => {
+      backgroundScan()
+    }, 5000)
 
     setInterval(backgroundScan, 1000 * 60 * options.backgroundScanInterval)
   }
