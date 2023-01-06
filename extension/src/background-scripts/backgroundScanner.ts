@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill"
 import { parseHTML } from "linkedom"
 import { ExtensionStorage } from "types"
 import { getUpdatesFromCourses } from "../shared/helpers"
@@ -5,10 +6,10 @@ import { setBadgeText } from "./helpers"
 import Course from "../models/Course"
 import { getURLRegex } from "../shared/regexHelpers"
 
-// chrome.storage.local.clear()
+// browser.storage.local.clear()
 
 async function backgroundScan() {
-  const { options, overviewCourseLinks } = (await chrome.storage.local.get([
+  const { options, overviewCourseLinks } = (await browser.storage.local.get([
     "options",
     "overviewCourseLinks",
   ])) as ExtensionStorage
@@ -38,15 +39,15 @@ async function backgroundScan() {
 
   const nUpdates = getUpdatesFromCourses(courses)
 
-  chrome.storage.local.set({ nUpdates } as ExtensionStorage)
+  await browser.storage.local.set({ nUpdates } as ExtensionStorage)
 
   console.log({ nUpdates })
 
   // If there are no further updates reset the icon
   if (nUpdates === 0) {
-    setBadgeText("", (await chrome.tabs.getCurrent())?.id)
+    setBadgeText("", (await browser.tabs.getCurrent())?.id)
   } else {
-    const tabs = await chrome.tabs.query({})
+    const tabs = await browser.tabs.query({})
     console.log(tabs)
     for (const tab of tabs) {
       setBadgeText(nUpdates.toString(), tab.id)
@@ -55,7 +56,7 @@ async function backgroundScan() {
 }
 
 async function startBackgroundScanning() {
-  const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
+  const { options } = (await browser.storage.local.get("options")) as ExtensionStorage
 
   if (!options) {
     setTimeout(() => {

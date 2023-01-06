@@ -19,11 +19,11 @@ const entries = {
   "popup/app.bundle": [join(__dirname, "src", "popup", "main.ts")],
 }
 
-const addExtensionEntry = (pathToFile) => {
+const addExtensionEntry = (pathToFile, customOutputPath) => {
   const pathElements = pathToFile.split("/")
   const [filenameWithoutExtension] = pathElements[pathElements.length - 1].split(".")
   const inputPath = join(__dirname, "src", ...pathElements)
-  const outputPath = [...pathElements.slice(0, -1), filenameWithoutExtension].join("/")
+  const outputPath = customOutputPath ?? [...pathElements.slice(0, -1), filenameWithoutExtension].join("/")
   entries[outputPath] = inputPath
 }
 
@@ -35,7 +35,7 @@ addExtensionEntry("content-scripts/videoservicePage.ts")
 // addExtensionEntry("background-scripts/downloader.ts")
 // addExtensionEntry("background-scripts/extensionListener.ts")
 // addExtensionEntry("background-scripts/backgroundScanner.ts")
-addExtensionEntry("background-scripts/index.ts")
+addExtensionEntry("background-scripts/index.ts", "background")
 
 addExtensionEntry("pages/contact/contact.ts")
 addExtensionEntry("pages/information/information.ts")
