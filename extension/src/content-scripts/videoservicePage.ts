@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill"
 import {
   DownloadProgressMessage,
   ExtensionOptions,
@@ -23,7 +24,7 @@ async function scanForVideos() {
     videoResources = []
     videoNodes = []
 
-    const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
+    const { options } = (await browser.storage.local.get("options")) as ExtensionStorage
 
     if (location.href.endsWith("view")) {
       const videoURLSelector = getQuerySelector("videoservice", options)
@@ -129,22 +130,22 @@ async function getVideoResourceSrc(
   })
 }
 
-chrome.runtime.onMessage.addListener(async (message: object) => {
-  const { command } = message as Message
+browser.runtime.onMessage.addListener(async (message: Message) => {
+  const { command } = message
   if (command === "scan") {
     await scanForVideos()
 
     if (error) {
-      chrome.runtime.sendMessage<Message>({
+      browser.runtime.sendMessage({
         command: "error-view",
-      })
+      } as Message)
       return
     }
 
-    chrome.runtime.sendMessage<VideoScanResultMessage>({
+    browser.runtime.sendMessage({
       command: "scan-result",
       videoResources,
-    })
+    } as VideoScanResultMessage)
     return
   }
 
@@ -154,19 +155,19 @@ chrome.runtime.onMessage.addListener(async (message: object) => {
     try {
       if (location.href.endsWith("view")) {
         // A single video is being diplayed
-        await chrome.runtime.sendMessage<DownloadMessage>({
+        await browser.runtime.sendMessage({
           command: "download",
           resources: videoResources,
           courseName,
           courseShortcut: "",
           options,
-        })
-        await chrome.runtime.sendMessage<DownloadProgressMessage>({
+        } as DownloadMessage)
+        await browser.runtime.sendMessage({
           command: "download-progress",
           completed: videoResources.length,
           total: selectedResources.length,
           errors: 0,
-        })
+        } as DownloadProgressMessage)
       } else if (location.href.endsWith("browse")) {
         // A list of videos is being displayed
         const downloadVideoResources: VideoServiceResource[] = []
@@ -178,12 +179,12 @@ chrome.runtime.onMessage.addListener(async (message: object) => {
               videoResource,
               options as ExtensionOptions
             )
-            chrome.runtime.sendMessage<DownloadProgressMessage>({
+            browser.runtime.sendMessage({
               command: "download-progress",
               completed: i + 1,
               total: selectedResources.length,
               errors: 0,
-            })
+            } as DownloadProgressMessage)
             downloadVideoResources.push(videoResource)
 
             if (cancel) {
@@ -193,28 +194,28 @@ chrome.runtime.onMessage.addListener(async (message: object) => {
           }
         }
 
-        chrome.runtime.sendMessage<DownloadMessage>({
+        browser.runtime.sendMessage({
           command: "download",
           resources: downloadVideoResources,
           courseName,
           courseShortcut: "",
           options,
-        })
+        } as DownloadMessage)
       }
     } catch (err) {
       console.error(err)
       sendLog({ errorMessage: err.message, url: location.href })
       error = true
-      chrome.runtime.sendMessage<Message>({
+      browser.runtime.sendMessage({
         command: "error-view",
-      })
+      } as Message)
     }
   }
 
   if (command === "cancel-download") {
-    chrome.runtime.sendMessage<Message>({
+    browser.runtime.sendMessage({
       command: "cancel-download",
-    })
+    } as Message)
     cancel = true
   }
 })

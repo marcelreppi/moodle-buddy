@@ -1,9 +1,10 @@
+import browser from "webextension-polyfill"
 import { isFirefox, sendEvent } from "../../shared/helpers"
 import { options } from "../state"
 
 export default function useNavigation() {
   const openURL = (url: string) => {
-    chrome.tabs.create({ url })
+    browser.tabs.create({ url })
     window.close()
   }
   const openContactPage = () => openURL("/pages/contact/contact.html")
@@ -16,7 +17,7 @@ export default function useNavigation() {
     sendEvent("donate-click", false)
   }
   const openOptionsPage = () => {
-    chrome.runtime.openOptionsPage()
+    browser.runtime.openOptionsPage()
     sendEvent("options-click", false)
   }
   const openRatingPage = () => {

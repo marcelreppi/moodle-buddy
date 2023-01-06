@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill"
 import pLimit from "p-limit"
 import { parseHTML } from "linkedom"
 
@@ -84,7 +85,7 @@ class Downloader {
     this.isCancelled = true
 
     for (const id of this.inProgress) {
-      await chrome.downloads.cancel(id)
+      await browser.downloads.cancel(id)
     }
 
     const remainingFiles =
@@ -110,7 +111,7 @@ class Downloader {
   }
 
   async onCompleted(id: number) {
-    const downloadItem = await chrome.downloads.search({ id })
+    const downloadItem = await browser.downloads.search({ id })
     this.byteCount += downloadItem[0].fileSize
     this.inProgress.delete(id)
     this.finished.push(id)
@@ -127,12 +128,12 @@ class Downloader {
   }
 
   updateView() {
-    chrome.runtime.sendMessage<DownloadProgressMessage>({
+    browser.runtime.sendMessage({
       command: "download-progress",
       completed: this.finished.length,
       total: this.fileCount,
       errors: this.errorCount,
-    })
+    } as DownloadProgressMessage)
   }
 
   private async onError() {
@@ -213,10 +214,10 @@ class Downloader {
         addCount: this.addCount,
         removeCount: this.removeCount,
       })
-      const { totalDownloadedFiles } = (await chrome.storage.local.get(
+      const { totalDownloadedFiles } = (await browser.storage.local.get(
         "totalDownloadedFiles"
       )) as ExtensionStorage
-      await chrome.storage.local.set({
+      await browser.storage.local.set({
         totalDownloadedFiles: totalDownloadedFiles + this.fileCount,
       } as ExtensionStorage)
       this.sentData = true
@@ -315,7 +316,7 @@ class Downloader {
 
       if (this.inProgress.size < this.options.maxConcurrentDownloads) {
         try {
-          const id = await chrome.downloads.download({ url: href, filename: filePath })
+          const id = await browser.downloads.download({ url: href, filename: filePath })
           await this.onDownloadStart(id)
         } catch (err) {
           console.error(err)
@@ -499,7 +500,7 @@ async function onCancel() {
 
 async function onDownload(message: DownloadMessage) {
   const { courseName, courseShortcut, resources, options: userOptions } = message
-  const { options: storageOptions } = (await chrome.storage.local.get(
+  const { options: storageOptions } = (await browser.storage.local.get(
     "options"
   )) as ExtensionStorage
 
@@ -511,7 +512,7 @@ async function onDownload(message: DownloadMessage) {
   downloaders[downloader.id] = downloader
 }
 
-chrome.downloads.onChanged.addListener(async (downloadDelta) => {
+browser.downloads.onChanged.addListener(async (downloadDelta) => {
   const { state, id } = downloadDelta
 
   if (state === undefined) return
@@ -549,7 +550,7 @@ chrome.downloads.onChanged.addListener(async (downloadDelta) => {
   }
 })
 
-chrome.runtime.onMessage.addListener(async (message: object) => {
+browser.runtime.onMessage.addListener(async (message: object) => {
   const { command } = message as Message
   switch (command) {
     case "cancel-download":

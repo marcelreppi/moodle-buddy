@@ -1,7 +1,7 @@
 const pkg = require("../package.json")
 
 const EXTENSION_ID = "moodlebuddy@marcelreppi"
-const BACKGROUND_SCRIPT = "background-scripts/index.js"
+const BACKGROUND_SCRIPT = "background.js"
 
 const action = {
   default_icon: {
@@ -51,7 +51,7 @@ function getBrowserSpecificProperties() {
 
 function getManifest() {
   return {
-    id: EXTENSION_ID,
+    // id: EXTENSION_ID, // TODO: Validate if I need this
     name: pkg.displayName,
     version: pkg.version,
     description: pkg.description,

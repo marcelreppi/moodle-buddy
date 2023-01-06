@@ -176,6 +176,7 @@
 </template>
 
 <script setup lang="ts">
+import browser from "webextension-polyfill"
 import { computed, onUpdated, ref } from "vue"
 import DetailOverlay from "./DetailOverlay.vue"
 import ProgressBar from "./ProgressBar.vue"
@@ -241,9 +242,9 @@ const onMarkAsSeenClick = () => {
   emit("mark-as-seen")
 
   if (activeTab.value?.id) {
-    chrome.tabs.sendMessage<Message>(activeTab.value.id, {
+    browser.tabs.sendMessage(activeTab.value.id, {
       command: "mark-as-seen",
-    })
+    } as Message)
   }
 }
 
@@ -286,9 +287,9 @@ const onDownloadFinished = () => {
   }, 3000)
 }
 const onDownloadCancel = () => {
-  chrome.runtime.sendMessage<Message>({
+  browser.runtime.sendMessage({
     command: "cancel-download",
-  })
+  } as Message)
   downloadInProgress.value = false
   sendEvent("cancel-download", true)
 }
@@ -311,7 +312,7 @@ const onDownload = () => {
   emit("download", selectedResources.value)
 
   if (activeTab.value?.id) {
-    chrome.tabs.sendMessage<CourseCrawlMessage>(activeTab.value.id, {
+    browser.tabs.sendMessage(activeTab.value.id, {
       command: "crawl",
       selectedResources: selectedResources.value.map((r) => ({ ...r })), // Resolve proxy
       options: {
@@ -329,11 +330,11 @@ const onDownload = () => {
         prependFileIndexToFileName:
           prependFileIndexToFileName.value ?? defaultExtensionOptions.prependFileIndexToFileName,
       },
-    })
+    } as CourseCrawlMessage)
   }
 }
 
-chrome.runtime.onMessage.addListener(async (message: object) => {
+browser.runtime.onMessage.addListener(async (message: object) => {
   const { command } = message as Message
   if (command === "scan-result") {
     loading.value = false

@@ -1,5 +1,5 @@
+import browser from "webextension-polyfill"
 import shajs from "sha.js"
-
 import {
   DashboardCrawlMessage,
   DashboardScanResultMessage,
@@ -9,7 +9,6 @@ import {
   ScanInProgressMessage,
   ExtensionStorage,
 } from "types"
-
 import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { updateIconFromCourses, sendLog, isDebug } from "../shared/helpers"
 import Course from "../models/Course"
@@ -23,7 +22,7 @@ let courses: Course[] = []
 let lastSettingsHash = ""
 
 function getOverviewSettings() {
-  const settingsDiv: HTMLElement | null = document.querySelector("[data-region='courses-view'")
+  const settingsDiv: HTMLElement | null = document.querySelector("[data-region='courses-view']")
   if (settingsDiv) {
     return settingsDiv.dataset
   }
@@ -38,15 +37,15 @@ function hasHiddenParent(element: HTMLElement): boolean {
 }
 
 function sendScanProgress() {
-  chrome.runtime.sendMessage<ScanInProgressMessage>({
+  browser.runtime.sendMessage({
     command: "scan-in-progress",
     completed: scanCompleted,
     total: scanTotal,
-  })
+  } as ScanInProgressMessage)
 }
 
 function sendScanResults() {
-  chrome.runtime.sendMessage<DashboardScanResultMessage>({
+  browser.runtime.sendMessage({
     command: "scan-result",
     courses: courses.map((c) => ({
       name: c.name,
@@ -55,7 +54,7 @@ function sendScanResults() {
       resources: c.resources,
       activities: c.activities,
     })),
-  })
+  } as DashboardScanResultMessage)
 }
 
 async function scanOverview(retry = 0) {
@@ -66,7 +65,7 @@ async function scanOverview(retry = 0) {
     scanCompleted = 0
     courses = []
 
-    const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
+    const { options } = (await browser.storage.local.get("options")) as ExtensionStorage
     let courseLinks: string[] = []
 
     sendScanProgress()
@@ -152,7 +151,7 @@ async function scanOverview(retry = 0) {
         sendScanProgress()
       }
 
-      chrome.storage.local.set({
+      browser.storage.local.set({
         overviewCourseLinks: courses.map((c) => c.link),
       } as ExtensionStorage)
 
@@ -174,13 +173,13 @@ if (isMoodlePage) {
   scanOverview()
 }
 
-chrome.runtime.onMessage.addListener(async (message: object) => {
-  const { command } = message as Message
+browser.runtime.onMessage.addListener(async (message: Message) => {
+  const { command } = message
   if (command === "scan") {
     if (error) {
-      chrome.runtime.sendMessage<Message>({
+      browser.runtime.sendMessage({
         command: "error-view",
-      })
+      } as Message)
       return
     }
 
@@ -188,9 +187,9 @@ chrome.runtime.onMessage.addListener(async (message: object) => {
       sendScanProgress()
     } else {
       if (error) {
-        chrome.runtime.sendMessage<Message>({
+        browser.runtime.sendMessage({
           command: "error-view",
-        })
+        } as Message)
         return
       }
 
@@ -231,18 +230,18 @@ chrome.runtime.onMessage.addListener(async (message: object) => {
     const i = courses.findIndex((c) => c.link === link)
     const course = courses[i]
 
-    const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
+    const { options } = (await browser.storage.local.get("options")) as ExtensionStorage
 
     // Only download new resources
     const downloadNodes = course.resources.filter((r) => r.isNew)
 
-    chrome.runtime.sendMessage<DownloadMessage>({
+    browser.runtime.sendMessage({
       command: "download",
       resources: downloadNodes,
       courseName: course.name,
       courseShortcut: course.shortcut,
       options,
-    })
+    } as DownloadMessage)
 
     // Update course
     await course.updateStoredResources(downloadNodes)

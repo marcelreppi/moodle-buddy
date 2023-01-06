@@ -1,7 +1,8 @@
+import browser from "webextension-polyfill"
 import { ref } from "vue"
 import { ExtensionOptions, Message, SelectionTab, StoredCourseData } from "../../types"
 
-export const activeTab = ref<chrome.tabs.Tab>()
+export const activeTab = ref<browser.Tabs.Tab>()
 export const options = ref<ExtensionOptions>()
 export const browserId = ref("")
 export const overviewCourseLinks = ref<string[]>()
@@ -15,8 +16,8 @@ export const onlyNewResources = ref(false)
 
 export function updateState() {
   if (activeTab.value?.id) {
-    chrome.tabs.sendMessage<Message>(activeTab.value.id, {
+    browser.tabs.sendMessage(activeTab.value.id, {
       command: "get-state",
-    })
+    } as Message)
   }
 }

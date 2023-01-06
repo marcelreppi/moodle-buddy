@@ -74,8 +74,9 @@
 </template>
 
 <script setup lang="ts">
-import { DashboardCourseData, DashboardCrawlMessage, MarkAsSeenMessage, Resource } from "types"
+import browser from "webextension-polyfill"
 import { computed, onMounted, ref } from "vue"
+import { DashboardCourseData, DashboardCrawlMessage, MarkAsSeenMessage, Resource } from "types"
 import { sendEvent } from "../../shared/helpers"
 import { isFile, isFolder, isActivity } from "../../shared/resourceHelpers"
 import useNavigation from "../composables/useNavigation"
@@ -111,10 +112,10 @@ const onDownloadClick = (e: Event, course: DashboardCourseData) => {
   const target = e.target as HTMLButtonElement
   target.disabled = true
   if (activeTab.value?.id) {
-    chrome.tabs.sendMessage<DashboardCrawlMessage>(activeTab.value.id, {
+    browser.tabs.sendMessage(activeTab.value.id, {
       command: "crawl",
       link: course.link,
-    })
+    } as DashboardCrawlMessage)
   }
 }
 
@@ -124,10 +125,10 @@ const onMarkAsSeenClick = () => {
   props.course.resources.forEach((r) => (r.isNew = false))
 
   if (activeTab.value?.id) {
-    chrome.tabs.sendMessage<MarkAsSeenMessage>(activeTab.value.id, {
+    browser.tabs.sendMessage(activeTab.value.id, {
       command: "mark-as-seen",
       link: props.course.link,
-    })
+    } as MarkAsSeenMessage)
   }
 
   emit("mark-as-seen")

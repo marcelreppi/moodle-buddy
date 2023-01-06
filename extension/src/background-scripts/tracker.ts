@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill"
 import {
   ExtensionStorage,
   AdditionalPayloadData,
@@ -12,7 +13,7 @@ import {
 import { isFirefox, getActiveTab, isDev } from "../shared/helpers"
 
 async function sendToLambda(path: string, payload: AdditionalPayloadData) {
-  const { options, browserId } = (await chrome.storage.local.get([
+  const { options, browserId } = (await browser.storage.local.get([
     "options",
     "browserId",
   ])) as ExtensionStorage
@@ -38,7 +39,7 @@ async function sendToLambda(path: string, payload: AdditionalPayloadData) {
     browser: isFirefox ? "firefox" : "chrome",
     browserId,
     dev: isDev,
-    version: chrome.runtime.getManifest().version,
+    version: browser.runtime.getManifest().version,
   }
 
   if (isDev) {

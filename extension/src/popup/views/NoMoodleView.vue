@@ -46,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+import browser from "webextension-polyfill"
 import { computed, ref } from "vue"
 import { options, nUpdates, updateState } from "../state"
 import { validURLRegex } from "../../shared/regexHelpers"
@@ -71,7 +72,7 @@ const onSaveClick = async () => {
     return
   }
 
-  await chrome.storage.local.set({
+  await browser.storage.local.set({
     options: { ...options.value, defaultMoodleURL: urlInput.value },
   } as ExtensionStorage)
   updateState()

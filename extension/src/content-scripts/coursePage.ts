@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill"
 import {
   CourseCrawlMessage,
   CourseScanResultMessage,
@@ -11,19 +12,19 @@ import { updateIconFromCourses, sendLog, isDev } from "../shared/helpers"
 import Course from "../models/Course"
 
 function sendScanResults(course) {
-  chrome.runtime.sendMessage<CourseScanResultMessage>({
+  browser.runtime.sendMessage({
     command: "scan-result",
     course: {
       resources: course.resources,
       activities: course.activities,
     },
-  })
+  } as CourseScanResultMessage)
 }
 
-// chrome.storage.local.clear()
+// browser.storage.local.clear()
 
 async function initCoursePage() {
-  const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
+  const { options } = (await browser.storage.local.get("options")) as ExtensionStorage
   const courseLink = parseCourseLink(location.href)
   const course = new Course(courseLink, document, options)
 
@@ -45,13 +46,13 @@ async function initCoursePage() {
     .catch((err) => {
       console.error(err)
       sendLog({ errorMessage: err.message, url: location.href })
-      chrome.runtime.sendMessage<Message>({
+      browser.runtime.sendMessage({
         command: "error-view",
-      })
+      } as Message)
     })
 
-  chrome.runtime.onMessage.addListener(async (message: object) => {
-    const { command } = message as Message
+  browser.runtime.onMessage.addListener(async (message: Message) => {
+    const { command } = message
 
     if (command === "scan") {
       if (initialScanCompleted) {
@@ -78,13 +79,13 @@ async function initCoursePage() {
     if (command === "crawl") {
       const { options, selectedResources } = message as CourseCrawlMessage
 
-      chrome.runtime.sendMessage<DownloadMessage>({
+      browser.runtime.sendMessage({
         command: "download",
         resources: selectedResources,
         courseName: course.name,
         courseShortcut: course.shortcut,
         options,
-      })
+      } as DownloadMessage)
 
       await course.updateStoredResources(selectedResources)
       await course.scan()
