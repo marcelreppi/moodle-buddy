@@ -85,8 +85,8 @@
 </template>
 
 <script setup lang="ts">
-import { Resource } from "types"
 import { computed, reactive, ref } from "vue"
+import { Resource } from "types"
 import {
   isFile,
   isFolder,

@@ -1,8 +1,9 @@
+import browser from "webextension-polyfill"
 import sanitize from "sanitize-filename"
 import { isFirefox } from "../shared/helpers"
 import { ExtensionStorage } from "../types"
 
-const action = isFirefox ? chrome.browserAction : chrome.action
+const action = isFirefox ? browser.browserAction : browser.action
 
 export function uuidv4(): string {
   return [1e7, 1e3, 4e3, 8e3, 1e11].join("-").replace(/[018]/g, (c) => {
@@ -33,7 +34,7 @@ export async function setBadgeText(text: string, tabId?: number): Promise<void> 
     // If tabId is given reset global and only set the local one
     await action.setBadgeText({ text: "" }) // Reset global badge text
     await action.setBadgeText({ text, tabId }) // Set local badge text
-    await chrome.storage.local.set({ nUpdates: 0 } as ExtensionStorage) // Reset background update counter
+    await browser.storage.local.set({ nUpdates: 0 } as ExtensionStorage) // Reset background update counter
   } else {
     await action.setBadgeText({ text })
   }

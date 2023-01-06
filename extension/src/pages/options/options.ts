@@ -1,10 +1,11 @@
+import browser from "webextension-polyfill"
 import { ExtensionOptions, EventMessage, Message, ExtensionStorage } from "types"
 import { validURLRegex } from "../../shared/regexHelpers"
 
 let restoredOptions: ExtensionOptions
 
 async function restore() {
-  chrome.storage.local.get("options").then(({ options }) => {
+  browser.storage.local.get("options").then(({ options }) => {
     restoredOptions = options as ExtensionOptions
     const inputs = document.querySelectorAll("input")
     inputs.forEach((input) => {
@@ -64,23 +65,23 @@ async function save(e: Event) {
 
   clearTimeout(timeout)
   timeout = setTimeout(async () => {
-    await chrome.runtime.sendMessage<EventMessage>({
+    await browser.runtime.sendMessage({
       command: "event",
       event: "modify-options",
       saveURL: false,
       eventData: changedOptions,
-    })
+    } as EventMessage)
   }, 500)
 
   if (updatedOptions.disableInteractionTracking) {
-    await chrome.runtime.sendMessage<EventMessage>({
+    await browser.runtime.sendMessage({
       command: "event",
       event: "disable-tracking",
       saveURL: false,
-    })
+    } as EventMessage)
   }
 
-  await chrome.storage.local.set({
+  await browser.storage.local.set({
     options: updatedOptions,
   } as ExtensionStorage)
 }
@@ -101,9 +102,9 @@ function checkURL(e: Event) {
 }
 
 async function clearCourseData(e: Event) {
-  await chrome.runtime.sendMessage<Message>({
+  await browser.runtime.sendMessage({
     command: "clear-course-data",
-  })
+  } as Message)
 
   const target = e.target as HTMLButtonElement
   target.disabled = true

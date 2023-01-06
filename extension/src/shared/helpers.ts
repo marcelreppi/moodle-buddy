@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill"
 import {
   EventMessage,
   LogMessage,
@@ -19,19 +20,19 @@ export function sendEvent(
   saveURL = true,
   eventData: Record<string, unknown> = {}
 ): void {
-  chrome.runtime.sendMessage<EventMessage>({
+  browser.runtime.sendMessage({
     command: "event",
     event,
     saveURL,
     eventData,
-  })
+  } as EventMessage)
 }
 
 export function sendLog(logData: LogPayloadData): void {
-  chrome.runtime.sendMessage<LogMessage>({
+  browser.runtime.sendMessage({
     command: "log",
     logData,
-  })
+  } as LogMessage)
 
   const page = getSupportedPage()
   if (page !== undefined) {
@@ -44,14 +45,14 @@ export function sendPageData(page: SupportedPage) {
     page,
     content: document.querySelector("html")?.outerHTML || "",
   }
-  chrome.runtime.sendMessage<PageDataMessage>({
+  browser.runtime.sendMessage({
     command: "page-data",
     pageData,
-  })
+  } as PageDataMessage)
 }
 
-export async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
+export async function getActiveTab(): Promise<browser.Tabs.Tab | undefined> {
+  const tabs = await browser.tabs.query({ active: true, currentWindow: true })
   return tabs?.shift()
 }
 
@@ -72,15 +73,9 @@ export function updateIconFromCourses(courses: Course[]): void {
   const nUpdates = getUpdatesFromCourses(courses)
 
   // If there are no further updates reset the icon
-  if (nUpdates === 0) {
-    chrome.runtime.sendMessage<SetBadgeMessage>({
-      command: "set-badge",
-      text: "",
-    })
-  } else {
-    chrome.runtime.sendMessage<SetBadgeMessage>({
-      command: "set-badge",
-      text: nUpdates.toString(),
-    })
-  }
+  const text = nUpdates === 0 ? "" : nUpdates.toString();
+  browser.runtime.sendMessage({
+    command: "set-badge",
+    text,
+  } as SetBadgeMessage)
 }

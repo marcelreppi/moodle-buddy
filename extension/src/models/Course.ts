@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill"
 import {
   ExtensionOptions,
   ExtensionStorage,
@@ -261,7 +262,7 @@ class Course {
 
     //  Local storage course data
     const localStorage =
-      testLocalStorage || ((await chrome.storage.local.get()) as ExtensionStorage)
+      testLocalStorage || ((await browser.storage.local.get()) as ExtensionStorage)
     const { options, courseData } = localStorage
 
     this.options = options
@@ -354,11 +355,11 @@ class Course {
       newActivities: this.activities.filter((n) => n.isNew).map((n) => n.href),
       lastModifiedHeaders: this.lastModifiedHeaders,
     }
-    await chrome.storage.local.set({ courseData } as ExtensionStorage)
+    await browser.storage.local.set({ courseData } as ExtensionStorage)
   }
 
   async updateStoredResources(downloadedResources?: Resource[]): Promise<CourseData> {
-    const { courseData } = (await chrome.storage.local.get("courseData")) as ExtensionStorage
+    const { courseData } = (await browser.storage.local.get("courseData")) as ExtensionStorage
     const storedCourseData = courseData[this.link]
     const { seenResources, lastModifiedHeaders } = storedCourseData
 
@@ -404,7 +405,7 @@ class Course {
       lastModifiedHeaders,
     } as CourseData
 
-    await chrome.storage.local.set({
+    await browser.storage.local.set({
       courseData: {
         ...courseData,
         [this.link]: updatedCourseData,
@@ -415,7 +416,7 @@ class Course {
   }
 
   async updateStoredActivities(): Promise<CourseData> {
-    const { courseData } = (await chrome.storage.local.get("courseData")) as ExtensionStorage
+    const { courseData } = (await browser.storage.local.get("courseData")) as ExtensionStorage
     const storedCourseData = courseData[this.link]
 
     const { seenActivities, newActivities } = storedCourseData
@@ -428,7 +429,7 @@ class Course {
       newActivities: updatedNewActivities,
     } as CourseData
 
-    await chrome.storage.local.set({
+    await browser.storage.local.set({
       courseData: {
         ...courseData,
         [this.link]: updatedCourseData,

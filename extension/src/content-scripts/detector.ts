@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill"
 import { ExecuteScriptMessage, ExtensionStorage, Message, ScriptName, SupportedPage } from "types"
 import { isDebug } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"
@@ -10,12 +11,12 @@ const pageToScriptMapping: Record<NonNullable<SupportedPage>, ScriptName> = {
 }
 
 async function setDefaultMoodleURL() {
-  const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
+  const { options } = (await browser.storage.local.get("options")) as ExtensionStorage
 
   if (!options.autoSetMoodleURL) return
 
   const baseURL = getMoodleBaseURL(location.href)
-  await chrome.storage.local.set({
+  await browser.storage.local.set({
     options: {
       ...options,
       defaultMoodleURL: `${baseURL}/my`,
@@ -59,16 +60,16 @@ export function detectPage(): SupportedPage | undefined {
   }
 
   if (page !== undefined) {
-    chrome.runtime.sendMessage<Message>({
+    browser.runtime.sendMessage({
       command: "set-icon",
-    })
+    } as Message)
 
     setDefaultMoodleURL()
 
-    chrome.runtime.sendMessage<ExecuteScriptMessage>({
+    browser.runtime.sendMessage({
       command: "execute-script",
       scriptName: pageToScriptMapping[page],
-    })
+    } as ExecuteScriptMessage)
   }
 
   return page

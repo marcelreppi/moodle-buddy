@@ -1,3 +1,4 @@
+import browser from "webextension-polyfill"
 import {
   CourseData,
   ExtensionOptions,
@@ -30,11 +31,11 @@ const initialStorage: ExtensionStorage = {
 }
 
 async function onInstall() {
-  await chrome.storage.local.set({
+  await browser.storage.local.set({
     ...initialStorage,
   } as ExtensionStorage)
 
-  chrome.tabs.create({
+  browser.tabs.create({
     url: "/pages/install/install.html",
   })
 
@@ -42,7 +43,7 @@ async function onInstall() {
 }
 
 async function onUpdate() {
-  const localStorage = (await chrome.storage.local.get()) as ExtensionStorage
+  const localStorage = (await browser.storage.local.get()) as ExtensionStorage
   const localOptions = localStorage.options as ExtensionOptions
 
   // Merge existing options
@@ -65,10 +66,10 @@ async function onUpdate() {
     }
   }
   // Remove from localStorage
-  await chrome.storage.local.remove(Object.keys(updatedCourseData))
+  await browser.storage.local.remove(Object.keys(updatedCourseData))
 
   // Merge existing storage data
-  await chrome.storage.local.set({
+  await browser.storage.local.set({
     ...initialStorage,
     ...localStorage,
     courseData: updatedCourseData,
@@ -76,7 +77,7 @@ async function onUpdate() {
   } as ExtensionStorage)
 
   if (isDev) {
-    await chrome.storage.local.set({
+    await browser.storage.local.set({
       ...initialStorage,
       options: defaultOptions,
       browserId: localStorage.browserId,
@@ -85,12 +86,12 @@ async function onUpdate() {
 
   sendEvent("update", false)
 
-  // chrome.tabs.create({
+  // browser.tabs.create({
   //   url: "/pages/update/update.html",
   // })
 }
 
-chrome.runtime.onInstalled.addListener(async (details) => {
+browser.runtime.onInstalled.addListener(async (details) => {
   switch (details.reason) {
     case "install":
       await onInstall()
@@ -102,12 +103,12 @@ chrome.runtime.onInstalled.addListener(async (details) => {
       break
   }
 
-  const { browserId } = await chrome.storage.local.get("browserId")
-  chrome.runtime.setUninstallURL(`https://moodlebuddy.com/uninstall?browserId=${browserId}`)
+  const { browserId } = await browser.storage.local.get("browserId")
+  browser.runtime.setUninstallURL(`https://moodlebuddy.com/uninstall?browserId=${browserId}`)
 })
 
-chrome.runtime.onMessage.addListener(
-  async (message: object, sender: chrome.runtime.MessageSender) => {
+browser.runtime.onMessage.addListener(
+  async (message: object, sender: browser.Runtime.MessageSender) => {
     const { command } = message as Message
     switch (command) {
       case "event":
@@ -134,7 +135,7 @@ chrome.runtime.onMessage.addListener(
         sendLog(logData)
         break
       case "clear-course-data":
-        await chrome.storage.local.set({
+        await browser.storage.local.set({
           courseData: initialStorage.courseData,
         } as ExtensionStorage)
         break
@@ -143,7 +144,7 @@ chrome.runtime.onMessage.addListener(
           throw new Error("Error on event execute-script: Sender tab id was empty")
         }
         const { scriptName } = message as ExecuteScriptMessage
-        chrome.scripting.executeScript({
+        browser.scripting.executeScript({
           target: {
             tabId: sender.tab?.id,
           },
@@ -156,12 +157,12 @@ chrome.runtime.onMessage.addListener(
   }
 )
 
-chrome.tabs.onCreated.addListener(async (tab) => {
+browser.tabs.onCreated.addListener(async (tab) => {
   console.log("tabs.onCreated")
 
-  console.log(await chrome.storage.local.get())
+  console.log(await browser.storage.local.get())
 
-  const { nUpdates } = (await chrome.storage.local.get("nUpdates")) as ExtensionStorage
+  const { nUpdates } = (await browser.storage.local.get("nUpdates")) as ExtensionStorage
   console.log(nUpdates)
 
   if (nUpdates > 0) {
