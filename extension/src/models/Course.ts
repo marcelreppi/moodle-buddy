@@ -111,8 +111,15 @@ class Course {
   }
 
   private async addPluginFile(node: HTMLElement, partOfFolder = "") {
-    const href = parser.parseURLFromNode(node, "pluginfile", this.options)
+    let href = parser.parseURLFromNode(node, "pluginfile", this.options)
     if (href === "") return
+
+    const isLinkedomDOMNode = node.hasOwnProperty("ownerDocument")
+    if (isLinkedomDOMNode) {
+      // Linkedom encodes URI characters but this can lead to a double encoding
+      // of special characters like % if the URL already contains encoded characters
+      href = decodeURIComponent(href)
+    }
 
     // Avoid duplicates
     const detectedURLs = this.resources.map((r) => r.href)
@@ -262,7 +269,7 @@ class Course {
 
     //  Local storage course data
     const localStorage =
-      testLocalStorage || ((await browser.storage.local.get()) as ExtensionStorage)
+      testLocalStorage ?? ((await browser.storage.local.get()) as ExtensionStorage)
     const { options, courseData } = localStorage
 
     this.options = options
@@ -348,13 +355,14 @@ class Course {
       )
     }
 
-    courseData[this.link] = {
+    const updatedCourseData = {
       seenResources: this.resources.filter((n) => !n.isNew).map((n) => n.href),
       newResources: this.resources.filter((n) => n.isNew).map((n) => n.href),
       seenActivities: this.activities.filter((n) => !n.isNew).map((n) => n.href),
       newActivities: this.activities.filter((n) => n.isNew).map((n) => n.href),
       lastModifiedHeaders: this.lastModifiedHeaders,
     }
+    courseData[this.link] = updatedCourseData
     await browser.storage.local.set({ courseData } as ExtensionStorage)
   }
 
