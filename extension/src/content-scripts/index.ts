@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill"
 import { sendEvent, sendPageData } from "../shared/helpers"
-import { ExtensionStorage, Message, StateMessage } from "../types"
+import { ExtensionStorage, Message, SetBadgeMessage, StateMessage } from "../types"
 import { detectPage } from "./detector"
 
 const page = detectPage()
@@ -42,5 +42,15 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
       rateHintLevel: rateHintLevel + 1,
     } as ExtensionStorage)
     updateVueState()
+  }
+
+  if (command === "update-non-moodle-page-badge") {
+    if (page !== undefined) return
+    const { nUpdates } = (await browser.storage.local.get("nUpdates")) as ExtensionStorage
+    const text = nUpdates === 0 ? "" : nUpdates.toString();
+    browser.runtime.sendMessage({
+      command: "set-badge",
+      text,
+    } as SetBadgeMessage)
   }
 })

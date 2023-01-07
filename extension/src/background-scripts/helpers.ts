@@ -1,7 +1,6 @@
 import browser from "webextension-polyfill"
 import sanitize from "sanitize-filename"
 import { isFirefox } from "../shared/helpers"
-import { ExtensionStorage } from "../types"
 
 const action = isFirefox ? browser.browserAction : browser.action
 
@@ -34,7 +33,6 @@ export async function setBadgeText(text: string, tabId?: number): Promise<void> 
     // If tabId is given reset global and only set the local one
     await action.setBadgeText({ text: "" }) // Reset global badge text
     await action.setBadgeText({ text, tabId }) // Set local badge text
-    await browser.storage.local.set({ nUpdates: 0 } as ExtensionStorage) // Reset background update counter
   } else {
     await action.setBadgeText({ text })
   }

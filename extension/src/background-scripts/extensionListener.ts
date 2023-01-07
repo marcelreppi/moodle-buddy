@@ -158,14 +158,12 @@ browser.runtime.onMessage.addListener(
 )
 
 browser.tabs.onCreated.addListener(async (tab) => {
-  console.log("tabs.onCreated")
-
-  console.log(await browser.storage.local.get())
-
   const { nUpdates } = (await browser.storage.local.get("nUpdates")) as ExtensionStorage
-  console.log(nUpdates)
-
   if (nUpdates > 0) {
     setBadgeText(nUpdates.toString(), tab.id)
   }
+})
+
+browser.tabs.onActivated.addListener((tab) => {
+  browser.tabs.sendMessage(tab.tabId, { command: "update-non-moodle-page-badge" } as Message)
 })
