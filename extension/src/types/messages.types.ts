@@ -28,6 +28,7 @@ type Command =
   | "avoid-rate-click"
   | "clear-course"
   | "track-page-view"
+  | "update-non-moodle-page-badge"
 
 export interface Message {
   command: Command

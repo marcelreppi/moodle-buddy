@@ -1,6 +1,6 @@
 import browser from "webextension-polyfill"
 import { parseHTML } from "linkedom"
-import { ExtensionStorage } from "types"
+import { ExtensionStorage, Message } from "types"
 import { getUpdatesFromCourses } from "../shared/helpers"
 import { setBadgeText } from "./helpers"
 import Course from "../models/Course"
@@ -15,12 +15,11 @@ async function backgroundScan() {
   ])) as ExtensionStorage
 
   if (!options.enableBackgroundScanning) {
-    console.log("Background scanning disabled")
+    console.log("[MoodleBuddy] Background scanning disabled")
     return
   }
 
-  console.log("Background scanning")
-
+  console.log("[MoodleBuddy] Background scan start")
   const courses: Course[] = []
   for (const courseLink of overviewCourseLinks) {
     const res = await fetch(courseLink)
@@ -36,6 +35,7 @@ async function backgroundScan() {
     await course.scan()
     courses.push(course)
   }
+  console.log("[MoodleBuddy] Background scan end")
 
   const nUpdates = getUpdatesFromCourses(courses)
 
@@ -46,12 +46,13 @@ async function backgroundScan() {
   // If there are no further updates reset the icon
   if (nUpdates === 0) {
     setBadgeText("", (await browser.tabs.getCurrent())?.id)
-  } else {
-    const tabs = await browser.tabs.query({})
-    console.log(tabs)
-    for (const tab of tabs) {
-      setBadgeText(nUpdates.toString(), tab.id)
-    }
+    return
+  }
+
+  const tabs = await browser.tabs.query({})
+  for (const tab of tabs) {
+    if (!tab.id) continue
+    browser.tabs.sendMessage(tab.id, { command: "update-non-moodle-page-badge" } as Message)
   }
 }
 
@@ -65,7 +66,7 @@ async function startBackgroundScanning() {
   } else {
     setInterval(() => {
       backgroundScan()
-    }, 5000)
+    }, 15000)
 
     setInterval(backgroundScan, 1000 * 60 * options.backgroundScanInterval)
   }

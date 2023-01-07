@@ -7,6 +7,7 @@ import {
   PageDataMessage,
   PagePayloadData,
   SupportedPage,
+  ExtensionStorage,
 } from "types"
 
 import Course from "models/Course"
@@ -69,8 +70,10 @@ export function getUpdatesFromCourses(courses: Course[]): number {
   return nUpdates
 }
 
-export function updateIconFromCourses(courses: Course[]): void {
+export async function updateIconFromCourses(courses: Course[]) {
   const nUpdates = getUpdatesFromCourses(courses)
+
+  await browser.storage.local.set({ nUpdates } as ExtensionStorage)
 
   // If there are no further updates reset the icon
   const text = nUpdates === 0 ? "" : nUpdates.toString();

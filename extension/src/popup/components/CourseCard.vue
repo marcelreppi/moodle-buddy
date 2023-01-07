@@ -123,6 +123,7 @@ const onMarkAsSeenClick = () => {
   sendEvent("mark-as-seen-dashboard-page", true)
 
   props.course.resources.forEach((r) => (r.isNew = false))
+  props.course.activities.forEach((a) => (a.isNew = false))
 
   if (activeTab.value?.id) {
     browser.tabs.sendMessage(activeTab.value.id, {

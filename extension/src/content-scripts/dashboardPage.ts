@@ -74,7 +74,9 @@ async function scanOverview(retry = 0) {
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
     // Save hash of settings to check for changes
-    lastSettingsHash = shajs("sha224").update(JSON.stringify(getOverviewSettings())).digest("hex")
+    lastSettingsHash = shajs("sha224")
+      .update(JSON.stringify(getOverviewSettings()))
+      .digest("hex")
 
     let useFallback = false
 
@@ -215,8 +217,12 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
 
   if (command === "mark-as-seen") {
     const { link } = message as MarkAsSeenMessage
-    const i = courses.findIndex((c) => c.link === link)
-    const course = courses[i]
+    const course = courses.find((c) => c.link === link)
+
+    if (course === undefined) {
+      console.error(`Course with link ${link} is undefined. Failed to process message.`, message);
+      return
+    }
 
     // Update course
     await course.updateStoredResources()
