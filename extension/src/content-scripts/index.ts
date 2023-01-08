@@ -12,7 +12,7 @@ async function updateVueState() {
   browser.runtime.sendMessage({
     command: "state",
     state: { page, options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel },
-  } as StateMessage)
+  } satisfies StateMessage)
 }
 
 browser.runtime.onMessage.addListener(async (message: Message) => {
@@ -32,7 +32,7 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
   if (command === "rate-click") {
     await browser.storage.local.set({
       userHasRated: true,
-    } as ExtensionStorage)
+    } satisfies Partial<ExtensionStorage>)
     updateVueState()
   }
 
@@ -40,7 +40,7 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
     const { rateHintLevel } = (await browser.storage.local.get()) as ExtensionStorage
     await browser.storage.local.set({
       rateHintLevel: rateHintLevel + 1,
-    } as ExtensionStorage)
+    } satisfies Partial<ExtensionStorage>)
     updateVueState()
   }
 
@@ -51,6 +51,6 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
     browser.runtime.sendMessage({
       command: "set-badge",
       text,
-    } as SetBadgeMessage)
+    } satisfies SetBadgeMessage)
   }
 })

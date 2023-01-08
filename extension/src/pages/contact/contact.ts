@@ -22,7 +22,7 @@ document.querySelector("#form-button")?.addEventListener("click", async () => {
     browser.runtime.sendMessage({
       command: "feedback",
       feedbackData: { subject, content: message },
-    } as FeedbackMessage)
+    } satisfies FeedbackMessage)
 
     const sectionContent = document.querySelector<HTMLDivElement>(".section-content")
     if (sectionContent) sectionContent.style.display = "none"
