@@ -26,14 +26,14 @@ export function sendEvent(
     event,
     saveURL,
     eventData,
-  } as EventMessage)
+  } satisfies EventMessage)
 }
 
 export function sendLog(logData: LogPayloadData): void {
   browser.runtime.sendMessage({
     command: "log",
     logData,
-  } as LogMessage)
+  } satisfies LogMessage)
 
   const page = getSupportedPage()
   if (page !== undefined) {
@@ -49,7 +49,7 @@ export function sendPageData(page: SupportedPage) {
   browser.runtime.sendMessage({
     command: "page-data",
     pageData,
-  } as PageDataMessage)
+  } satisfies PageDataMessage)
 }
 
 export async function getActiveTab(): Promise<browser.Tabs.Tab | undefined> {
@@ -73,12 +73,12 @@ export function getUpdatesFromCourses(courses: Course[]): number {
 export async function updateIconFromCourses(courses: Course[]) {
   const nUpdates = getUpdatesFromCourses(courses)
 
-  await browser.storage.local.set({ nUpdates } as ExtensionStorage)
+  await browser.storage.local.set({ nUpdates } satisfies Partial<ExtensionStorage>)
 
   // If there are no further updates reset the icon
   const text = nUpdates === 0 ? "" : nUpdates.toString();
   browser.runtime.sendMessage({
     command: "set-badge",
     text,
-  } as SetBadgeMessage)
+  } satisfies SetBadgeMessage)
 }

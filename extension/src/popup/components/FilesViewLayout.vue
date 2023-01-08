@@ -244,7 +244,7 @@ const onMarkAsSeenClick = () => {
   if (activeTab.value?.id) {
     browser.tabs.sendMessage(activeTab.value.id, {
       command: "mark-as-seen",
-    } as Message)
+    } satisfies Message)
   }
 }
 
@@ -289,7 +289,7 @@ const onDownloadFinished = () => {
 const onDownloadCancel = () => {
   browser.runtime.sendMessage({
     command: "cancel-download",
-  } as Message)
+  } satisfies Message)
   downloadInProgress.value = false
   sendEvent("cancel-download", true)
 }
@@ -330,12 +330,12 @@ const onDownload = () => {
         prependFileIndexToFileName:
           prependFileIndexToFileName.value ?? defaultExtensionOptions.prependFileIndexToFileName,
       },
-    } as CourseCrawlMessage)
+    } satisfies CourseCrawlMessage)
   }
 }
 
-browser.runtime.onMessage.addListener(async (message: object) => {
-  const { command } = message as Message
+browser.runtime.onMessage.addListener(async (message: Message) => {
+  const { command } = message
   if (command === "scan-result") {
     loading.value = false
   }

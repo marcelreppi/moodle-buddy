@@ -136,8 +136,8 @@ const onMarkAsSeen = () => {
   })
 }
 
-browser.runtime.onMessage.addListener(async (message: object) => {
-  const { command } = message as Message
+browser.runtime.onMessage.addListener(async (message: Message) => {
+  const { command } = message
   if (command === "scan-result") {
     const { course } = message as CourseScanResultMessage
     const { resources: detectedResources, activities: detectedActivities } = course
@@ -152,7 +152,7 @@ browser.runtime.onMessage.addListener(async (message: object) => {
       if (activeTab.value?.id) {
         browser.tabs.sendMessage(activeTab.value.id, {
           command: "update-activities",
-        } as Message)
+        } satisfies Message)
       }
     }
 
@@ -165,6 +165,6 @@ browser.runtime.onMessage.addListener(async (message: object) => {
 if (activeTab.value?.id) {
   browser.tabs.sendMessage(activeTab.value.id, {
     command: "scan",
-  } as Message)
+  } satisfies Message)
 }
 </script>

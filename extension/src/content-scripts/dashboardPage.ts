@@ -41,7 +41,7 @@ function sendScanProgress() {
     command: "scan-in-progress",
     completed: scanCompleted,
     total: scanTotal,
-  } as ScanInProgressMessage)
+  } satisfies ScanInProgressMessage)
 }
 
 function sendScanResults() {
@@ -54,7 +54,7 @@ function sendScanResults() {
       resources: c.resources,
       activities: c.activities,
     })),
-  } as DashboardScanResultMessage)
+  } satisfies DashboardScanResultMessage)
 }
 
 async function scanOverview(retry = 0) {
@@ -155,7 +155,7 @@ async function scanOverview(retry = 0) {
 
       browser.storage.local.set({
         overviewCourseLinks: courses.map((c) => c.link),
-      } as ExtensionStorage)
+      } satisfies Partial<ExtensionStorage>)
 
       updateIconFromCourses(courses)
     }
@@ -181,7 +181,7 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
     if (error) {
       browser.runtime.sendMessage({
         command: "error-view",
-      } as Message)
+      } satisfies Message)
       return
     }
 
@@ -191,7 +191,7 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
       if (error) {
         browser.runtime.sendMessage({
           command: "error-view",
-        } as Message)
+        } satisfies Message)
         return
       }
 
@@ -246,8 +246,8 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
       resources: downloadNodes,
       courseName: course.name,
       courseShortcut: course.shortcut,
-      options,
-    } as DownloadMessage)
+      options
+    } satisfies DownloadMessage)
 
     // Update course
     await course.updateStoredResources(downloadNodes)

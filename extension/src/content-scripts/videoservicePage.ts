@@ -138,14 +138,14 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
     if (error) {
       browser.runtime.sendMessage({
         command: "error-view",
-      } as Message)
+      } satisfies Message)
       return
     }
 
     browser.runtime.sendMessage({
       command: "scan-result",
       videoResources,
-    } as VideoScanResultMessage)
+    } satisfies VideoScanResultMessage)
     return
   }
 
@@ -161,13 +161,13 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
           courseName,
           courseShortcut: "",
           options,
-        } as DownloadMessage)
+        } satisfies DownloadMessage)
         await browser.runtime.sendMessage({
           command: "download-progress",
           completed: videoResources.length,
           total: selectedResources.length,
           errors: 0,
-        } as DownloadProgressMessage)
+        } satisfies DownloadProgressMessage)
       } else if (location.href.endsWith("browse")) {
         // A list of videos is being displayed
         const downloadVideoResources: VideoServiceResource[] = []
@@ -184,7 +184,7 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
               completed: i + 1,
               total: selectedResources.length,
               errors: 0,
-            } as DownloadProgressMessage)
+            } satisfies DownloadProgressMessage)
             downloadVideoResources.push(videoResource)
 
             if (cancel) {
@@ -200,7 +200,7 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
           courseName,
           courseShortcut: "",
           options,
-        } as DownloadMessage)
+        } satisfies DownloadMessage)
       }
     } catch (err) {
       console.error(err)
@@ -208,14 +208,14 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
       error = true
       browser.runtime.sendMessage({
         command: "error-view",
-      } as Message)
+      } satisfies Message)
     }
   }
 
   if (command === "cancel-download") {
     browser.runtime.sendMessage({
       command: "cancel-download",
-    } as Message)
+    } satisfies Message)
     cancel = true
   }
 })

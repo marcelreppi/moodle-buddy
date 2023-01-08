@@ -21,7 +21,7 @@ async function setDefaultMoodleURL() {
       ...options,
       defaultMoodleURL: `${baseURL}/my`,
     },
-  } as ExtensionStorage)
+  } satisfies Partial<ExtensionStorage>)
 }
 
 export function getSupportedPage(): SupportedPage | undefined {
@@ -62,14 +62,14 @@ export function detectPage(): SupportedPage | undefined {
   if (page !== undefined) {
     browser.runtime.sendMessage({
       command: "set-icon",
-    } as Message)
+    } satisfies Message)
 
     setDefaultMoodleURL()
 
     browser.runtime.sendMessage({
       command: "execute-script",
       scriptName: pageToScriptMapping[page],
-    } as ExecuteScriptMessage)
+    } satisfies ExecuteScriptMessage)
   }
 
   return page

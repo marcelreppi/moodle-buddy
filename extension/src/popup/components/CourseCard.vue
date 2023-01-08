@@ -115,7 +115,7 @@ const onDownloadClick = (e: Event, course: DashboardCourseData) => {
     browser.tabs.sendMessage(activeTab.value.id, {
       command: "crawl",
       link: course.link,
-    } as DashboardCrawlMessage)
+    } satisfies DashboardCrawlMessage)
   }
 }
 
@@ -129,7 +129,7 @@ const onMarkAsSeenClick = () => {
     browser.tabs.sendMessage(activeTab.value.id, {
       command: "mark-as-seen",
       link: props.course.link,
-    } as MarkAsSeenMessage)
+    } satisfies MarkAsSeenMessage)
   }
 
   emit("mark-as-seen")

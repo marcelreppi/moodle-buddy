@@ -18,6 +18,6 @@ export function updateState() {
   if (activeTab.value?.id) {
     browser.tabs.sendMessage(activeTab.value.id, {
       command: "get-state",
-    } as Message)
+    } satisfies Message)
   }
 }

@@ -71,10 +71,12 @@ const onSaveClick = async () => {
     }, 2000)
     return
   }
+  
+  if (options.value === undefined) return
 
   await browser.storage.local.set({
     options: { ...options.value, defaultMoodleURL: urlInput.value },
-  } as ExtensionStorage)
+  } satisfies Partial<ExtensionStorage>)
   updateState()
 }
 

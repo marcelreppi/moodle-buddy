@@ -363,7 +363,7 @@ class Course {
       lastModifiedHeaders: this.lastModifiedHeaders,
     }
     courseData[this.link] = updatedCourseData
-    await browser.storage.local.set({ courseData } as ExtensionStorage)
+    await browser.storage.local.set({ courseData } satisfies Partial<ExtensionStorage>)
   }
 
   async updateStoredResources(downloadedResources?: Resource[]): Promise<CourseData> {
@@ -411,14 +411,14 @@ class Course {
       seenResources: updatedSeenResources,
       newResources: updatedNewResources,
       lastModifiedHeaders,
-    } as CourseData
+    } satisfies CourseData
 
     await browser.storage.local.set({
       courseData: {
         ...courseData,
         [this.link]: updatedCourseData,
       },
-    } as ExtensionStorage)
+    } satisfies Partial<ExtensionStorage>)
 
     return updatedCourseData
   }
@@ -435,14 +435,14 @@ class Course {
       ...(storedCourseData as CourseData),
       seenActivities: updatedSeenActivities,
       newActivities: updatedNewActivities,
-    } as CourseData
+    } satisfies CourseData
 
     await browser.storage.local.set({
       courseData: {
         ...courseData,
         [this.link]: updatedCourseData,
       },
-    } as ExtensionStorage)
+    } satisfies Partial<ExtensionStorage>)
 
     return updatedCourseData
   }

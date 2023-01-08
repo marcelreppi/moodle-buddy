@@ -39,7 +39,7 @@ async function backgroundScan() {
 
   const nUpdates = getUpdatesFromCourses(courses)
 
-  await browser.storage.local.set({ nUpdates } as ExtensionStorage)
+  await browser.storage.local.set({ nUpdates } satisfies Partial<ExtensionStorage>)
 
   console.log({ nUpdates })
 
@@ -52,7 +52,7 @@ async function backgroundScan() {
   const tabs = await browser.tabs.query({})
   for (const tab of tabs) {
     if (!tab.id) continue
-    browser.tabs.sendMessage(tab.id, { command: "update-non-moodle-page-badge" } as Message)
+    browser.tabs.sendMessage(tab.id, { command: "update-non-moodle-page-badge" } satisfies Message)
   }
 }
 

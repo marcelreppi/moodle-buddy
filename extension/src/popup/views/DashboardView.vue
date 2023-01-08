@@ -50,8 +50,8 @@ const sortCoursesByNewestResourcesAndActivities = () => {
   })
 }
 
-browser.runtime.onMessage.addListener(async (message: object) => {
-  const { command } = message as Message
+browser.runtime.onMessage.addListener(async (message: Message) => {
+  const { command } = message
   if (command === "scan-in-progress") {
     const { total, completed } = message as ScanInProgressMessage
     if (total !== 0) {
@@ -77,7 +77,7 @@ browser.runtime.onMessage.addListener(async (message: object) => {
 if (activeTab.value?.id) {
   browser.tabs.sendMessage(activeTab.value.id, {
     command: "scan",
-  } as Message)
+  } satisfies Message)
 }
 </script>
 

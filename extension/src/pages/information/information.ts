@@ -6,7 +6,7 @@ document.querySelector("#imprint-link")?.addEventListener("click", () => {
     command: "event",
     event: "imprint-click",
     saveURL: false,
-  } as EventMessage)
+  } satisfies EventMessage)
   browser.tabs.create({
     url: "/pages/legal/legal.html",
   })
@@ -17,7 +17,7 @@ document.querySelector("#privacy-link")?.addEventListener("click", () => {
     command: "event",
     event: "privacy-click",
     saveURL: false,
-  } as EventMessage)
+  } satisfies EventMessage)
   browser.tabs.create({
     url: "/pages/legal/legal.html",
   })
@@ -29,7 +29,7 @@ document.querySelectorAll(".options-link")?.forEach((n) => {
       command: "event",
       event: "options-click",
       saveURL: false,
-    } as EventMessage)
+    } satisfies EventMessage)
     browser.runtime.openOptionsPage()
   })
 })
@@ -39,7 +39,7 @@ document.querySelector("#donate-link")?.addEventListener("click", () => {
     command: "event",
     event: "donate-click",
     saveURL: false,
-  } as EventMessage)
+  } satisfies EventMessage)
 })
 
 document.querySelectorAll(".contact-link")?.forEach((n) => {
