@@ -18,7 +18,7 @@ function sendScanResults(course) {
       resources: course.resources,
       activities: course.activities,
     },
-  } as CourseScanResultMessage)
+  } satisfies CourseScanResultMessage)
 }
 
 // browser.storage.local.clear()
@@ -48,7 +48,7 @@ async function initCoursePage() {
       sendLog({ errorMessage: err.message, url: location.href })
       browser.runtime.sendMessage({
         command: "error-view",
-      } as Message)
+      } satisfies Message)
     })
 
   browser.runtime.onMessage.addListener(async (message: Message) => {
@@ -85,7 +85,7 @@ async function initCoursePage() {
         courseName: course.name,
         courseShortcut: course.shortcut,
         options,
-      } as DownloadMessage)
+      } satisfies DownloadMessage)
 
       await course.updateStoredResources(selectedResources)
       await course.scan()

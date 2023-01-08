@@ -62,8 +62,8 @@ const onDownload = (selectedResources: Resource[]) => {
   sendEvent(eventParts.join("-"), true, { numberOfFiles: selectedResources.length })
 }
 
-browser.runtime.onMessage.addListener(async (message: object) => {
-  const { command } = message as Message
+browser.runtime.onMessage.addListener(async (message: Message) => {
+  const { command } = message
   if (command === "scan-result") {
     const { videoResources: scannedVideoResources } = message as VideoScanResultMessage
     videoResources.value = scannedVideoResources.map((r) => {
@@ -77,6 +77,6 @@ browser.runtime.onMessage.addListener(async (message: object) => {
 if (activeTab.value?.id) {
   browser.tabs.sendMessage(activeTab.value.id, {
     command: "scan",
-  } as Message)
+  } satisfies Message)
 }
 </script>

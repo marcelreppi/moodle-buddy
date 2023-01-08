@@ -1,7 +1,6 @@
 import browser from "webextension-polyfill"
 import {
   CourseData,
-  ExtensionOptions,
   ExtensionStorage,
   StoredCourseData,
   EventMessage,
@@ -33,7 +32,7 @@ const initialStorage: ExtensionStorage = {
 async function onInstall() {
   await browser.storage.local.set({
     ...initialStorage,
-  } as ExtensionStorage)
+  } satisfies ExtensionStorage)
 
   browser.tabs.create({
     url: "/pages/install/install.html",
@@ -44,7 +43,7 @@ async function onInstall() {
 
 async function onUpdate() {
   const localStorage = (await browser.storage.local.get()) as ExtensionStorage
-  const localOptions = localStorage.options as ExtensionOptions
+  const localOptions = localStorage.options
 
   // Merge existing options
   let updatedOptions = { ...defaultOptions }
@@ -74,14 +73,14 @@ async function onUpdate() {
     ...localStorage,
     courseData: updatedCourseData,
     options: updatedOptions,
-  } as ExtensionStorage)
+  } satisfies ExtensionStorage)
 
   if (isDev) {
     await browser.storage.local.set({
       ...initialStorage,
       options: defaultOptions,
       browserId: localStorage.browserId,
-    } as ExtensionStorage)
+    } satisfies ExtensionStorage)
   }
 
   sendEvent("update", false)
@@ -108,8 +107,8 @@ browser.runtime.onInstalled.addListener(async (details) => {
 })
 
 browser.runtime.onMessage.addListener(
-  async (message: object, sender: browser.Runtime.MessageSender) => {
-    const { command } = message as Message
+  async (message: Message, sender: browser.Runtime.MessageSender) => {
+    const { command } = message
     switch (command) {
       case "event":
         const { event, saveURL, eventData } = message as EventMessage
@@ -137,7 +136,7 @@ browser.runtime.onMessage.addListener(
       case "clear-course-data":
         await browser.storage.local.set({
           courseData: initialStorage.courseData,
-        } as ExtensionStorage)
+        } satisfies Partial<ExtensionStorage>)
         break
       case "execute-script":
         if (!sender.tab?.id) {
@@ -165,5 +164,5 @@ browser.tabs.onCreated.addListener(async (tab) => {
 })
 
 browser.tabs.onActivated.addListener((tab) => {
-  browser.tabs.sendMessage(tab.tabId, { command: "update-non-moodle-page-badge" } as Message)
+  browser.tabs.sendMessage(tab.tabId, { command: "update-non-moodle-page-badge" } satisfies Message)
 })

@@ -70,7 +70,7 @@ async function save(e: Event) {
       event: "modify-options",
       saveURL: false,
       eventData: changedOptions,
-    } as EventMessage)
+    } satisfies EventMessage)
   }, 500)
 
   if (updatedOptions.disableInteractionTracking) {
@@ -78,12 +78,12 @@ async function save(e: Event) {
       command: "event",
       event: "disable-tracking",
       saveURL: false,
-    } as EventMessage)
+    } satisfies EventMessage)
   }
 
   await browser.storage.local.set({
     options: updatedOptions,
-  } as ExtensionStorage)
+  } satisfies Partial<ExtensionStorage>)
 }
 
 function checkURL(e: Event) {
@@ -104,7 +104,7 @@ function checkURL(e: Event) {
 async function clearCourseData(e: Event) {
   await browser.runtime.sendMessage({
     command: "clear-course-data",
-  } as Message)
+  } satisfies Message)
 
   const target = e.target as HTMLButtonElement
   target.disabled = true

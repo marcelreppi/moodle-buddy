@@ -27,7 +27,7 @@ export default function useRating(): UseRatingComposable {
     11: 15000,
     12: 25000,
     13: 50000,
-  } as Record<string, number>
+  } satisfies Record<string, number>
 
   const showRatingHint = computed(() => {
     const fileThreshold = rateHintLevels[rateHintLevel.value] || Infinity
@@ -40,7 +40,7 @@ export default function useRating(): UseRatingComposable {
 
     browser.tabs.sendMessage(activeTab.value.id, {
       command: "rate-click",
-    } as Message)
+    } satisfies Message)
     openRatingPage()
   }
 
@@ -49,7 +49,7 @@ export default function useRating(): UseRatingComposable {
 
     browser.tabs.sendMessage(activeTab.value.id, {
       command: "avoid-rate-click",
-    } as Message)
+    } satisfies Message)
     sendEvent("avoid-rating-hint")
   }
 

@@ -82,8 +82,8 @@ const showLoading = ref(true)
 const { openContactPage, openDonatePage, openInfoPage, openOptionsPage } = useNavigation()
 const { onRateClick, showRatingHint } = useRating()
 
-browser.runtime.onMessage.addListener(async (message: object) => {
-  const { command } = message as Message
+browser.runtime.onMessage.addListener(async (message: Message) => {
+  const { command } = message
 
   if (command === "state") {
     const { state } = message as StateMessage
@@ -108,8 +108,8 @@ getActiveTab().then((tab) => {
   if (activeTab.value?.id) {
     updateState()
     browser.tabs.sendMessage(activeTab.value.id, {
-      command: "track-page-view",
-    } as Message)
+      command: "track-page-view"
+    } satisfies Message)
   }
 })
 </script>

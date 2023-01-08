@@ -133,7 +133,7 @@ class Downloader {
       completed: this.finished.length,
       total: this.fileCount,
       errors: this.errorCount,
-    } as DownloadProgressMessage)
+    } satisfies DownloadProgressMessage)
   }
 
   private async onError() {
@@ -219,7 +219,7 @@ class Downloader {
       )) as ExtensionStorage
       await browser.storage.local.set({
         totalDownloadedFiles: totalDownloadedFiles + this.fileCount,
-      } as ExtensionStorage)
+      } satisfies Partial<ExtensionStorage>)
       this.sentData = true
     }
   }
@@ -550,8 +550,8 @@ browser.downloads.onChanged.addListener(async (downloadDelta) => {
   }
 })
 
-browser.runtime.onMessage.addListener(async (message: object) => {
-  const { command } = message as Message
+browser.runtime.onMessage.addListener(async (message: Message) => {
+  const { command } = message
   switch (command) {
     case "cancel-download":
       await onCancel()
