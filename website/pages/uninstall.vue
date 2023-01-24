@@ -1,24 +1,36 @@
 <template>
-  <main>
-    <div class="logo">
+  <main class="flex flex-col items-center justify-center px-5 py-2">
+    <div class="flex items-center mt-2 mb-5 text-xl text-center">
       Moodle Buddy
-      <img src="~/assets/images/mb.png" />
+      <img src="~/assets/images/mb.png" class="w-5 ml-3" />
     </div>
 
-    <div class="content">
-      <div class="bye">Sad to see you go... 😢</div>
-      <div class="rating">
+    <div class="flex flex-col items-center justify-center space-y-8">
+      <div class="text-xl font-bold text-center">Sad to see you go... 😢</div>
+      <div class="flex flex-col items-center text-lg text-center">
         If Moodle Buddy was helpful to you I would appreciate
         <br />
         a rating and a review on the {{ isFirefox ? "Firefox Add-on Store" : "Chrome Web Store" }}
-        <button class="umami--click--uninstall-rate" @click="openExtensionStore">
+        <button class="mt-3 umami--click--uninstall-rate" @click="openExtensionStore">
           Rate Moodle Buddy
         </button>
       </div>
-      <div v-if="!showLoading && !showError && !showSuccess" class="why">
+
+      <div v-if="showLoading">
+        <svg viewBox="25 25 50 50">
+          <circle cx="50" cy="50" r="20"></circle>
+        </svg>
+      </div>
+      <div v-else-if="showError" class="hint">An error has occured 😫</div>
+      <div v-else-if="showSuccess" class="hint">
+        Success! 🥳
+        <br />
+        Thank you very much for your feedback!
+      </div>
+      <div v-else class="text-lg text-center">
         Please let me know why you uninstalled Moodle Buddy
-        <div class="tell-me">
-          <div>
+        <div class="flex flex-col items-center mt-3 space-y-3 tell-me">
+          <div class="relative">
             <textarea v-model="formContent" cols="60" rows="10"></textarea>
             <span class="bottom" :style="{ bottom: isFirefox ? '2px' : '7px' }"></span>
             <span class="right" :style="{ bottom: isFirefox ? '2px' : '7px' }"></span>
@@ -28,20 +40,6 @@
 
           <button class="umami--click--uninstall-feedback" @click="submitForm">Submit</button>
         </div>
-      </div>
-
-      <div v-if="showLoading">
-        <svg viewBox="25 25 50 50">
-          <circle cx="50" cy="50" r="20"></circle>
-        </svg>
-      </div>
-
-      <div v-if="showError" class="hint">An error has occured 😫</div>
-
-      <div v-if="showSuccess" class="hint">
-        Success! 🥳
-        <br />
-        Thank you very much for your feedback!
       </div>
     </div>
   </main>
@@ -116,47 +114,7 @@ export default {
 }
 </script>
 
-<style>
-main {
-  @apply flex flex-col justify-center items-center py-2 px-5;
-}
-
-.logo {
-  @apply flex items-center text-xl text-center mb-5 mt-2;
-}
-
-.logo > img {
-  @apply w-5 ml-3;
-}
-
-.content {
-  @apply flex flex-col justify-center items-center space-y-8;
-}
-
-.bye {
-  @apply text-xl font-bold text-center;
-}
-
-.why {
-  @apply text-lg text-center;
-}
-
-.tell-me {
-  @apply flex flex-col items-center space-y-3 mt-3;
-}
-
-.rating {
-  @apply text-lg text-center flex flex-col items-center;
-}
-
-.rating button {
-  @apply text-lg mt-5 py-3 px-5 rounded bg-mb-red text-white font-bold text-center cursor-pointer shadow hover:underline;
-}
-
-.tell-me div {
-  position: relative;
-}
-
+<style scoped>
 textarea {
   background-color: hsl(0, 0%, 99%);
   padding: 0.5rem;
@@ -257,7 +215,7 @@ circle {
   }
 }
 
-.tell-me button {
+button {
   @apply py-2 px-4 rounded font-bold bg-mb-red text-white text-center text-lg shadow hover:underline cursor-pointer;
 }
 
