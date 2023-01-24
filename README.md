@@ -1,4 +1,4 @@
-# [Moodle Buddy](https://moodlebuddy.com) ![Icon](website/static/mb.png)
+# [Moodle Buddy](https://moodlebuddy.com) ![Icon](website/public/mb.png)
 
 ### [Chrome](https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo)
 
