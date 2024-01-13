@@ -10,7 +10,7 @@
       <br />
       The project is open-source and available
       <a
-        class="link umami--click--github"
+        data-umami-event="github"
         href="https://github.com/marcelreppi/moodle-buddy"
         target="_blank"
         rel="noopener noreferrer"

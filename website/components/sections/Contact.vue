@@ -4,7 +4,7 @@
     <h2>Contact</h2>
     <div>
       Send an E-Mail to
-      <a class="link umami--click--email" href="mailto:hello@moodlebuddy.com">
+      <a data-umami-event="email" class="link" href="mailto:hello@moodlebuddy.com">
         hello@moodlebuddy.com
       </a>
     </div>

@@ -5,6 +5,7 @@
     <div>
       <!-- Sharingbutton Facebook -->
       <a
+        data-umami-event="share-facebook"
         class="resp-sharing-button__link"
         href="https://facebook.com/sharer/sharer.php?u=https%3A%2F%2Fmoodlebuddy.com"
         target="_blank"
@@ -27,6 +28,7 @@
 
       <!-- Sharingbutton Twitter -->
       <a
+        data-umami-event="share-twitter"
         class="resp-sharing-button__link"
         href="https://twitter.com/intent/tweet/?text=Moodle%20Buddy%20offers%20mass%20download%20and%20notification%20functionality%20for%20the%20Moodle%20learning%20management%20platform.%20Available%20for%20Firefox%20and%20Chrome.&amp;url=https%3A%2F%2Fmoodlebuddy.com"
         target="_blank"
@@ -49,6 +51,7 @@
 
       <!-- Sharingbutton LinkedIn -->
       <a
+        data-umami-event="share-linkedin"
         class="resp-sharing-button__link"
         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Fmoodlebuddy.com&amp;title=Moodle%20Buddy%20offers%20mass%20download%20and%20notification%20functionality%20for%20the%20Moodle%20learning%20management%20platform.%20Available%20for%20Firefox%20and%20Chrome.&amp;summary=Moodle%20Buddy%20offers%20mass%20download%20and%20notification%20functionality%20for%20the%20Moodle%20learning%20management%20platform.%20Available%20for%20Firefox%20and%20Chrome.&amp;source=https%3A%2F%2Fmoodlebuddy.com"
         target="_blank"
@@ -71,6 +74,7 @@
 
       <!-- Sharingbutton Reddit -->
       <a
+        data-umami-event="share-reddit"
         class="resp-sharing-button__link"
         href="https://reddit.com/submit/?url=https%3A%2F%2Fmoodlebuddy.com&amp;resubmit=true&amp;title=Moodle%20Buddy%20offers%20mass%20download%20and%20notification%20functionality%20for%20the%20Moodle%20learning%20management%20platform.%20Available%20for%20Firefox%20and%20Chrome."
         target="_blank"
@@ -93,6 +97,7 @@
 
       <!-- Sharingbutton WhatsApp -->
       <a
+        data-umami-event="share-whatsapp"
         class="resp-sharing-button__link"
         href="whatsapp://send?text=Moodle%20Buddy%20offers%20mass%20download%20and%20notification%20functionality%20for%20the%20Moodle%20learning%20management%20platform.%20Available%20for%20Firefox%20and%20Chrome.%20https%3A%2F%2Fmoodlebuddy.com"
         target="_blank"
@@ -115,6 +120,7 @@
 
       <!-- Sharingbutton Telegram -->
       <a
+        data-umami-event="share-telegram"
         class="resp-sharing-button__link"
         href="https://telegram.me/share/url?text=Moodle%20Buddy%20offers%20mass%20download%20and%20notification%20functionality%20for%20the%20Moodle%20learning%20management%20platform.%20Available%20for%20Firefox%20and%20Chrome.&amp;url=https%3A%2F%2Fmoodlebuddy.com"
         target="_blank"

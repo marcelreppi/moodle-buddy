@@ -10,9 +10,6 @@
     "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
     "lint": "npm run lint:js"
   },
-  "dependencies": {
-    "nuxt": "3.1.0"
-  },
   "devDependencies": {
     "@babel/eslint-parser": "^7.19.1",
     "@nuxtjs/eslint-config-typescript": "^12.0.0",
@@ -23,6 +20,7 @@
     "eslint-config-prettier": "^8.6.0",
     "eslint-plugin-nuxt": "^4.0.0",
     "eslint-plugin-vue": "^9.9.0",
+    "nuxt": "3.10.1",
     "postcss": "8.4.21",
     "tailwindcss": "3.2.4"
   }
