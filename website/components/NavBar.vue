@@ -1,14 +1,14 @@
 <template>
   <header>
     <nav>
-      <a class="logo umami--click--navbar-icon" href="#download">
+      <a data-umami-event="navbar-icon" class="logo" href="#download">
         <div>Moodle Buddy</div>
         <img src="~/assets/images/mb.png" alt="" />
       </a>
       <div class="nav-items">
-        <a class="umami--click--navbar-download" href="#download">Download</a>
-        <a class="umami--click--navbar-about" href="#about">About</a>
-        <a class="umami--click--navbar-contact" href="#contact">Contact</a>
+        <a data-umami-event="navbar-download" href="#download">Download</a>
+        <a data-umami-event="navbar-about" href="#about">About</a>
+        <a data-umami-event="navbar-contact" href="#contact">Contact</a>
       </div>
     </nav>
   </header>

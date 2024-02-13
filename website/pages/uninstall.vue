@@ -11,7 +11,11 @@
         If Moodle Buddy was helpful to you I would appreciate
         <br />
         a rating and a review on the {{ isFirefox ? "Firefox Add-on Store" : "Chrome Web Store" }}
-        <button class="mt-3 umami--click--uninstall-rate" @click="openExtensionStore">
+        <button
+          data-umami-event="uninstall-rate"
+          class="mt-3"
+          @click="openExtensionStore"
+        >
           Rate Moodle Buddy
         </button>
       </div>
@@ -38,7 +42,12 @@
             <span class="left" :style="{ bottom: isFirefox ? '2px' : '7px' }"></span>
           </div>
 
-          <button class="umami--click--uninstall-feedback" @click="submitForm">Submit</button>
+          <button
+            data-umami-event="uninstall-feedback"
+            @click="submitForm"
+          >
+            Submit
+          </button>
         </div>
       </div>
     </div>

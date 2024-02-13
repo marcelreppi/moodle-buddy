@@ -32,7 +32,7 @@
             </div>
             <div>
               <a
-                class="umami--click--chrome-download"
+                data-umami-event="chrome-download"
                 target="_blank"
                 rel="noopener noreferrer"
                 href="https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo"
@@ -49,7 +49,7 @@
               <img src="https://img.shields.io/amo/rating/moodle-buddy" alt="Ratings" />
             </div>
             <a
-              class="umami--click--firefox-download"
+              data-umami-event="firefox-download"
               target="_blank"
               rel="noopener noreferrer"
               href="https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/"

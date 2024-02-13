@@ -1,8 +1,6 @@
 import { defineNuxtConfig } from "nuxt/config"
-
-const TITLE = "Moodle Buddy | Mass file download and notifications for Moodle"
-const DESCRIPTION =
-  "Moodle Buddy offers mass file download and notification functionality for the Moodle learning management platform. Available as Firefox and Chrome browser extension."
+import { DESCRIPTION, DOMAIN, TITLE } from "./constants"
+import { TRACKER_CONFIG, TRACK_ENDPOINT, TRACK_ENDPOINT_FULL_URL, UMAMI_SCRIPT } from "./umami.config"
 
 export default defineNuxtConfig({
   app: {
@@ -21,8 +19,8 @@ export default defineNuxtConfig({
         { name: "og:title", content: TITLE },
         { name: "og:description", content: DESCRIPTION },
         { name: "og:site_name", content: TITLE },
-        { name: "og:url", content: "https://moodlebuddy.com" },
-        { name: "og:image", content: "https://moodlebuddy.com/mb-128.png" },
+        { name: "og:url", content: `https://${DOMAIN}` },
+        { name: "og:image", content: `https://${DOMAIN}/mb-128.png` },
         { name: "og:image:width", content: "128" },
         { name: "og:image:height", content: "128" },
         // Twitter
@@ -31,14 +29,26 @@ export default defineNuxtConfig({
       ],
       script: [
         {
-          src: "https://umami.marcelreppi.com/umami.js",
+          src: TRACKER_CONFIG.scriptSrc,
           async: true,
           defer: true,
-          "data-website-id": "f0ddb47e-8e3c-46c7-87bd-1c077fefd501",
-          "data-domains": "moodlebuddy.com",
+          "data-website-id": TRACKER_CONFIG.websiteId,
+          "data-domains": TRACKER_CONFIG.domain,
         },
       ],
     },
+  },
+  routeRules: {
+    '/blubb.js': {
+      redirect: {
+        to: UMAMI_SCRIPT
+      }
+    },
+    [TRACK_ENDPOINT]: {
+      redirect: {
+        to: TRACK_ENDPOINT_FULL_URL
+      }
+    }
   },
   css: ["~/assets/css/main.css"],
   postcss: {
