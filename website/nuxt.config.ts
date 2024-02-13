@@ -38,18 +38,6 @@ export default defineNuxtConfig({
       ],
     },
   },
-  routeRules: {
-    '/blubb.js': {
-      redirect: {
-        to: UMAMI_SCRIPT
-      }
-    },
-    [TRACK_ENDPOINT]: {
-      redirect: {
-        to: TRACK_ENDPOINT_FULL_URL
-      }
-    }
-  },
   css: ["~/assets/css/main.css"],
   postcss: {
     plugins: {

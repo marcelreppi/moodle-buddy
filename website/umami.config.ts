@@ -11,12 +11,12 @@ export const TRACK_ENDPOINT_FULL_URL = `${UMAMI_BASE_URL}${TRACK_ENDPOINT}`;
 
 const DEV_CONFIG: TrackerConfig = {
   websiteId: "49bf16ab-5ee4-4e38-9454-cac8f47e03e4",
-  scriptSrc: UMAMI_SCRIPT,
+  scriptSrc: UMAMI_SCRIPT
 }
 
 const PROD_CONFIG: TrackerConfig = {
   websiteId: "125b2ab7-46a5-4f4a-a652-23162a362b7d",
-  scriptSrc: "blubb.js",
+  scriptSrc: UMAMI_SCRIPT,
   domain: DOMAIN
 }
 
