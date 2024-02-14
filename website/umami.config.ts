@@ -15,7 +15,7 @@ const DEV_CONFIG: TrackerConfig = {
 }
 
 const PROD_CONFIG: TrackerConfig = {
-  websiteId: "125b2ab7-46a5-4f4a-a652-23162a362b7d",
+  websiteId: "f0ddb47e-8e3c-46c7-87bd-1c077fefd501",
   scriptSrc: UMAMI_SCRIPT,
   domain: DOMAIN
 }
