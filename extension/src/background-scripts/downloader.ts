@@ -1,5 +1,5 @@
 import browser from "webextension-polyfill"
-import pLimit from "p-limit"
+import pLimit, { LimitFunction } from "p-limit"
 import { parseHTML } from "linkedom"
 
 import {
@@ -45,8 +45,8 @@ class Downloader {
   private inProgress: Set<number>
   private finished: number[]
 
-  private prepLimit: pLimit.Limit
-  private downloadLimit: pLimit.Limit
+  private prepLimit: LimitFunction
+  private downloadLimit: LimitFunction
   private retryInterval: number
 
   constructor(

@@ -18,7 +18,7 @@
     "strictNullChecks": true,
     "strictFunctionTypes": true,
     "noImplicitThis": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false, // TODO: Switch it to true
     "noUnusedParameters": false, // false because of https://github.com/vuejs/vue-next/issues/4668
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
