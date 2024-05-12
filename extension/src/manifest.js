@@ -1,66 +1,62 @@
 const pkg = require("../package.json")
 
-const EXTENSION_ID = "moodlebuddy@marcelreppi"
 const BACKGROUND_SCRIPT = "background.js"
 
-const action = {
-  default_icon: {
-    16: "icons/16-gray.png",
-    32: "icons/32-gray.png",
-    48: "icons/48-gray.png",
-    128: "icons/128-gray.png",
-  },
-  default_title: pkg.displayName,
-  default_popup: "popup/index.html",
-}
-
 const firefoxProperties = {
-  manifest_version: 2,
-  browser_specific_settings: {
-    gecko: {
-      id: EXTENSION_ID,
-    },
-  },
-  browser_action: action,
   background: {
     scripts: [BACKGROUND_SCRIPT],
   },
-  permissions: ["<all_urls>", "activeTab", "downloads", "storage", "scripting"],
 }
 
 const chromeProperties = {
-  manifest_version: 3,
-  action,
   background: {
     service_worker: BACKGROUND_SCRIPT,
   },
-  host_permissions: ["<all_urls>"],
-  permissions: ["activeTab", "downloads", "storage", "scripting"],
 }
 
-function getBrowserSpecificProperties() {
-  switch (process.env.TARGET) {
+function getBrowserSpecificProperties(target) {
+  switch (target) {
     case "firefox":
       return firefoxProperties
     case "chrome":
       return chromeProperties
     default:
-      throw new Error(`Unknown target: ${process.env.TARGET}`)
+      throw new Error(`Unknown target: ${target}`)
   }
 }
 
 function getManifest() {
-  return {
-    // id: EXTENSION_ID, // TODO: Validate if I need this
+  const { TARGET } = process.env
+  console.log(`\n\nCreating manifest.json for target=${TARGET}`)
+
+  const manifest = {
+    manifest_version: 3,
     name: pkg.displayName,
     version: pkg.version,
     description: pkg.description,
+    browser_specific_settings: {
+      gecko: {
+        id: "moodlebuddy@marcelreppi",
+      },
+    },
     icons: {
       16: "icons/16.png",
       32: "icons/32.png",
       48: "icons/48.png",
       128: "icons/128.png",
     },
+    action: {
+      default_icon: {
+        16: "icons/16-gray.png",
+        32: "icons/32-gray.png",
+        48: "icons/48-gray.png",
+        128: "icons/128-gray.png",
+      },
+      default_title: pkg.displayName,
+      default_popup: "popup/index.html",
+    },
+    host_permissions: ["<all_urls>"],
+    permissions: ["activeTab", "downloads", "storage", "scripting"],
     content_scripts: [
       {
         matches: ["<all_urls>"],
@@ -71,8 +67,12 @@ function getManifest() {
       page: "pages/options/options.html",
       open_in_tab: true,
     },
-    ...getBrowserSpecificProperties(),
+    ...getBrowserSpecificProperties(TARGET),
   }
+
+  const manifestString = JSON.stringify(manifest, null, 2)
+  console.log("Created the following manifest:\n\n" + manifestString + "\n\n")
+  return manifest
 }
 
 module.exports = getManifest
