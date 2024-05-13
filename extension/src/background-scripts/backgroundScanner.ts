@@ -1,4 +1,3 @@
-import browser from "webextension-polyfill"
 import { parseHTML } from "linkedom"
 import { ExtensionStorage, Message } from "types"
 import { getUpdatesFromCourses } from "../shared/helpers"
@@ -6,10 +5,10 @@ import { setBadgeText } from "./helpers"
 import Course from "../models/Course"
 import { getURLRegex } from "../shared/regexHelpers"
 
-// browser.storage.local.clear()
+// chrome.storage.local.clear()
 
 async function backgroundScan() {
-  const { options, overviewCourseLinks } = (await browser.storage.local.get([
+  const { options, overviewCourseLinks } = (await chrome.storage.local.get([
     "options",
     "overviewCourseLinks",
   ])) as ExtensionStorage
@@ -39,25 +38,25 @@ async function backgroundScan() {
 
   const nUpdates = getUpdatesFromCourses(courses)
 
-  await browser.storage.local.set({ nUpdates } satisfies Partial<ExtensionStorage>)
+  await chrome.storage.local.set({ nUpdates } satisfies Partial<ExtensionStorage>)
 
   console.log({ nUpdates })
 
   // If there are no further updates reset the icon
   if (nUpdates === 0) {
-    setBadgeText("", (await browser.tabs.getCurrent())?.id)
+    setBadgeText("", (await chrome.tabs.getCurrent())?.id)
     return
   }
 
-  const tabs = await browser.tabs.query({})
+  const tabs = await chrome.tabs.query({})
   for (const tab of tabs) {
     if (!tab.id) continue
-    browser.tabs.sendMessage(tab.id, { command: "update-non-moodle-page-badge" } satisfies Message)
+    chrome.tabs.sendMessage(tab.id, { command: "update-non-moodle-page-badge" } satisfies Message)
   }
 }
 
 async function startBackgroundScanning() {
-  const { options } = (await browser.storage.local.get("options")) as ExtensionStorage
+  const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
 
   if (!options) {
     setTimeout(() => {

@@ -28,7 +28,6 @@
 </template>
 
 <script setup lang="ts">
-import browser from "webextension-polyfill"
 import { ref, computed, watch } from "vue"
 import { sendEvent } from "../../shared/helpers"
 import { VideoServiceResource, Message, VideoScanResultMessage, Resource } from "../../types"
@@ -62,7 +61,7 @@ const onDownload = (selectedResources: Resource[]) => {
   sendEvent(eventParts.join("-"), true, { numberOfFiles: selectedResources.length })
 }
 
-browser.runtime.onMessage.addListener(async (message: Message) => {
+chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
   if (command === "scan-result") {
     const { videoResources: scannedVideoResources } = message as VideoScanResultMessage
@@ -75,7 +74,7 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
 })
 
 if (activeTab.value?.id) {
-  browser.tabs.sendMessage(activeTab.value.id, {
+  chrome.tabs.sendMessage(activeTab.value.id, {
     command: "scan",
   } satisfies Message)
 }

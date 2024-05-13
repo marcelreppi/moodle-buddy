@@ -74,7 +74,6 @@
 </template>
 
 <script setup lang="ts">
-import browser from "webextension-polyfill"
 import { computed, onMounted, ref } from "vue"
 import { DashboardCourseData, DashboardCrawlMessage, MarkAsSeenMessage, Resource } from "types"
 import { sendEvent } from "../../shared/helpers"
@@ -112,7 +111,7 @@ const onDownloadClick = (e: Event, course: DashboardCourseData) => {
   const target = e.target as HTMLButtonElement
   target.disabled = true
   if (activeTab.value?.id) {
-    browser.tabs.sendMessage(activeTab.value.id, {
+    chrome.tabs.sendMessage(activeTab.value.id, {
       command: "crawl",
       link: course.link,
     } satisfies DashboardCrawlMessage)
@@ -126,7 +125,7 @@ const onMarkAsSeenClick = () => {
   props.course.activities.forEach((a) => (a.isNew = false))
 
   if (activeTab.value?.id) {
-    browser.tabs.sendMessage(activeTab.value.id, {
+    chrome.tabs.sendMessage(activeTab.value.id, {
       command: "mark-as-seen",
       link: props.course.link,
     } satisfies MarkAsSeenMessage)

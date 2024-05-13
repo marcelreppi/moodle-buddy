@@ -176,7 +176,6 @@
 </template>
 
 <script setup lang="ts">
-import browser from "webextension-polyfill"
 import { computed, onUpdated, ref } from "vue"
 import DetailOverlay from "./DetailOverlay.vue"
 import ProgressBar from "./ProgressBar.vue"
@@ -242,7 +241,7 @@ const onMarkAsSeenClick = () => {
   emit("mark-as-seen")
 
   if (activeTab.value?.id) {
-    browser.tabs.sendMessage(activeTab.value.id, {
+    chrome.tabs.sendMessage(activeTab.value.id, {
       command: "mark-as-seen",
     } satisfies Message)
   }
@@ -287,7 +286,7 @@ const onDownloadFinished = () => {
   }, 3000)
 }
 const onDownloadCancel = () => {
-  browser.runtime.sendMessage({
+  chrome.runtime.sendMessage({
     command: "cancel-download",
   } satisfies Message)
   downloadInProgress.value = false
@@ -312,7 +311,7 @@ const onDownload = () => {
   emit("download", selectedResources.value)
 
   if (activeTab.value?.id) {
-    browser.tabs.sendMessage(activeTab.value.id, {
+    chrome.tabs.sendMessage(activeTab.value.id, {
       command: "crawl",
       selectedResources: selectedResources.value.map((r) => ({ ...r })), // Resolve proxy
       options: {
@@ -334,7 +333,7 @@ const onDownload = () => {
   }
 }
 
-browser.runtime.onMessage.addListener(async (message: Message) => {
+chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
   if (command === "scan-result") {
     loading.value = false

@@ -1,11 +1,10 @@
-import browser from "webextension-polyfill"
 import { ExtensionOptions, EventMessage, Message, ExtensionStorage } from "types"
 import { validURLRegex } from "../../shared/regexHelpers"
 
 let restoredOptions: ExtensionOptions
 
 async function restore() {
-  browser.storage.local.get("options").then(({ options }) => {
+  chrome.storage.local.get("options").then(({ options }) => {
     restoredOptions = options as ExtensionOptions
     const inputs = document.querySelectorAll("input")
     inputs.forEach((input) => {
@@ -65,7 +64,7 @@ async function save(e: Event) {
 
   clearTimeout(timeout)
   timeout = setTimeout(async () => {
-    await browser.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
       command: "event",
       event: "modify-options",
       saveURL: false,
@@ -74,14 +73,14 @@ async function save(e: Event) {
   }, 500)
 
   if (updatedOptions.disableInteractionTracking) {
-    await browser.runtime.sendMessage({
+    await chrome.runtime.sendMessage({
       command: "event",
       event: "disable-tracking",
       saveURL: false,
     } satisfies EventMessage)
   }
 
-  await browser.storage.local.set({
+  await chrome.storage.local.set({
     options: updatedOptions,
   } satisfies Partial<ExtensionStorage>)
 }
@@ -89,9 +88,8 @@ async function save(e: Event) {
 function checkURL(e: Event) {
   const target = e.target as HTMLInputElement
   const inputURL = target.value
-  const invalidURLHint: HTMLDivElement | null = document.querySelector<HTMLDivElement>(
-    "#invalid-url"
-  )
+  const invalidURLHint: HTMLDivElement | null =
+    document.querySelector<HTMLDivElement>("#invalid-url")
   if (invalidURLHint) {
     if (inputURL !== "" && !inputURL.match(validURLRegex)) {
       invalidURLHint.style.display = "block"
@@ -102,7 +100,7 @@ function checkURL(e: Event) {
 }
 
 async function clearCourseData(e: Event) {
-  await browser.runtime.sendMessage({
+  await chrome.runtime.sendMessage({
     command: "clear-course-data",
   } satisfies Message)
 

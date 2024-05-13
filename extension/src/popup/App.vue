@@ -48,7 +48,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import browser from "webextension-polyfill"
 import { Message, StateMessage, SupportedPage } from "../types"
 import {
   activeTab,
@@ -82,7 +81,7 @@ const showLoading = ref(true)
 const { openContactPage, openDonatePage, openInfoPage, openOptionsPage } = useNavigation()
 const { onRateClick, showRatingHint } = useRating()
 
-browser.runtime.onMessage.addListener(async (message: Message) => {
+chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
 
   if (command === "state") {
@@ -107,8 +106,8 @@ getActiveTab().then((tab) => {
 
   if (activeTab.value?.id) {
     updateState()
-    browser.tabs.sendMessage(activeTab.value.id, {
-      command: "track-page-view"
+    chrome.tabs.sendMessage(activeTab.value.id, {
+      command: "track-page-view",
     } satisfies Message)
   }
 })

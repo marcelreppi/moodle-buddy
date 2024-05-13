@@ -1,4 +1,3 @@
-import browser from "webextension-polyfill"
 import { ExtensionOptions, ExtensionStorage, FeedbackMessage } from "types"
 
 document.querySelector("#form-button")?.addEventListener("click", async () => {
@@ -8,7 +7,7 @@ document.querySelector("#form-button")?.addEventListener("click", async () => {
   const content = document.querySelector<HTMLTextAreaElement>("#form-content")?.value
 
   if (subject && content && platform) {
-    const { options, browserId } = (await browser.storage.local.get()) as ExtensionStorage
+    const { options, browserId } = (await chrome.storage.local.get()) as ExtensionStorage
     const { defaultMoodleURL }: ExtensionOptions = options
 
     const message = [
@@ -19,7 +18,7 @@ document.querySelector("#form-button")?.addEventListener("click", async () => {
       content,
     ].join("\n\n")
 
-    browser.runtime.sendMessage({
+    chrome.runtime.sendMessage({
       command: "feedback",
       feedbackData: { subject, content: message },
     } satisfies FeedbackMessage)
@@ -37,5 +36,5 @@ document.querySelector("#form-button")?.addEventListener("click", async () => {
 
 const versionSpan = document.querySelector<HTMLSpanElement>("#version")
 if (versionSpan) {
-  versionSpan.textContent = `(v. ${browser.runtime.getManifest().version})`
+  versionSpan.textContent = `(v. ${chrome.runtime.getManifest().version})`
 }

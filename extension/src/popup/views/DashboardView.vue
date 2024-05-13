@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import browser from "webextension-polyfill"
 import { ref } from "vue"
 import { sendEvent } from "../../shared/helpers"
 import {
@@ -50,7 +49,7 @@ const sortCoursesByNewestResourcesAndActivities = () => {
   })
 }
 
-browser.runtime.onMessage.addListener(async (message: Message) => {
+chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
   if (command === "scan-in-progress") {
     const { total, completed } = message as ScanInProgressMessage
@@ -75,7 +74,7 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
 })
 
 if (activeTab.value?.id) {
-  browser.tabs.sendMessage(activeTab.value.id, {
+  chrome.tabs.sendMessage(activeTab.value.id, {
     command: "scan",
   } satisfies Message)
 }

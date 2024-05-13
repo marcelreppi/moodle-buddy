@@ -1,4 +1,3 @@
-import browser from "webextension-polyfill"
 import { sendEvent, sendPageData } from "../shared/helpers"
 import { ExtensionStorage, Message, SetBadgeMessage, StateMessage } from "../types"
 import { detectPage } from "./detector"
@@ -6,16 +5,16 @@ import { detectPage } from "./detector"
 const page = detectPage()
 
 async function updateVueState() {
-  const localStorage = (await browser.storage.local.get()) as ExtensionStorage
+  const localStorage = (await chrome.storage.local.get()) as ExtensionStorage
   const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = localStorage
   console.log({ localStorage })
-  browser.runtime.sendMessage({
+  chrome.runtime.sendMessage({
     command: "state",
     state: { page, options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel },
   } satisfies StateMessage)
 }
 
-browser.runtime.onMessage.addListener(async (message: Message) => {
+chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
 
   if (command === "get-state") {
@@ -30,15 +29,15 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
   }
 
   if (command === "rate-click") {
-    await browser.storage.local.set({
+    await chrome.storage.local.set({
       userHasRated: true,
     } satisfies Partial<ExtensionStorage>)
     updateVueState()
   }
 
   if (command === "avoid-rate-click") {
-    const { rateHintLevel } = (await browser.storage.local.get()) as ExtensionStorage
-    await browser.storage.local.set({
+    const { rateHintLevel } = (await chrome.storage.local.get()) as ExtensionStorage
+    await chrome.storage.local.set({
       rateHintLevel: rateHintLevel + 1,
     } satisfies Partial<ExtensionStorage>)
     updateVueState()
@@ -46,9 +45,9 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
 
   if (command === "update-non-moodle-page-badge") {
     if (page !== undefined) return
-    const { nUpdates } = (await browser.storage.local.get("nUpdates")) as ExtensionStorage
-    const text = nUpdates === 0 ? "" : nUpdates.toString();
-    browser.runtime.sendMessage({
+    const { nUpdates } = (await chrome.storage.local.get("nUpdates")) as ExtensionStorage
+    const text = nUpdates === 0 ? "" : nUpdates.toString()
+    chrome.runtime.sendMessage({
       command: "set-badge",
       text,
     } satisfies SetBadgeMessage)
