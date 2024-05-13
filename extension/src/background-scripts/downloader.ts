@@ -23,6 +23,7 @@ import {
 import { getURLRegex, getMoodleBaseURL } from "../shared/regexHelpers"
 import { getFileTypeFromURL, sanitizeFileName, padNumber } from "./helpers"
 import { sendLog, sendDownloadData } from "./tracker"
+import logger from "../shared/logger"
 
 let downloaders: Record<number, Downloader> = {}
 
@@ -302,9 +303,9 @@ class Downloader {
       filePath = `Moodle/${filePath}`
     }
 
+    logger.debug(filePath)
+    logger.debug(href)
     if (isDebug) {
-      console.log(filePath)
-      console.log(href)
       // return
     }
 
@@ -318,7 +319,7 @@ class Downloader {
           const id = await chrome.downloads.download({ url: href, filename: filePath })
           await this.onDownloadStart(id)
         } catch (err) {
-          console.error(err)
+          logger.error(err)
           sendLog({ errorMessage: err.message, url: href, fileName: filePath })
           await this.onError()
         }

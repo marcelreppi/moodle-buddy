@@ -4,6 +4,7 @@ import { getUpdatesFromCourses } from "../shared/helpers"
 import { setBadgeText } from "./helpers"
 import Course from "../models/Course"
 import { getURLRegex } from "../shared/regexHelpers"
+import logger from "../shared/logger"
 
 // chrome.storage.local.clear()
 
@@ -14,17 +15,17 @@ async function backgroundScan() {
   ])) as ExtensionStorage
 
   if (!options.enableBackgroundScanning) {
-    console.log("[MoodleBuddy] Background scanning disabled")
+    logger.info("[MoodleBuddy] Background scanning disabled")
     return
   }
 
-  console.log("[MoodleBuddy] Background scan start")
+  logger.info("[MoodleBuddy] Background scan start")
   const courses: Course[] = []
   for (const courseLink of overviewCourseLinks) {
     const res = await fetch(courseLink)
 
     if (res.url.match(getURLRegex("login"))) {
-      console.log("Moodle Buddy background scan error: Not logged in")
+      logger.info("Moodle Buddy background scan error: Not logged in")
       return
     }
 
@@ -34,13 +35,13 @@ async function backgroundScan() {
     await course.scan()
     courses.push(course)
   }
-  console.log("[MoodleBuddy] Background scan end")
+  logger.info("[MoodleBuddy] Background scan end")
 
   const nUpdates = getUpdatesFromCourses(courses)
 
   await chrome.storage.local.set({ nUpdates } satisfies Partial<ExtensionStorage>)
 
-  console.log({ nUpdates })
+  logger.info({ nUpdates })
 
   // If there are no further updates reset the icon
   if (nUpdates === 0) {

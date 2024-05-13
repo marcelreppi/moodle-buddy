@@ -51,6 +51,7 @@ import { options, nUpdates, updateState } from "../state"
 import { validURLRegex } from "../../shared/regexHelpers"
 import useNavigation from "../composables/useNavigation"
 import { ExtensionStorage } from "../../types"
+import logger from "shared/logger"
 
 const { openMoodlePage, openInfoPage } = useNavigation()
 
@@ -62,7 +63,7 @@ const urlInput = ref("")
 const showInvalidURL = ref(false)
 
 const onSaveClick = async () => {
-  console.log(urlInput.value)
+  logger.info(urlInput.value)
   if (!urlInput.value.match(validURLRegex)) {
     showInvalidURL.value = true
     setTimeout(() => {

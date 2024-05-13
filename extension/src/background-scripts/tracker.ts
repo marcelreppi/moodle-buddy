@@ -10,6 +10,7 @@ import {
 } from "types"
 
 import { isFirefox, getActiveTab, isDev } from "../shared/helpers"
+import logger from "../shared/logger"
 
 async function sendToLambda(path: string, payload: AdditionalPayloadData) {
   const { options, browserId } = (await chrome.storage.local.get([
@@ -18,7 +19,7 @@ async function sendToLambda(path: string, payload: AdditionalPayloadData) {
   ])) as ExtensionStorage
 
   if (options.disableInteractionTracking) {
-    // console.log("Moodle Buddy Tracking disabled!")
+    // logger.info("Moodle Buddy Tracking disabled!")
     if (path === "/event") {
       const eventExceptions = ["install", "update"]
       if (!eventExceptions.includes((payload as EventPayloadData).event)) {
@@ -41,9 +42,7 @@ async function sendToLambda(path: string, payload: AdditionalPayloadData) {
     version: chrome.runtime.getManifest().version,
   }
 
-  if (isDev) {
-    console.log(requestBody)
-  }
+  logger.debug(requestBody)
 
   if (process.env.API_URL) {
     try {
@@ -56,7 +55,7 @@ async function sendToLambda(path: string, payload: AdditionalPayloadData) {
         body: JSON.stringify(requestBody),
       })
     } catch (error) {
-      console.error(error)
+      logger.error(error)
       setTimeout(() => {
         sendLog({ errorMessage: error.message })
       }, 5000)

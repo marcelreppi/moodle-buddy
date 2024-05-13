@@ -9,6 +9,7 @@ import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { updateIconFromCourses, sendLog, isDev } from "../shared/helpers"
 
 import Course from "../models/Course"
+import logger from "../shared/logger"
 
 function sendScanResults(course) {
   chrome.runtime.sendMessage({
@@ -35,15 +36,13 @@ async function initCoursePage() {
     .then(() => {
       updateIconFromCourses([course])
 
-      if (isDev) {
-        console.log(course)
-      }
+      logger.debug(course)
 
       initialScanCompleted = true
       sendScanResults(course)
     })
     .catch((err) => {
-      console.error(err)
+      logger.error(err)
       sendLog({ errorMessage: err.message, url: location.href })
       chrome.runtime.sendMessage({
         command: "error-view",
