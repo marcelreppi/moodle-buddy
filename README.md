@@ -1,6 +1,6 @@
 <p style="display: flex; flex-direction: column; align-items: center;">
    <a href="https://moodlebuddy.com">
-      <img src="website/static/mb.png">
+      <img src="website/assets/images/mb.png">
    </a>
    <h2 align="center">MoodleBuddy</h2>
    <p style="width: 600px; margin: auto; text-align: center;">
@@ -10,20 +10,19 @@
 
 ## Installation
 
-The plugin is available for both **Firefox** and **Chrome**.
+The plugin is available for both **Chrome** and **Firefox**.
 
-[ ![chrome.google.com/](https://i.imgur.com/unvdmLG.png)](https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo)
+<a href="https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo"><img src="https://user-images.githubusercontent.com/585534/107280622-91a8ea80-6a26-11eb-8d07-77c548b28665.png" alt="Get Moodle Buddy for Chromium"></a>
 
 ![Version](https://img.shields.io/chrome-web-store/v/nomahjpllnbcpbggnpiehiecfbjmcaeo)
 ![Users](https://img.shields.io/chrome-web-store/users/nomahjpllnbcpbggnpiehiecfbjmcaeo)
 ![Ratings](https://img.shields.io/chrome-web-store/rating/nomahjpllnbcpbggnpiehiecfbjmcaeo)
 
-[ ![addons.mozilla.org/](https://ffp4g1ylyit3jdyti1hqcvtb-wpengine.netdna-ssl.com/addons/files/2015/11/get-the-addon.png)](https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/)
+<a href="https://addons.mozilla.org/addon/moodle-buddy/"><img src="https://user-images.githubusercontent.com/585534/107280546-7b9b2a00-6a26-11eb-8f9f-f95932f4bfec.png" alt="Get Moodle Buddy for Firefox"></a>
 
 ![Version](https://img.shields.io/amo/v/moodle-buddy)
 ![Users](https://img.shields.io/amo/users/moodle-buddy)
 ![Ratings](https://img.shields.io/amo/rating/moodle-buddy)
-
 
 ## Usage
 
