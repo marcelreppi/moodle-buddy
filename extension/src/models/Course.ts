@@ -9,6 +9,7 @@ import {
 } from "types"
 import * as parser from "../shared/parser"
 import { getMoodleBaseURL } from "../shared/regexHelpers"
+import logger from "../shared/logger"
 
 async function getLastModifiedHeader(href: string, options: ExtensionOptions) {
   if (!options.detectFileUpdates) return
@@ -68,6 +69,7 @@ class Course {
       const hasNotBeenSeenBefore = !this.previousSeenResources.includes(resource.href)
       if (hasNotBeenSeenBefore) {
         resource.isNew = true
+        logger.debug(resource, "New resource detected")
       }
 
       if (this.options.detectFileUpdates) {
@@ -270,9 +272,13 @@ class Course {
       // Course exists in locally stored data
       this.isFirstScan = false
       const storedCourseData = courseData[this.link]
+      logger.debug(storedCourseData, "Course was found in local storage")
+
       this.previousSeenResources = storedCourseData.seenResources
       this.previousSeenActivities = storedCourseData.seenActivities
       this.lastModifiedHeaders = storedCourseData.lastModifiedHeaders
+    } else {
+      logger.debug("New course detected")
     }
 
     const mainHTML = this.HTMLDocument.querySelector("#region-main")
@@ -355,6 +361,8 @@ class Course {
       lastModifiedHeaders: this.lastModifiedHeaders,
     }
     courseData[this.link] = updatedCourseData
+
+    logger.debug(updatedCourseData, `Storing course data in local storage for course ${this.link}`)
     await chrome.storage.local.set({ courseData } satisfies Partial<ExtensionStorage>)
   }
 
@@ -375,6 +383,7 @@ class Course {
 
     // Merge already seen resources with new resources
     // Use set to remove duplicates
+    logger.debug(toBeMerged, "Adding resources to list of seen resources")
     const updatedSeenResources = Array.from(
       new Set(seenResources.concat(toBeMerged.map((r) => r.href)))
     )
@@ -405,6 +414,7 @@ class Course {
       lastModifiedHeaders,
     } satisfies CourseData
 
+    logger.debug(updatedCourseData, "Storing updated course data in local storage")
     await chrome.storage.local.set({
       courseData: {
         ...courseData,
@@ -420,6 +430,7 @@ class Course {
     const storedCourseData = courseData[this.link]
 
     const { seenActivities, newActivities } = storedCourseData
+    logger.debug(newActivities, "Adding activities to list of seen activities")
     const updatedSeenActivities = Array.from(new Set(seenActivities.concat(newActivities)))
     const updatedNewActivities: string[] = []
 
