@@ -12,6 +12,7 @@ import { checkForMoodle, parseCourseLink } from "../shared/parser"
 import { updateIconFromCourses, sendLog, isDebug } from "../shared/helpers"
 import Course from "../models/Course"
 import { getURLRegex } from "../shared/regexHelpers"
+import logger from "../shared/logger"
 
 let error = false
 let scanInProgress = true
@@ -107,7 +108,7 @@ async function scanOverview(retry = 0) {
       // No courses found
       if (retry < maxRetries) {
         // Retry once more because maybe the page was not fully loaded
-        console.log("No course found in dashboard. Retrying once more...")
+        logger.info("No course found in dashboard. Retrying once more...")
         scanOverview(retry + 1)
         return
       }
@@ -120,7 +121,7 @@ async function scanOverview(retry = 0) {
       scanTotal = courseLinks.length
 
       if (isDebug) {
-        console.log(courseLinks)
+        logger.debug(courseLinks)
         return
       }
 
@@ -144,7 +145,7 @@ async function scanOverview(retry = 0) {
         } catch (err) {
           scanTotal--
           error = true
-          console.error(err)
+          logger.error(err)
           sendLog({ errorMessage: err.message, url: link })
         }
         sendScanProgress()
@@ -161,7 +162,7 @@ async function scanOverview(retry = 0) {
     sendScanResults()
   } catch (err) {
     error = true
-    console.error(err)
+    logger.error(err)
     sendLog({ errorMessage: err.message, url: location.href })
   }
 }
@@ -204,7 +205,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
       }
 
       if (courses.length === 0) {
-        console.log("empty dashboard")
+        logger.info("empty dashboard")
       }
 
       sendScanResults()
@@ -217,7 +218,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     const course = courses.find((c) => c.link === link)
 
     if (course === undefined) {
-      console.error(`Course with link ${link} is undefined. Failed to process message.`, message)
+      logger.error(`Course with link ${link} is undefined. Failed to process message.`, message)
       return
     }
 

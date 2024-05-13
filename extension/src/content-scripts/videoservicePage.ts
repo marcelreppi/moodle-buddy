@@ -11,6 +11,7 @@ import {
 
 import { getQuerySelector, parseCourseNameFromCoursePage } from "../shared/parser"
 import { sendLog } from "../shared/helpers"
+import logger from "../shared/logger"
 
 const courseName = parseCourseNameFromCoursePage(document)
 let videoNodes: HTMLAnchorElement[] = []
@@ -92,7 +93,7 @@ async function scanForVideos() {
       })
     }
   } catch (err) {
-    console.error(err)
+    logger.error(err)
     sendLog({ errorMessage: err.message, url: location.href })
     error = true
   }
@@ -201,7 +202,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
         } satisfies DownloadMessage)
       }
     } catch (err) {
-      console.error(err)
+      logger.error(err)
       sendLog({ errorMessage: err.message, url: location.href })
       error = true
       chrome.runtime.sendMessage({

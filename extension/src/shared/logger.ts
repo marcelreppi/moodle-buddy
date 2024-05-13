@@ -1,5 +1,6 @@
 import pino from "pino"
+import { isDev } from "./helpers"
 
 export default pino({
-  level: "debug",
+  level: isDev ? "debug" : "info",
 })

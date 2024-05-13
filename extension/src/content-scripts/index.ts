@@ -1,4 +1,5 @@
 import { sendEvent, sendPageData } from "../shared/helpers"
+import logger from "../shared/logger"
 import { ExtensionStorage, Message, SetBadgeMessage, StateMessage } from "../types"
 import { detectPage } from "./detector"
 
@@ -7,7 +8,7 @@ const page = detectPage()
 async function updateVueState() {
   const localStorage = (await chrome.storage.local.get()) as ExtensionStorage
   const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = localStorage
-  console.log({ localStorage })
+  logger.info({ localStorage })
   chrome.runtime.sendMessage({
     command: "state",
     state: { page, options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel },
