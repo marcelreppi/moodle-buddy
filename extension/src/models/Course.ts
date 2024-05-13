@@ -113,13 +113,6 @@ class Course {
     let href = parser.parseURLFromNode(node, "pluginfile", this.options)
     if (href === "") return
 
-    const isLinkedomDOMNode = node.hasOwnProperty("ownerDocument")
-    if (isLinkedomDOMNode) {
-      // Linkedom encodes URI characters but this can lead to a double encoding
-      // of special characters like % if the URL already contains encoded characters
-      href = decodeURIComponent(href)
-    }
-
     // Avoid duplicates
     const detectedURLs = this.resources.map((r) => r.href)
     if (detectedURLs.includes(href)) return
