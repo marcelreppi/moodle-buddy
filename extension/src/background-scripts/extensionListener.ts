@@ -134,7 +134,7 @@ chrome.runtime.onMessage.addListener(
         break
       case "clear-course-data":
         await chrome.storage.local.set({
-          courseData: initialStorage.courseData,
+          courseData: {},
         } satisfies Partial<ExtensionStorage>)
         break
       case "execute-script":
