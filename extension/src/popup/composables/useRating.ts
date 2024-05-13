@@ -1,4 +1,3 @@
-import browser from "webextension-polyfill"
 import { computed, ComputedRef } from "vue"
 import { sendEvent } from "../../shared/helpers"
 import { Message } from "../../types"
@@ -38,7 +37,7 @@ export default function useRating(): UseRatingComposable {
   const onRateClick = async () => {
     if (!activeTab.value?.id) return
 
-    browser.tabs.sendMessage(activeTab.value.id, {
+    chrome.tabs.sendMessage(activeTab.value.id, {
       command: "rate-click",
     } satisfies Message)
     openRatingPage()
@@ -47,7 +46,7 @@ export default function useRating(): UseRatingComposable {
   const onAvoidRateClick = async () => {
     if (!activeTab.value?.id) return
 
-    browser.tabs.sendMessage(activeTab.value.id, {
+    chrome.tabs.sendMessage(activeTab.value.id, {
       command: "avoid-rate-click",
     } satisfies Message)
     sendEvent("avoid-rating-hint")

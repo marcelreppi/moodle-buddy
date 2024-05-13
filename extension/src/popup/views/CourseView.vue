@@ -28,7 +28,6 @@
 </template>
 
 <script setup lang="ts">
-import browser from "webextension-polyfill"
 import { ref, computed, watch } from "vue"
 import { sendEvent } from "../../shared/helpers"
 import { isFile, isFolder } from "../../shared/resourceHelpers"
@@ -136,7 +135,7 @@ const onMarkAsSeen = () => {
   })
 }
 
-browser.runtime.onMessage.addListener(async (message: Message) => {
+chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
   if (command === "scan-result") {
     const { course } = message as CourseScanResultMessage
@@ -150,7 +149,7 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
 
     if (nNewActivities.value > 0) {
       if (activeTab.value?.id) {
-        browser.tabs.sendMessage(activeTab.value.id, {
+        chrome.tabs.sendMessage(activeTab.value.id, {
           command: "update-activities",
         } satisfies Message)
       }
@@ -163,7 +162,7 @@ browser.runtime.onMessage.addListener(async (message: Message) => {
 })
 
 if (activeTab.value?.id) {
-  browser.tabs.sendMessage(activeTab.value.id, {
+  chrome.tabs.sendMessage(activeTab.value.id, {
     command: "scan",
   } satisfies Message)
 }

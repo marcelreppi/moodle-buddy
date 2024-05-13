@@ -1,8 +1,4 @@
-import browser from "webextension-polyfill"
 import sanitize from "sanitize-filename"
-import { isFirefox } from "../shared/helpers"
-
-const action = isFirefox ? browser.browserAction : browser.action
 
 export function uuidv4(): string {
   return [1e7, 1e3, 4e3, 8e3, 1e11].join("-").replace(/[018]/g, (c) => {
@@ -13,7 +9,7 @@ export function uuidv4(): string {
 
 export async function setIcon(tabId?: number): Promise<void> {
   if (tabId) {
-    await action.setIcon({
+    await chrome.action.setIcon({
       path: {
         16: "/icons/16.png",
         32: "/icons/32.png",
@@ -25,16 +21,16 @@ export async function setIcon(tabId?: number): Promise<void> {
 }
 
 // Set default badge
-action.setBadgeBackgroundColor({ color: "#555555" })
-action.setBadgeText({ text: "" })
+chrome.action.setBadgeBackgroundColor({ color: "#555555" })
+chrome.action.setBadgeText({ text: "" })
 
 export async function setBadgeText(text: string, tabId?: number): Promise<void> {
   if (tabId) {
     // If tabId is given reset global and only set the local one
-    await action.setBadgeText({ text: "" }) // Reset global badge text
-    await action.setBadgeText({ text, tabId }) // Set local badge text
+    await chrome.action.setBadgeText({ text: "" }) // Reset global badge text
+    await chrome.action.setBadgeText({ text, tabId }) // Set local badge text
   } else {
-    await action.setBadgeText({ text })
+    await chrome.action.setBadgeText({ text })
   }
 }
 

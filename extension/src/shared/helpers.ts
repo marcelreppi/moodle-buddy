@@ -1,4 +1,3 @@
-import browser from "webextension-polyfill"
 import {
   EventMessage,
   LogMessage,
@@ -21,7 +20,7 @@ export function sendEvent(
   saveURL = true,
   eventData: Record<string, unknown> = {}
 ): void {
-  browser.runtime.sendMessage({
+  chrome.runtime.sendMessage({
     command: "event",
     event,
     saveURL,
@@ -30,7 +29,7 @@ export function sendEvent(
 }
 
 export function sendLog(logData: LogPayloadData): void {
-  browser.runtime.sendMessage({
+  chrome.runtime.sendMessage({
     command: "log",
     logData,
   } satisfies LogMessage)
@@ -46,14 +45,14 @@ export function sendPageData(page: SupportedPage) {
     page,
     content: document.querySelector("html")?.outerHTML || "",
   }
-  browser.runtime.sendMessage({
+  chrome.runtime.sendMessage({
     command: "page-data",
     pageData,
   } satisfies PageDataMessage)
 }
 
-export async function getActiveTab(): Promise<browser.Tabs.Tab | undefined> {
-  const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+export async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true })
   return tabs?.shift()
 }
 
@@ -63,8 +62,9 @@ export const isFirefox = typeof InstallTrigger !== "undefined"
 export function getUpdatesFromCourses(courses: Course[]): number {
   const courseList = courses.flat()
   const nUpdates = courseList.reduce((sum, c) => {
-    const nUpdatesInCourse = [...c.resources, ...c.activities].filter((r) => r.isNew || r.isUpdated)
-      .length
+    const nUpdatesInCourse = [...c.resources, ...c.activities].filter(
+      (r) => r.isNew || r.isUpdated
+    ).length
     return sum + nUpdatesInCourse
   }, 0)
   return nUpdates
@@ -73,11 +73,11 @@ export function getUpdatesFromCourses(courses: Course[]): number {
 export async function updateIconFromCourses(courses: Course[]) {
   const nUpdates = getUpdatesFromCourses(courses)
 
-  await browser.storage.local.set({ nUpdates } satisfies Partial<ExtensionStorage>)
+  await chrome.storage.local.set({ nUpdates } satisfies Partial<ExtensionStorage>)
 
   // If there are no further updates reset the icon
-  const text = nUpdates === 0 ? "" : nUpdates.toString();
-  browser.runtime.sendMessage({
+  const text = nUpdates === 0 ? "" : nUpdates.toString()
+  chrome.runtime.sendMessage({
     command: "set-badge",
     text,
   } satisfies SetBadgeMessage)

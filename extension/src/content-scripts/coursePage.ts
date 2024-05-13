@@ -1,4 +1,3 @@
-import browser from "webextension-polyfill"
 import {
   CourseCrawlMessage,
   CourseScanResultMessage,
@@ -12,7 +11,7 @@ import { updateIconFromCourses, sendLog, isDev } from "../shared/helpers"
 import Course from "../models/Course"
 
 function sendScanResults(course) {
-  browser.runtime.sendMessage({
+  chrome.runtime.sendMessage({
     command: "scan-result",
     course: {
       resources: course.resources,
@@ -21,10 +20,10 @@ function sendScanResults(course) {
   } satisfies CourseScanResultMessage)
 }
 
-// browser.storage.local.clear()
+// chrome.storage.local.clear()
 
 async function initCoursePage() {
-  const { options } = (await browser.storage.local.get("options")) as ExtensionStorage
+  const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
   const courseLink = parseCourseLink(location.href)
   const course = new Course(courseLink, document, options)
 
@@ -46,12 +45,12 @@ async function initCoursePage() {
     .catch((err) => {
       console.error(err)
       sendLog({ errorMessage: err.message, url: location.href })
-      browser.runtime.sendMessage({
+      chrome.runtime.sendMessage({
         command: "error-view",
       } satisfies Message)
     })
 
-  browser.runtime.onMessage.addListener(async (message: Message) => {
+  chrome.runtime.onMessage.addListener(async (message: Message) => {
     const { command } = message
 
     if (command === "scan") {
@@ -79,7 +78,7 @@ async function initCoursePage() {
     if (command === "crawl") {
       const { options, selectedResources } = message as CourseCrawlMessage
 
-      browser.runtime.sendMessage({
+      chrome.runtime.sendMessage({
         command: "download",
         resources: selectedResources,
         courseName: course.name,
