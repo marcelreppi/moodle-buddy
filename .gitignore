@@ -11,3 +11,4 @@ test/**
 *.rest
 *.zip
 *.env*
+!.env.example
