@@ -51,7 +51,7 @@ import { options, nUpdates, updateState } from "../state"
 import { validURLRegex } from "../../shared/regexHelpers"
 import useNavigation from "../composables/useNavigation"
 import { ExtensionStorage } from "../../types"
-import logger from "shared/logger"
+import logger from "../../shared/logger"
 
 const { openMoodlePage, openInfoPage } = useNavigation()
 
