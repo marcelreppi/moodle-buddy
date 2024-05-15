@@ -162,7 +162,7 @@
         class="w-5/6"
       ></progress-bar>
 
-      <button class="py-2 mt-5 font-bold btn" :disabled="disableDownload" @click="onDownload">
+      <button class="py-2 mt-5 btn btn-primary" :disabled="disableDownload" @click="onDownload">
         Download
       </button>
     </div>

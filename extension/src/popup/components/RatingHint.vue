@@ -13,7 +13,7 @@
     </div>
 
     <div class="pt-3">
-      <button class="btn" @click="() => onRateClick()">Rate Moodle Buddy</button>
+      <button class="btn btn-primary" @click="() => onRateClick()">Rate Moodle Buddy</button>
       <div class="mt-2 text-xs text-gray-400 cursor-pointer" @click="onAvoidRateClick">
         I will have to disappoint you...
       </div>
