@@ -55,14 +55,14 @@ async function backgroundScan() {
 
 async function checkTriggerBackgroundScan() {
   logger.debug("Checking if to trigger background scan")
-  const { options, lastBackgroundScan } = (await chrome.storage.local.get([
+  const { options, lastBackgroundScanMillis } = (await chrome.storage.local.get([
     "options",
-    "lastBackgroundScan",
+    "lastBackgroundScanMillis",
   ])) as ExtensionStorage
 
   const scanIntervalMillis = 1000 * 60 * options.backgroundScanInterval
   const nowMillis = Date.now()
-  const diffBetweenScans = nowMillis - lastBackgroundScan
+  const diffBetweenScans = nowMillis - lastBackgroundScanMillis
   const shouldTriggerScan = options.enableBackgroundScanning && diffBetweenScans > scanIntervalMillis
 
   logger.debug(`Scan conditions: enabled=${options.enableBackgroundScanning},  diffBetweenScans=${diffBetweenScans}ms`)
@@ -73,7 +73,7 @@ async function checkTriggerBackgroundScan() {
 
   await backgroundScan()
   await chrome.storage.local.set({
-    lastBackgroundScan: nowMillis,
+    lastBackgroundScanMillis: nowMillis,
   } as ExtensionStorage)
   logger.debug(`Updated background scan timestamp to ${nowMillis}`)
 }

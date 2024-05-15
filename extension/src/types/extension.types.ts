@@ -41,7 +41,7 @@ export interface ExtensionStorage {
   /**
    * Timestamp of last background scan in milliseconds
    */
-  lastBackgroundScan: number
+  lastBackgroundScanMillis: number
 }
 
 export type SupportedPage = "course" | "dashboard" | "videoservice"
