@@ -29,6 +29,8 @@ type Command =
   | "clear-course"
   | "track-page-view"
   | "update-non-moodle-page-badge"
+  | "background-scan"
+  | "check-background-scan"
 
 export interface Message {
   command: Command

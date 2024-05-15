@@ -38,6 +38,10 @@ export interface ExtensionStorage {
   totalDownloadedFiles: number
   rateHintLevel: number
   courseData: StoredCourseData
+  /**
+   * Timestamp of last background scan in milliseconds
+   */
+  lastBackgroundScan: number
 }
 
 export type SupportedPage = "course" | "dashboard" | "videoservice"

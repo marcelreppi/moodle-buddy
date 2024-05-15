@@ -5,6 +5,10 @@ import { detectPage } from "./detector"
 
 const page = detectPage()
 
+chrome.runtime.sendMessage({
+  command: "check-background-scan"
+} as Message)
+
 async function updateVueState() {
   const localStorage = (await chrome.storage.local.get()) as ExtensionStorage
   const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = localStorage
