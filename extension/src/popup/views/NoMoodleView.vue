@@ -18,7 +18,7 @@
           type="text"
           name=""
         />
-        <button class="py-0.5 btn" @click="onSaveClick">Save</button>
+        <button class="py-0.5 btn btn-primary btn-xs" @click="onSaveClick">Save</button>
       </div>
       <transition name="fade">
         <div

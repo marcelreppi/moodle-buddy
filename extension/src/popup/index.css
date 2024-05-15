@@ -30,18 +30,6 @@
     @apply box-border relative flex flex-col items-center justify-center w-full;
   }
 
-  .btn {
-    @apply py-1 px-3 rounded bg-mb-red text-white font-semibold text-center tracking-wide shadow-custom;
-  }
-
-  .btn:hover {
-    @apply opacity-95 cursor-pointer bg-mb-red-light;
-  }
-
-  .btn:disabled {
-    @apply bg-gray-300 cursor-default no-underline;
-  }
-
   .custom-hover {
     @apply hover:text-mb-red hover:cursor-pointer hover:underline;
   }

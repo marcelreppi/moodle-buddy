@@ -55,7 +55,7 @@
         </div>
         <button
           v-if="newResources.length > 0"
-          class="mt-2 text-sm font-bold btn"
+          class="mt-2 btn btn-primary btn-sm"
           @click="(e) => onDownloadClick(e, course)"
         >
           Download new resources
