@@ -31,6 +31,7 @@ type Command =
   | "update-non-moodle-page-badge"
   | "background-scan"
   | "check-background-scan"
+  | "reset-storage"
 
 export interface Message {
   command: Command

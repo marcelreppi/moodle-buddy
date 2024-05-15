@@ -138,6 +138,11 @@ chrome.runtime.onMessage.addListener(
           courseData: {},
         } satisfies Partial<ExtensionStorage>)
         break
+      case "reset-storage":
+        await chrome.storage.local.set({
+          ...initialStorage
+        } satisfies Partial<ExtensionStorage>)
+        break
       case "execute-script":
         if (!sender.tab?.id) {
           throw new Error("Error on event execute-script: Sender tab id was empty")

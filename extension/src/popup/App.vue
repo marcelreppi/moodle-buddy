@@ -1,5 +1,6 @@
 <template>
   <div class="relative w-full h-full px-3 pt-4 pb-2" :class="{ chrome: !isFirefox }">
+    <dev-tools></dev-tools>
     <div class="flex items-center justify-center mb-2 text-lg">
       Moodle Buddy
       <img class="w-5 h-5 ml-2" src="../icons/48.png" alt="logo" />
@@ -60,6 +61,7 @@ import {
 } from "./state"
 
 import { getActiveTab, isFirefox } from "../shared/helpers"
+import DevTools from "./components/DevTools.vue"
 import CourseView from "./views/CourseView.vue"
 import VideoServiceView from "./views/VideoServiceView.vue"
 import DashboardView from "./views/DashboardView.vue"
