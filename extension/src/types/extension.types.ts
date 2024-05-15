@@ -14,6 +14,9 @@ export interface ExtensionOptions {
   disableInteractionTracking: boolean
   defaultMoodleURL: string
   autoSetMoodleURL: boolean
+  /**
+   * Background scanning interval in minutes
+   */
   backgroundScanInterval: number
   enableBackgroundScanning: boolean
   downloadFolderAsZip: boolean
