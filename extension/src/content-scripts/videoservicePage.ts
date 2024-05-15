@@ -94,7 +94,7 @@ async function scanForVideos() {
     }
   } catch (err) {
     logger.error(err)
-    sendLog({ errorMessage: err.message, url: location.href })
+    sendLog({ errorMessage: err.message, url: location.href, page: 'videoservice' })
     error = true
   }
 }
@@ -203,7 +203,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
       }
     } catch (err) {
       logger.error(err)
-      sendLog({ errorMessage: err.message, url: location.href })
+      sendLog({ errorMessage: err.message, url: location.href, page: 'videoservice' })
       error = true
       chrome.runtime.sendMessage({
         command: "error-view",

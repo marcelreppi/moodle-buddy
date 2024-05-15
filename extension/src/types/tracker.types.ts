@@ -38,6 +38,7 @@ export type FeedbackPayload = BasePayload & FeedbackPayloadData
 
 export interface LogPayloadData {
   errorMessage: string
+  page?: SupportedPage
   url?: string
   fileName?: string
 }

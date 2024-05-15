@@ -26,6 +26,7 @@ const initialStorage: ExtensionStorage = {
   totalDownloadedFiles: 0,
   rateHintLevel: 1,
   courseData: {},
+  lastBackgroundScan: 0
 }
 
 async function onInstall() {

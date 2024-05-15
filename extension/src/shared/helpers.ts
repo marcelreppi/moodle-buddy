@@ -10,7 +10,6 @@ import {
 } from "types"
 
 import Course from "models/Course"
-import { getSupportedPage } from "../content-scripts/detector"
 
 export const isDev = process.env.NODE_ENV !== "production"
 export const isDebug = process.env.NODE_ENV === "debug"
@@ -34,9 +33,8 @@ export function sendLog(logData: LogPayloadData): void {
     logData,
   } satisfies LogMessage)
 
-  const page = getSupportedPage()
-  if (page !== undefined) {
-    sendPageData(page)
+  if (logData.page) {
+    sendPageData(logData.page)
   }
 }
 

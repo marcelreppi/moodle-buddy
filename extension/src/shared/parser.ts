@@ -1,10 +1,12 @@
-import {} from "linkedom"
 import { ExtensionOptions } from "types"
 import { getURLRegex } from "./regexHelpers"
+import logger from "./logger"
 
 export function checkForMoodle(): boolean {
   // Check for unique moodle DOM element
-  return Boolean(document.querySelector("#region-main"))
+  const isMoodle = Boolean(document.querySelector("#region-main"))
+  logger.debug(`isMoodle: ${isMoodle}`)
+  return isMoodle
 }
 
 export function parseCourseShortcut(document: Document): string {

@@ -146,7 +146,7 @@ async function scanOverview(retry = 0) {
           scanTotal--
           error = true
           logger.error(err)
-          sendLog({ errorMessage: err.message, url: link })
+          sendLog({ errorMessage: err.message, url: link, page: 'dashboard' })
         }
         sendScanProgress()
       }
@@ -163,7 +163,7 @@ async function scanOverview(retry = 0) {
   } catch (err) {
     error = true
     logger.error(err)
-    sendLog({ errorMessage: err.message, url: location.href })
+    sendLog({ errorMessage: err.message, url: location.href, page: 'dashboard' })
   }
 }
 

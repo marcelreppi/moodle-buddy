@@ -43,7 +43,7 @@ async function initCoursePage() {
     })
     .catch((err) => {
       logger.error(err)
-      sendLog({ errorMessage: err.message, url: location.href })
+      sendLog({ errorMessage: err.message, url: location.href, page: 'course' })
       chrome.runtime.sendMessage({
         command: "error-view",
       } satisfies Message)
