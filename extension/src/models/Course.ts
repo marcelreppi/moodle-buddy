@@ -449,6 +449,10 @@ class Course {
 
     return updatedCourseData
   }
+
+  getNumberOfUpdates(): number {
+    return [...this.resources, ...this.activities].filter((r) => r.isNew || r.isUpdated).length
+  }
 }
 
 export default Course

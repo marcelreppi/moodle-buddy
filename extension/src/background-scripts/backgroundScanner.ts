@@ -1,20 +1,29 @@
-import { parseHTML } from "linkedom"
-import { ExtensionStorage, Message } from "types"
-import { getUpdatesFromCourses } from "../shared/helpers"
-import { setBadgeText } from "./helpers"
-import Course from "../models/Course"
-import { getURLRegex } from "../shared/regexHelpers"
+import {
+  BackgroundCourseScanMessage,
+  BackgroundCourseScanResultMessage,
+  ExtensionStorage,
+  Message,
+} from "types"
 import logger from "../shared/logger"
+import { getURLRegex } from "../shared/regexHelpers"
+import { setBadgeText } from "./helpers"
+
+const SLEEP_DURATION = 1000
+const MAX_RETRIES = 100
+
+let courseUpdates: Record<string, number> = {}
 
 async function backgroundScan() {
-  const { options, overviewCourseLinks } = (await chrome.storage.local.get([
-    "options",
-    "overviewCourseLinks",
-  ])) as ExtensionStorage
   logger.debug("[MoodleBuddy] Background scan start")
+  courseUpdates = {}
+  const { overviewCourseLinks } = (await chrome.storage.local.get(
+    "overviewCourseLinks"
+  )) as ExtensionStorage
 
-  const courses: Course[] = []
   for (const courseLink of overviewCourseLinks) {
+    // Init with -1 and update later when course was scanned on content script
+    courseUpdates[courseLink] = -1
+
     const res = await fetch(courseLink)
 
     if (res.url.match(getURLRegex("login"))) {
@@ -23,17 +32,40 @@ async function backgroundScan() {
     }
 
     const resBody = await res.text()
-    // TODO: Use offline page for DOMParser API instead
-    // https://stackoverflow.com/questions/68964543/chrome-extension-domparser-is-not-defined-with-manifest-v3
-    const { document: HTMLDocument } = parseHTML(resBody)
-    const course = new Course(courseLink, HTMLDocument, options)
-    await course.scan()
-    courses.push(course)
+
+    const [activeTab] = await chrome.tabs.query({ active: true })
+    if (activeTab?.id) {
+      logger.debug(`Sending course html to content script for course ${courseLink}`)
+      chrome.tabs.sendMessage(activeTab.id, {
+        command: "bg-course-scan",
+        href: courseLink,
+        html: resBody,
+      } satisfies BackgroundCourseScanMessage)
+    }
+  }
+
+  logger.debug(`Wait for scan results to come in`)
+  let tryNumber = 0
+  let allCoursesHaveBeenUpdated = false
+  while (!allCoursesHaveBeenUpdated) {
+    if (tryNumber === MAX_RETRIES) {
+      const missingCourses = Object.keys(courseUpdates).filter((link) => courseUpdates[link] < 0)
+      missingCourses.forEach((link) => delete courseUpdates[link])
+      logger.debug(
+        { missingCourses, remainingCourseUpdates: courseUpdates },
+        `Did not receive course updates for ${missingCourses.length} in time. Ignoring them and process the remaining ${overviewCourseLinks.length - missingCourses.length} courses.`
+      )
+      break
+    }
+
+    allCoursesHaveBeenUpdated = Object.values(courseUpdates).every((x) => x >= 0)
+    await new Promise((res) => setTimeout(res, SLEEP_DURATION))
+    tryNumber++
   }
 
   logger.debug("[MoodleBuddy] Background scan end")
 
-  const nUpdates = getUpdatesFromCourses(courses)
+  const nUpdates = Object.values(courseUpdates).reduce((sum, current) => sum + current, 0)
 
   await chrome.storage.local.set({ nUpdates } satisfies Partial<ExtensionStorage>)
 
@@ -63,9 +95,17 @@ async function checkTriggerBackgroundScan() {
   const scanIntervalMillis = 1000 * 60 * options.backgroundScanInterval
   const nowMillis = Date.now()
   const diffBetweenScans = nowMillis - lastBackgroundScanMillis
-  const shouldTriggerScan = options.enableBackgroundScanning && diffBetweenScans > scanIntervalMillis
+  const shouldTriggerScan =
+    options.enableBackgroundScanning && diffBetweenScans > scanIntervalMillis
 
-  logger.debug(`Scan conditions: enabled=${options.enableBackgroundScanning},  diffBetweenScans=${diffBetweenScans}ms`)
+  logger.debug(
+    {
+      enabled: options.enableBackgroundScanning,
+      scanIntervalMillis,
+      diffBetweenScansMillis: diffBetweenScans,
+    },
+    `Scan conditions`
+  )
   if (!shouldTriggerScan) {
     logger.debug("Did not trigger background scan")
     return
@@ -87,6 +127,11 @@ chrome.runtime.onMessage.addListener(
         break
       case "background-scan":
         backgroundScan()
+        break
+      case "bg-course-scan-result":
+        logger.debug(message.command)
+        const { href, nUpdates } = message as BackgroundCourseScanResultMessage
+        courseUpdates[href] = nUpdates
         break
       default:
         break

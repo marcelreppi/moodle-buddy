@@ -1,6 +1,7 @@
 import { sendEvent, sendPageData } from "../shared/helpers"
 import logger from "../shared/logger"
 import { ExtensionStorage, Message, SetBadgeMessage, StateMessage } from "../types"
+import "./backgroundScanner"
 import { detectPage } from "./detector"
 
 const page = detectPage()
@@ -50,6 +51,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
 
   if (command === "update-non-moodle-page-badge") {
     if (page !== undefined) return
+
     const { nUpdates } = (await chrome.storage.local.get("nUpdates")) as ExtensionStorage
     const text = nUpdates === 0 ? "" : nUpdates.toString()
     chrome.runtime.sendMessage({

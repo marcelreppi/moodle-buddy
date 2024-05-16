@@ -32,6 +32,8 @@ type Command =
   | "background-scan"
   | "check-background-scan"
   | "reset-storage"
+  | "bg-course-scan"
+  | "bg-course-scan-result"
 
 export interface Message {
   command: Command
@@ -162,4 +164,16 @@ export interface VideoDownloadProgressMessage extends Message {
   command: "video-download-progress"
   completed: number
   total: number
+}
+
+export interface BackgroundCourseScanMessage extends Message {
+  command: "bg-course-scan",
+  href: string
+  html: string
+}
+
+export interface BackgroundCourseScanResultMessage extends Message {
+  command: "bg-course-scan-result",
+  href: string
+  nUpdates: number
 }
