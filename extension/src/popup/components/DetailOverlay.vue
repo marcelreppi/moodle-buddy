@@ -2,10 +2,10 @@
   <div
     class="absolute left-0 top-0 flex flex-col w-full h-full bg-white rounded shadow-custom py-3"
   >
-    <XIcon
+    <XMarkIcon
       class="w-7 absolute right-5 top-3 stroke-current hover:text-mb-red hover:cursor-pointer"
       @click="toggleDetails"
-    ></XIcon>
+    ></XMarkIcon>
     <div class="pl-8 pr-12 space-y-2 overflow-auto scrollbar">
       <div v-if="files.length > 0">
         <div class="font-bold">Files</div>
@@ -33,7 +33,7 @@
 import { Resource } from "types"
 import { computed } from "vue"
 import { isFile, isFolder, isVideoServiceVideo } from "../../shared/resourceHelpers"
-import { XIcon } from "@heroicons/vue/outline"
+import { XMarkIcon } from "@heroicons/vue/24/outline"
 
 const props = defineProps<{
   resources: Resource[]
