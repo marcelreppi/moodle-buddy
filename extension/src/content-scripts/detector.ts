@@ -49,6 +49,28 @@ export function getSupportedPage(): SupportedPage | undefined {
   return undefined
 }
 
+async function initIconAndBadge(page: SupportedPage | undefined) {
+  if (page === undefined) {
+    const { nUpdates } = (await chrome.storage.local.get("nUpdates")) as ExtensionStorage
+    const text = nUpdates === 0 ? "" : nUpdates.toString()
+    chrome.runtime.sendMessage({
+      command: "set-badge",
+      text,
+      global: true
+    } satisfies SetBadgeMessage)
+  } else {
+    chrome.runtime.sendMessage({
+      command: "set-icon",
+    } satisfies Message)
+  
+    chrome.runtime.sendMessage({
+      command: "set-badge",
+      text: "",
+      global: true
+    } satisfies SetBadgeMessage)
+  }
+}
+
 export function detectPage(): SupportedPage | undefined {
   let page: SupportedPage | undefined
 
@@ -58,17 +80,9 @@ export function detectPage(): SupportedPage | undefined {
     page = getSupportedPage()
   }
 
+  initIconAndBadge(page)
+
   if (page !== undefined) {
-    chrome.runtime.sendMessage({
-      command: "set-icon",
-    } satisfies Message)
-
-    chrome.runtime.sendMessage({
-      command: "set-badge",
-      text: "",
-      global: true
-    } satisfies SetBadgeMessage)
-
     setDefaultMoodleURL()
 
     chrome.runtime.sendMessage({
