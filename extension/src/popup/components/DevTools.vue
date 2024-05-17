@@ -1,6 +1,6 @@
 <template>
-  <div class="text-sm border-mb-red border-2 p-2 mb-5">
-    <div class="text-center mb-1">Dev Tools</div>
+  <div class="text-sm border-mb-red border-2 p-2">
+    <div class="text-center mb-2">Dev Tools</div>
     <div class="space-x-2">
       <button class="btn btn-xs btn-primary" @click="triggerBackgroundScan">BG Scan</button>
       <button class="btn btn-xs btn-primary" @click="clearCourses">Clear courses</button>
@@ -11,26 +11,30 @@
 
 <script setup lang="ts">
 import { activeTab } from "../state"
-import { Message } from "../../types"
-import logger from "../../shared/logger";
+import { ExtensionStorage, Message } from "../../types"
+import logger from "../../shared/logger"
 
 function triggerBackgroundScan() {
   if (activeTab.value?.id) {
     logger.debug(`[MB DevTools] Triggering background scan`)
     chrome.runtime.sendMessage({
-      command: "background-scan"
+      command: "background-scan",
     } satisfies Message)
   }
 }
 
 async function clearCourses() {
   logger.debug(`[MB DevTools] Clearing course data`)
-  const { courseData: courseDataBefore } = (await chrome.storage.local.get("courseData"))
+  const { courseData: courseDataBefore } = (await chrome.storage.local.get(
+    "courseData"
+  )) as ExtensionStorage
   logger.debug(`Stored courses before: ${Object.keys(courseDataBefore).length}`)
   await chrome.runtime.sendMessage({
     command: "clear-course-data",
   } satisfies Message)
-  const { courseData: courseDataAfter } = (await chrome.storage.local.get("courseData"))
+  const { courseData: courseDataAfter } = (await chrome.storage.local.get(
+    "courseData"
+  )) as ExtensionStorage
   logger.debug(`Stored courses after: ${Object.keys(courseDataAfter).length}`)
 }
 

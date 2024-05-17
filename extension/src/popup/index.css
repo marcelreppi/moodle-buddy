@@ -18,14 +18,6 @@
 }
 
 @layer components {
-  .link {
-    @apply text-blue-600;
-  }
-
-  .link:hover {
-    @apply text-blue-400 cursor-pointer;
-  }
-
   .content-container {
     @apply box-border relative flex flex-col items-center justify-center w-full;
   }

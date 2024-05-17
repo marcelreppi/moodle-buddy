@@ -5,7 +5,7 @@ import logger from "./logger"
 export function checkForMoodle(): boolean {
   // Check for unique moodle DOM element
   const isMoodle = Boolean(document.querySelector("#region-main"))
-  logger.debug(`isMoodle: ${isMoodle}`)
+  logger.debug({ isMoodle })
   return isMoodle
 }
 

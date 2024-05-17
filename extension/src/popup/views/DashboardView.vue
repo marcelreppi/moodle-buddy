@@ -75,7 +75,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
 
 if (activeTab.value?.id) {
   chrome.tabs.sendMessage(activeTab.value.id, {
-    command: "scan",
+    command: "init-scan",
   } satisfies Message)
 }
 </script>

@@ -1,13 +1,15 @@
-import { sendEvent, sendPageData } from "../shared/helpers"
+import { isDev, sendEvent, sendPageData } from "../shared/helpers"
 import logger from "../shared/logger"
 import { ExtensionStorage, Message, SetBadgeMessage, StateMessage } from "../types"
 import "./backgroundScanner"
 import { detectPage } from "./detector"
 
+logger.debug({ env: process.env.NODE_ENV, isDev: isDev })
+
 const page = detectPage()
 
 chrome.runtime.sendMessage({
-  command: "check-background-scan"
+  command: "check-background-scan",
 } as Message)
 
 async function updateVueState() {
@@ -22,6 +24,7 @@ async function updateVueState() {
 
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
+  logger.debug({ contentCommand: command })
 
   if (command === "get-state") {
     updateVueState()

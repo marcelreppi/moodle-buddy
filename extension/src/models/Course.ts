@@ -278,7 +278,7 @@ class Course {
       this.previousSeenActivities = storedCourseData.seenActivities
       this.lastModifiedHeaders = storedCourseData.lastModifiedHeaders
     } else {
-      logger.debug("New course detected")
+      logger.debug(`New course detected ${this.name}`)
     }
 
     const mainHTML = this.HTMLDocument.querySelector("#region-main")
@@ -343,6 +343,8 @@ class Course {
       await Promise.all(activities.map(this.addActivity))
     }
 
+    logger.debug("Course scan finished", { course: this })
+
     if (testLocalStorage) {
       return
     }
@@ -362,7 +364,9 @@ class Course {
     }
     courseData[this.link] = updatedCourseData
 
-    logger.debug(updatedCourseData, `Storing course data in local storage for course ${this.link}`)
+    logger.debug(`Storing course data in local storage for course ${this.name}`, {
+      updatedCourseData,
+    })
     await chrome.storage.local.set({ courseData } satisfies Partial<ExtensionStorage>)
   }
 

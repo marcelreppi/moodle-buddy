@@ -8,28 +8,10 @@
       </span>
       to your courses
     </div>
-    <div v-if="showDefaultURLInput" class="mb-3 content-container">
-      <div>Want to navigate to your Moodle from here?</div>
-      <div>Paste the URL below:</div>
-      <div>
-        <input
-          v-model="urlInput"
-          class="w-64 mr-1 border border-gray-400 rounded-md focus:border-gray-500"
-          type="text"
-          name=""
-        />
-        <button class="py-0.5 btn btn-primary btn-xs" @click="onSaveClick">Save</button>
-      </div>
-      <transition name="fade">
-        <div
-          v-if="showInvalidURL"
-          class="px-3 py-2 mt-4 font-bold text-center text-white bg-black rounded-md shadow-custom"
-        >
-          Invalid URL!
-        </div>
-      </transition>
+    <div v-if="showDefaultURLInput" class="mb-3 content-container text-center">
+      Open one of your Moodle pages and you'll be able to navigate to your Moodle from here
     </div>
-    <div v-else class="mb-3 link" @click="goToMoodle()">Go to my Moodle</div>
+    <div v-else class="mb-3 link link-info" @click="goToMoodle()">Go to my Moodle</div>
     <hr class="w-5/6 my-2" />
     <div>This is an unsupported webpage.</div>
     <div class="mt-3">Make sure you are...</div>
@@ -38,7 +20,7 @@
       <li>logged in</li>
       <li>
         on a
-        <span class="link" @click="openInfoPage">supported</span>
+        <span class="link link-info" @click="openInfoPage">supported</span>
         Moodle webpage
       </li>
     </ul>
@@ -48,37 +30,13 @@
 <script setup lang="ts">
 import { computed, ref } from "vue"
 import { options, nUpdates, updateState } from "../state"
-import { validURLRegex } from "../../shared/regexHelpers"
 import useNavigation from "../composables/useNavigation"
-import { ExtensionStorage } from "../../types"
-import logger from "../../shared/logger"
 
 const { openMoodlePage, openInfoPage } = useNavigation()
 
 const showDefaultURLInput = computed(
   () => options.value === undefined || options.value.defaultMoodleURL === ""
 )
-
-const urlInput = ref("")
-const showInvalidURL = ref(false)
-
-const onSaveClick = async () => {
-  logger.info(urlInput.value)
-  if (!urlInput.value.match(validURLRegex)) {
-    showInvalidURL.value = true
-    setTimeout(() => {
-      showInvalidURL.value = false
-    }, 2000)
-    return
-  }
-
-  if (options.value === undefined) return
-
-  await chrome.storage.local.set({
-    options: { ...options.value, defaultMoodleURL: urlInput.value },
-  } satisfies Partial<ExtensionStorage>)
-  updateState()
-}
 
 function goToMoodle() {
   nUpdates.value = 0

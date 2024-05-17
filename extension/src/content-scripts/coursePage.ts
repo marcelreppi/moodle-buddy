@@ -36,14 +36,12 @@ async function initCoursePage() {
     .then(() => {
       updateIconFromCourses([course])
 
-      logger.debug(course)
-
       initialScanCompleted = true
       sendScanResults(course)
     })
     .catch((err) => {
       logger.error(err)
-      sendLog({ errorMessage: err.message, url: location.href, page: 'course' })
+      sendLog({ errorMessage: err.message, url: location.href, page: "course" })
       chrome.runtime.sendMessage({
         command: "error-view",
       } satisfies Message)
@@ -52,7 +50,7 @@ async function initCoursePage() {
   chrome.runtime.onMessage.addListener(async (message: Message) => {
     const { command } = message
 
-    if (command === "scan") {
+    if (command === "init-scan") {
       if (initialScanCompleted) {
         sendScanResults(course)
       }

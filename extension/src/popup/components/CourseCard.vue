@@ -7,12 +7,9 @@
           <!-- Dot -->
         </div>
       </div>
-      <div
-        class="self-start h-full ml-1 mt-0.5 text-sm text-gray-600 whitespace-nowrap custom-hover"
-        @click="() => openCoursePage(course.link)"
-      >
-        Go to course
-      </div>
+      <a class="link link-neutral text-sm ml-1" @click="() => openCoursePage(course.link)">
+        Open course
+      </a>
     </div>
 
     <div v-if="hasUpdates">

@@ -1,7 +1,15 @@
-import { ExecuteScriptMessage, ExtensionStorage, Message, ScriptName, SetBadgeMessage, SupportedPage } from "types"
+import {
+  ExecuteScriptMessage,
+  ExtensionStorage,
+  Message,
+  ScriptName,
+  SetBadgeMessage,
+  SupportedPage,
+} from "types"
 import { isDebug } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"
 import { getMoodleBaseURL, getURLRegex } from "../shared/regexHelpers"
+import logger from "../shared/logger"
 
 const pageToScriptMapping: Record<NonNullable<SupportedPage>, ScriptName> = {
   course: "coursePage",
@@ -56,17 +64,17 @@ async function initIconAndBadge(page: SupportedPage | undefined) {
     chrome.runtime.sendMessage({
       command: "set-badge",
       text,
-      global: true
+      global: true,
     } satisfies SetBadgeMessage)
   } else {
     chrome.runtime.sendMessage({
       command: "set-icon",
     } satisfies Message)
-  
+
     chrome.runtime.sendMessage({
       command: "set-badge",
       text: "",
-      global: true
+      global: true,
     } satisfies SetBadgeMessage)
   }
 }
@@ -77,14 +85,14 @@ export function detectPage(): SupportedPage | undefined {
   const isMoodlePage = checkForMoodle()
 
   if (isMoodlePage) {
+    setDefaultMoodleURL()
     page = getSupportedPage()
+    logger.debug({ supportedPage: page })
   }
 
   initIconAndBadge(page)
 
   if (page !== undefined) {
-    setDefaultMoodleURL()
-
     chrome.runtime.sendMessage({
       command: "execute-script",
       scriptName: pageToScriptMapping[page],

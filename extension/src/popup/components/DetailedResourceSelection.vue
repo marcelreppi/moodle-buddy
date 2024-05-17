@@ -38,7 +38,7 @@
           @input="onCheck"
         >
           <span class="resource">{{ r.name }}</span>
-          <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
+          <a :href="r.href" class="link link-info" @click.prevent="onLinkClick">Open</a>
           <div>
             <input
               :ref="setCbRef(`fileCb${i}`)"
@@ -68,7 +68,7 @@
           @input="onCheck"
         >
           <span class="resource">{{ r.name || r.name }}</span>
-          <a :href="r.href" class="link" @click.prevent="onLinkClick">Open</a>
+          <a :href="r.href" class="link link-info" @click.prevent="onLinkClick">Open</a>
           <div>
             <input
               :ref="setCbRef(`folderCb${i}`)"

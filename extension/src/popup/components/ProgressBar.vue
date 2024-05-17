@@ -3,7 +3,7 @@
     <div class="flex justify-between w-full text-sm">
       <div class="text-left">{{ progressText }}</div>
       <div v-if="cancelable.includes(action)" class="flex-row-reverse">
-        <button v-if="!done" class="link" @click="onCancel">Cancel</button>
+        <button v-if="!done" class="btn btn-xs btn-ghost" @click="onCancel">Cancel</button>
       </div>
     </div>
     <div class="w-full mt-1 border border-gray-300">
