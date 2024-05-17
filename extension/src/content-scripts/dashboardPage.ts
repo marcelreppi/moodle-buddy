@@ -146,7 +146,7 @@ async function scanOverview(retry = 0) {
           scanTotal--
           error = true
           logger.error(err)
-          sendLog({ errorMessage: err.message, url: link, page: 'dashboard' })
+          sendLog({ errorMessage: err.message, url: link, page: "dashboard" })
         }
         sendScanProgress()
       }
@@ -163,7 +163,7 @@ async function scanOverview(retry = 0) {
   } catch (err) {
     error = true
     logger.error(err)
-    sendLog({ errorMessage: err.message, url: location.href, page: 'dashboard' })
+    sendLog({ errorMessage: err.message, url: location.href, page: "dashboard" })
   }
 }
 
@@ -175,7 +175,7 @@ if (isMoodlePage) {
 
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
-  if (command === "scan") {
+  if (command === "init-scan") {
     if (error) {
       chrome.runtime.sendMessage({
         command: "error-view",

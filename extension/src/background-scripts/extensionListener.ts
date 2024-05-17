@@ -27,7 +27,7 @@ const initialStorage: ExtensionStorage = {
   totalDownloadedFiles: 0,
   rateHintLevel: 1,
   courseData: {},
-  lastBackgroundScanMillis: 0
+  lastBackgroundScanMillis: Date.now(),
 }
 
 async function onInstall() {
@@ -110,7 +110,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 chrome.runtime.onMessage.addListener(
   async (message: Message, sender: chrome.runtime.MessageSender) => {
     const { command } = message
-    logger.debug(command)
+    logger.debug({ backgroundCommand: command })
 
     switch (command) {
       case "event":
@@ -130,7 +130,7 @@ chrome.runtime.onMessage.addListener(
         break
       case "set-badge":
         const { text, global } = message as SetBadgeMessage
-        const tabId = global ? undefined : sender.tab?.id;
+        const tabId = global ? undefined : sender.tab?.id
         setBadgeText(text, tabId)
         break
       case "log":
@@ -144,7 +144,7 @@ chrome.runtime.onMessage.addListener(
         break
       case "reset-storage":
         await chrome.storage.local.set({
-          ...initialStorage
+          ...initialStorage,
         } satisfies Partial<ExtensionStorage>)
         break
       case "execute-script":
@@ -165,8 +165,8 @@ chrome.runtime.onMessage.addListener(
   }
 )
 
-chrome.tabs.onHighlighted.addListener(async tab => {
+chrome.tabs.onHighlighted.addListener(async (tab) => {
   chrome.tabs.sendMessage(tab.tabIds[0], {
-    command: 'ensure-correct-badge'
+    command: "ensure-correct-badge",
   })
 })

@@ -1,6 +1,9 @@
 <template>
   <div class="relative w-full h-full px-3 pt-4 pb-2" :class="{ chrome: !isFirefox }">
-    <dev-tools></dev-tools>
+    <template v-if="isDev">
+      <dev-tools></dev-tools>
+      <div class="divider"></div>
+    </template>
     <div class="flex items-center justify-center mb-2 text-lg">
       Moodle Buddy
       <img class="w-5 h-5 ml-2" src="../icons/48.png" alt="logo" />
@@ -24,26 +27,7 @@
       </div>
     </div>
 
-    <footer class="flex items-center justify-between text-xs mt-3">
-      <span>
-        <div class="link" @click="openContactPage">Report a bug</div>
-      </span>
-      <span>
-        <div class="link" @click="onRateClick">Rate</div>
-      </span>
-      <span>
-        <div class="link" @click="openDonatePage">Donate</div>
-      </span>
-      <span>
-        <div class="link" @click="openOptionsPage">Options</div>
-      </span>
-      <img
-        class="w-4 h-4 hover:cursor-pointer"
-        src="../static/information.png"
-        alt="info"
-        @click="openInfoPage"
-      />
-    </footer>
+    <mb-footer></mb-footer>
   </div>
 </template>
 
@@ -60,16 +44,19 @@ import {
   updateState,
 } from "./state"
 
-import { getActiveTab, isFirefox } from "../shared/helpers"
+import { getActiveTab, isDev, isFirefox } from "../shared/helpers"
 import DevTools from "./components/DevTools.vue"
 import CourseView from "./views/CourseView.vue"
 import VideoServiceView from "./views/VideoServiceView.vue"
 import DashboardView from "./views/DashboardView.vue"
 import NoMoodleView from "./views/NoMoodleView.vue"
 import ErrorView from "./views/ErrorView.vue"
+import MbFooter from "./components/MbFooter.vue"
 import RatingHint from "./components/RatingHint.vue"
 import useRating from "./composables/useRating"
-import useNavigation from "./composables/useNavigation"
+import logger from "../shared/logger"
+
+logger.debug({ env: process.env.NODE_ENV, isDev })
 
 const page = ref<SupportedPage>()
 
@@ -80,8 +67,7 @@ const showNoMoodle = computed(() => page.value === undefined)
 const showErrorView = ref(false)
 const showLoading = ref(true)
 
-const { openContactPage, openDonatePage, openInfoPage, openOptionsPage } = useNavigation()
-const { onRateClick, showRatingHint } = useRating()
+const { showRatingHint } = useRating()
 
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message

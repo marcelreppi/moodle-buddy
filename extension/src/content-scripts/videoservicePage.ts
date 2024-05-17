@@ -131,7 +131,7 @@ async function getVideoResourceSrc(
 
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
-  if (command === "scan") {
+  if (command === "init-scan") {
     await scanForVideos()
 
     if (error) {

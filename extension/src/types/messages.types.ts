@@ -15,7 +15,7 @@ type Command =
   | "execute-script"
   | "crawl"
   | "scan-in-progress"
-  | "scan"
+  | "init-scan"
   | "scan-result"
   | "mark-as-seen"
   | "cancel-download"
