@@ -165,13 +165,6 @@ chrome.runtime.onMessage.addListener(
   }
 )
 
-chrome.tabs.onCreated.addListener(async (tab) => {
-  const { nUpdates } = (await chrome.storage.local.get("nUpdates")) as ExtensionStorage
-  if (nUpdates > 0) {
-    setBadgeText(nUpdates.toString(), tab.id)
-  }
-})
-
 chrome.tabs.onHighlighted.addListener(async tab => {
   chrome.tabs.sendMessage(tab.tabIds[0], {
     command: 'ensure-correct-badge'

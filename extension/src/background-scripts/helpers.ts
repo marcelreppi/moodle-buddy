@@ -23,7 +23,6 @@ export async function setIcon(tabId?: number): Promise<void> {
 
 // Set default badge
 chrome.action.setBadgeBackgroundColor({ color: "#555555" })
-chrome.action.setBadgeText({ text: "" })
 
 export async function setBadgeText(text: string, tabId?: number): Promise<void> {
   if (tabId) {
