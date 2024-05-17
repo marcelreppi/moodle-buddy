@@ -28,7 +28,7 @@ type Command =
   | "avoid-rate-click"
   | "clear-course"
   | "track-page-view"
-  | "update-non-moodle-page-badge"
+  | "ensure-correct-badge"
   | "background-scan"
   | "check-background-scan"
   | "reset-storage"
@@ -59,6 +59,7 @@ export interface FeedbackMessage extends Message {
 export interface SetBadgeMessage extends Message {
   command: "set-badge"
   text: string
+  global: boolean
 }
 
 export interface LogMessage extends Message {

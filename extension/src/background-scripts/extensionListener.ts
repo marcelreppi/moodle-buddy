@@ -14,6 +14,7 @@ import defaultExtensionOptions from "../shared/defaultExtensionOptions"
 import { isDev } from "../shared/helpers"
 import { uuidv4, setIcon, setBadgeText } from "./helpers"
 import { sendEvent, sendPageData, sendFeedback, sendLog } from "./tracker"
+import logger from "../shared/logger"
 
 const defaultOptions = defaultExtensionOptions
 
@@ -109,6 +110,8 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 chrome.runtime.onMessage.addListener(
   async (message: Message, sender: chrome.runtime.MessageSender) => {
     const { command } = message
+    logger.debug(command)
+
     switch (command) {
       case "event":
         const { event, saveURL, eventData } = message as EventMessage
@@ -126,8 +129,9 @@ chrome.runtime.onMessage.addListener(
         setIcon(sender.tab?.id)
         break
       case "set-badge":
-        const { text } = message as SetBadgeMessage
-        setBadgeText(text, sender.tab?.id)
+        const { text, global } = message as SetBadgeMessage
+        const tabId = global ? undefined : sender.tab?.id;
+        setBadgeText(text, tabId)
         break
       case "log":
         const { logData } = message as LogMessage
@@ -168,6 +172,8 @@ chrome.tabs.onCreated.addListener(async (tab) => {
   }
 })
 
-chrome.tabs.onActivated.addListener((tab) => {
-  chrome.tabs.sendMessage(tab.tabId, { command: "update-non-moodle-page-badge" } satisfies Message)
+chrome.tabs.onHighlighted.addListener(async tab => {
+  chrome.tabs.sendMessage(tab.tabIds[0], {
+    command: 'ensure-correct-badge'
+  })
 })

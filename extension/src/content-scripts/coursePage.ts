@@ -89,6 +89,10 @@ async function initCoursePage() {
       await course.scan()
       updateIconFromCourses([course])
     }
+
+    if (command === "ensure-correct-badge") {
+      updateIconFromCourses([course])
+    }
   })
 }
 

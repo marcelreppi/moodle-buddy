@@ -78,5 +78,6 @@ export async function updateIconFromCourses(courses: Course[]) {
   chrome.runtime.sendMessage({
     command: "set-badge",
     text,
+    global: false
   } satisfies SetBadgeMessage)
 }

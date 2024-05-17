@@ -71,18 +71,8 @@ async function backgroundScan() {
 
   logger.debug(`Found total of ${nUpdates} updates`)
 
-  // If there are no further updates reset the icon
-  if (nUpdates === 0) {
-    setBadgeText("", (await chrome.tabs.getCurrent())?.id)
-    return
-  }
-
-  const tabs = await chrome.tabs.query({})
-  logger.debug(`Sending notification to ${tabs.length} tabs to update the badge`)
-  for (const tab of tabs) {
-    if (!tab.id) continue
-    chrome.tabs.sendMessage(tab.id, { command: "update-non-moodle-page-badge" } satisfies Message)
-  }
+  const text = nUpdates === 0 ? "" : nUpdates.toString()
+  setBadgeText(text)
 }
 
 async function checkTriggerBackgroundScan() {

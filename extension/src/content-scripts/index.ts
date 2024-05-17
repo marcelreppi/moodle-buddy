@@ -48,15 +48,4 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     } satisfies Partial<ExtensionStorage>)
     updateVueState()
   }
-
-  if (command === "update-non-moodle-page-badge") {
-    if (page !== undefined) return
-
-    const { nUpdates } = (await chrome.storage.local.get("nUpdates")) as ExtensionStorage
-    const text = nUpdates === 0 ? "" : nUpdates.toString()
-    chrome.runtime.sendMessage({
-      command: "set-badge",
-      text,
-    } satisfies SetBadgeMessage)
-  }
 })

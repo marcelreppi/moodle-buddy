@@ -253,4 +253,8 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     await course.scan()
     updateIconFromCourses(courses)
   }
+
+  if (command === "ensure-correct-badge") {
+    updateIconFromCourses(courses)
+  }
 })
