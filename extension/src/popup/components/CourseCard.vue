@@ -7,11 +7,10 @@
           <!-- Dot -->
         </div>
       </div>
-      <div>
+      <div class="flex flex-nowrap">
         <button v-if="hasUpdates" class="btn btn-xs btn-ghost" @click="onMarkAsSeenClick">
           <EyeIcon class="size-4"></EyeIcon>
         </button>
-
         <button class="btn btn-xs btn-ghost" @click="() => openCoursePage(course.link)">
           <ArrowTopRightOnSquareIcon class="size-4"></ArrowTopRightOnSquareIcon>
         </button>
