@@ -7,9 +7,15 @@
           <!-- Dot -->
         </div>
       </div>
-      <a class="link link-neutral text-sm ml-1" @click="() => openCoursePage(course.link)">
-        Open course
-      </a>
+      <div>
+        <button v-if="hasUpdates" class="btn btn-xs btn-ghost" @click="onMarkAsSeenClick">
+          <EyeIcon class="size-4"></EyeIcon>
+        </button>
+
+        <button class="btn btn-xs btn-ghost" @click="() => openCoursePage(course.link)">
+          <ArrowTopRightOnSquareIcon class="size-4"></ArrowTopRightOnSquareIcon>
+        </button>
+      </div>
     </div>
 
     <div v-if="hasUpdates">
@@ -43,21 +49,14 @@
         </div>
       </div>
 
-      <div class="flex flex-row-reverse items-center justify-between">
-        <div
-          class="mt-1.5 text-sm text-gray-600 whitespace-nowrap custom-hover"
-          @click="onMarkAsSeenClick"
-        >
-          Mark as seen
-        </div>
-        <button
-          v-if="newResources.length > 0"
-          class="mt-2 btn btn-primary btn-sm"
-          @click="(e) => onDownloadClick(e, course)"
-        >
-          Download new resources
-        </button>
-      </div>
+      <button
+        v-if="newResources.length > 0"
+        :key="course.link"
+        class="mt-2 btn btn-primary btn-sm"
+        @click="(e) => onDownloadClick(e, course)"
+      >
+        Download new resources
+      </button>
     </div>
     <div v-else class="mt-1 text-xs text-gray-600">
       <div v-if="course.isNew">
@@ -77,6 +76,8 @@ import { sendEvent } from "../../shared/helpers"
 import { isFile, isFolder, isActivity } from "../../shared/resourceHelpers"
 import useNavigation from "../composables/useNavigation"
 import { activeTab, options } from "../state"
+import ArrowTopRightOnSquareIcon from "@heroicons/vue/24/outline/ArrowTopRightOnSquareIcon"
+import EyeIcon from "@heroicons/vue/24/outline/EyeIcon"
 
 const props = defineProps<{
   course: DashboardCourseData
