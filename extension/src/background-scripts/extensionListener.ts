@@ -147,6 +147,17 @@ chrome.runtime.onMessage.addListener(
           ...initialStorage,
         } satisfies Partial<ExtensionStorage>)
         break
+      case "dev-clear-seen-resources":
+        const { courseData } = (await chrome.storage.local.get("courseData")) as ExtensionStorage
+        Object.keys(courseData).forEach((courseLink) => {
+          const data = courseData[courseLink]
+          data.seenResources = []
+          data.seenActivities = []
+        })
+        await chrome.storage.local.set({
+          courseData,
+        } satisfies Partial<ExtensionStorage>)
+        break
       case "execute-script":
         if (!sender.tab?.id) {
           throw new Error("Error on event execute-script: Sender tab id was empty")

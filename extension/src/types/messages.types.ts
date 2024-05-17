@@ -34,6 +34,7 @@ type Command =
   | "reset-storage"
   | "bg-course-scan"
   | "bg-course-scan-result"
+  | "dev-clear-seen-resources"
 
 export interface Message {
   command: Command
