@@ -1,4 +1,5 @@
 import sanitize from "sanitize-filename"
+import logger from "../shared/logger"
 
 export function uuidv4(): string {
   return [1e7, 1e3, 4e3, 8e3, 1e11].join("-").replace(/[018]/g, (c) => {
@@ -26,10 +27,12 @@ chrome.action.setBadgeText({ text: "" })
 
 export async function setBadgeText(text: string, tabId?: number): Promise<void> {
   if (tabId) {
+    logger.debug(`Setting local badge to: ${text}`)
     // If tabId is given reset global and only set the local one
     await chrome.action.setBadgeText({ text: "" }) // Reset global badge text
     await chrome.action.setBadgeText({ text, tabId }) // Set local badge text
   } else {
+    logger.debug(`Setting global badge to: ${text}`)
     await chrome.action.setBadgeText({ text })
   }
 }

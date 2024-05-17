@@ -1,4 +1,4 @@
-import { ExecuteScriptMessage, ExtensionStorage, Message, ScriptName, SupportedPage } from "types"
+import { ExecuteScriptMessage, ExtensionStorage, Message, ScriptName, SetBadgeMessage, SupportedPage } from "types"
 import { isDebug } from "../shared/helpers"
 import { checkForMoodle } from "../shared/parser"
 import { getMoodleBaseURL, getURLRegex } from "../shared/regexHelpers"
@@ -62,6 +62,12 @@ export function detectPage(): SupportedPage | undefined {
     chrome.runtime.sendMessage({
       command: "set-icon",
     } satisfies Message)
+
+    chrome.runtime.sendMessage({
+      command: "set-badge",
+      text: "",
+      global: true
+    } satisfies SetBadgeMessage)
 
     setDefaultMoodleURL()
 
