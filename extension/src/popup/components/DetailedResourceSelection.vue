@@ -30,8 +30,8 @@
         </label>
         <label
           v-for="(r, i) in fileResources"
-          :id="`fileCb${i}`"
-          :key="`fileCb${i}`"
+          :id="`fileCb${String(i)}`"
+          :key="`fileCb${String(i)}`"
           :data-href="r.href"
           class="resource"
           @mousemove="onMouseOver"
@@ -41,7 +41,7 @@
           <a :href="r.href" class="link link-info" @click.prevent="onLinkClick">Open</a>
           <div>
             <input
-              :ref="setCbRef(`fileCb${i}`)"
+              :ref="setCbRef(`fileCb${String(i)}`)"
               :data-href="r.href"
               type="checkbox"
               :checked="r.selected"
@@ -60,8 +60,8 @@
         </label>
         <label
           v-for="(r, i) in folderResources"
-          :id="`folderCb${i}`"
-          :key="`folderCb${i}`"
+          :id="`folderCb${String(i)}`"
+          :key="`folderCb${String(i)}`"
           :data-href="r.href"
           class="resource"
           @mousemove="onMouseOver"
@@ -71,7 +71,7 @@
           <a :href="r.href" class="link link-info" @click.prevent="onLinkClick">Open</a>
           <div>
             <input
-              :ref="setCbRef(`folderCb${i}`)"
+              :ref="setCbRef(`folderCb${String(i)}`)"
               :data-href="r.href"
               type="checkbox"
               :checked="r.selected"
