@@ -101,10 +101,10 @@ a:active {
 }
 
 .link {
-  color: rgba(37, 99, 235);
+  color: #2563eb;
 }
 
 .link:hover {
   cursor: pointer;
-  color: rgba(96, 165, 250);
+  color: #1948ae;
 }
