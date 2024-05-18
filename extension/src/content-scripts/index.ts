@@ -15,7 +15,7 @@ chrome.runtime.sendMessage({
 async function updateVueState() {
   const localStorage = (await chrome.storage.local.get()) as ExtensionStorage
   const { options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel } = localStorage
-  logger.info({ localStorage })
+  logger.debug({ localStorage })
   chrome.runtime.sendMessage({
     command: "state",
     state: { page, options, nUpdates, userHasRated, totalDownloadedFiles, rateHintLevel },
