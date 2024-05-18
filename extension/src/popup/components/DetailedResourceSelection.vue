@@ -38,7 +38,10 @@
           @input="onCheck"
         >
           <span class="resource">{{ r.name }}</span>
-          <a :href="r.href" class="link link-info" @click.prevent="onLinkClick">Open</a>
+          <ArrowTopRightOnSquareIcon
+            class="size-4 mt-1"
+            @click.prevent="openURL(r.href)"
+          ></ArrowTopRightOnSquareIcon>
           <div>
             <input
               :ref="setCbRef(`fileCb${String(i)}`)"
@@ -68,7 +71,10 @@
           @input="onCheck"
         >
           <span class="resource">{{ r.name || r.name }}</span>
-          <a :href="r.href" class="link link-info" @click.prevent="onLinkClick">Open</a>
+          <ArrowTopRightOnSquareIcon
+            class="size-4 mt-1"
+            @click.prevent="openURL(r.href)"
+          ></ArrowTopRightOnSquareIcon>
           <div>
             <input
               :ref="setCbRef(`folderCb${String(i)}`)"
@@ -95,6 +101,7 @@ import {
 } from "../../shared/resourceHelpers"
 import useNavigation from "../composables/useNavigation"
 import { onlyNewResources } from "../state"
+import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline"
 
 type CbCategory = "all" | "file" | "folder"
 
@@ -185,7 +192,7 @@ const onCategoryClick = (e: Event, category: CbCategory) => {
 <style scoped>
 label.resource {
   display: grid;
-  grid-template-columns: minmax(0, 10fr) 1fr 1fr;
+  grid-template-columns: minmax(0, 12fr) 1fr 1fr;
 }
 
 label.category {
