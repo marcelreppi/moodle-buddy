@@ -38,10 +38,12 @@
           @input="onCheck"
         >
           <span class="resource">{{ r.name }}</span>
-          <ArrowTopRightOnSquareIcon
-            class="size-4 mt-1"
-            @click.prevent="openURL(r.href)"
-          ></ArrowTopRightOnSquareIcon>
+          <div>
+            <ArrowTopRightOnSquareIcon
+              class="size-4 mt-0.5"
+              @click.prevent="openURL(r.href)"
+            ></ArrowTopRightOnSquareIcon>
+          </div>
           <div>
             <input
               :ref="setCbRef(`fileCb${String(i)}`)"
@@ -71,10 +73,12 @@
           @input="onCheck"
         >
           <span class="resource">{{ r.name || r.name }}</span>
-          <ArrowTopRightOnSquareIcon
-            class="size-4 mt-1"
-            @click.prevent="openURL(r.href)"
-          ></ArrowTopRightOnSquareIcon>
+          <div>
+            <ArrowTopRightOnSquareIcon
+              class="size-4 mt-0.5"
+              @click.prevent="openURL(r.href)"
+            ></ArrowTopRightOnSquareIcon>
+          </div>
           <div>
             <input
               :ref="setCbRef(`folderCb${String(i)}`)"
@@ -167,7 +171,6 @@ const onCheck = (e: Event) => {
 }
 
 const { openURL } = useNavigation()
-const onLinkClick = (e: Event) => openURL((e.target as HTMLAnchorElement).href)
 
 const onCategoryClick = (e: Event, category: CbCategory) => {
   const target = e.target as HTMLInputElement
