@@ -2,7 +2,9 @@ cd ..
 
 rm *.zip
 
-npm run build
+echo Running build for TARGET=$TARGET
+
+npm run build:$TARGET
 
 echo -e "\n"
 
