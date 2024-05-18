@@ -2,7 +2,7 @@ cd ..
 
 # Get version
 echo "Reading version from manifest.json..."
-EXT_VERSION=$(cat src/manifest.json | grep \"version\" | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
+EXT_VERSION=$(cat build/manifest.json | grep \"version\" | head -1 | awk -F: '{ print $2 }' | sed 's/[",]//g' | tr -d '[[:space:]]')
 echo "Detected version $EXT_VERSION"
 echo -e "\n"
 
