@@ -8,10 +8,19 @@
         </div>
       </div>
       <div class="flex flex-nowrap">
-        <button v-if="hasUpdates" class="btn btn-xs btn-ghost" @click="onMarkAsSeenClick">
-          <EyeIcon class="size-4"></EyeIcon>
+        <button
+          ref="markAsSeenButton"
+          v-if="hasUpdates"
+          class="btn btn-xs btn-ghost"
+          @click="onMarkAsSeenClick"
+        >
+          <CheckIcon class="size-4"></CheckIcon>
         </button>
-        <button class="btn btn-xs btn-ghost" @click="() => openCoursePage(course.link)">
+        <button
+          ref="openCourseButton"
+          class="btn btn-xs btn-ghost"
+          @click="() => openCoursePage(course.link)"
+        >
           <ArrowTopRightOnSquareIcon class="size-4"></ArrowTopRightOnSquareIcon>
         </button>
       </div>
@@ -70,13 +79,20 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue"
+import { useTippy } from "vue-tippy"
 import { DashboardCourseData, DashboardCrawlMessage, MarkAsSeenMessage, Resource } from "types"
 import { sendEvent } from "../../shared/helpers"
 import { isFile, isFolder, isActivity } from "../../shared/resourceHelpers"
 import useNavigation from "../composables/useNavigation"
 import { activeTab, options } from "../state"
 import ArrowTopRightOnSquareIcon from "@heroicons/vue/24/outline/ArrowTopRightOnSquareIcon"
-import EyeIcon from "@heroicons/vue/24/outline/EyeIcon"
+import CheckIcon from "@heroicons/vue/24/outline/CheckIcon"
+
+const markAsSeenButton = ref()
+useTippy(markAsSeenButton, { content: "Mark as seen" })
+
+const openCourseButton = ref()
+useTippy(openCourseButton, { content: "Open course" })
 
 const props = defineProps<{
   course: DashboardCourseData
