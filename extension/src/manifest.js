@@ -3,12 +3,22 @@ const pkg = require("../package.json")
 const BACKGROUND_SCRIPT = "background.js"
 
 const firefoxProperties = {
+  browser_specific_settings: {
+    gecko: {
+      id: "{29d2b673-83e5-4aca-a0b8-f9130b9b9cb7}",
+    },
+  },
   background: {
     scripts: [BACKGROUND_SCRIPT],
   },
 }
 
 const chromeProperties = {
+  browser_specific_settings: {
+    gecko: {
+      id: "moodlebuddy@marcelreppi",
+    },
+  },
   background: {
     service_worker: BACKGROUND_SCRIPT,
   },
@@ -34,11 +44,6 @@ function getManifest() {
     name: pkg.displayName,
     version: pkg.version,
     description: pkg.description,
-    browser_specific_settings: {
-      gecko: {
-        id: "moodlebuddy@marcelreppi",
-      },
-    },
     icons: {
       16: "icons/16.png",
       32: "icons/32.png",
