@@ -117,7 +117,7 @@ module.exports = {
     }),
   ],
   optimization: {
-    minimize: IS_PROD,
+    minimize: false,
     minimizer: [new TerserPlugin()],
   },
 }
