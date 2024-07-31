@@ -10,6 +10,7 @@ const WatchExternalFilesPlugin = require("webpack-watch-external-files-plugin")
 
 const { IS_PROD } = require("./scripts/utils")
 const getManifest = require("./src/manifest")
+const path = require("path")
 
 const BUILD_DIR = join(__dirname, "build")
 
@@ -23,7 +24,8 @@ const addExtensionEntry = (pathToFile, customOutputPath) => {
   const pathElements = pathToFile.split("/")
   const [filenameWithoutExtension] = pathElements[pathElements.length - 1].split(".")
   const inputPath = join(__dirname, "src", ...pathElements)
-  const outputPath = customOutputPath ?? [...pathElements.slice(0, -1), filenameWithoutExtension].join("/")
+  const outputPath =
+    customOutputPath ?? [...pathElements.slice(0, -1), filenameWithoutExtension].join("/")
   entries[outputPath] = inputPath
 }
 
@@ -88,8 +90,10 @@ module.exports = {
       vue: "@vue/runtime-dom",
       canvas: "./canvas-shim.cjs",
       perf_hooks: false,
+      "@shared": path.resolve(__dirname, "src", "shared"),
+      "@types": path.resolve(__dirname, "src", "types"),
     },
-    extensions: ["*", ".js", ".ts", ".vue", ".json"],
+    extensions: [".js", ".ts", ".vue", ".json"],
   },
   plugins: [
     new VueLoaderPlugin(),

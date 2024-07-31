@@ -12,28 +12,31 @@ import {
   Resource,
   VideoServiceResource,
 } from "types"
-import { isDebug } from "../shared/helpers"
+import { isDebug } from "@shared/helpers"
 
 import {
   parseFileNameFromPluginFileURL,
   getDownloadButton,
   getDownloadIdTag,
   getQuerySelector,
-} from "../shared/parser"
-import { getURLRegex, getMoodleBaseURL } from "../shared/regexHelpers"
+} from "@shared/parser"
+import { getURLRegex, getMoodleBaseURL } from "@shared/regexHelpers"
 import { getFileTypeFromURL, sanitizeFileName, padNumber } from "./helpers"
 import { sendLog, sendDownloadData } from "./tracker"
-import logger from "../shared/logger"
+import logger from "@shared/logger"
+import { COMMANDS } from "@shared/constants"
 
 let downloaders: Record<number, Downloader> = {}
 
 class Downloader {
-  id: number
+  id: string
+  courseLink: string
   courseName: string
   courseShortcut: string
   resources: Resource[]
   options: ExtensionOptions
 
+  private createdAt: number
   private sentData: boolean
   private isCancelled: boolean
   private fileCount: number
@@ -50,18 +53,21 @@ class Downloader {
   private retryInterval: number
 
   constructor(
-    id: number,
+    id: string,
+    courseLink: string,
     courseName: string,
     courseShortcut: string,
     resources: Resource[],
     options: ExtensionOptions
   ) {
     this.id = id
+    this.courseLink = courseLink
     this.courseName = courseName
     this.courseShortcut = courseShortcut
     this.resources = resources
     this.options = options
 
+    this.createdAt = Date.now()
     this.sentData = false
     this.isCancelled = false
     this.fileCount = 0
@@ -107,7 +113,7 @@ class Downloader {
   }
 
   isMostRecent() {
-    return this.id === Math.max(...Object.keys(downloaders).map(parseFloat))
+    return this.createdAt === Math.max(...Object.values(downloaders).map((d) => d.createdAt))
   }
 
   async onCompleted(id: number) {
@@ -127,24 +133,9 @@ class Downloader {
     await this.onUpdate()
   }
 
-  updateView() {
-    chrome.runtime.sendMessage({
-      command: "download-progress",
-      completed: this.finished.length,
-      total: this.fileCount,
-      errors: this.errorCount,
-    } satisfies DownloadProgressMessage)
-  }
-
   private async onError() {
     this.errorCount++
     this.fileCount--
-
-    // Check if view needs to be updated
-    // Only update view if the current download is the most recent one
-    if (this.isMostRecent()) {
-      this.updateView()
-    }
 
     await this.onUpdate()
   }
@@ -222,6 +213,17 @@ class Downloader {
       } satisfies Partial<ExtensionStorage>)
       this.sentData = true
     }
+
+    chrome.runtime.sendMessage({
+      command: COMMANDS.DOWNLOAD_PROGRESS,
+      id: this.id,
+      courseLink: this.courseLink,
+      courseName: this.courseName,
+      completed: this.finished.length,
+      total: this.fileCount,
+      errors: this.errorCount,
+      isDone: this.isDone(),
+    } satisfies DownloadProgressMessage)
   }
 
   private async download(href: string, fileName: string, resource: FileResource | FolderResource) {
@@ -303,8 +305,8 @@ class Downloader {
       filePath = `Moodle/${filePath}`
     }
 
-    logger.debug(filePath)
-    logger.debug(href)
+    // logger.debug(filePath)
+    // logger.debug(href)
     if (isDebug) {
       // return
     }
@@ -317,6 +319,7 @@ class Downloader {
       if (this.inProgress.size < this.options.maxConcurrentDownloads) {
         try {
           const id = await chrome.downloads.download({ url: href, filename: filePath })
+          logger.debug(`Started download with id ${id} ${filePath}`)
           await this.onDownloadStart(id)
         } catch (err) {
           logger.error(err)
@@ -499,16 +502,21 @@ async function onCancel() {
 }
 
 async function onDownload(message: DownloadMessage) {
-  const { courseName, courseShortcut, resources, options: userOptions } = message
+  const { id, courseLink, courseName, courseShortcut, resources, options: userOptions } = message
+  logger.debug(`Received download message with id ${id}`)
+
+  if (downloaders[id]) {
+    logger.debug(`Download with id ${id} already exists`)
+    return
+  }
+
   const { options: storageOptions } = (await chrome.storage.local.get(
     "options"
   )) as ExtensionStorage
-
   const options = { ...storageOptions, ...userOptions }
 
   // Create and register the downloader
-  const id = new Date().getTime() // Use time as ID
-  const downloader = new Downloader(id, courseName, courseShortcut, resources, options)
+  const downloader = new Downloader(id, courseLink, courseName, courseShortcut, resources, options)
   downloaders[downloader.id] = downloader
 }
 
@@ -521,6 +529,7 @@ chrome.downloads.onChanged.addListener(async (downloadDelta) => {
   let downloader: Downloader | undefined
   for (const d of Object.values(downloaders)) {
     if (d.isDownloading(id)) {
+      logger.debug(`Found downloader with id ${d.id}`)
       downloader = d
     }
   }
@@ -539,12 +548,6 @@ chrome.downloads.onChanged.addListener(async (downloadDelta) => {
     await downloader.onCompleted(id)
   }
 
-  // Check if view needs to be updated
-  // Only update view if the current download is the most recent one
-  if (downloader.isMostRecent()) {
-    downloader.updateView()
-  }
-
   if (downloader.isDone()) {
     delete downloaders[downloader.id]
   }
@@ -553,10 +556,10 @@ chrome.downloads.onChanged.addListener(async (downloadDelta) => {
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
   switch (command) {
-    case "cancel-download":
+    case COMMANDS.CANCEL_DOWNLOAD:
       await onCancel()
       break
-    case "download":
+    case COMMANDS.DOWNLOAD:
       await onDownload(message as DownloadMessage)
       break
     default:

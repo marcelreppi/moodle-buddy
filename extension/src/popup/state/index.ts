@@ -1,5 +1,6 @@
 import { ref } from "vue"
-import { ExtensionOptions, Message, SelectionTab, StoredCourseData } from "../../types"
+import { ExtensionOptions, Message, SelectionTab, StoredCourseData } from "@types"
+import { COMMANDS } from "@shared/constants"
 
 export const activeTab = ref<chrome.tabs.Tab>()
 export const options = ref<ExtensionOptions>()
@@ -16,7 +17,7 @@ export const onlyNewResources = ref(false)
 export function updateState() {
   if (activeTab.value?.id) {
     chrome.tabs.sendMessage(activeTab.value.id, {
-      command: "get-state",
+      command: COMMANDS.GET_STATE,
     } satisfies Message)
   }
 }

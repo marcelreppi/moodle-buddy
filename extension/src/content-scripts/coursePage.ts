@@ -5,15 +5,16 @@ import {
   ExtensionStorage,
   Message,
 } from "types"
-import { checkForMoodle, parseCourseLink } from "../shared/parser"
-import { updateIconFromCourses, sendLog, isDev } from "../shared/helpers"
+import { checkForMoodle, parseCourseLink } from "@shared/parser"
+import { updateIconFromCourses, sendLog, getCourseDownloadId } from "@shared/helpers"
 
 import Course from "../models/Course"
-import logger from "../shared/logger"
+import logger from "@shared/logger"
+import { COMMANDS } from "@shared/constants"
 
 function sendScanResults(course) {
   chrome.runtime.sendMessage({
-    command: "scan-result",
+    command: COMMANDS.SCAN_RESULT,
     course: {
       resources: course.resources,
       activities: course.activities,
@@ -43,21 +44,21 @@ async function initCoursePage() {
       logger.error(err)
       sendLog({ errorMessage: err.message, url: location.href, page: "course" })
       chrome.runtime.sendMessage({
-        command: "error-view",
+        command: COMMANDS.ERROR_VIEW,
       } satisfies Message)
     })
 
   chrome.runtime.onMessage.addListener(async (message: Message) => {
     const { command } = message
 
-    if (command === "init-scan") {
+    if (command === COMMANDS.INIT_SCAN) {
       if (initialScanCompleted) {
         sendScanResults(course)
       }
       return
     }
 
-    if (command === "mark-as-seen") {
+    if (command === COMMANDS.MARK_AS_SEEN) {
       await course.updateStoredResources()
       await course.updateStoredActivities()
       await course.scan()
@@ -65,21 +66,23 @@ async function initCoursePage() {
       return
     }
 
-    if (command === "update-activities") {
+    if (command === COMMANDS.UPDATE_ACTIVITIES) {
       await course.updateStoredActivities()
       await course.scan()
       updateIconFromCourses([course])
       return
     }
 
-    if (command === "crawl") {
+    if (command === COMMANDS.COURSE_CRAWL) {
       const { options, selectedResources } = message as CourseCrawlMessage
 
       chrome.runtime.sendMessage({
-        command: "download",
-        resources: selectedResources,
+        command: COMMANDS.DOWNLOAD,
+        id: getCourseDownloadId(command, course),
         courseName: course.name,
         courseShortcut: course.shortcut,
+        courseLink: course.link,
+        resources: selectedResources,
         options,
       } satisfies DownloadMessage)
 
@@ -88,7 +91,7 @@ async function initCoursePage() {
       updateIconFromCourses([course])
     }
 
-    if (command === "ensure-correct-badge") {
+    if (command === COMMANDS.ENSURE_CORRECT_BADGE) {
       updateIconFromCourses([course])
     }
   })

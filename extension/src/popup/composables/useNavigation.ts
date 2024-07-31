@@ -1,4 +1,4 @@
-import { isFirefox, sendEvent } from "../../shared/helpers"
+import { isFirefox, sendEvent } from "@shared/helpers"
 import { options } from "../state"
 
 export default function useNavigation() {

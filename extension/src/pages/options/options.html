@@ -10,10 +10,19 @@
     <div class="container">
       <div class="form-section">Your personal Moodle URL</div>
       <div>
+        <p>
+          This should point to your Moodle dashboard where you can see all your current courses.
+          <br />
+          URL ending usually on
+          <i>/my</i>
+          , for example https://mymoodle.com/my. In newer Moodles it seems to be ending in <i>/my/courses.php</i>.
+        </p>
+      
         <input class="url-input" type="text" id="defaultMoodleURL" />
       </div>
       <div id="invalid-url">Invalid URL</div>
       <div>
+        <p>If the automatic detection doesn't work for your Moodle, you should turn it off and set the URL above manually.</p>
         <input type="checkbox" id="autoSetMoodleURL" />
         <label for="autoSetMoodleURL">Automatically detect Moodle URL</label>
       </div>

@@ -9,8 +9,8 @@ import {
   Payload,
 } from "types"
 
-import { isFirefox, getActiveTab, isDev } from "../shared/helpers"
-import logger from "../shared/logger"
+import { isFirefox, getActiveTab, isDev } from "@shared/helpers"
+import logger from "@shared/logger"
 
 async function sendToLambda(path: string, payload: AdditionalPayloadData) {
   const { options, browserId } = (await chrome.storage.local.get([

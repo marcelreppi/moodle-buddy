@@ -1,4 +1,4 @@
-import { Resource } from "../types"
+import { Resource } from "@types"
 
 export function isFile(resource: Resource) {
   return ["file", "pluginfile", "url"].includes(resource.type)

@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { Resource } from "types"
 import { computed } from "vue"
-import { isFile, isFolder, isVideoServiceVideo } from "../../shared/resourceHelpers"
+import { isFile, isFolder, isVideoServiceVideo } from "@shared/resourceHelpers"
 import { XMarkIcon } from "@heroicons/vue/24/outline"
 
 const props = defineProps<{

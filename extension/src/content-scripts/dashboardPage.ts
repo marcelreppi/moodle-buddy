@@ -1,18 +1,22 @@
 import shajs from "sha.js"
 import {
-  DashboardCrawlMessage,
+  DashboardDownloadCourseMessage,
   DashboardScanResultMessage,
   DownloadMessage,
   MarkAsSeenMessage,
   Message,
   ScanInProgressMessage,
   ExtensionStorage,
+  DownloadProgressMessage,
+  DashboardUpdateCourseMessage,
+  DashboardCourseData,
 } from "types"
-import { checkForMoodle, parseCourseLink } from "../shared/parser"
-import { updateIconFromCourses, sendLog, isDebug } from "../shared/helpers"
+import { checkForMoodle, parseCourseLink } from "@shared/parser"
+import { updateIconFromCourses, sendLog, isDebug, getCourseDownloadId } from "@shared/helpers"
 import Course from "../models/Course"
-import { getURLRegex } from "../shared/regexHelpers"
-import logger from "../shared/logger"
+import { getURLRegex } from "@shared/regexHelpers"
+import logger from "@shared/logger"
+import { COMMANDS } from "@shared/constants"
 
 let error = false
 let scanInProgress = true
@@ -20,6 +24,7 @@ let scanTotal = 0
 let scanCompleted = 0
 let courses: Course[] = []
 let lastSettingsHash = ""
+let downloadState: Record<string, DownloadProgressMessage> = {}
 
 function getOverviewSettings() {
   const settingsDiv: HTMLElement | null = document.querySelector("[data-region='courses-view']")
@@ -38,22 +43,26 @@ function hasHiddenParent(element: HTMLElement): boolean {
 
 function sendScanProgress() {
   chrome.runtime.sendMessage({
-    command: "scan-in-progress",
+    command: COMMANDS.SCAN_IN_PROGRESS,
     completed: scanCompleted,
     total: scanTotal,
   } satisfies ScanInProgressMessage)
 }
 
+function courseToDashboardCourseData(course: Course): DashboardCourseData {
+  return {
+    name: course.name,
+    link: course.link,
+    isNew: course.isFirstScan,
+    resources: course.resources,
+    activities: course.activities,
+  } satisfies DashboardCourseData
+}
+
 function sendScanResults() {
   chrome.runtime.sendMessage({
-    command: "scan-result",
-    courses: courses.map((c) => ({
-      name: c.name,
-      link: c.link,
-      isNew: c.isFirstScan,
-      resources: c.resources,
-      activities: c.activities,
-    })),
+    command: COMMANDS.SCAN_RESULT,
+    courses: courses.map(courseToDashboardCourseData),
   } satisfies DashboardScanResultMessage)
 }
 
@@ -173,12 +182,20 @@ if (isMoodlePage) {
   scanOverview()
 }
 
+function getCourseByLink(link: string): Course {
+  const course = courses.find((c) => c.link === link)
+  if (!course) {
+    throw new Error(`Course with link ${link} is undefined`)
+  }
+  return course
+}
+
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
-  if (command === "init-scan") {
+  if (command === COMMANDS.INIT_SCAN) {
     if (error) {
       chrome.runtime.sendMessage({
-        command: "error-view",
+        command: COMMANDS.ERROR_VIEW,
       } satisfies Message)
       return
     }
@@ -188,7 +205,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     } else {
       if (error) {
         chrome.runtime.sendMessage({
-          command: "error-view",
+          command: COMMANDS.ERROR_VIEW,
         } satisfies Message)
         return
       }
@@ -213,7 +230,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     return
   }
 
-  if (command === "mark-as-seen") {
+  if (command === COMMANDS.MARK_AS_SEEN) {
     const { link } = message as MarkAsSeenMessage
     const course = courses.find((c) => c.link === link)
 
@@ -229,10 +246,9 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     updateIconFromCourses(courses)
   }
 
-  if (command === "crawl") {
-    const { link } = message as DashboardCrawlMessage
-    const i = courses.findIndex((c) => c.link === link)
-    const course = courses[i]
+  if (command === COMMANDS.DASHBOARD_DOWNLOAD_NEW) {
+    const { link } = message as DashboardDownloadCourseMessage
+    const course = getCourseByLink(link)
 
     const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
 
@@ -240,10 +256,12 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     const downloadNodes = course.resources.filter((r) => r.isNew)
 
     chrome.runtime.sendMessage({
-      command: "download",
-      resources: downloadNodes,
+      command: COMMANDS.DOWNLOAD,
+      id: getCourseDownloadId(command, course),
+      courseLink: course.link,
       courseName: course.name,
       courseShortcut: course.shortcut,
+      resources: downloadNodes,
       options,
     } satisfies DownloadMessage)
 
@@ -252,9 +270,40 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     await course.updateStoredActivities()
     await course.scan()
     updateIconFromCourses(courses)
+
+    // Send request for an update only after timeout to allow the downloader to send the first progress message
+    setTimeout(() => {
+      chrome.runtime.sendMessage({
+        command: COMMANDS.DASHBOARD_UPDATE_COURSE,
+        course: courseToDashboardCourseData(course),
+      } satisfies DashboardUpdateCourseMessage)
+    }, 500)
   }
 
-  if (command === "ensure-correct-badge") {
+  if (command === COMMANDS.ENSURE_CORRECT_BADGE) {
+    updateIconFromCourses(courses)
+  }
+
+  if (command === COMMANDS.DASHBOARD_DOWNLOAD_COURSE) {
+    const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
+    const { link } = message as DashboardDownloadCourseMessage
+    const course = getCourseByLink(link)
+
+    const id = getCourseDownloadId(command, course)
+
+    chrome.runtime.sendMessage({
+      command: COMMANDS.DOWNLOAD,
+      id,
+      courseLink: course.link,
+      courseName: course.name,
+      courseShortcut: course.shortcut,
+      resources: course.resources,
+      options,
+    } satisfies DownloadMessage)
+
+    await course.updateStoredResources(course.resources)
+    await course.updateStoredActivities()
+    await course.scan()
     updateIconFromCourses(courses)
   }
 })

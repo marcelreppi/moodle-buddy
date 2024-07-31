@@ -1,4 +1,4 @@
-import { ExtensionOptions } from "../types"
+import { ExtensionOptions } from "@types"
 
 const defaultExtensionOptions: ExtensionOptions = {
   onlyNewResources: false,

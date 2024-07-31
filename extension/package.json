@@ -37,7 +37,6 @@
     "url": "https://github.com/marcelreppi/moodle-buddy/issues"
   },
   "dependencies": {
-    "@aacassandra/vue3-progressbar": "^1.0.3",
     "@heroicons/vue": "^2.1.3",
     "linkedom": "0.18.0",
     "p-limit": "^5.0.0",

@@ -9,9 +9,10 @@ import {
   VideoServiceResource,
 } from "types"
 
-import { getQuerySelector, parseCourseNameFromCoursePage } from "../shared/parser"
-import { sendLog } from "../shared/helpers"
-import logger from "../shared/logger"
+import { getQuerySelector, parseCourseNameFromCoursePage } from "@shared/parser"
+import { sendLog } from "@shared/helpers"
+import logger from "@shared/logger"
+import { COMMANDS } from "@shared/constants"
 
 const courseName = parseCourseNameFromCoursePage(document)
 let videoNodes: HTMLAnchorElement[] = []
@@ -94,7 +95,7 @@ async function scanForVideos() {
     }
   } catch (err) {
     logger.error(err)
-    sendLog({ errorMessage: err.message, url: location.href, page: 'videoservice' })
+    sendLog({ errorMessage: err.message, url: location.href, page: "videoservice" })
     error = true
   }
 }
@@ -131,41 +132,48 @@ async function getVideoResourceSrc(
 
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
-  if (command === "init-scan") {
+  if (command === COMMANDS.INIT_SCAN) {
     await scanForVideos()
 
     if (error) {
       chrome.runtime.sendMessage({
-        command: "error-view",
+        command: COMMANDS.ERROR_VIEW,
       } satisfies Message)
       return
     }
 
     chrome.runtime.sendMessage({
-      command: "scan-result",
+      command: COMMANDS.SCAN_RESULT,
       videoResources,
     } satisfies VideoScanResultMessage)
     return
   }
 
-  if (command === "crawl") {
+  if (command === COMMANDS.COURSE_CRAWL) {
     const { options, selectedResources } = message as CourseCrawlMessage
 
+    const id = Date.now().toString()
     try {
       if (location.href.endsWith("view")) {
         // A single video is being diplayed
         await chrome.runtime.sendMessage({
-          command: "download",
-          resources: videoResources,
+          command: COMMANDS.DOWNLOAD,
+          id,
+          courseLink: "",
           courseName,
           courseShortcut: "",
+          resources: videoResources,
           options,
         } satisfies DownloadMessage)
         await chrome.runtime.sendMessage({
-          command: "download-progress",
+          command: COMMANDS.DOWNLOAD_PROGRESS,
+          id,
+          courseLink: "",
+          courseName,
           completed: videoResources.length,
           total: selectedResources.length,
           errors: 0,
+          isDone: true,
         } satisfies DownloadProgressMessage)
       } else if (location.href.endsWith("browse")) {
         // A list of videos is being displayed
@@ -178,11 +186,16 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
               videoResource,
               options as ExtensionOptions
             )
+            const completed = i + 1
             chrome.runtime.sendMessage({
-              command: "download-progress",
-              completed: i + 1,
+              command: COMMANDS.DOWNLOAD_PROGRESS,
+              id,
+              courseLink: "",
+              courseName,
+              completed,
               total: selectedResources.length,
               errors: 0,
+              isDone: completed === selectedResources.length,
             } satisfies DownloadProgressMessage)
             downloadVideoResources.push(videoResource)
 
@@ -194,26 +207,28 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
         }
 
         chrome.runtime.sendMessage({
-          command: "download",
-          resources: downloadVideoResources,
+          command: COMMANDS.DOWNLOAD,
+          id,
+          courseLink: "",
           courseName,
           courseShortcut: "",
+          resources: downloadVideoResources,
           options,
         } satisfies DownloadMessage)
       }
     } catch (err) {
       logger.error(err)
-      sendLog({ errorMessage: err.message, url: location.href, page: 'videoservice' })
+      sendLog({ errorMessage: err.message, url: location.href, page: "videoservice" })
       error = true
       chrome.runtime.sendMessage({
-        command: "error-view",
+        command: COMMANDS.ERROR_VIEW,
       } satisfies Message)
     }
   }
 
-  if (command === "cancel-download") {
+  if (command === COMMANDS.CANCEL_DOWNLOAD) {
     chrome.runtime.sendMessage({
-      command: "cancel-download",
+      command: COMMANDS.CANCEL_DOWNLOAD,
     } satisfies Message)
     cancel = true
   }

@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import useRating from "../composables/useRating"
-import { isFirefox } from "../../shared/helpers"
+import { isFirefox } from "@shared/helpers"
 import { rateHintLevel } from "../state"
 
 const { rateHintLevels, onRateClick, onAvoidRateClick } = useRating()

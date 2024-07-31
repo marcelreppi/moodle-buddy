@@ -10,11 +10,12 @@ import {
   PageDataMessage,
   SetBadgeMessage,
 } from "types"
-import defaultExtensionOptions from "../shared/defaultExtensionOptions"
-import { isDev } from "../shared/helpers"
+import defaultExtensionOptions from "@shared/defaultExtensionOptions"
+import { isDev } from "@shared/helpers"
 import { uuidv4, setIcon, setBadgeText } from "./helpers"
 import { sendEvent, sendPageData, sendFeedback, sendLog } from "./tracker"
-import logger from "../shared/logger"
+import logger from "@shared/logger"
+import { COMMANDS } from "@shared/constants"
 
 const defaultOptions = defaultExtensionOptions
 
@@ -86,9 +87,11 @@ async function onUpdate() {
 
   sendEvent("update", false)
 
-  // chrome.tabs.create({
-  //   url: "/pages/update/update.html",
-  // })
+  if (!isDev) {
+    chrome.tabs.create({
+      url: "/pages/update/update.html",
+    })
+  }
 }
 
 chrome.runtime.onInstalled.addListener(async (details) => {
@@ -113,41 +116,41 @@ chrome.runtime.onMessage.addListener(
     logger.debug({ backgroundCommand: command })
 
     switch (command) {
-      case "event":
+      case COMMANDS.EVENT:
         const { event, saveURL, eventData } = message as EventMessage
         sendEvent(event, saveURL, eventData)
         break
-      case "page-data":
+      case COMMANDS.PAGE_DATA:
         const { pageData } = message as PageDataMessage
         sendPageData(pageData)
         break
-      case "feedback":
+      case COMMANDS.FEEDBACK:
         const { feedbackData } = message as FeedbackMessage
         sendFeedback(feedbackData)
         break
-      case "set-icon":
+      case COMMANDS.SET_ICON:
         setIcon(sender.tab?.id)
         break
-      case "set-badge":
+      case COMMANDS.SET_BADGE:
         const { text, global } = message as SetBadgeMessage
         const tabId = global ? undefined : sender.tab?.id
         setBadgeText(text, tabId)
         break
-      case "log":
+      case COMMANDS.LOG:
         const { logData } = message as LogMessage
         sendLog(logData)
         break
-      case "clear-course-data":
+      case COMMANDS.CLEAR_COURSE_DATA:
         await chrome.storage.local.set({
           courseData: {},
         } satisfies Partial<ExtensionStorage>)
         break
-      case "reset-storage":
+      case COMMANDS.RESET_STORAGE:
         await chrome.storage.local.set({
           ...initialStorage,
         } satisfies Partial<ExtensionStorage>)
         break
-      case "dev-clear-seen-resources":
+      case COMMANDS.DEV_CLEAR_SEEN_RESOURCES:
         const { courseData } = (await chrome.storage.local.get("courseData")) as ExtensionStorage
         Object.keys(courseData).forEach((courseLink) => {
           const data = courseData[courseLink]
@@ -158,7 +161,7 @@ chrome.runtime.onMessage.addListener(
           courseData,
         } satisfies Partial<ExtensionStorage>)
         break
-      case "execute-script":
+      case COMMANDS.EXECUTE_SCRIPT:
         if (!sender.tab?.id) {
           throw new Error("Error on event execute-script: Sender tab id was empty")
         }
@@ -178,6 +181,6 @@ chrome.runtime.onMessage.addListener(
 
 chrome.tabs.onHighlighted.addListener(async (tab) => {
   chrome.tabs.sendMessage(tab.tabIds[0], {
-    command: "ensure-correct-badge",
+    command: COMMANDS.ENSURE_CORRECT_BADGE,
   })
 })
