@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue"
-import { Message, StateMessage, SupportedPage } from "../types"
+import { Message, StateMessage, SupportedPage } from "@types"
 import {
   activeTab,
   options,
@@ -44,7 +44,7 @@ import {
   updateState,
 } from "./state"
 
-import { getActiveTab, isDev, isFirefox } from "../shared/helpers"
+import { getActiveTab, isDev, isFirefox } from "@shared/helpers"
 import DevTools from "./components/DevTools.vue"
 import CourseView from "./views/CourseView.vue"
 import VideoServiceView from "./views/VideoServiceView.vue"
@@ -54,7 +54,8 @@ import ErrorView from "./views/ErrorView.vue"
 import MbFooter from "./components/MbFooter.vue"
 import RatingHint from "./components/RatingHint.vue"
 import useRating from "./composables/useRating"
-import logger from "../shared/logger"
+import logger from "@shared/logger"
+import { COMMANDS } from "@shared/constants"
 
 logger.debug({ env: process.env.NODE_ENV, isDev })
 
@@ -72,7 +73,7 @@ const { showRatingHint } = useRating()
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
 
-  if (command === "state") {
+  if (command === COMMANDS.STATE) {
     const { state } = message as StateMessage
     page.value = state.page
     options.value = state.options
@@ -82,7 +83,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     rateHintLevel.value = state.rateHintLevel
   }
 
-  if (command === "error-view") {
+  if (command === COMMANDS.ERROR_VIEW) {
     showErrorView.value = true
   }
 
@@ -95,7 +96,7 @@ getActiveTab().then((tab) => {
   if (activeTab.value?.id) {
     updateState()
     chrome.tabs.sendMessage(activeTab.value.id, {
-      command: "track-page-view",
+      command: COMMANDS.TRACK_PAGE_VIEW,
     } satisfies Message)
   }
 })

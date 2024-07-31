@@ -1,15 +1,10 @@
 {
   "compilerOptions": {
     "baseUrl": "src",
-    "typeRoots": [
-      "node_modules/@types",
-    ],
+    "typeRoots": ["node_modules/@types"],
     "target": "esnext",
     "module": "esnext",
-    "lib": [
-      "dom",
-      "ES2019"
-    ],
+    "lib": ["dom", "ES2019"],
     "sourceMap": true,
     "outDir": "./dist",
     "moduleResolution": "node",
@@ -25,12 +20,14 @@
     "strictPropertyInitialization": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["./*"],
+      "@shared/*": ["./shared/*"],
+      "@types": ["./types"],
+      "@types/*": ["./types/*"]
+    }
   },
-  "exclude": [
-    "node_modules"
-  ],
-  "include": [
-    "src/**/*"
-  ]
+  "exclude": ["node_modules"],
+  "include": ["src/**/*"]
 }

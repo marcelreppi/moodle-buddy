@@ -3,13 +3,14 @@ import {
   BackgroundCourseScanResultMessage,
   ExtensionStorage,
   Message,
-} from "../types"
+} from "@types"
 import Course from "../models/Course"
+import { COMMANDS } from "@shared/constants"
 
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
 
-  if (command === "bg-course-scan") {
+  if (command === COMMANDS.BG_COURSE_SCAN) {
     const { href, html } = message as BackgroundCourseScanMessage
     const document = new DOMParser().parseFromString(html, "text/html")
     const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
@@ -17,7 +18,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     await course.scan()
 
     chrome.runtime.sendMessage({
-      command: "bg-course-scan-result",
+      command: COMMANDS.BG_COURSE_SCAN_RESULT,
       href,
       nUpdates: course.getNumberOfUpdates(),
     } satisfies BackgroundCourseScanResultMessage)

@@ -102,7 +102,7 @@ import {
   isFolder,
   isVideoServiceVideo,
   setResourceSelected,
-} from "../../shared/resourceHelpers"
+} from "@shared/resourceHelpers"
 import useNavigation from "../composables/useNavigation"
 import { onlyNewResources } from "../state"
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline"

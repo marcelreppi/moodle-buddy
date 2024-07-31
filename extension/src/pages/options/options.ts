@@ -1,5 +1,6 @@
 import { ExtensionOptions, EventMessage, Message, ExtensionStorage } from "types"
-import { validURLRegex } from "../../shared/regexHelpers"
+import { validURLRegex } from "@shared/regexHelpers"
+import { COMMANDS } from "@shared/constants"
 
 let restoredOptions: ExtensionOptions
 
@@ -65,7 +66,7 @@ async function save(e: Event) {
   clearTimeout(timeout)
   timeout = setTimeout(async () => {
     await chrome.runtime.sendMessage({
-      command: "event",
+      command: COMMANDS.EVENT,
       event: "modify-options",
       saveURL: false,
       eventData: changedOptions,
@@ -74,7 +75,7 @@ async function save(e: Event) {
 
   if (updatedOptions.disableInteractionTracking) {
     await chrome.runtime.sendMessage({
-      command: "event",
+      command: COMMANDS.EVENT,
       event: "disable-tracking",
       saveURL: false,
     } satisfies EventMessage)
@@ -101,7 +102,7 @@ function checkURL(e: Event) {
 
 async function clearCourseData(e: Event) {
   await chrome.runtime.sendMessage({
-    command: "clear-course-data",
+    command: COMMANDS.CLEAR_COURSE_DATA,
   } satisfies Message)
 
   const target = e.target as HTMLButtonElement

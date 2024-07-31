@@ -4,6 +4,7 @@ build
 text
 .vscode
 .idea
+.npmrc
 
 test/**
 !test/index.js

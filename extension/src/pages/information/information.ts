@@ -1,8 +1,9 @@
+import { COMMANDS } from "@shared/constants"
 import { EventMessage } from "types"
 
 document.querySelector("#imprint-link")?.addEventListener("click", () => {
   chrome.runtime.sendMessage({
-    command: "event",
+    command: COMMANDS.EVENT,
     event: "imprint-click",
     saveURL: false,
   } satisfies EventMessage)
@@ -13,7 +14,7 @@ document.querySelector("#imprint-link")?.addEventListener("click", () => {
 
 document.querySelector("#privacy-link")?.addEventListener("click", () => {
   chrome.runtime.sendMessage({
-    command: "event",
+    command: COMMANDS.EVENT,
     event: "privacy-click",
     saveURL: false,
   } satisfies EventMessage)
@@ -25,7 +26,7 @@ document.querySelector("#privacy-link")?.addEventListener("click", () => {
 document.querySelectorAll(".options-link")?.forEach((n) => {
   n.addEventListener("click", () => {
     chrome.runtime.sendMessage({
-      command: "event",
+      command: COMMANDS.EVENT,
       event: "options-click",
       saveURL: false,
     } satisfies EventMessage)
@@ -35,7 +36,7 @@ document.querySelectorAll(".options-link")?.forEach((n) => {
 
 document.querySelector("#donate-link")?.addEventListener("click", () => {
   chrome.runtime.sendMessage({
-    command: "event",
+    command: COMMANDS.EVENT,
     event: "donate-click",
     saveURL: false,
   } satisfies EventMessage)

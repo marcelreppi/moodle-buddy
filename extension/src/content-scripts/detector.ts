@@ -6,10 +6,11 @@ import {
   SetBadgeMessage,
   SupportedPage,
 } from "types"
-import { isDebug } from "../shared/helpers"
-import { checkForMoodle } from "../shared/parser"
-import { getMoodleBaseURL, getURLRegex } from "../shared/regexHelpers"
-import logger from "../shared/logger"
+import { isDebug } from "@shared/helpers"
+import { checkForMoodle } from "@shared/parser"
+import { getMoodleBaseURL, getURLRegex } from "@shared/regexHelpers"
+import logger from "@shared/logger"
+import { COMMANDS } from "@shared/constants"
 
 const pageToScriptMapping: Record<NonNullable<SupportedPage>, ScriptName> = {
   course: "coursePage",
@@ -62,17 +63,17 @@ async function initIconAndBadge(page: SupportedPage | undefined) {
     const { nUpdates } = (await chrome.storage.local.get("nUpdates")) as ExtensionStorage
     const text = nUpdates === 0 ? "" : nUpdates.toString()
     chrome.runtime.sendMessage({
-      command: "set-badge",
+      command: COMMANDS.SET_BADGE,
       text,
       global: true,
     } satisfies SetBadgeMessage)
   } else {
     chrome.runtime.sendMessage({
-      command: "set-icon",
+      command: COMMANDS.SET_ICON,
     } satisfies Message)
 
     chrome.runtime.sendMessage({
-      command: "set-badge",
+      command: COMMANDS.SET_BADGE,
       text: "",
       global: true,
     } satisfies SetBadgeMessage)
@@ -94,7 +95,7 @@ export function detectPage(): SupportedPage | undefined {
 
   if (page !== undefined) {
     chrome.runtime.sendMessage({
-      command: "execute-script",
+      command: COMMANDS.EXECUTE_SCRIPT,
       scriptName: pageToScriptMapping[page],
     } satisfies ExecuteScriptMessage)
   }

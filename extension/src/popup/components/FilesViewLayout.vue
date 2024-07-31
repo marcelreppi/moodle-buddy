@@ -162,7 +162,7 @@
         class="w-5/6"
       ></progress-bar>
 
-      <button class="py-2 mt-5 btn btn-primary" :disabled="disableDownload" @click="onDownload">
+      <button v-if="!downloadInProgress" class="mt-5 btn btn-primary" :disabled="disableDownload" @click="onDownload">
         Download
       </button>
     </div>
@@ -180,17 +180,18 @@ import { computed, onUpdated, ref } from "vue"
 import DetailOverlay from "./DetailOverlay.vue"
 import ProgressBar from "./ProgressBar.vue"
 import SelectionTab from "./SelectionTab.vue"
-import defaultExtensionOptions from "../../shared/defaultExtensionOptions"
-import { sendEvent } from "../../shared/helpers"
-import { isFile, isFolder, isVideoServiceVideo } from "../../shared/resourceHelpers"
+import defaultExtensionOptions from "@shared/defaultExtensionOptions"
+import { sendEvent } from "@shared/helpers"
+import { isFile, isFolder, isVideoServiceVideo } from "@shared/resourceHelpers"
 import {
   Activity,
   CourseCrawlMessage,
   DownloadProgressMessage,
   Message,
   Resource,
-} from "../../types"
+} from "@types"
 import { activeTab, options, onlyNewResources } from "../state"
+import { COMMANDS } from "@shared/constants"
 
 type SupportedView = "course" | "videoservice"
 
@@ -242,7 +243,7 @@ const onMarkAsSeenClick = () => {
 
   if (activeTab.value?.id) {
     chrome.tabs.sendMessage(activeTab.value.id, {
-      command: "mark-as-seen",
+      command: COMMANDS.MARK_AS_SEEN,
     } satisfies Message)
   }
 }
@@ -279,7 +280,7 @@ const toggleDetails = (onlyNew = false) => {
 
 // Download functionality
 const downloadInProgress = ref(false)
-const progressBar = ref(null)
+const progressBar = ref<InstanceType<typeof ProgressBar> | null>(null)
 const onDownloadFinished = () => {
   setTimeout(() => {
     downloadInProgress.value = false
@@ -287,10 +288,10 @@ const onDownloadFinished = () => {
 }
 const onDownloadCancel = () => {
   chrome.runtime.sendMessage({
-    command: "cancel-download",
+    command: COMMANDS.CANCEL_DOWNLOAD,
   } satisfies Message)
   downloadInProgress.value = false
-  sendEvent("cancel-download", true)
+  sendEvent(COMMANDS.CANCEL_DOWNLOAD, true)
 }
 
 const disableDownload = computed(() => {
@@ -312,7 +313,7 @@ const onDownload = () => {
 
   if (activeTab.value?.id) {
     chrome.tabs.sendMessage(activeTab.value.id, {
-      command: "crawl",
+      command: COMMANDS.COURSE_CRAWL,
       selectedResources: selectedResources.value.map((r) => ({ ...r })), // Resolve proxy
       options: {
         useMoodleFileName: useMoodleFileName ?? defaultExtensionOptions.useMoodleFileName,
@@ -335,11 +336,11 @@ const onDownload = () => {
 
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
-  if (command === "scan-result") {
+  if (command === COMMANDS.SCAN_RESULT) {
     loading.value = false
   }
 
-  if (command === "download-progress") {
+  if (command === COMMANDS.DOWNLOAD_PROGRESS) {
     const { completed, total, errors } = message as DownloadProgressMessage
     const progressBarRef = progressBar.value as any
     progressBarRef.setProgress(total, completed, errors)

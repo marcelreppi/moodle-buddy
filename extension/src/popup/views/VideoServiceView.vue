@@ -29,11 +29,12 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue"
-import { sendEvent } from "../../shared/helpers"
-import { VideoServiceResource, Message, VideoScanResultMessage, Resource } from "../../types"
+import { sendEvent } from "@shared/helpers"
+import { VideoServiceResource, Message, VideoScanResultMessage, Resource } from "@types"
 import FilesViewLayout from "../components/FilesViewLayout.vue"
 import DetailedResourceSelection from "../components/DetailedResourceSelection.vue"
 import { activeTab, currentSelectionTab } from "../state"
+import { COMMANDS } from "@shared/constants"
 
 const videoResources = ref<VideoServiceResource[]>([])
 const nVideos = computed(() => videoResources.value.length)
@@ -63,7 +64,7 @@ const onDownload = (selectedResources: Resource[]) => {
 
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
-  if (command === "scan-result") {
+  if (command === COMMANDS.SCAN_RESULT) {
     const { videoResources: scannedVideoResources } = message as VideoScanResultMessage
     videoResources.value = scannedVideoResources.map((r) => {
       return { ...r, selected: false }
@@ -75,7 +76,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
 
 if (activeTab.value?.id) {
   chrome.tabs.sendMessage(activeTab.value.id, {
-    command: "init-scan",
+    command: COMMANDS.INIT_SCAN,
   } satisfies Message)
 }
 </script>

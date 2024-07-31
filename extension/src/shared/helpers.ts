@@ -7,9 +7,11 @@ import {
   PagePayloadData,
   SupportedPage,
   ExtensionStorage,
+  DashboardCourseData,
 } from "types"
 
 import Course from "models/Course"
+import { COMMANDS } from "./constants"
 
 export const isDev = process.env.NODE_ENV !== "production"
 export const isDebug = process.env.NODE_ENV === "debug"
@@ -20,7 +22,7 @@ export function sendEvent(
   eventData: Record<string, unknown> = {}
 ): void {
   chrome.runtime.sendMessage({
-    command: "event",
+    command: COMMANDS.EVENT,
     event,
     saveURL,
     eventData,
@@ -29,7 +31,7 @@ export function sendEvent(
 
 export function sendLog(logData: LogPayloadData): void {
   chrome.runtime.sendMessage({
-    command: "log",
+    command: COMMANDS.LOG,
     logData,
   } satisfies LogMessage)
 
@@ -44,7 +46,7 @@ export function sendPageData(page: SupportedPage) {
     content: document.querySelector("html")?.outerHTML || "",
   }
   chrome.runtime.sendMessage({
-    command: "page-data",
+    command: COMMANDS.PAGE_DATA,
     pageData,
   } satisfies PageDataMessage)
 }
@@ -76,8 +78,12 @@ export async function updateIconFromCourses(courses: Course[]) {
   // If there are no further updates reset the icon
   const text = nUpdates === 0 ? "" : nUpdates.toString()
   chrome.runtime.sendMessage({
-    command: "set-badge",
+    command: COMMANDS.SET_BADGE,
     text,
-    global: false
+    global: false,
   } satisfies SetBadgeMessage)
+}
+
+export function getCourseDownloadId(command: string, course: Course | DashboardCourseData) {
+  return `${command}_${course.link}`;
 }

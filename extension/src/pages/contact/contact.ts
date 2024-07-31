@@ -1,3 +1,4 @@
+import { COMMANDS } from "@shared/constants"
 import { ExtensionOptions, ExtensionStorage, FeedbackMessage } from "types"
 
 document.querySelector("#form-button")?.addEventListener("click", async () => {
@@ -19,7 +20,7 @@ document.querySelector("#form-button")?.addEventListener("click", async () => {
     ].join("\n\n")
 
     chrome.runtime.sendMessage({
-      command: "feedback",
+      command: COMMANDS.FEEDBACK,
       feedbackData: { subject, content: message },
     } satisfies FeedbackMessage)
 

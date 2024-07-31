@@ -4,9 +4,10 @@ import {
   ExtensionStorage,
   Message,
 } from "types"
-import logger from "../shared/logger"
-import { getURLRegex } from "../shared/regexHelpers"
+import logger from "@shared/logger"
+import { getURLRegex } from "@shared/regexHelpers"
 import { setBadgeText } from "./helpers"
+import { COMMANDS } from "@shared/constants"
 
 const SLEEP_DURATION = 1000
 const MAX_RETRIES = 100
@@ -37,7 +38,7 @@ async function backgroundScan() {
     if (activeTab?.id) {
       logger.debug(`Sending course html to content script for course ${courseLink}`)
       chrome.tabs.sendMessage(activeTab.id, {
-        command: "bg-course-scan",
+        command: COMMANDS.BG_COURSE_SCAN,
         href: courseLink,
         html: resBody,
       } satisfies BackgroundCourseScanMessage)
@@ -112,13 +113,13 @@ chrome.runtime.onMessage.addListener(
   async (message: Message, sender: chrome.runtime.MessageSender) => {
     const { command } = message
     switch (command) {
-      case "check-background-scan":
+      case COMMANDS.CHECK_BACKGROUND_SCAN:
         checkTriggerBackgroundScan()
         break
-      case "background-scan":
+      case COMMANDS.BACKGROUND_SCAN:
         backgroundScan()
         break
-      case "bg-course-scan-result":
+      case COMMANDS.BG_COURSE_SCAN_RESULT:
         logger.debug(message.command)
         const { href, nUpdates } = message as BackgroundCourseScanResultMessage
         courseUpdates[href] = nUpdates

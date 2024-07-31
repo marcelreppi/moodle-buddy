@@ -7,9 +7,9 @@ import {
   FolderResource,
   CourseData,
 } from "types"
-import * as parser from "../shared/parser"
-import { getMoodleBaseURL } from "../shared/regexHelpers"
-import logger from "../shared/logger"
+import * as parser from "@shared/parser"
+import { getMoodleBaseURL } from "@shared/regexHelpers"
+import logger from "@shared/logger"
 
 async function getLastModifiedHeader(href: string, options: ExtensionOptions) {
   if (!options.detectFileUpdates) return

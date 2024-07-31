@@ -29,12 +29,13 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from "vue"
-import { sendEvent } from "../../shared/helpers"
-import { isFile, isFolder } from "../../shared/resourceHelpers"
-import { Resource, Activity, Message, CourseScanResultMessage } from "../../types"
+import { sendEvent } from "@shared/helpers"
+import { isFile, isFolder } from "@shared/resourceHelpers"
+import { Resource, Activity, Message, CourseScanResultMessage } from "@types"
 import FilesViewLayout from "../components/FilesViewLayout.vue"
 import DetailedResourceSelection from "../components/DetailedResourceSelection.vue"
 import { options, activeTab, currentSelectionTab, onlyNewResources } from "../state"
+import { COMMANDS } from "@shared/constants"
 
 // Resources
 const resources = ref<Resource[]>([])
@@ -137,7 +138,7 @@ const onMarkAsSeen = () => {
 
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
-  if (command === "scan-result") {
+  if (command === COMMANDS.SCAN_RESULT) {
     const { course } = message as CourseScanResultMessage
     const { resources: detectedResources, activities: detectedActivities } = course
     resources.value = detectedResources.map((r) => ({ ...r, selected: false }))
@@ -150,7 +151,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
     if (nNewActivities.value > 0) {
       if (activeTab.value?.id) {
         chrome.tabs.sendMessage(activeTab.value.id, {
-          command: "update-activities",
+          command: COMMANDS.UPDATE_ACTIVITIES,
         } satisfies Message)
       }
     }
@@ -163,7 +164,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
 
 if (activeTab.value?.id) {
   chrome.tabs.sendMessage(activeTab.value.id, {
-    command: "init-scan",
+    command: COMMANDS.INIT_SCAN,
   } satisfies Message)
 }
 </script>

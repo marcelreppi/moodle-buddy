@@ -1,8 +1,9 @@
 import { computed, ComputedRef } from "vue"
-import { sendEvent } from "../../shared/helpers"
-import { Message } from "../../types"
+import { sendEvent } from "@shared/helpers"
+import { Message } from "@types"
 import { activeTab, userHasRated, rateHintLevel, totalDownloadedFiles } from "../state"
 import useNavigation from "./useNavigation"
+import { COMMANDS } from "@shared/constants"
 
 interface UseRatingComposable {
   rateHintLevels: Record<string, number>
@@ -38,7 +39,7 @@ export default function useRating(): UseRatingComposable {
     if (!activeTab.value?.id) return
 
     chrome.tabs.sendMessage(activeTab.value.id, {
-      command: "rate-click",
+      command: COMMANDS.RATE_CLICK,
     } satisfies Message)
     openRatingPage()
   }
@@ -47,7 +48,7 @@ export default function useRating(): UseRatingComposable {
     if (!activeTab.value?.id) return
 
     chrome.tabs.sendMessage(activeTab.value.id, {
-      command: "avoid-rate-click",
+      command: COMMANDS.AVOID_RATE_CLICK,
     } satisfies Message)
     sendEvent("avoid-rating-hint")
   }

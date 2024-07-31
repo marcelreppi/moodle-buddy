@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { SelectionTab } from "../../types"
+import { SelectionTab } from "@types"
 import { currentSelectionTab } from "../state"
 
 const props = defineProps<{
