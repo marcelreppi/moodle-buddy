@@ -60,7 +60,7 @@
           </div>
         </div>
       </div>
-      <div>
+      <div class="gap-3">
         <div>
           <img class="screenshot" src="~/assets/images/coursepage.png" alt="" />
         </div>

@@ -41,6 +41,7 @@
           <li>
             Shows updates (resources &amp; activities) for all courses from the dashboard page
           </li>
+          <li>Download all courses directly from the dashboard page</li>
           <li>Download new resources directly from the dashboard page</li>
           <li>
             Scans your courses in the background (if you are logged in) and notifies you if there
