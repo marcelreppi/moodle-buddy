@@ -1,6 +1,6 @@
 {
   "name": "moodle-buddy",
-  "version": "1.55.0",
+  "version": "1.55.1",
   "displayName": "Moodle Buddy",
   "description": "Moodle Buddy offers mass file download and notification functionality for the moodle learning management platform.",
   "author": "Marcel Reppenhagen",
