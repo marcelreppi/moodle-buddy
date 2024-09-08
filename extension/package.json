@@ -20,6 +20,8 @@
     "build:firefox": "npm run build:ff",
     "build:chrome": "npm run nuke && cross-env NODE_ENV=production TARGET=chrome webpack",
     "nuke": "rimraf build",
+    "nuke:zip": "rimraf --glob *.zip",
+    "publish": "npm run nuke:zip && npm run nuke && npm run publish:ff && npm run publish:chrome",
     "publish:ff": "cd scripts && TARGET=firefox sh build.sh",
     "publish:chrome": "cd scripts && TARGET=chrome sh build.sh",
     "test": "cd test && node --max-old-space-size=4096 -r esm index.js",

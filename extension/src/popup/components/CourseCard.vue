@@ -167,6 +167,7 @@ function onOpenCourse() {
 }
 
 function onDownloadCourse() {
+  sendEvent("dashboard-download-course-full", true, { numberOfFiles: props.course.resources.length })
   if (activeTab.value?.id) {
     chrome.tabs.sendMessage(activeTab.value.id, {
       command: COMMANDS.DASHBOARD_DOWNLOAD_COURSE,
