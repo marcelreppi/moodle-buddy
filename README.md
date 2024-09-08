@@ -36,8 +36,6 @@ The plugin is available for both **Chrome** and **Firefox**.
 
 ## Full Feature List
 
-![Screenshots](screenshots/combined.png "Course page (simple) | Course page (detailed) | Dashboard page")
-
 ### Course Page
 
 - Download all course resources with one click
