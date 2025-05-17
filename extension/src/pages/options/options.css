@@ -88,3 +88,11 @@ input[type="checkbox"] ~ label {
   cursor: default;
   text-decoration: none;
 }
+
+.custom-selectors {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: max-content 200px max-content;
+  gap: 5px 16px;
+  align-items: center;
+}

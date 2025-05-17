@@ -1,4 +1,5 @@
-export const validURLRegex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b/gi
+export const validURLRegex =
+  /https?:\/\/((www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b|localhost(:\d+)?)/gi
 
 type URLRegexType =
   | "login"
@@ -37,9 +38,9 @@ const allRegexes: Record<URLRegexType, RegExp> = {
   activity: activityRegex,
 }
 export function getURLRegex(type: URLRegexType): RegExp {
-  let regex = validURLRegex.source // Base url
-  regex += ".*" // Any other subpath
-  regex += allRegexes[type].source // Type-specific url pattern
+  const baseUrlRegex = validURLRegex.source
+  const typeSpecificRegex = allRegexes[type].source
+  const regex = `${baseUrlRegex}.*${typeSpecificRegex}`
   return new RegExp(regex, "gi")
 }
 

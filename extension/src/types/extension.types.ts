@@ -1,5 +1,7 @@
 import { CourseData } from "./course.types"
 
+export type FolderStructure = "CourseFile" | "CourseSectionFile"
+
 export interface ExtensionOptions {
   onlyNewResources: boolean
   useMoodleFileName: boolean
@@ -21,13 +23,17 @@ export interface ExtensionOptions {
   enableBackgroundScanning: boolean
   downloadFolderAsZip: boolean
   saveToMoodleFolder: boolean
-  folderStructure: string
+  folderStructure: FolderStructure
   includeVideo: boolean
   includeAudio: boolean
   includeImage: boolean
   maxConcurrentDownloads: number
   maxCoursesOnDashboardPage: number
   detectFileUpdates: boolean
+  customSelectorCourseName: string
+  customSelectorCourseShortcut: string
+  customSelectorSectionElement: string
+  customSelectorSectionName: string
 }
 
 export type StoredCourseData = Record<string, CourseData>

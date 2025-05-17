@@ -295,8 +295,6 @@ class Downloader {
           }
         }
         break
-      case "None":
-        break
       default:
         break
     }

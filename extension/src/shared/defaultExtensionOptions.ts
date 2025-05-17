@@ -25,6 +25,10 @@ const defaultExtensionOptions: ExtensionOptions = {
   maxConcurrentDownloads: 100,
   maxCoursesOnDashboardPage: 100,
   detectFileUpdates: false,
+  customSelectorCourseName: "",
+  customSelectorCourseShortcut: "",
+  customSelectorSectionElement: "",
+  customSelectorSectionName: "",
 }
 
 export default defaultExtensionOptions
