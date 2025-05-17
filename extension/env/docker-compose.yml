@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+  moodle:
+    image: bitnami/moodle:${MOODLE_VERSION-5.0.0}
+    container_name: moodle
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MOODLE_USERNAME=admin
+      - MOODLE_PASSWORD=password
+      - MOODLE_DATABASE_USER=bn_moodle
+      - MOODLE_DATABASE_PASSWORD=bitnami
+      - MOODLE_DATABASE_NAME=bitnami_moodle
+
+  mariadb:
+    image: bitnami/mariadb:latest
+    container_name: mariadb
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MARIADB_USER=bn_moodle
+      - MARIADB_PASSWORD=bitnami
+      - MARIADB_DATABASE=bitnami_moodle
+    # volumes:
+    #   - ./mariadb:/bitnami/mariadb

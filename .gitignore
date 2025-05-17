@@ -5,6 +5,7 @@ text
 .vscode
 .idea
 .npmrc
+mariadb
 
 test/**
 !test/index.js
