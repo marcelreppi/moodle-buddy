@@ -9,12 +9,22 @@ export function checkForMoodle(): boolean {
   return isMoodle
 }
 
-export function parseCourseShortcut(document: Document): string {
+export function parseCourseShortcut(document: Document, options: ExtensionOptions): string {
+  if (options.customSelectorCourseShortcut) {
+    const customSelectorResult = document.querySelector(options.customSelectorCourseShortcut)
+    if (customSelectorResult) {
+      const textContent = customSelectorResult?.textContent?.trim()
+      if (textContent) {
+        return textContent
+      }
+    }
+  }
+
   const shortcutNode = document.querySelector("a[aria-current='page']")
   if (shortcutNode) {
-    const { textContent } = shortcutNode
+    const textContent = shortcutNode?.textContent?.trim()
     if (textContent) {
-      return textContent.trim()
+      return textContent
     }
   }
 
@@ -26,9 +36,9 @@ export function parseCourseShortcut(document: Document): string {
         const allNavElements = Array.from(navbar.querySelectorAll("li"))
         const lastNav = allNavElements.pop()
         if (lastNav) {
-          const { textContent } = lastNav
+          const textContent = lastNav?.textContent?.trim()
           if (textContent) {
-            return textContent.trim()
+            return textContent
           }
         }
       }
@@ -38,24 +48,38 @@ export function parseCourseShortcut(document: Document): string {
   return "Unknown Shortcut"
 }
 
-export function parseCourseNameFromCoursePage(document: Document): string {
+export function parseCourseNameFromCoursePage(
+  document: Document,
+  options: ExtensionOptions
+): string {
+  if (options.customSelectorCourseName) {
+    const customSelectorResult = document.querySelector(options.customSelectorCourseName)
+    if (customSelectorResult) {
+      const textContent = customSelectorResult?.textContent?.trim()
+      if (textContent) {
+        return textContent
+      }
+    }
+  }
+
   const header = document.querySelector(".page-header-headings")
   if (header && header.children.length > 0) {
-    const { textContent } = header.children[0]
+    const textContent = header.children[0]?.textContent?.trim()
     if (textContent) {
-      return textContent.trim()
+      return textContent
     }
   }
 
   const shortcutNode = document.querySelector<HTMLAnchorElement>("a[aria-current='page']")
   if (shortcutNode) {
-    const { title, textContent } = shortcutNode
+    const title = shortcutNode?.title?.trim()
     if (title) {
-      return title.trim()
+      return title
     }
 
+    const textContent = shortcutNode?.textContent?.trim()
     if (textContent) {
-      return textContent.trim()
+      return textContent
     }
   }
 
@@ -63,9 +87,9 @@ export function parseCourseNameFromCoursePage(document: Document): string {
   if (mainHTML) {
     const firstHeader = mainHTML.querySelector("h1")
     if (firstHeader) {
-      const { textContent } = firstHeader
+      const textContent = firstHeader?.textContent?.trim()
       if (textContent) {
-        return textContent.trim()
+        return textContent
       }
     }
   }
@@ -75,15 +99,15 @@ export function parseCourseNameFromCoursePage(document: Document): string {
     for (const container of Array.from(possibleTitleContainers)) {
       const titleElement = container.querySelector("h1")
       if (titleElement) {
-        const { textContent } = titleElement
+        const textContent = titleElement?.textContent?.trim()
         if (textContent) {
-          return textContent.trim()
+          return textContent
         }
       }
     }
   }
 
-  const shortcut = parseCourseShortcut(document)
+  const shortcut = parseCourseShortcut(document, options)
   if (shortcut !== "" && shortcut !== "Unknown Shortcut") {
     return shortcut
   }
@@ -207,9 +231,9 @@ export function parseFileNameFromNode(node: HTMLElement): string {
   if (contentNode) {
     const { firstChild } = contentNode
     if (firstChild) {
-      const { textContent } = firstChild
+      const textContent = firstChild?.textContent?.trim()
       if (textContent) {
-        return textContent.trim()
+        return textContent
       }
     }
   }
@@ -217,15 +241,15 @@ export function parseFileNameFromNode(node: HTMLElement): string {
   // PluginFiles
   contentNode = node.querySelector(".fp-filename")
   if (contentNode) {
-    const { textContent } = contentNode
+    const textContent = contentNode?.textContent?.trim()
     if (textContent) {
-      return textContent.trim()
+      return textContent
     }
   }
 
-  const { textContent } = node
+  const textContent = node?.textContent?.trim()
   if (textContent) {
-    return textContent.trim()
+    return textContent
   }
 
   return "Unknown Filename"
@@ -277,9 +301,9 @@ export function parseActivityNameFromNode(node: HTMLElement): string {
   if (contentNode) {
     const { firstChild } = contentNode
     if (firstChild) {
-      const { textContent } = firstChild
+      const textContent = firstChild?.textContent?.trim()
       if (textContent) {
-        return textContent.trim()
+        return textContent
       }
     }
   }
@@ -300,9 +324,9 @@ export function parseActivityTypeFromNode(node: HTMLElement): string {
   if (contentNode) {
     const { firstChild } = contentNode
     if (firstChild) {
-      const { textContent } = firstChild
+      const textContent = firstChild?.textContent?.trim()
       if (textContent) {
-        return textContent.trim()
+        return textContent
       }
     }
   }
@@ -310,34 +334,48 @@ export function parseActivityTypeFromNode(node: HTMLElement): string {
   return "Unkown Activity Type"
 }
 
-export function parseSectionName(node: HTMLElement, document: Document): string {
-  const section = node.closest("[id^='section-']")
-
+export function parseSectionName(
+  node: HTMLElement,
+  document: Document,
+  options: ExtensionOptions
+): string {
+  const sectionSelector = options.customSelectorSectionElement || "[id^='section-']"
+  const section = node.closest(sectionSelector)
   if (!section) {
     return ""
   }
 
-  const ariaLabel = section.attributes.getNamedItem("aria-label")
+  if (options.customSelectorSectionName) {
+    const customSelectorResult = section.querySelector(options.customSelectorSectionName)
+    if (customSelectorResult) {
+      const textContent = customSelectorResult?.textContent?.trim()
+      if (textContent) {
+        return textContent
+      }
+    }
+  }
+
+  const ariaLabel = section.attributes.getNamedItem("aria-label")?.value?.trim()
   if (ariaLabel) {
-    return ariaLabel.value.trim()
+    return ariaLabel
   }
 
   const ariaLabelledBy = section.attributes.getNamedItem("aria-labelledby")
   if (ariaLabelledBy) {
     const label = document.getElementById(ariaLabelledBy.value)
     if (label) {
-      const { textContent } = label
+      const textContent = label?.textContent?.trim()
       if (textContent) {
-        return textContent.trim()
+        return textContent
       }
     }
   }
 
   const sectionNameElement = section.querySelector(".sectionname")
   if (sectionNameElement) {
-    const { textContent } = sectionNameElement
+    const textContent = sectionNameElement?.textContent?.trim()
     if (textContent) {
-      return textContent.trim()
+      return textContent
     }
   }
 

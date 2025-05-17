@@ -43,8 +43,8 @@ class Course {
     this.link = link
     this.HTMLDocument = HTMLDocument
     this.options = options
-    this.name = parser.parseCourseNameFromCoursePage(HTMLDocument)
-    this.shortcut = parser.parseCourseShortcut(HTMLDocument)
+    this.name = parser.parseCourseNameFromCoursePage(HTMLDocument, options)
+    this.shortcut = parser.parseCourseShortcut(HTMLDocument, options)
     this.isFirstScan = true
 
     this.resources = []
@@ -94,7 +94,7 @@ class Course {
     const href = parser.parseURLFromNode(node, "file", this.options)
     if (href === "") return
 
-    const section = parser.parseSectionName(node, this.HTMLDocument)
+    const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
     const sectionIndex = this.getSectionIndex(section)
     const resource: FileResource = {
       href,
@@ -119,7 +119,7 @@ class Course {
     const detectedURLs = this.resources.map((r) => r.href)
     if (detectedURLs.includes(href)) return
 
-    const section = parser.parseSectionName(node, this.HTMLDocument)
+    const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
     const sectionIndex = this.getSectionIndex(section)
     const resource: FileResource = {
       href,
@@ -151,7 +151,7 @@ class Course {
           const href = parser.parseURLFromNode(node, "url", this.options)
           if (href === "") return
 
-          const section = parser.parseSectionName(node, this.HTMLDocument)
+          const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
           const sectionIndex = this.getSectionIndex(section)
           const resourceNode: FileResource = {
             href,
@@ -174,7 +174,7 @@ class Course {
   private async addFolder(node: HTMLElement) {
     const href = parser.parseURLFromNode(node, "folder", this.options)
 
-    const section = parser.parseSectionName(node, this.HTMLDocument)
+    const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
     const sectionIndex = this.getSectionIndex(section)
     const resource: FolderResource = {
       href,
@@ -225,7 +225,7 @@ class Course {
   }
 
   private async addActivity(node: HTMLElement) {
-    const section = parser.parseSectionName(node, this.HTMLDocument)
+    const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
     const sectionIndex = this.getSectionIndex(section)
     const href = parser.parseURLFromNode(node, "activity", this.options)
     if (href === "") return
@@ -233,7 +233,7 @@ class Course {
     const activity: Activity = {
       href,
       name: parser.parseActivityNameFromNode(node),
-      section: parser.parseSectionName(node, this.HTMLDocument),
+      section: parser.parseSectionName(node, this.HTMLDocument, this.options),
       isNew: false,
       isUpdated: false,
       type: "activity",

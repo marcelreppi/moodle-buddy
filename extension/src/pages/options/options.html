@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 
 <html>
   <head>
@@ -15,14 +15,19 @@
           <br />
           URL ending usually on
           <i>/my</i>
-          , for example https://mymoodle.com/my. In newer Moodles it seems to be ending in <i>/my/courses.php</i>.
+          , for example https://mymoodle.com/my. In newer Moodles it seems to be ending in
+          <i>/my/courses.php</i>
+          .
         </p>
-      
+
         <input class="url-input" type="text" id="defaultMoodleURL" />
       </div>
       <div id="invalid-url">Invalid URL</div>
       <div>
-        <p>If the automatic detection doesn't work for your Moodle, you should turn it off and set the URL above manually.</p>
+        <p>
+          If the automatic detection doesn't work for your Moodle, you should turn it off and set
+          the URL above manually.
+        </p>
         <input type="checkbox" id="autoSetMoodleURL" />
         <label for="autoSetMoodleURL">Automatically detect Moodle URL</label>
       </div>
@@ -125,6 +130,58 @@
         <input type="radio" id="fs3" name="folderStructure" value="None" />
         <label for="fs3">No subfolders</label>
         <br />
+      </div>
+      <div style="margin-top: 10px">
+        <div class="form-subsection">Custom name detection</div>
+        <div style="margin-left: 5px">
+          <div>
+            Moodle Buddy tries to detect the name of the course and the sections automatically. This
+            works for most Moodle installations but not all.
+          </div>
+          <div>
+            If you encounter issues where Moodle Buddy detects the wrong name for things (e.g.
+            course name, section name, etc.), you can provide custom CSS selectors to identify the
+            correct DOM element for your specific Moodle platform. Slight technical knowledge is
+            required to find the correct selector but you can use the Browser
+            <code>DevTools</code>
+            to inspect the elements on the page and find the correct selector (or use AI to help you
+            with that 😄).
+          </div>
+          <div class="custom-selectors">
+            <label for="customSelectorCourseName">Course name:</label>
+            <input type="text" id="customSelectorCourseName" />
+            <div class="explanation">
+              CSS selector used on the whole document to look for the course name (e.g.
+              <code>.page-header-headings</code>
+              )
+            </div>
+
+            <label for="customSelectorCourseShortcut">Course shortcut:</label>
+            <input type="text" id="customSelectorCourseShortcut" />
+            <div class="explanation">
+              CSS selector used on the whole document to look for the course shortcut (e.g.
+              <code>a[aria-current='page']</code>
+              )
+            </div>
+
+            <label for="customSelectorSectionElement">Section element:</label>
+            <input type="text" id="customSelectorSectionElement" />
+            <div class="explanation">
+              CSS selector used to look for the closest section element from each detected file
+              (e.g.
+              <code>[id^='section-']</code>
+              )
+            </div>
+
+            <label for="customSelectorSectionName">Section name:</label>
+            <input type="text" id="customSelectorSectionName" />
+            <div class="explanation">
+              CSS selector used to extract the section name from the section element above (e.g.
+              <code>.sectionname</code>
+              )
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="form-subsection">File name</div>

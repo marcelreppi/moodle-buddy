@@ -14,18 +14,15 @@ import { sendLog } from "@shared/helpers"
 import logger from "@shared/logger"
 import { COMMANDS } from "@shared/constants"
 
-const courseName = parseCourseNameFromCoursePage(document)
 let videoNodes: HTMLAnchorElement[] = []
 let videoResources: VideoServiceResource[] = []
 let cancel = false
 let error = false
 
-async function scanForVideos() {
+async function scanForVideos(options: ExtensionOptions) {
   try {
     videoResources = []
     videoNodes = []
-
-    const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
 
     if (location.href.endsWith("view")) {
       const videoURLSelector = getQuerySelector("videoservice", options)
@@ -131,9 +128,12 @@ async function getVideoResourceSrc(
 }
 
 chrome.runtime.onMessage.addListener(async (message: Message) => {
+  const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
+  const courseName = parseCourseNameFromCoursePage(document, options)
+
   const { command } = message
   if (command === COMMANDS.INIT_SCAN) {
-    await scanForVideos()
+    await scanForVideos(options)
 
     if (error) {
       chrome.runtime.sendMessage({
