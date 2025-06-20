@@ -54,73 +54,79 @@
   </main>
 </template>
 
-<script>
-export default {
-  data() {
-    return {
-      isFirefox: typeof InstallTrigger !== "undefined",
-      browserId: "unknown",
-      showLoading: false,
-      showError: false,
-      showSuccess: false,
-      formContent: "",
-    }
-  },
-  created() {
-    if ("browserId" in this.$route.query) {
-      this.browserId = this.$route.query.browserId
-    }
+<script lang="ts" setup>
+import { ref, onMounted } from "vue"
+import { useRoute } from "nuxt/app"
+import { isFirefoxBrowser } from "~/utils"
 
-    this.sendEvent("uninstall")
-  },
-  methods: {
-    sendToLambda(path, body) {
-      return fetch(`https://api.moodlebuddy.com${path}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-API-Key": "00ssG7y9lC6r5mP653Ate9jgFFSkK1y4zpFPcbUd",
-        },
-        body: JSON.stringify(body),
-      })
+const BROWSER_ID_QUERY_PARAM = "browserId"
+
+const isFirefox = isFirefoxBrowser()
+
+const browserId = ref("unknown")
+const showLoading = ref(false)
+const showError = ref(false)
+const showSuccess = ref(false)
+const formContent = ref("")
+
+const route = useRoute()
+
+function sendToLambda(path: string, body: object) {
+  return fetch(`https://api.moodlebuddy.com${path}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": "00ssG7y9lC6r5mP653Ate9jgFFSkK1y4zpFPcbUd",
     },
-    sendEvent(event) {
-      return this.sendToLambda("/event", {
-        event,
-        browser: this.isFirefox ? "firefox" : "chrome",
-        browserId: this.browserId,
-        dev: false,
-      })
-    },
-    openExtensionStore() {
-      window.open(
-        this.isFirefox
-          ? "https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/"
-          : "https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo"
-      )
-    },
-    async submitForm() {
-      if (this.formContent !== "") {
-        this.showLoading = true
-        try {
-          await Promise.all([
-            this.sendEvent("feedback"),
-            this.sendToLambda("/feedback", {
-              subject: "Uninstall",
-              content: this.formContent,
-            }),
-          ])
-          this.showSuccess = true
-        } catch (error) {
-          this.showError = true
-          console.error(error)
-        } finally {
-          this.showLoading = false
-        }
-      }
-    },
-  },
+    body: JSON.stringify(body),
+  })
 }
+
+function sendEvent(event: string) {
+  return sendToLambda("/event", {
+    event,
+    browser: isFirefox ? "firefox" : "chrome",
+    browserId: browserId.value,
+    dev: false,
+  })
+}
+
+function openExtensionStore() {
+  window.open(
+    isFirefox
+      ? "https://addons.mozilla.org/en-US/firefox/addon/moodle-buddy/"
+      : "https://chrome.google.com/webstore/detail/moodle-buddy/nomahjpllnbcpbggnpiehiecfbjmcaeo"
+  )
+}
+
+async function submitForm() {
+  if (formContent.value !== "") {
+    showLoading.value = true
+    try {
+      await Promise.all([
+        sendEvent("feedback"),
+        sendToLambda("/feedback", {
+          subject: "Uninstall",
+          content: formContent.value,
+        }),
+      ])
+      showSuccess.value = true
+    } catch (error) {
+      showError.value = true
+      console.error(error)
+    } finally {
+      showLoading.value = false
+    }
+  }
+}
+
+onMounted(() => {
+  if (BROWSER_ID_QUERY_PARAM in route.query) {
+    browserId.value = route.query[BROWSER_ID_QUERY_PARAM]
+  }
+
+  sendEvent("uninstall")
+})
 </script>
 
 <style scoped>

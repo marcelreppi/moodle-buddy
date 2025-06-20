@@ -1,6 +1,6 @@
 import { defineNuxtConfig } from "nuxt/config"
 import { DESCRIPTION, DOMAIN, TITLE } from "./constants"
-import { TRACKER_CONFIG, TRACK_ENDPOINT, TRACK_ENDPOINT_FULL_URL, UMAMI_SCRIPT } from "./umami.config"
+import { TRACKER_CONFIG } from "./umami.config"
 
 export default defineNuxtConfig({
   app: {
