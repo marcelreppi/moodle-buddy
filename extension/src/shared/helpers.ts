@@ -12,6 +12,7 @@ import {
 
 import Course from "models/Course"
 import { COMMANDS } from "./constants"
+import { browserName } from "detect-browser"
 
 export const isDev = process.env.NODE_ENV !== "production"
 export const isDebug = process.env.NODE_ENV === "debug"
@@ -56,8 +57,7 @@ export async function getActiveTab(): Promise<chrome.tabs.Tab | undefined> {
   return tabs?.shift()
 }
 
-declare const InstallTrigger: unknown
-export const isFirefox = typeof InstallTrigger !== "undefined"
+export const isFirefox = browserName(navigator?.userAgent) === "firefox"
 
 export function getUpdatesFromCourses(courses: Course[]): number {
   const courseList = courses.flat()
