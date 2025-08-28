@@ -335,12 +335,12 @@ class Course {
         mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("activity", this.options))
       )
 
-      await Promise.all(fileNodes.map(this.addFile))
+      await Promise.all(fileNodes.map((n) => this.addFile(n)))
       await Promise.all(pluginFileNodes.map((n) => this.addPluginFile(n)))
-      await Promise.all(urlFileNodes.map(this.addURLNode))
+      await Promise.all(urlFileNodes.map((n) => this.addURLNode(n)))
       await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n)))
-      await Promise.all(folderNodes.map(this.addFolder))
-      await Promise.all(activities.map(this.addActivity))
+      await Promise.all(folderNodes.map((n) => this.addFolder(n)))
+      await Promise.all(activities.map((n) => this.addActivity(n)))
     }
 
     logger.debug("Course scan finished", { course: this })
