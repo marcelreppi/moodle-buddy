@@ -8,7 +8,7 @@ import {
   CourseData,
 } from "types"
 import * as parser from "@shared/parser"
-import { getMoodleBaseURL } from "@shared/regexHelpers"
+import { getMoodleBaseURL, getURLRegex } from "@shared/regexHelpers"
 import logger from "@shared/logger"
 
 async function getLastModifiedHeader(href: string, options: ExtensionOptions) {
@@ -21,12 +21,15 @@ async function getLastModifiedHeader(href: string, options: ExtensionOptions) {
   return lastModified ?? undefined
 }
 
+const courseURLRegex = getURLRegex("course")
+
 class Course {
   link: string
   HTMLDocument: Document
   name: string
   shortcut: string
   isFirstScan: boolean
+  isCoursePage: boolean
   options: ExtensionOptions
 
   resources: Resource[]
@@ -46,6 +49,7 @@ class Course {
     this.name = parser.parseCourseNameFromCoursePage(HTMLDocument, options)
     this.shortcut = parser.parseCourseShortcut(HTMLDocument, options)
     this.isFirstScan = true
+    this.isCoursePage = !!link.match(courseURLRegex)
 
     this.resources = []
     this.previousSeenResources = null
@@ -225,6 +229,10 @@ class Course {
   }
 
   private async addActivity(node: HTMLElement) {
+    if (!this.isCoursePage) {
+      return
+    }
+
     const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
     const sectionIndex = this.getSectionIndex(section)
     const href = parser.parseURLFromNode(node, "activity", this.options)

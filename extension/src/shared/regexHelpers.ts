@@ -23,7 +23,7 @@ const fileRegex = /\/mod\/resource\/view\.php\?id=[0-9]*/gi
 const folderRegex = /\/mod\/folder\/view\.php\?id=[0-9]*/gi
 const pluginFileRegex = /\/pluginfile\.php([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
 const urlRegex = /\/mod\/url\/view\.php\?id=[0-9]*/gi
-const activityRegex = /\/mod\/(?!resource|folder)[A-z]*\/view\.php\?id=[0-9]*/gi
+const activityRegex = /\/mod\/(?!resource|folder)[A-z]*\/view\.php.*/gi
 
 const allRegexes: Record<URLRegexType, RegExp> = {
   login: loginPageRegex,
