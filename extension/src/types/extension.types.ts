@@ -27,6 +27,7 @@ export interface ExtensionOptions {
   includeVideo: boolean
   includeAudio: boolean
   includeImage: boolean
+  includeSectionDescriptions: boolean
   maxConcurrentDownloads: number
   maxCoursesOnDashboardPage: number
   detectFileUpdates: boolean

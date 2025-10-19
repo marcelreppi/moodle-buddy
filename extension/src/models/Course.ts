@@ -6,10 +6,14 @@ import {
   FileResource,
   FolderResource,
   CourseData,
+  Description,
 } from "types"
 import * as parser from "@shared/parser"
 import { getMoodleBaseURL, getURLRegex } from "@shared/regexHelpers"
 import logger from "@shared/logger"
+import TurndownService from "turndown"
+
+const turndownService = new TurndownService()
 
 async function getLastModifiedHeader(href: string, options: ExtensionOptions) {
   if (!options.detectFileUpdates) return
@@ -38,6 +42,8 @@ class Course {
   activities: Activity[]
   previousSeenActivities: string[] | null
 
+  descriptions: Description[]
+
   lastModifiedHeaders: Record<string, string | undefined> | undefined
 
   sectionIndices: Record<string, number>
@@ -56,6 +62,8 @@ class Course {
 
     this.activities = []
     this.previousSeenActivities = null
+
+    this.descriptions = []
 
     this.sectionIndices = {}
   }
@@ -260,6 +268,35 @@ class Course {
     this.activities.push(activity)
   }
 
+  private async addAllDescriptions(mainHTML: Element) {
+    const descriptionNodes = mainHTML.querySelectorAll<HTMLElement>(".summarytext")
+    for (const node of Array.from(descriptionNodes)) {
+      const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
+      const sectionIndex = this.getSectionIndex(section)
+
+      // const content = node.textContent?.trim() ?? ""
+
+      const content = turndownService.turndown(node.outerHTML)
+
+      // support txt, md and html as format
+
+      if (content === "") continue
+
+      const description: Description = {
+        type: "description",
+        content,
+        section,
+        sectionIndex,
+        href: "",
+        name: "",
+        isNew: false,
+        isUpdated: false,
+        resourceIndex: 0,
+      }
+      this.descriptions.push(description)
+    }
+  }
+
   async scan(testLocalStorage?: ExtensionStorage): Promise<void> {
     this.resources = []
     this.previousSeenResources = null
@@ -349,6 +386,10 @@ class Course {
       await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n)))
       await Promise.all(folderNodes.map((n) => this.addFolder(n)))
       await Promise.all(activities.map((n) => this.addActivity(n)))
+    }
+
+    if (this.options.includeSectionDescriptions) {
+      this.addAllDescriptions(mainHTML)
     }
 
     logger.debug("Course scan finished", { course: this })

@@ -46,6 +46,7 @@
     "pino": "8.17.2",
     "sanitize-filename": "^1.6.3",
     "sha.js": "^2.4.11",
+    "turndown": "^7.2.1",
     "vue": "^3.4.27",
     "vue-tippy": "6.4.1"
   },

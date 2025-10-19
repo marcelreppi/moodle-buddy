@@ -262,6 +262,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
       courseName: course.name,
       courseShortcut: course.shortcut,
       resources: downloadNodes,
+      descriptions: course.descriptions,
       options,
     } satisfies DownloadMessage)
 
@@ -298,6 +299,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
       courseName: course.name,
       courseShortcut: course.shortcut,
       resources: course.resources,
+      descriptions: course.descriptions,
       options,
     } satisfies DownloadMessage)
 

@@ -1,4 +1,4 @@
-export type ResourceTypes = FileResourceTypes | "folder" | "activity"
+export type ResourceTypes = FileResourceTypes | "folder" | "activity" | "description"
 export type FileResourceTypes = "file" | "pluginfile" | "url" | "videoservice"
 
 export interface Resource {
@@ -32,6 +32,11 @@ export interface FolderResource extends Resource {
 export interface Activity extends Resource {
   type: "activity"
   activityType: string
+}
+
+export interface Description extends Resource {
+  type: "description"
+  content: string
 }
 
 export interface CourseData {

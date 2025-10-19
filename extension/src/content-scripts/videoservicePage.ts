@@ -163,6 +163,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
           courseName,
           courseShortcut: "",
           resources: videoResources,
+          descriptions: [],
           options,
         } satisfies DownloadMessage)
         await chrome.runtime.sendMessage({
@@ -213,6 +214,7 @@ chrome.runtime.onMessage.addListener(async (message: Message) => {
           courseName,
           courseShortcut: "",
           resources: downloadVideoResources,
+          descriptions: [],
           options,
         } satisfies DownloadMessage)
       }

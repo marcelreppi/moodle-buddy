@@ -1,5 +1,5 @@
 import { COMMANDS } from "@shared/constants"
-import { Activity, Resource, VideoServiceResource } from "./course.types"
+import { Activity, Description, Resource, VideoServiceResource } from "./course.types"
 import { ExtensionOptions, ExtensionStorage, SupportedPage } from "./extension.types"
 import { FeedbackPayloadData, LogPayloadData, PagePayloadData } from "./tracker.types"
 
@@ -128,6 +128,7 @@ export interface DownloadMessage extends Message {
   courseName: string
   courseShortcut: string
   resources: Resource[]
+  descriptions: Description[]
   options: CrawlOptions
 }
 

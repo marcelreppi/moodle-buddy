@@ -11,6 +11,7 @@ import {
   FolderResource,
   Resource,
   VideoServiceResource,
+  Description,
 } from "types"
 import { isDebug } from "@shared/helpers"
 
@@ -34,6 +35,7 @@ class Downloader {
   courseName: string
   courseShortcut: string
   resources: Resource[]
+  descriptions: Description[]
   options: ExtensionOptions
 
   private createdAt: number
@@ -47,6 +49,7 @@ class Downloader {
   private interruptCount: number
   private inProgress: Set<number>
   private finished: number[]
+  private objectURLs: Map<number, string>
 
   private prepLimit: LimitFunction
   private downloadLimit: LimitFunction
@@ -58,6 +61,7 @@ class Downloader {
     courseName: string,
     courseShortcut: string,
     resources: Resource[],
+    descriptions: Description[],
     options: ExtensionOptions
   ) {
     this.id = id
@@ -65,6 +69,7 @@ class Downloader {
     this.courseName = courseName
     this.courseShortcut = courseShortcut
     this.resources = resources
+    this.descriptions = descriptions
     this.options = options
 
     this.createdAt = Date.now()
@@ -78,6 +83,7 @@ class Downloader {
     this.interruptCount = 0
     this.inProgress = new Set()
     this.finished = []
+    this.objectURLs = new Map()
 
     // Concurrent download limiting
     this.prepLimit = pLimit(this.options.maxConcurrentDownloads)
@@ -93,6 +99,11 @@ class Downloader {
     for (const id of this.inProgress) {
       await chrome.downloads.cancel(id)
     }
+
+    this.objectURLs.forEach((url, id) => {
+      URL.revokeObjectURL(url)
+      this.objectURLs.delete(id)
+    })
 
     const remainingFiles =
       this.addCount -
@@ -121,6 +132,7 @@ class Downloader {
     this.byteCount += downloadItem[0].fileSize
     this.inProgress.delete(id)
     this.finished.push(id)
+    this.objectURLs.delete(id)
 
     await this.onUpdate()
   }
@@ -129,6 +141,7 @@ class Downloader {
     this.interruptCount++
     this.fileCount--
     this.inProgress.delete(id)
+    this.objectURLs.delete(id)
 
     await this.onUpdate()
   }
@@ -171,6 +184,33 @@ class Downloader {
         }
       })
     }
+
+    this.addFiles(this.descriptions.length)
+    for (const d of this.descriptions) {
+      this.prepLimit(async () => {
+        if (this.isCancelled) {
+          this.removeFiles(1)
+          return
+        }
+      })
+
+      await this.downloadDescription(d)
+    }
+  }
+
+  private async downloadDescription(description: Description) {
+    if (this.isCancelled) return
+
+    const { content, section, sectionIndex } = description
+
+    const fileName =
+      this.options.folderStructure === "CourseFile"
+        ? `${sanitizeFileName(section, "_")}_description.md`
+        : `description.md`
+
+    const blob = new Blob([content], { type: "text/x-markdown" })
+    const dataUrl = URL.createObjectURL(blob)
+    await this.download(dataUrl, fileName, description)
   }
 
   private async addFiles(n: number) {
@@ -226,7 +266,11 @@ class Downloader {
     } satisfies DownloadProgressMessage)
   }
 
-  private async download(href: string, fileName: string, resource: FileResource | FolderResource) {
+  private async download(
+    href: string,
+    fileName: string,
+    resource: FileResource | FolderResource | Description
+  ) {
     if (this.isCancelled) return
 
     const { lastModified, resourceIndex, section, sectionIndex } = resource
@@ -319,6 +363,10 @@ class Downloader {
           const id = await chrome.downloads.download({ url: href, filename: filePath })
           logger.debug(`Started download with id ${id} ${filePath}`)
           await this.onDownloadStart(id)
+
+          if (resource.type === "description") {
+            this.objectURLs.set(id, href)
+          }
         } catch (err) {
           logger.error(err)
           sendLog({ errorMessage: err.message, url: href, fileName: filePath })
@@ -500,7 +548,15 @@ async function onCancel() {
 }
 
 async function onDownload(message: DownloadMessage) {
-  const { id, courseLink, courseName, courseShortcut, resources, options: userOptions } = message
+  const {
+    id,
+    courseLink,
+    courseName,
+    courseShortcut,
+    resources,
+    descriptions,
+    options: userOptions,
+  } = message
   logger.debug(`Received download message with id ${id}`)
 
   if (downloaders[id]) {
@@ -514,7 +570,15 @@ async function onDownload(message: DownloadMessage) {
   const options = { ...storageOptions, ...userOptions }
 
   // Create and register the downloader
-  const downloader = new Downloader(id, courseLink, courseName, courseShortcut, resources, options)
+  const downloader = new Downloader(
+    id,
+    courseLink,
+    courseName,
+    courseShortcut,
+    resources,
+    descriptions,
+    options
+  )
   downloaders[downloader.id] = downloader
 }
 

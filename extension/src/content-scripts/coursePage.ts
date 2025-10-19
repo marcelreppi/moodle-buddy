@@ -83,6 +83,7 @@ async function initCoursePage() {
         courseShortcut: course.shortcut,
         courseLink: course.link,
         resources: selectedResources,
+        descriptions: course.descriptions,
         options,
       } satisfies DownloadMessage)
 
