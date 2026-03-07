@@ -6,6 +6,7 @@ text
 .idea
 .npmrc
 mariadb
+Moodle/
 
 test/**
 !test/index.js

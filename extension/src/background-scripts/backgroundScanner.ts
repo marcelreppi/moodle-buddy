@@ -6,7 +6,7 @@ import {
 } from "types"
 import logger from "@shared/logger"
 import { getURLRegex } from "@shared/regexHelpers"
-import { setBadgeText } from "./helpers"
+import { setBadgeText, sendTabMessageSafely } from "./helpers"
 import { COMMANDS } from "@shared/constants"
 
 const SLEEP_DURATION = 1000
@@ -37,7 +37,7 @@ async function backgroundScan() {
     const [activeTab] = await chrome.tabs.query({ active: true })
     if (activeTab?.id) {
       logger.debug(`Sending course html to content script for course ${courseLink}`)
-      chrome.tabs.sendMessage(activeTab.id, {
+      await sendTabMessageSafely(activeTab.id, {
         command: COMMANDS.BG_COURSE_SCAN,
         href: courseLink,
         html: resBody,

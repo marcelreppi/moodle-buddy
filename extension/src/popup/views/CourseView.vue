@@ -16,7 +16,8 @@
       <label>
         <input v-model="downloadFolders" type="checkbox" :disabled="disableFoldersCb" />
         <span class="ml-1">
-          {{ onlyNewResources ? nNewFolders + nUpdatedFolders : nFolders }} folder(s)
+          {{ onlyNewResources ? nNewFolders + nUpdatedFolders : nFolders + nAssignments }}
+          {{ nAssignments > 0 ? "assignment(s)" : "folder(s)" }}
         </span>
       </label>
     </template>
@@ -30,7 +31,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue"
 import { sendEvent } from "@shared/helpers"
-import { isFile, isFolder } from "@shared/resourceHelpers"
+import { isAssignment, isFile, isFolder } from "@shared/resourceHelpers"
 import { Resource, Activity, Message, CourseScanResultMessage } from "@types"
 import FilesViewLayout from "../components/FilesViewLayout.vue"
 import DetailedResourceSelection from "../components/DetailedResourceSelection.vue"
@@ -44,9 +45,10 @@ const nFiles = computed(() => resources.value.filter(isFile).length)
 const nNewFiles = computed(() => resources.value.filter((r) => isFile(r) && r.isNew).length)
 const nUpdatedFiles = computed(() => resources.value.filter((r) => isFile(r) && r.isUpdated).length)
 const nFolders = computed(() => resources.value.filter(isFolder).length)
-const nNewFolders = computed(() => resources.value.filter((r) => isFolder(r) && r.isNew).length)
+const nAssignments = computed(() => resources.value.filter(isAssignment).length)
+const nNewFolders = computed(() => resources.value.filter((r) => (isFolder(r) || isAssignment(r)) && r.isNew).length)
 const nUpdatedFolders = computed(
-  () => resources.value.filter((r) => isFolder(r) && r.isUpdated).length
+  () => resources.value.filter((r) => (isFolder(r) || isAssignment(r)) && r.isUpdated).length
 )
 const nNewAndUpdatedResources = computed(
   () => nNewFiles.value + nUpdatedFiles.value + nNewFolders.value + nUpdatedFolders.value
@@ -66,7 +68,7 @@ const disableFoldersCb = computed(() => {
   if (onlyNewResources.value) {
     return nNewFolders.value + nUpdatedFolders.value === 0
   }
-  return nFolders.value === 0
+  return nFolders.value + nAssignments.value === 0
 })
 const setCheckboxState = () => {
   if (onlyNewResources.value) {
@@ -74,7 +76,7 @@ const setCheckboxState = () => {
     downloadFolders.value = nNewFolders.value + nUpdatedFolders.value !== 0
   } else {
     downloadFiles.value = nFiles.value !== 0
-    downloadFolders.value = nFolders.value !== 0
+    downloadFolders.value = nFolders.value + nAssignments.value !== 0
   }
 }
 const setFilesSelected = () =>
@@ -87,7 +89,7 @@ const setFilesSelected = () =>
   })
 
 const setFoldersSelected = () =>
-  resources.value.filter(isFolder).forEach((r) => {
+  resources.value.filter((r) => isFolder(r) || isAssignment(r)).forEach((r) => {
     if (onlyNewResources.value) {
       r.selected = downloadFolders.value && (r.isNew || r.isUpdated)
     } else {

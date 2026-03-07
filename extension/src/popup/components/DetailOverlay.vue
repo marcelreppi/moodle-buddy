@@ -17,7 +17,7 @@
         </div>
       </div>
       <div v-if="folders.length > 0">
-        <div class="font-bold">Folders</div>
+        <div class="font-bold">{{ hasAssignments ? "Folders / Assignments" : "Folders" }}</div>
         <div class="pl-3 break-normal">
           <div v-for="(folder, i) in folders" :key="i">
             <div class="inline-block right-arrow"></div>
@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { Resource } from "types"
 import { computed } from "vue"
-import { isFile, isFolder, isVideoServiceVideo } from "@shared/resourceHelpers"
+import { isAssignment, isFile, isFolder, isVideoServiceVideo } from "@shared/resourceHelpers"
 import { XMarkIcon } from "@heroicons/vue/24/outline"
 
 const props = defineProps<{
@@ -43,7 +43,10 @@ const props = defineProps<{
 const files = computed<Resource[]>(() =>
   props.resources.filter((r) => isFile(r) || isVideoServiceVideo(r))
 )
-const folders = computed<Resource[]>(() => props.resources.filter(isFolder))
+const folders = computed<Resource[]>(() =>
+  props.resources.filter((r) => isFolder(r) || isAssignment(r))
+)
+const hasAssignments = computed(() => folders.value.some(isAssignment))
 
 const getHintText = (r: Resource) => {
   if (r.isNew) return "(new)"

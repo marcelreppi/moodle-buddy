@@ -12,7 +12,7 @@ import {
 } from "types"
 import defaultExtensionOptions from "@shared/defaultExtensionOptions"
 import { isDev } from "@shared/helpers"
-import { uuidv4, setIcon, setBadgeText } from "./helpers"
+import { uuidv4, setIcon, setBadgeText, sendTabMessageSafely } from "./helpers"
 import { sendEvent, sendPageData, sendFeedback, sendLog } from "./tracker"
 import logger from "@shared/logger"
 import { COMMANDS } from "@shared/constants"
@@ -180,7 +180,7 @@ chrome.runtime.onMessage.addListener(
 )
 
 chrome.tabs.onHighlighted.addListener(async (tab) => {
-  chrome.tabs.sendMessage(tab.tabIds[0], {
+  await sendTabMessageSafely(tab.tabIds[0], {
     command: COMMANDS.ENSURE_CORRECT_BADGE,
   })
 })

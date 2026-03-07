@@ -3,6 +3,7 @@ import {
   ExtensionStorage,
   Resource,
   Activity,
+  AssignmentResource,
   FileResource,
   FolderResource,
   CourseData,
@@ -22,6 +23,7 @@ async function getLastModifiedHeader(href: string, options: ExtensionOptions) {
 }
 
 const courseURLRegex = getURLRegex("course")
+const assignmentURLRegex = getURLRegex("assignment")
 
 class Course {
   link: string
@@ -68,6 +70,19 @@ class Course {
     }
 
     return this.sectionIndices[section] + 1
+  }
+
+  private createCourseDataSnapshot(): CourseData {
+    const lastModifiedHeaders =
+      this.lastModifiedHeaders ?? Object.fromEntries(this.resources.map((r) => [r.href, r.lastModified]))
+
+    return {
+      seenResources: this.resources.filter((resource) => !resource.isNew).map((resource) => resource.href),
+      newResources: this.resources.filter((resource) => resource.isNew).map((resource) => resource.href),
+      seenActivities: this.activities.filter((activity) => !activity.isNew).map((activity) => activity.href),
+      newActivities: this.activities.filter((activity) => activity.isNew).map((activity) => activity.href),
+      lastModifiedHeaders,
+    }
   }
 
   private addResource(resource: Resource): void {
@@ -230,8 +245,54 @@ class Course {
     this.addResource(resource)
   }
 
+  private async addAssignmentResource(
+    href: string,
+    name: string,
+    section: string,
+    sectionIndex: number
+  ) {
+    const resource: AssignmentResource = {
+      href,
+      name,
+      section,
+      type: "assignment",
+      isNew: false,
+      isUpdated: false,
+      resourceIndex: this.resources.length + 1,
+      sectionIndex,
+      lastModified: await getLastModifiedHeader(href, this.options),
+    }
+
+    this.addResource(resource)
+  }
+
+  private async addAssignment(node: HTMLElement) {
+    const href = parser.parseURLFromNode(node, "activity", this.options)
+    if (href === "") return
+
+    const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
+    const sectionIndex = this.getSectionIndex(section)
+    const name = parser.parseActivityNameFromNode(node)
+    await this.addAssignmentResource(href, name, section, sectionIndex)
+  }
+
+  private async addCurrentAssignmentPage() {
+    const courseName = parser.parseCourseNameFromBreadcrumb(this.HTMLDocument)
+    if (courseName) this.name = courseName
+    const section = parser.parseSectionFromBreadcrumb(this.HTMLDocument)
+    const sectionIndex = this.getSectionIndex(section)
+    const name = parser.parseAssignmentNameFromPage(this.HTMLDocument)
+    await this.addAssignmentResource(this.link, name, section, sectionIndex)
+  }
+
   private async addActivity(node: HTMLElement) {
     if (!this.isCoursePage) {
+      return
+    }
+
+    const activityType = parser.parseActivityTypeFromNode(node)
+    if (activityType === "assign") {
+      await this.addAssignment(node)
       return
     }
 
@@ -247,7 +308,7 @@ class Course {
       isNew: false,
       isUpdated: false,
       type: "activity",
-      activityType: parser.parseActivityTypeFromNode(node),
+      activityType,
       resourceIndex: this.activities.length + 1,
       sectionIndex,
     }
@@ -301,63 +362,68 @@ class Course {
       await this.processTiles(mainHTML as HTMLElement)
     }
 
-    const modules = mainHTML.querySelectorAll<HTMLElement>("li[id^='module-']")
-    if (modules && modules.length !== 0) {
-      for (const node of Array.from(modules)) {
-        const isFile = node.classList.contains("resource")
-        const isFolder = node.classList.contains("folder")
-        const isURL = node.classList.contains("url")
+    if (this.link.match(assignmentURLRegex)) {
+      await this.addCurrentAssignmentPage()
+      logger.debug("Assignment page scan finished", { course: this })
+    } else {
+      const modules = mainHTML.querySelectorAll<HTMLElement>("li[id^='module-']")
+      if (modules && modules.length !== 0) {
+        for (const node of Array.from(modules)) {
+          const isFile = node.classList.contains("resource")
+          const isFolder = node.classList.contains("folder")
+          const isURL = node.classList.contains("url")
 
-        if (isFile) {
-          await this.addFile(node)
-        } else if (isFolder) {
-          await this.addFolder(node)
-        } else if (isURL) {
-          await this.addURLNode(node)
-        } else {
-          await this.addActivity(node)
+          if (isFile) {
+            await this.addFile(node)
+          } else if (isFolder) {
+            await this.addFolder(node)
+          } else if (isURL) {
+            await this.addURLNode(node)
+          } else {
+            await this.addActivity(node)
+          }
         }
+
+        // Check for pluginfiles that could be anywhere on the page
+        const pluginFileNodes = Array.from(
+          mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", this.options))
+        )
+        const mediaFileNodes = Array.from(
+          mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", this.options))
+        )
+        await Promise.all(pluginFileNodes.map((n) => this.addPluginFile(n)))
+        await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n)))
+      } else {
+        // Backup solution that is a little more brute force
+        const fileNodes = Array.from(
+          mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("file", this.options))
+        )
+        const pluginFileNodes = Array.from(
+          mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", this.options))
+        )
+        const urlFileNodes = Array.from(
+          mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("url", this.options))
+        )
+        const mediaFileNodes = Array.from(
+          mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", this.options))
+        )
+        const folderNodes = Array.from(
+          mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("folder", this.options))
+        )
+        const activities = Array.from(
+          mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("activity", this.options))
+        )
+
+        await Promise.all(fileNodes.map((n) => this.addFile(n)))
+        await Promise.all(pluginFileNodes.map((n) => this.addPluginFile(n)))
+        await Promise.all(urlFileNodes.map((n) => this.addURLNode(n)))
+        await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n)))
+        await Promise.all(folderNodes.map((n) => this.addFolder(n)))
+        await Promise.all(activities.map((n) => this.addActivity(n)))
       }
 
-      // Check for pluginfiles that could be anywhere on the page
-      const pluginFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", this.options))
-      )
-      const mediaFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", this.options))
-      )
-      await Promise.all(pluginFileNodes.map((n) => this.addPluginFile(n)))
-      await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n)))
-    } else {
-      // Backup solution that is a little more brute force
-      const fileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("file", this.options))
-      )
-      const pluginFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", this.options))
-      )
-      const urlFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("url", this.options))
-      )
-      const mediaFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", this.options))
-      )
-      const folderNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("folder", this.options))
-      )
-      const activities = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("activity", this.options))
-      )
-
-      await Promise.all(fileNodes.map((n) => this.addFile(n)))
-      await Promise.all(pluginFileNodes.map((n) => this.addPluginFile(n)))
-      await Promise.all(urlFileNodes.map((n) => this.addURLNode(n)))
-      await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n)))
-      await Promise.all(folderNodes.map((n) => this.addFolder(n)))
-      await Promise.all(activities.map((n) => this.addActivity(n)))
+      logger.debug("Course scan finished", { course: this })
     }
-
-    logger.debug("Course scan finished", { course: this })
 
     if (testLocalStorage) {
       return
@@ -381,13 +447,7 @@ class Course {
       )
     }
 
-    const updatedCourseData = {
-      seenResources: this.resources.filter((n) => !n.isNew).map((n) => n.href),
-      newResources: this.resources.filter((n) => n.isNew).map((n) => n.href),
-      seenActivities: this.activities.filter((n) => !n.isNew).map((n) => n.href),
-      newActivities: this.activities.filter((n) => n.isNew).map((n) => n.href),
-      lastModifiedHeaders: this.lastModifiedHeaders,
-    }
+    const updatedCourseData = this.createCourseDataSnapshot()
     courseData[this.link] = updatedCourseData
 
     logger.debug(`Storing course data in local storage for course ${this.name}`, {
@@ -398,7 +458,7 @@ class Course {
 
   async updateStoredResources(downloadedResources?: Resource[]): Promise<CourseData> {
     const { courseData } = (await chrome.storage.local.get("courseData")) as ExtensionStorage
-    const storedCourseData = courseData[this.link]
+    const storedCourseData = courseData[this.link] ?? this.createCourseDataSnapshot()
     const { seenResources, lastModifiedHeaders } = storedCourseData
 
     const newResources = this.resources.filter((n) => n.isNew)
@@ -457,7 +517,7 @@ class Course {
 
   async updateStoredActivities(): Promise<CourseData> {
     const { courseData } = (await chrome.storage.local.get("courseData")) as ExtensionStorage
-    const storedCourseData = courseData[this.link]
+    const storedCourseData = courseData[this.link] ?? this.createCourseDataSnapshot()
 
     const { seenActivities, newActivities } = storedCourseData
     logger.debug(newActivities, "Adding activities to list of seen activities")
