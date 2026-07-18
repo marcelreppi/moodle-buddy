@@ -30,6 +30,7 @@ class Course {
   shortcut: string
   isFirstScan: boolean
   isCoursePage: boolean
+  isTilesFormat: boolean
   options: ExtensionOptions
 
   resources: Resource[]
@@ -50,6 +51,7 @@ class Course {
     this.shortcut = parser.parseCourseShortcut(HTMLDocument, options)
     this.isFirstScan = true
     this.isCoursePage = !!link.match(courseURLRegex)
+    this.isTilesFormat = parser.isCourseTilesFormat(HTMLDocument)
 
     this.resources = []
     this.previousSeenResources = null
@@ -295,7 +297,7 @@ class Course {
       return
     }
 
-    if (parser.isTilesFormat(this.HTMLDocument)) {
+    if (this.isTilesFormat) {
       await this.processTiles(mainHTML as HTMLElement)
     }
 
@@ -361,15 +363,17 @@ class Course {
       return
     }
 
-    // Deduplicate resources before saving, as injected tile fragments might be matched 
-    // multiple times across different fallback queries (e.g file vs pluginfile nodes)
-    const uniqueResourcesMap = new Map<string, Resource>()
-    for (const res of this.resources) {
-      if (!uniqueResourcesMap.has(res.href)) {
-        uniqueResourcesMap.set(res.href, res)
+    if (this.isTilesFormat) {
+      // Deduplicate resources before saving, as injected tile fragments might be matched 
+      // multiple times across different fallback queries (e.g file vs pluginfile nodes)
+      const uniqueResourcesMap = new Map<string, Resource>()
+      for (const res of this.resources) {
+        if (!uniqueResourcesMap.has(res.href)) {
+          uniqueResourcesMap.set(res.href, res)
+        }
       }
+      this.resources = Array.from(uniqueResourcesMap.values())
     }
-    this.resources = Array.from(uniqueResourcesMap.values())
 
     if (this.lastModifiedHeaders === undefined) {
       this.lastModifiedHeaders = Object.fromEntries(

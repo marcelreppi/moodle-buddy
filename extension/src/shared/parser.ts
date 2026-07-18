@@ -9,7 +9,7 @@ export function checkForMoodle(): boolean {
   return isMoodle
 }
 
-export function isTilesFormat(document: Document): boolean {
+export function isCourseTilesFormat(document: Document): boolean {
   return Boolean(document.querySelector("#format-tiles-multi-section-page"))
 }
 
