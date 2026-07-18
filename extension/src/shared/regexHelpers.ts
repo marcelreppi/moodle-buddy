@@ -15,7 +15,7 @@ type URLRegexType =
 
 const loginPageRegex = /\/login\/index.php/gi
 const dashboardPageRegex = /\/my/gi
-const coursePageRegex = /\/course\/view\.php\?id=[0-9]*/gi
+const coursePageRegex = /\/course\/(view|section)\.php\?id=[0-9]*/gi
 const courseResourcesPageRegex = /\/course\/resources\.php\?id=[0-9]*/gi
 const videoServicePageRegex = /\/mod\/videoservice\/view\.php/gi
 

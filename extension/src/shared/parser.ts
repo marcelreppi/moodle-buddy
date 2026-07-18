@@ -9,6 +9,10 @@ export function checkForMoodle(): boolean {
   return isMoodle
 }
 
+export function isCourseTilesFormat(document: Document): boolean {
+  return Boolean(document.querySelector("#format-tiles-multi-section-page"))
+}
+
 export function parseCourseShortcut(document: Document, options: ExtensionOptions): string {
   if (options.customSelectorCourseShortcut) {
     const customSelectorResult = document.querySelector(options.customSelectorCourseShortcut)
@@ -378,6 +382,15 @@ export function parseSectionName(
   const sectionNameElement = section.querySelector(".sectionname")
   if (sectionNameElement) {
     const textContent = sectionNameElement?.textContent?.trim()
+    if (textContent) {
+      return textContent
+    }
+  }
+
+  // Tiles format section title
+  const tileTitle = section.querySelector("h3")
+  if (tileTitle) {
+    const textContent = tileTitle?.textContent?.trim()
     if (textContent) {
       return textContent
     }
