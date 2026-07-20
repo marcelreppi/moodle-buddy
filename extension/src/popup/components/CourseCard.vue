@@ -24,11 +24,7 @@
         >
           <CheckIcon class="size-4"></CheckIcon>
         </button>
-        <button
-          ref="openCourseButton"
-          class="btn btn-xs btn-ghost"
-          @click="onOpenCourse"
-        >
+        <button ref="openCourseButton" class="btn btn-xs btn-ghost" @click="onOpenCourse">
           <ArrowTopRightOnSquareIcon class="size-4"></ArrowTopRightOnSquareIcon>
         </button>
       </div>
@@ -142,15 +138,18 @@ const hasUpdates = computed(() => allNewNodes.value.length > 0)
 
 const progressBar = ref<InstanceType<typeof ProgressBar> | null>(null)
 const isDownloadInProgress = computed(() => !!props.downloadState)
-watch(() => props.downloadState, () => {
-  if (props.downloadState && progressBar.value) {
-    progressBar.value.setProgress(
-      props.downloadState.total,
-      props.downloadState.completed,
-      props.downloadState.errors
-    )
+watch(
+  () => props.downloadState,
+  () => {
+    if (props.downloadState && progressBar.value) {
+      progressBar.value.setProgress(
+        props.downloadState.total,
+        props.downloadState.completed,
+        props.downloadState.errors
+      )
+    }
   }
-})
+)
 
 const getResourceLabel = (resource: Resource): string => {
   if (isFile(resource)) return "File"
@@ -167,7 +166,9 @@ function onOpenCourse() {
 }
 
 function onDownloadCourse() {
-  sendEvent("dashboard-download-course-full", true, { numberOfFiles: props.course.resources.length })
+  sendEvent("dashboard-download-course-full", true, {
+    numberOfFiles: props.course.resources.length,
+  })
   if (activeTab.value?.id) {
     chrome.tabs.sendMessage(activeTab.value.id, {
       command: COMMANDS.DASHBOARD_DOWNLOAD_COURSE,

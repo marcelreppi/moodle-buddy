@@ -6,7 +6,11 @@
         <button class="btn btn-xs btn-ghost" @click="onCancel">Cancel</button>
       </div>
     </div>
-    <progress class="progress progress-success w-full h-4 mt-1" :value="progress" :max="MAX_PROGRESS"></progress>
+    <progress
+      class="progress progress-success w-full h-4 mt-1"
+      :value="progress"
+      :max="MAX_PROGRESS"
+    ></progress>
   </div>
 </template>
 
@@ -21,18 +25,21 @@ const actionText: Record<Actions, string> = {
 const MAX_PROGRESS = 100
 const DEFAULT_PROGRESS = 5
 
-const props = withDefaults(defineProps<{
-  action: Actions
-  cancelable?: boolean
-  isPending?: boolean
-  onDone?: () => void
-  onCancel?: () => void
-}>(), {
-  cancelable: true,
-  isPending: false,
-  onDone: () => {},
-  onCancel: () => {},
-})
+const props = withDefaults(
+  defineProps<{
+    action: Actions
+    cancelable?: boolean
+    isPending?: boolean
+    onDone?: () => void
+    onCancel?: () => void
+  }>(),
+  {
+    cancelable: true,
+    isPending: false,
+    onDone: () => {},
+    onCancel: () => {},
+  }
+)
 
 const total = ref(-1)
 const completed = ref(0)

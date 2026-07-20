@@ -162,7 +162,12 @@
         class="w-5/6"
       ></progress-bar>
 
-      <button v-if="!downloadInProgress" class="mt-5 btn btn-primary" :disabled="disableDownload" @click="onDownload">
+      <button
+        v-if="!downloadInProgress"
+        class="mt-5 btn btn-primary"
+        :disabled="disableDownload"
+        @click="onDownload"
+      >
         Download
       </button>
     </div>
@@ -183,13 +188,7 @@ import SelectionTab from "./SelectionTab.vue"
 import defaultExtensionOptions from "@shared/defaultExtensionOptions"
 import { sendEvent } from "@shared/helpers"
 import { isFile, isFolder, isVideoServiceVideo } from "@shared/resourceHelpers"
-import {
-  Activity,
-  CourseCrawlMessage,
-  DownloadProgressMessage,
-  Message,
-  Resource,
-} from "@types"
+import { Activity, CourseCrawlMessage, DownloadProgressMessage, Message, Resource } from "@types"
 import { activeTab, options, onlyNewResources } from "../state"
 import { COMMANDS } from "@shared/constants"
 

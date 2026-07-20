@@ -97,12 +97,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue"
 import { Resource } from "types"
-import {
-  isFile,
-  isFolder,
-  isVideoServiceVideo,
-  setResourceSelected,
-} from "@shared/resourceHelpers"
+import { isFile, isFolder, isVideoServiceVideo, setResourceSelected } from "@shared/resourceHelpers"
 import useNavigation from "../composables/useNavigation"
 import { onlyNewResources } from "../state"
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline"

@@ -364,7 +364,7 @@ class Course {
     }
 
     if (this.isTilesFormat) {
-      // Deduplicate resources before saving, as injected tile fragments might be matched 
+      // Deduplicate resources before saving, as injected tile fragments might be matched
       // multiple times across different fallback queries (e.g file vs pluginfile nodes)
       const uniqueResourcesMap = new Map<string, Resource>()
       for (const res of this.resources) {
@@ -520,7 +520,8 @@ class Course {
           wrapper.id = `section-${sectionId}`
           const tileContainer = tile.closest(".tile") || tile
           const titleElement = tileContainer.querySelector("h3")
-          const title = titleElement?.textContent?.trim() || tile.textContent?.trim() || `Section ${sectionId}`
+          const title =
+            titleElement?.textContent?.trim() || tile.textContent?.trim() || `Section ${sectionId}`
           wrapper.setAttribute("aria-label", title)
           wrapper.innerHTML = content
           hiddenContainer.appendChild(wrapper)
@@ -542,7 +543,9 @@ class Course {
     const match = scriptContent.match(/"sesskey":"([^"]+)"/)
     if (match) return match[1]
 
-    const logoutLink = this.HTMLDocument.querySelector<HTMLAnchorElement>('a[href*="login/logout.php?sesskey="]')
+    const logoutLink = this.HTMLDocument.querySelector<HTMLAnchorElement>(
+      'a[href*="login/logout.php?sesskey="]'
+    )
     if (logoutLink) {
       const url = new URL(logoutLink.href)
       return url.searchParams.get("sesskey") ?? undefined
@@ -566,7 +569,11 @@ class Course {
     return undefined
   }
 
-  private async fetchTileContent(sectionId: string, sesskey: string, contextId: string): Promise<string | undefined> {
+  private async fetchTileContent(
+    sectionId: string,
+    sesskey: string,
+    contextId: string
+  ): Promise<string | undefined> {
     const baseURL = getMoodleBaseURL(this.link)
     const url = `${baseURL}/lib/ajax/service.php?sesskey=${sesskey}&info=core_get_fragment`
 
@@ -581,19 +588,19 @@ class Course {
           args: [
             {
               name: "sectionid",
-              value: parseInt(sectionId)
-            }
-          ]
-        }
-      }
+              value: parseInt(sectionId),
+            },
+          ],
+        },
+      },
     ]
 
     const response = await fetch(url, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     })
 
     if (!response.ok) return undefined

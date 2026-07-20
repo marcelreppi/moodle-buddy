@@ -85,5 +85,5 @@ export async function updateIconFromCourses(courses: Course[]) {
 }
 
 export function getCourseDownloadId(command: string, course: Course | DashboardCourseData) {
-  return `${command}_${course.link}`;
+  return `${command}_${course.link}`
 }
