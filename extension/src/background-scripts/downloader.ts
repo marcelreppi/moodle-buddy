@@ -23,7 +23,12 @@ import {
   getQuerySelector,
 } from "@shared/parser"
 import { getURLRegex, getMoodleBaseURL } from "@shared/regexHelpers"
-import { getFileTypeFromURL, sanitizeFileName, padNumber, sendRuntimeMessageSafely } from "./helpers"
+import {
+  getFileTypeFromURL,
+  sanitizeFileName,
+  padNumber,
+  sendRuntimeMessageSafely,
+} from "./helpers"
 import { sendLog, sendDownloadData } from "./tracker"
 import logger from "@shared/logger"
 import { COMMANDS } from "@shared/constants"
@@ -56,7 +61,9 @@ function getTextContent(node: Element | null, selectorsToStrip: string[] = []): 
     if (["p", "div", "li", "tr", "table", "ul", "ol"].includes(tag)) t += "\n"
     return t
   }
-  return walk(clone).replace(/\n{2,}/g, "\n").trim()
+  return walk(clone)
+    .replace(/\n{2,}/g, "\n")
+    .trim()
 }
 
 const STRIP_FROM_TABLE_CELLS = [
@@ -107,13 +114,21 @@ function getTableRows(root: Element): string[] {
 function buildAssignmentSummary(mainRegion: Element): string {
   const parts: string[] = []
 
-  const desc = getTextContent(
-    mainRegion.querySelector(ASSIGNMENT_SELECTORS.intro),
-    ["[id^='assign_files_tree']", ".fileuploadsubmission", ".fileuploadsubmissiontime", ".ygtvitem", ".ygtvchildren", ".ygtvtable"]
-  )
+  const desc = getTextContent(mainRegion.querySelector(ASSIGNMENT_SELECTORS.intro), [
+    "[id^='assign_files_tree']",
+    ".fileuploadsubmission",
+    ".fileuploadsubmissiontime",
+    ".ygtvitem",
+    ".ygtvchildren",
+    ".ygtvtable",
+  ])
   if (desc) parts.push(desc)
 
-  for (const selector of [ASSIGNMENT_SELECTORS.overview, ASSIGNMENT_SELECTORS.submission, ASSIGNMENT_SELECTORS.feedback]) {
+  for (const selector of [
+    ASSIGNMENT_SELECTORS.overview,
+    ASSIGNMENT_SELECTORS.submission,
+    ASSIGNMENT_SELECTORS.feedback,
+  ]) {
     const rows = Array.from(mainRegion.querySelectorAll(selector)).flatMap(getTableRows)
     if (rows.length > 0) parts.push(rows.join("\n"))
   }
@@ -625,7 +640,8 @@ class Downloader {
       if (seenHrefs.has(anchor.href)) continue
       seenHrefs.add(anchor.href)
 
-      const isIntro = introNode?.contains(anchor) || anchor.href.includes("/mod_assign/introattachment/")
+      const isIntro =
+        introNode?.contains(anchor) || anchor.href.includes("/mod_assign/introattachment/")
       if (!isIntro && !this.options.includeAssignmentSubmissionFiles) continue
 
       const displayName = (anchor.textContent ?? "")

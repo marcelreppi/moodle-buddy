@@ -188,13 +188,7 @@ import SelectionTab from "./SelectionTab.vue"
 import defaultExtensionOptions from "@shared/defaultExtensionOptions"
 import { sendEvent } from "@shared/helpers"
 import { isAssignment, isFile, isFolder, isVideoServiceVideo } from "@shared/resourceHelpers"
-import {
-  Activity,
-  CourseCrawlMessage,
-  DownloadProgressMessage,
-  Message,
-  Resource,
-} from "@types"
+import { Activity, CourseCrawlMessage, DownloadProgressMessage, Message, Resource } from "@types"
 import { activeTab, options, onlyNewResources } from "../state"
 import { COMMANDS } from "@shared/constants"
 
@@ -224,7 +218,9 @@ const prependFileIndexToFileName = ref(options.value?.prependFileIndexToFileName
 
 // Resource data
 const resources = computed(() =>
-  props.resources.filter((r) => isFile(r) || isFolder(r) || isAssignment(r) || isVideoServiceVideo(r))
+  props.resources.filter(
+    (r) => isFile(r) || isFolder(r) || isAssignment(r) || isVideoServiceVideo(r)
+  )
 )
 const nResources = computed(() => resources.value.length)
 const selectedResources = computed(() => resources.value.filter((r) => r.selected))

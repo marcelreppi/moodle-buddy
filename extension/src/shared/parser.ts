@@ -146,7 +146,9 @@ export function parseAssignmentNameFromPage(document: Document): string {
 }
 
 function getBreadcrumbItems(document: Document): HTMLElement[] {
-  const breadcrumb = document.querySelector(".breadcrumb, nav[aria-label] ol, [role='navigation'] ol")
+  const breadcrumb = document.querySelector(
+    ".breadcrumb, nav[aria-label] ol, [role='navigation'] ol"
+  )
   if (!breadcrumb) return []
   return Array.from(breadcrumb.querySelectorAll("li"))
 }
@@ -372,7 +374,9 @@ export function parseActivityNameFromNode(node: HTMLElement): string {
 }
 
 export function parseActivityTypeFromNode(node: HTMLElement): string {
-  const modtypeClass = Array.from(node.classList).find((className) => className.startsWith("modtype_"))
+  const modtypeClass = Array.from(node.classList).find((className) =>
+    className.startsWith("modtype_")
+  )
   if (modtypeClass) {
     const activityType = modtypeClass.replace(/^modtype_/, "").trim()
     if (activityType) {

@@ -46,7 +46,9 @@ const nNewFiles = computed(() => resources.value.filter((r) => isFile(r) && r.is
 const nUpdatedFiles = computed(() => resources.value.filter((r) => isFile(r) && r.isUpdated).length)
 const nFolders = computed(() => resources.value.filter(isFolder).length)
 const nAssignments = computed(() => resources.value.filter(isAssignment).length)
-const nNewFolders = computed(() => resources.value.filter((r) => (isFolder(r) || isAssignment(r)) && r.isNew).length)
+const nNewFolders = computed(
+  () => resources.value.filter((r) => (isFolder(r) || isAssignment(r)) && r.isNew).length
+)
 const nUpdatedFolders = computed(
   () => resources.value.filter((r) => (isFolder(r) || isAssignment(r)) && r.isUpdated).length
 )
@@ -89,13 +91,15 @@ const setFilesSelected = () =>
   })
 
 const setFoldersSelected = () =>
-  resources.value.filter((r) => isFolder(r) || isAssignment(r)).forEach((r) => {
-    if (onlyNewResources.value) {
-      r.selected = downloadFolders.value && (r.isNew || r.isUpdated)
-    } else {
-      r.selected = downloadFolders.value
-    }
-  })
+  resources.value
+    .filter((r) => isFolder(r) || isAssignment(r))
+    .forEach((r) => {
+      if (onlyNewResources.value) {
+        r.selected = downloadFolders.value && (r.isNew || r.isUpdated)
+      } else {
+        r.selected = downloadFolders.value
+      }
+    })
 watch(onlyNewResources, () => {
   if (currentSelectionTab.value?.id === "simple") {
     setCheckboxState()

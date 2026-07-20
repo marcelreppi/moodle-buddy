@@ -74,13 +74,22 @@ class Course {
 
   private createCourseDataSnapshot(): CourseData {
     const lastModifiedHeaders =
-      this.lastModifiedHeaders ?? Object.fromEntries(this.resources.map((r) => [r.href, r.lastModified]))
+      this.lastModifiedHeaders ??
+      Object.fromEntries(this.resources.map((r) => [r.href, r.lastModified]))
 
     return {
-      seenResources: this.resources.filter((resource) => !resource.isNew).map((resource) => resource.href),
-      newResources: this.resources.filter((resource) => resource.isNew).map((resource) => resource.href),
-      seenActivities: this.activities.filter((activity) => !activity.isNew).map((activity) => activity.href),
-      newActivities: this.activities.filter((activity) => activity.isNew).map((activity) => activity.href),
+      seenResources: this.resources
+        .filter((resource) => !resource.isNew)
+        .map((resource) => resource.href),
+      newResources: this.resources
+        .filter((resource) => resource.isNew)
+        .map((resource) => resource.href),
+      seenActivities: this.activities
+        .filter((activity) => !activity.isNew)
+        .map((activity) => activity.href),
+      newActivities: this.activities
+        .filter((activity) => activity.isNew)
+        .map((activity) => activity.href),
       lastModifiedHeaders,
     }
   }
@@ -386,7 +395,9 @@ class Course {
 
         // Check for pluginfiles that could be anywhere on the page
         const pluginFileNodes = Array.from(
-          mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", this.options))
+          mainHTML.querySelectorAll<HTMLElement>(
+            parser.getQuerySelector("pluginfile", this.options)
+          )
         )
         const mediaFileNodes = Array.from(
           mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", this.options))
@@ -399,7 +410,9 @@ class Course {
           mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("file", this.options))
         )
         const pluginFileNodes = Array.from(
-          mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", this.options))
+          mainHTML.querySelectorAll<HTMLElement>(
+            parser.getQuerySelector("pluginfile", this.options)
+          )
         )
         const urlFileNodes = Array.from(
           mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("url", this.options))

@@ -144,7 +144,9 @@ const filteredResources = computed(() => {
 const fileResources = computed(() =>
   filteredResources.value.filter((r) => isFile(r) || isVideoServiceVideo(r))
 )
-const folderResources = computed(() => filteredResources.value.filter((r) => isFolder(r) || isAssignment(r)))
+const folderResources = computed(() =>
+  filteredResources.value.filter((r) => isFolder(r) || isAssignment(r))
+)
 const hasAssignments = computed(() => folderResources.value.some(isAssignment))
 
 const onMouseOver = (e: Event) => {
