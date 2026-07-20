@@ -53,7 +53,7 @@ export interface ExtensionStorage {
   lastBackgroundScanMillis: number
 }
 
-export type SupportedPage = "course" | "dashboard" | "videoservice"
+export type SupportedPage = "course" | "activity" | "dashboard" | "videoservice"
 
 export interface SelectionTab {
   id: string

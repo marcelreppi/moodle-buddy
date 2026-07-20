@@ -14,6 +14,7 @@ import { COMMANDS } from "@shared/constants"
 
 const pageToScriptMapping: Record<NonNullable<SupportedPage>, ScriptName> = {
   course: "coursePage",
+  activity: "activityPage",
   dashboard: "dashboardPage",
   videoservice: "videoservicePage",
 }
@@ -44,11 +45,9 @@ export function getSupportedPage(): SupportedPage | undefined {
   )
   if (isCoursePage) return "course"
 
-  // Treat any other Moodle activity page (e.g., /mod/assign/view.php) as a course page
-  // so we can reuse the course scanner to pick up files/links embedded in activities
   const activityPageRegex = getURLRegex("activity")
   const isActivityPage = Boolean(location.href.match(activityPageRegex))
-  if (isActivityPage) return "course"
+  if (isActivityPage) return "activity"
 
   const videoServicePageRegex = getURLRegex("videoservice")
   const isVideoServicePage = Boolean(location.href.match(videoServicePageRegex))
