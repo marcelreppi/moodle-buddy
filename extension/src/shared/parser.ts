@@ -32,23 +32,6 @@ export function parseCourseShortcut(document: Document, options: ExtensionOption
     }
   }
 
-  const possibleNavbarContainers = document.querySelectorAll("#page, #page-header, #page-navbar")
-  if (possibleNavbarContainers) {
-    for (const container of Array.from(possibleNavbarContainers)) {
-      const navbar = container.querySelector("nav, ol, ul")
-      if (navbar) {
-        const allNavElements = Array.from(navbar.querySelectorAll("li"))
-        const lastNav = allNavElements.pop()
-        if (lastNav) {
-          const textContent = lastNav?.textContent?.trim()
-          if (textContent) {
-            return textContent
-          }
-        }
-      }
-    }
-  }
-
   return "Unknown Shortcut"
 }
 
@@ -117,6 +100,59 @@ export function parseCourseNameFromCoursePage(
   }
 
   return "Unknown Course"
+}
+
+export function parseCourseNameFromNavBar(document: Document, options: ExtensionOptions): string {
+  if (options.customSelectorCourseName) {
+    const customSelectorResult = document.querySelector(options.customSelectorCourseName)
+    if (customSelectorResult) {
+      const textContent = customSelectorResult?.textContent?.trim()
+      if (textContent) {
+        return textContent
+      }
+    }
+  }
+
+  const navbar = document.querySelector("#page-navbar")
+  const breadcrumbs = navbar?.querySelectorAll("li a")
+  if (navbar && breadcrumbs && breadcrumbs.length > 0) {
+    const title = breadcrumbs[0]?.getAttribute("title")?.trim()
+    if (title) {
+      return title
+    }
+  }
+
+  return "Unknown Course"
+}
+
+export function parseCourseShortcutFromNavBar(
+  document: Document,
+  options: ExtensionOptions
+): string {
+  if (options.customSelectorCourseShortcut) {
+    const customSelectorResult = document.querySelector(options.customSelectorCourseShortcut)
+    if (customSelectorResult) {
+      const textContent = customSelectorResult?.textContent?.trim()
+      if (textContent) {
+        return textContent
+      }
+    }
+  }
+
+  const navbar = document.querySelector("#page-navbar")
+  const breadcrumbs = navbar?.querySelectorAll("li")
+  if (navbar && breadcrumbs && breadcrumbs.length > 0) {
+    const textContent = breadcrumbs[0]?.textContent?.trim()
+    if (textContent) {
+      return textContent
+    }
+  }
+
+  return "Unknown Course Shortcut"
+}
+
+export function parsePageTitle(document: Document, options: ExtensionOptions): string {
+  return parseCourseNameFromCoursePage(document, options)
 }
 
 export function parseCourseLink(htmlString: string): string {
@@ -321,8 +357,8 @@ export function parseActivityNameFromNode(node: HTMLElement): string {
 
 export function parseActivityTypeFromNode(node: HTMLElement): string {
   const modtypeClassResult = Array.from(node.classList).find((className) =>
-className.startsWith("modtype_")
-)
+    className.startsWith("modtype_")
+  )
   if (modtypeClassResult) {
     const activityType = modtypeClassResult.split("_")[1]
     if (activityType) {
