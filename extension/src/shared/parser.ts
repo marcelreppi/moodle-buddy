@@ -320,9 +320,11 @@ export function parseActivityNameFromNode(node: HTMLElement): string {
 }
 
 export function parseActivityTypeFromNode(node: HTMLElement): string {
-  const modtypeClassResult = node.className.match(/modtype.*(?= )/gi)
+  const modtypeClassResult = Array.from(node.classList).find((className) =>
+className.startsWith("modtype_")
+)
   if (modtypeClassResult) {
-    const activityType = modtypeClassResult[0].split("_")[1]
+    const activityType = modtypeClassResult.split("_")[1]
     if (activityType) {
       return activityType
     }
