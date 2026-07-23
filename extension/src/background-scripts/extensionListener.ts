@@ -18,6 +18,9 @@ import logger from "@shared/logger"
 import { COMMANDS } from "@shared/constants"
 
 const defaultOptions = defaultExtensionOptions
+const WEBSITE_INSTALL_REF = "moodle-buddy-extension"
+const WEBSITE_INSTALL_PAGE_URL = "https://moodlebuddy.com/install"
+const LOCAL_INSTALL_PAGE_URL = "/pages/install/install.html"
 
 const initialStorage: ExtensionStorage = {
   options: defaultOptions,
@@ -31,14 +34,27 @@ const initialStorage: ExtensionStorage = {
   lastBackgroundScanMillis: Date.now(),
 }
 
+function getWebsiteInstallUrl(): string {
+  const queryParams = new URLSearchParams({
+    ref: WEBSITE_INSTALL_REF,
+    utm_source: WEBSITE_INSTALL_REF,
+    utm_medium: "extension",
+    utm_campaign: "install",
+    browserId: initialStorage.browserId,
+    version: chrome.runtime.getManifest().version,
+    informationUrl: chrome.runtime.getURL("pages/information/information.html"),
+  })
+
+  return `${WEBSITE_INSTALL_PAGE_URL}?${queryParams.toString()}`
+}
+
 async function onInstall() {
   await chrome.storage.local.set({
     ...initialStorage,
   } satisfies ExtensionStorage)
 
-  chrome.tabs.create({
-    url: "/pages/install/install.html",
-  })
+  const url = isDev ? LOCAL_INSTALL_PAGE_URL : getWebsiteInstallUrl()
+  chrome.tabs.create({ url })
 
   sendEvent("install", false)
 }

@@ -72,6 +72,17 @@ function getManifest() {
       page: "pages/options/options.html",
       open_in_tab: true,
     },
+    web_accessible_resources: [
+      {
+        resources: ["pages/information/information.html"],
+        matches: [
+          "https://moodlebuddy.com/*",
+          "https://www.moodlebuddy.com/*",
+          "http://localhost/*",
+          "http://127.0.0.1/*",
+        ],
+      },
+    ],
     ...getBrowserSpecificProperties(TARGET),
   }
 
