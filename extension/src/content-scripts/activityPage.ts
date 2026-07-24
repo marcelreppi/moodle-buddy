@@ -8,7 +8,7 @@ import {
 import { checkForMoodle, parseCourseLink } from "@shared/parser"
 import { getCourseDownloadId, sendLog } from "@shared/helpers"
 
-import Course from "../models/Course"
+import ActivityCrawler from "../models/ActivityCrawler"
 import logger from "@shared/logger"
 import { COMMANDS } from "@shared/constants"
 
@@ -25,14 +25,15 @@ function sendScanResults(course) {
 async function initActivityPage() {
   const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
   const activityLink = parseCourseLink(location.href)
-  const course = new Course(activityLink, document, options)
+  const activity = new ActivityCrawler(activityLink, document, options)
 
   let initialScanCompleted = false
 
-  course.scan()
+  activity
+    .scan()
     .then(() => {
       initialScanCompleted = true
-      sendScanResults(course)
+      sendScanResults(activity)
     })
     .catch((err) => {
       logger.error(err)
@@ -47,7 +48,7 @@ async function initActivityPage() {
 
     if (command === COMMANDS.INIT_SCAN) {
       if (initialScanCompleted) {
-        sendScanResults(course)
+        sendScanResults(activity)
       }
       return
     }
@@ -57,10 +58,10 @@ async function initActivityPage() {
 
       chrome.runtime.sendMessage({
         command: COMMANDS.DOWNLOAD,
-        id: getCourseDownloadId(command, course),
-        courseName: course.name,
-        courseShortcut: course.shortcut,
-        courseLink: course.link,
+        id: getCourseDownloadId(command, activity),
+        courseName: activity.name,
+        courseShortcut: activity.shortcut,
+        courseLink: activity.link,
         resources: selectedResources,
         options,
       } satisfies DownloadMessage)

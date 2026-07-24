@@ -1,0 +1,3 @@
+/moodle-buddy-tests/
+/src/models/*.test.ts
+/src/models/fixtures/

@@ -6,7 +6,7 @@ import {
   SetBadgeMessage,
   SupportedPage,
 } from "types"
-import { isDebug } from "@shared/helpers"
+import { isDev } from "@shared/helpers"
 import { checkForMoodle } from "@shared/parser"
 import { getMoodleBaseURL, getURLRegex } from "@shared/regexHelpers"
 import logger from "@shared/logger"
@@ -53,10 +53,11 @@ export function getSupportedPage(): SupportedPage | undefined {
   const isVideoServicePage = Boolean(location.href.match(videoServicePageRegex))
   if (isVideoServicePage) return "videoservice"
 
-  if (isDebug) {
-    const filename = location.href.split("/").pop()
+  if (isDev) {
+    const filename = location.href.split("/").pop()?.toLowerCase()
     if (filename?.includes("course")) return "course"
     if (filename?.includes("dashboard")) return "dashboard"
+    if (filename?.includes("activity")) return "activity"
     if (filename?.includes("videoservice")) return "videoservice"
   }
 
