@@ -13,14 +13,6 @@ class CourseCrawler extends PageCrawler {
     this.previousSeenActivities = null
   }
 
-  protected parseCourseName(HTMLDocument: Document, options: ExtensionOptions): string {
-    return super.parseCourseName(HTMLDocument, options)
-  }
-
-  protected parseCourseShortcut(HTMLDocument: Document, options: ExtensionOptions): string {
-    return super.parseCourseShortcut(HTMLDocument, options)
-  }
-
   protected addResource(resource: Resource): void {
     if (this.previousSeenResources !== null) {
       const hasNotBeenSeenBefore = !this.previousSeenResources.includes(resource.href)
