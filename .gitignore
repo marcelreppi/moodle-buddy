@@ -6,6 +6,7 @@ text
 .idea
 .npmrc
 mariadb
+/.agents
 
 test/**
 !test/index.js
