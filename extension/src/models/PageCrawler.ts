@@ -26,29 +26,28 @@ const courseURLRegex = getURLRegex("course")
 class PageCrawler {
   link: string
   HTMLDocument: Document
+  mainHTML: HTMLElement | null
   name: string
   shortcut: string
   title: string
   isFirstScan: boolean
   isCoursePage: boolean
-  isTilesFormat: boolean
   options: ExtensionOptions
 
   resources: Resource[]
   activities: Activity[]
-  lastModifiedHeaders: Record<string, string | undefined> | undefined
   sectionIndices: Record<string, number>
 
   constructor(link: string, HTMLDocument: Document, options: ExtensionOptions) {
     this.link = link
     this.HTMLDocument = HTMLDocument
+    this.mainHTML = HTMLDocument.querySelector<HTMLElement>("#region-main")
     this.options = options
     this.name = this.parseCourseName(HTMLDocument, options)
     this.shortcut = this.parseCourseShortcut(HTMLDocument, options)
     this.title = this.parsePageTitle(HTMLDocument, options)
     this.isFirstScan = true
     this.isCoursePage = !!link.match(courseURLRegex)
-    this.isTilesFormat = parser.isCourseTilesFormat(HTMLDocument)
 
     this.resources = []
     this.activities = []
@@ -242,29 +241,20 @@ class PageCrawler {
     this.activities.push(activity)
   }
 
-  async scan(testLocalStorage?: ExtensionStorage): Promise<void> {
+  protected async scanPage(localStorage: ExtensionStorage): Promise<void> {
     this.resources = []
     this.activities = []
     this.sectionIndices = {}
 
-    //  Local storage course data
-    const localStorage =
-      testLocalStorage ?? ((await chrome.storage.local.get()) as ExtensionStorage)
     const { options } = localStorage
 
     this.options = options
 
-    const mainHTML = this.HTMLDocument.querySelector("#region-main")
-
-    if (!mainHTML) {
+    if (!this.mainHTML) {
       return
     }
 
-    if (this.isTilesFormat) {
-      await this.processTiles(mainHTML as HTMLElement)
-    }
-
-    const modules = mainHTML.querySelectorAll<HTMLElement>("li[id^='module-']")
+    const modules = this.mainHTML.querySelectorAll<HTMLElement>("li[id^='module-']")
     if (modules && modules.length !== 0) {
       for (const node of Array.from(modules)) {
         const isFile = node.classList.contains("resource")
@@ -284,32 +274,38 @@ class PageCrawler {
 
       // Check for pluginfiles that could be anywhere on the page
       const pluginFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", this.options))
+        this.mainHTML.querySelectorAll<HTMLElement>(
+          parser.getQuerySelector("pluginfile", this.options)
+        )
       )
       const mediaFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", this.options))
+        this.mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", this.options))
       )
       await Promise.all(pluginFileNodes.map((n) => this.addPluginFile(n)))
       await Promise.all(mediaFileNodes.map((n) => this.addPluginFile(n)))
     } else {
       // Backup solution that is a little more brute force
       const fileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("file", this.options))
+        this.mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("file", this.options))
       )
       const pluginFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("pluginfile", this.options))
+        this.mainHTML.querySelectorAll<HTMLElement>(
+          parser.getQuerySelector("pluginfile", this.options)
+        )
       )
       const urlFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("url", this.options))
+        this.mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("url", this.options))
       )
       const mediaFileNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", this.options))
+        this.mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("media", this.options))
       )
       const folderNodes = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("folder", this.options))
+        this.mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("folder", this.options))
       )
       const activities = Array.from(
-        mainHTML.querySelectorAll<HTMLElement>(parser.getQuerySelector("activity", this.options))
+        this.mainHTML.querySelectorAll<HTMLElement>(
+          parser.getQuerySelector("activity", this.options)
+        )
       )
 
       await Promise.all(fileNodes.map((n) => this.addFile(n)))
@@ -321,157 +317,13 @@ class PageCrawler {
     }
 
     logger.debug("Course scan finished", { course: this })
-
-    if (testLocalStorage) {
-      return
-    }
-
-    if (this.isTilesFormat) {
-      // Deduplicate resources before saving, as injected tile fragments might be matched
-      // multiple times across different fallback queries (e.g file vs pluginfile nodes)
-      const uniqueResourcesMap = new Map<string, Resource>()
-      for (const res of this.resources) {
-        if (!uniqueResourcesMap.has(res.href)) {
-          uniqueResourcesMap.set(res.href, res)
-        }
-      }
-      this.resources = Array.from(uniqueResourcesMap.values())
-    }
-
-    if (this.lastModifiedHeaders === undefined) {
-      this.lastModifiedHeaders = Object.fromEntries(
-        this.resources.map((r) => [r.href, r.lastModified])
-      )
-    }
   }
 
-  private async processTiles(mainHTML: HTMLElement): Promise<void> {
-    const tiles = mainHTML.querySelectorAll<HTMLElement>("a.tile-link")
-    if (tiles.length === 0) return
+  async scan(testLocalStorage?: ExtensionStorage): Promise<void> {
+    const localStorage =
+      testLocalStorage ?? ((await chrome.storage.local.get()) as ExtensionStorage)
 
-    logger.debug(`Processing ${tiles.length} tiles for dynamic content via AJAX`)
-
-    const sesskey = this.getSesskey()
-    const contextId = this.getContextId()
-
-    if (!sesskey || !contextId) {
-      logger.warn("Could not find sesskey or contextid, falling back to visual clicks")
-      for (const tile of Array.from(tiles)) {
-        tile.click()
-        await this.sleep(500)
-      }
-      return
-    }
-
-    // Create a hidden container for the fetched content so scanner can find modules
-    const hiddenContainer = this.HTMLDocument.createElement("div")
-    hiddenContainer.id = "moodle-buddy-tiles-content"
-    hiddenContainer.style.display = "none"
-    mainHTML.appendChild(hiddenContainer)
-
-    const fetchPromises = Array.from(tiles).map(async (tile) => {
-      const url = new URL((tile as HTMLAnchorElement).href)
-      const sectionId = url.searchParams.get("id")
-      if (!sectionId) return
-
-      try {
-        const content = await this.fetchTileContent(sectionId, sesskey, contextId)
-        if (content) {
-          const wrapper = this.HTMLDocument.createElement("div")
-          wrapper.id = `section-${sectionId}`
-          const tileContainer = tile.closest(".tile") || tile
-          const titleElement = tileContainer.querySelector("h3")
-          const title =
-            titleElement?.textContent?.trim() || tile.textContent?.trim() || `Section ${sectionId}`
-          wrapper.setAttribute("aria-label", title)
-          wrapper.innerHTML = content
-          hiddenContainer.appendChild(wrapper)
-        }
-      } catch (e) {
-        logger.error(`Failed to fetch tile content for section ${sectionId}`, e)
-      }
-    })
-
-    await Promise.all(fetchPromises)
-    logger.debug("All tiles fetched and injected into hidden container")
-  }
-
-  private getSesskey(): string | undefined {
-    // Try to get from M.cfg or from a logout link
-    const scriptContent = Array.from(this.HTMLDocument.scripts)
-      .map((s) => s.textContent)
-      .join(" ")
-    const match = scriptContent.match(/"sesskey":"([^"]+)"/)
-    if (match) return match[1]
-
-    const logoutLink = this.HTMLDocument.querySelector<HTMLAnchorElement>(
-      'a[href*="login/logout.php?sesskey="]'
-    )
-    if (logoutLink) {
-      const url = new URL(logoutLink.href)
-      return url.searchParams.get("sesskey") ?? undefined
-    }
-
-    return undefined
-  }
-
-  private getContextId(): string | undefined {
-    const scriptContent = Array.from(this.HTMLDocument.scripts)
-      .map((s) => s.textContent)
-      .join(" ")
-    const match = scriptContent.match(/"contextid":(\d+)/)
-    if (match) return match[1]
-
-    // Fallback: look for body classes or other indicators
-    const bodyClass = this.HTMLDocument.body.className
-    const contextMatch = bodyClass.match(/context-(\d+)/)
-    if (contextMatch) return contextMatch[1]
-
-    return undefined
-  }
-
-  private async fetchTileContent(
-    sectionId: string,
-    sesskey: string,
-    contextId: string
-  ): Promise<string | undefined> {
-    const baseURL = getMoodleBaseURL(this.link)
-    const url = `${baseURL}/lib/ajax/service.php?sesskey=${sesskey}&info=core_get_fragment`
-
-    const payload = [
-      {
-        index: 0,
-        methodname: "core_get_fragment",
-        args: {
-          component: "format_tiles",
-          callback: "get_cm_list",
-          contextid: parseInt(contextId),
-          args: [
-            {
-              name: "sectionid",
-              value: parseInt(sectionId),
-            },
-          ],
-        },
-      },
-    ]
-
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-
-    if (!response.ok) return undefined
-
-    const data = await response.json()
-    return data[0]?.data?.html
-  }
-
-  private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms))
+    await this.scanPage(localStorage)
   }
 }
 

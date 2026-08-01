@@ -1,14 +1,19 @@
 import { ExtensionOptions, ExtensionStorage, Resource, Activity, CourseData } from "types"
+import * as parser from "@shared/parser"
+import { getMoodleBaseURL } from "@shared/regexHelpers"
 import logger from "@shared/logger"
 import PageCrawler from "./PageCrawler"
 
 class CourseCrawler extends PageCrawler {
+  isTilesFormat: boolean
+  lastModifiedHeaders: Record<string, string | undefined> | undefined
   previousSeenResources: string[] | null
   previousSeenActivities: string[] | null
 
   constructor(link: string, HTMLDocument: Document, options: ExtensionOptions) {
     super(link, HTMLDocument, options)
 
+    this.isTilesFormat = parser.isCourseTilesFormat(HTMLDocument)
     this.previousSeenResources = null
     this.previousSeenActivities = null
   }
@@ -72,12 +77,32 @@ class CourseCrawler extends PageCrawler {
       logger.debug(`New course detected ${this.name}`)
     }
 
-    await super.scan(testLocalStorage)
+    if (this.isTilesFormat) {
+      await this.processTiles()
+    }
 
-    logger.debug("Course scan finished", { course: this })
+    await this.scanPage(localStorage)
 
     if (testLocalStorage) {
       return
+    }
+
+    if (this.isTilesFormat) {
+      // Deduplicate resources before saving, as injected tile fragments might be matched
+      // multiple times across different fallback queries (e.g file vs pluginfile nodes)
+      const uniqueResourcesMap = new Map<string, Resource>()
+      for (const resource of this.resources) {
+        if (!uniqueResourcesMap.has(resource.href)) {
+          uniqueResourcesMap.set(resource.href, resource)
+        }
+      }
+      this.resources = Array.from(uniqueResourcesMap.values())
+    }
+
+    if (this.lastModifiedHeaders === undefined) {
+      this.lastModifiedHeaders = Object.fromEntries(
+        this.resources.map((resource) => [resource.href, resource.lastModified])
+      )
     }
 
     const updatedCourseData = {
@@ -177,6 +202,139 @@ class CourseCrawler extends PageCrawler {
     } satisfies Partial<ExtensionStorage>)
 
     return updatedCourseData
+  }
+
+  private async processTiles(): Promise<void> {
+    if (!this.mainHTML) {
+      return
+    }
+
+    const tiles = this.mainHTML.querySelectorAll<HTMLElement>("a.tile-link")
+    if (tiles.length === 0) return
+
+    logger.debug(`Processing ${tiles.length} tiles for dynamic content via AJAX`)
+
+    const sesskey = this.getSesskey()
+    const contextId = this.getContextId()
+
+    if (!sesskey || !contextId) {
+      logger.warn("Could not find sesskey or contextid, falling back to visual clicks")
+      for (const tile of Array.from(tiles)) {
+        tile.click()
+        await this.sleep(500)
+      }
+      return
+    }
+
+    // Create a hidden container for the fetched content so scanner can find modules
+    const hiddenContainer = this.HTMLDocument.createElement("div")
+    hiddenContainer.id = "moodle-buddy-tiles-content"
+    hiddenContainer.style.display = "none"
+    this.mainHTML.appendChild(hiddenContainer)
+
+    const fetchPromises = Array.from(tiles).map(async (tile) => {
+      const url = new URL((tile as HTMLAnchorElement).href)
+      const sectionId = url.searchParams.get("id")
+      if (!sectionId) return
+
+      try {
+        const content = await this.fetchTileContent(sectionId, sesskey, contextId)
+        if (content) {
+          const wrapper = this.HTMLDocument.createElement("div")
+          wrapper.id = `section-${sectionId}`
+          const tileContainer = tile.closest(".tile") || tile
+          const titleElement = tileContainer.querySelector("h3")
+          const title =
+            titleElement?.textContent?.trim() || tile.textContent?.trim() || `Section ${sectionId}`
+          wrapper.setAttribute("aria-label", title)
+          wrapper.innerHTML = content
+          hiddenContainer.appendChild(wrapper)
+        }
+      } catch (error) {
+        logger.error(`Failed to fetch tile content for section ${sectionId}`, error)
+      }
+    })
+
+    await Promise.all(fetchPromises)
+    logger.debug("All tiles fetched and injected into hidden container")
+  }
+
+  private getSesskey(): string | undefined {
+    // Try to get from M.cfg or from a logout link
+    const scriptContent = Array.from(this.HTMLDocument.scripts)
+      .map((script) => script.textContent)
+      .join(" ")
+    const match = scriptContent.match(/"sesskey":"([^"]+)"/)
+    if (match) return match[1]
+
+    const logoutLink = this.HTMLDocument.querySelector<HTMLAnchorElement>(
+      'a[href*="login/logout.php?sesskey="]'
+    )
+    if (logoutLink) {
+      const url = new URL(logoutLink.href)
+      return url.searchParams.get("sesskey") ?? undefined
+    }
+
+    return undefined
+  }
+
+  private getContextId(): string | undefined {
+    const scriptContent = Array.from(this.HTMLDocument.scripts)
+      .map((script) => script.textContent)
+      .join(" ")
+    const match = scriptContent.match(/"contextid":(\d+)/)
+    if (match) return match[1]
+
+    // Fallback: look for body classes or other indicators
+    const bodyClass = this.HTMLDocument.body.className
+    const contextMatch = bodyClass.match(/context-(\d+)/)
+    if (contextMatch) return contextMatch[1]
+
+    return undefined
+  }
+
+  private async fetchTileContent(
+    sectionId: string,
+    sesskey: string,
+    contextId: string
+  ): Promise<string | undefined> {
+    const baseURL = getMoodleBaseURL(this.link)
+    const url = `${baseURL}/lib/ajax/service.php?sesskey=${sesskey}&info=core_get_fragment`
+
+    const payload = [
+      {
+        index: 0,
+        methodname: "core_get_fragment",
+        args: {
+          component: "format_tiles",
+          callback: "get_cm_list",
+          contextid: parseInt(contextId),
+          args: [
+            {
+              name: "sectionid",
+              value: parseInt(sectionId),
+            },
+          ],
+        },
+      },
+    ]
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.ok) return undefined
+
+    const data = await response.json()
+    return data[0]?.data?.html
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   getNumberOfUpdates(): number {
