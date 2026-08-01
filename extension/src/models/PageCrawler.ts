@@ -241,7 +241,7 @@ class PageCrawler {
     this.activities.push(activity)
   }
 
-  protected async scanPage(localStorage: ExtensionStorage): Promise<void> {
+  protected async detectResourcesAndActivities(localStorage: ExtensionStorage): Promise<void> {
     this.resources = []
     this.activities = []
     this.sectionIndices = {}
@@ -323,7 +323,7 @@ class PageCrawler {
     const localStorage =
       testLocalStorage ?? ((await chrome.storage.local.get()) as ExtensionStorage)
 
-    await this.scanPage(localStorage)
+    await this.detectResourcesAndActivities(localStorage)
   }
 }
 

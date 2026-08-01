@@ -77,11 +77,15 @@ class CourseCrawler extends PageCrawler {
       logger.debug(`New course detected ${this.name}`)
     }
 
+    if (!this.mainHTML) {
+      return
+    }
+
     if (this.isTilesFormat) {
       await this.processTiles()
     }
 
-    await this.scanPage(localStorage)
+    await this.detectResourcesAndActivities(localStorage)
 
     if (testLocalStorage) {
       return
