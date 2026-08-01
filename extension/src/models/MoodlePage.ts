@@ -5,7 +5,6 @@ import {
   Activity,
   FileResource,
   FolderResource,
-  CourseData,
 } from "types"
 import * as parser from "@shared/parser"
 import { getMoodleBaseURL, getURLRegex } from "@shared/regexHelpers"
@@ -316,7 +315,7 @@ class MoodlePage {
       await Promise.all(activities.map((n) => this.addActivityNode(n)))
     }
 
-    logger.debug("Course scan finished", { course: this })
+    logger.debug("Resource and activity detection finished", { course: this })
   }
 
   async scan(testLocalStorage?: ExtensionStorage): Promise<void> {
