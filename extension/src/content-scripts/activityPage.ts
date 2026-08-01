@@ -8,7 +8,7 @@ import {
 import { checkForMoodle, parseCourseLink } from "@shared/parser"
 import { getCourseDownloadId, sendLog } from "@shared/helpers"
 
-import ActivityCrawler from "../models/ActivityCrawler"
+import CourseActivity from "../models/CourseActivity"
 import logger from "@shared/logger"
 import { COMMANDS } from "@shared/constants"
 
@@ -25,7 +25,7 @@ function sendScanResults(course) {
 async function initActivityPage() {
   const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
   const activityLink = parseCourseLink(location.href)
-  const activity = new ActivityCrawler(activityLink, document, options)
+  const activity = new CourseActivity(activityLink, document, options)
 
   let initialScanCompleted = false
 

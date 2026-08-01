@@ -13,7 +13,7 @@ import {
 import Course from "models/Course"
 import { COMMANDS } from "./constants"
 import { browserName } from "detect-browser"
-import PageCrawler from "@/models/PageCrawler"
+import MoodlePage from "@/models/MoodlePage"
 
 export const isDev = process.env.NODE_ENV !== "production"
 export const isDebug = process.env.NODE_ENV === "debug"
@@ -87,7 +87,7 @@ export async function updateIconFromCourses(courses: Course[]) {
 
 export function getCourseDownloadId(
   command: string,
-  course: Course | DashboardCourseData | PageCrawler
+  course: Course | DashboardCourseData | MoodlePage
 ) {
   return `${command}_${course.link}`
 }

@@ -23,7 +23,7 @@ async function getLastModifiedHeader(href: string, options: ExtensionOptions) {
 
 const courseURLRegex = getURLRegex("course")
 
-class PageCrawler {
+class MoodlePage {
   link: string
   HTMLDocument: Document
   mainHTML: HTMLElement | null
@@ -327,4 +327,4 @@ class PageCrawler {
   }
 }
 
-export default PageCrawler
+export default MoodlePage

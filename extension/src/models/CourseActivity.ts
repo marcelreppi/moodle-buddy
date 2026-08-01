@@ -1,8 +1,8 @@
 import { ExtensionOptions } from "types"
 import * as parser from "@shared/parser"
-import PageCrawler from "./PageCrawler"
+import MoodlePage from "./MoodlePage"
 
-class ActivityCrawler extends PageCrawler {
+class CourseActivity extends MoodlePage {
   constructor(link: string, HTMLDocument: Document, options: ExtensionOptions) {
     super(link, HTMLDocument, options)
   }
@@ -16,4 +16,4 @@ class ActivityCrawler extends PageCrawler {
   }
 }
 
-export default ActivityCrawler
+export default CourseActivity

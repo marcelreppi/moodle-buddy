@@ -3,9 +3,8 @@ import { afterEach, describe, expect, it, vi } from "vitest"
 
 import defaultExtensionOptions from "@shared/defaultExtensionOptions"
 import { ExtensionStorage } from "types"
-import ActivityCrawler from "../ActivityCrawler"
+import CourseActivity from "../CourseActivity"
 import Course from "../Course"
-import CourseCrawler from "../CourseCrawler"
 
 const courseLink = "https://moodle.example.edu/course/view.php?id=42"
 
@@ -38,18 +37,18 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe("Course compatibility", () => {
-  it("keeps existing Course imports on the CourseCrawler implementation", () => {
+describe("Course", () => {
+  it("uses the course implementation directly", () => {
     const course = new Course(courseLink, createDocument('<main id="region-main"></main>'), {
       ...defaultExtensionOptions,
     })
 
-    expect(course).toBeInstanceOf(CourseCrawler)
+    expect(course).toBeInstanceOf(Course)
     expect(course.constructor.name).toBe("Course")
   })
 
   it("keeps course-only state off the activity crawler", () => {
-    const activity = new ActivityCrawler(
+    const activity = new CourseActivity(
       "https://moodle.example.edu/mod/assign/view.php?id=8",
       createDocument('<main id="region-main"></main>'),
       { ...defaultExtensionOptions }
