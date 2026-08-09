@@ -36,6 +36,27 @@ export async function setBadgeText(text: string, tabId?: number): Promise<void> 
   }
 }
 
+function isDisconnectedError(error: unknown): boolean {
+  const msg = error instanceof Error ? error.message : String(error)
+  return /Receiving end does not exist|Could not establish connection/i.test(msg)
+}
+
+export async function sendTabMessageSafely(tabId: number, message: unknown): Promise<void> {
+  try {
+    await chrome.tabs.sendMessage(tabId, message)
+  } catch (error) {
+    if (!isDisconnectedError(error)) throw error
+  }
+}
+
+export async function sendRuntimeMessageSafely(message: unknown): Promise<void> {
+  try {
+    await chrome.runtime.sendMessage(message)
+  } catch (error) {
+    if (!isDisconnectedError(error)) throw error
+  }
+}
+
 export function sanitizeFileName(fileName: string, connectingString = ""): string {
   return sanitize(
     fileName.replace(/( )\1+/gi, " "), // Remove > 1 white spaces

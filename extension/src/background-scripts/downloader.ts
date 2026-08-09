@@ -5,6 +5,7 @@ import {
   DownloadMessage,
   DownloadProgressMessage,
   Message,
+  AssignmentResource,
   ExtensionOptions,
   ExtensionStorage,
   FileResource,
@@ -16,17 +17,109 @@ import { isDebug } from "@shared/helpers"
 
 import {
   parseFileNameFromPluginFileURL,
+  parseAssignmentNameFromPage,
   getDownloadButton,
   getDownloadIdTag,
   getQuerySelector,
 } from "@shared/parser"
 import { getURLRegex, getMoodleBaseURL } from "@shared/regexHelpers"
-import { getFileTypeFromURL, sanitizeFileName, padNumber } from "./helpers"
+import { getFileTypeFromURL, sanitizeFileName, padNumber, sendRuntimeMessageSafely } from "./helpers"
 import { sendLog, sendDownloadData } from "./tracker"
 import logger from "@shared/logger"
 import { COMMANDS } from "@shared/constants"
 
 let downloaders: Record<number, Downloader> = {}
+
+const ASSIGNMENT_SELECTORS = {
+  intro:
+    "#intro, .box.generalbox.mod_introbox, .activity-description, [data-region='activity-description']",
+  overview: ".activity-information, [data-region='activity-information']",
+  submission:
+    "[data-region='assign-submission-status-table'], .submissionstatustable, .assignsubmissionsummary, [data-region='assign-submission-plugin-summary']",
+  feedback:
+    "[data-region='assign-feedback-status-table'], .feedbacktable, .assignfeedbacksummary, [data-region='assign-feedback-plugin-summary']",
+} as const
+
+function getTextContent(node: Element | null, selectorsToStrip: string[] = []): string {
+  if (!node) return ""
+  const clone = node.cloneNode(true) as Element
+  for (const sel of ["script", "style", ".hiddenifjs", ...selectorsToStrip]) {
+    clone.querySelectorAll(sel).forEach((el) => el.remove())
+  }
+  const walk = (n: ChildNode): string => {
+    if (n.nodeType === 3) return n.textContent ?? ""
+    if (n.nodeType !== 1) return ""
+    const tag = (n as Element).tagName?.toLowerCase()
+    if (tag === "br") return "\n"
+    let t = ""
+    for (const c of Array.from(n.childNodes)) t += walk(c)
+    if (["p", "div", "li", "tr", "table", "ul", "ol"].includes(tag)) t += "\n"
+    return t
+  }
+  return walk(clone).replace(/\n{2,}/g, "\n").trim()
+}
+
+const STRIP_FROM_TABLE_CELLS = [
+  // Hidden content (templates, collapsed sections)
+  "[style*='display:none']",
+  "[style*='display: none']",
+  // Interactive / decorative elements
+  "button",
+  "noscript",
+  "select",
+  "input",
+  "textarea",
+  "form",
+  "label",
+  "[aria-hidden='true']",
+  "[role='img']",
+  "[role='button']",
+  "a[href='#']",
+]
+
+function getTableRows(root: Element): string[] {
+  const lines: string[] = []
+  const seen = new Set<string>()
+  for (const tr of Array.from(root.querySelectorAll("tr"))) {
+    const cells = Array.from(tr.querySelectorAll("th, td"))
+    if (cells.length < 2) continue
+    const labelCell = tr.querySelector("th") ?? cells[0]
+    const label = (labelCell.textContent ?? "").replace(/\s+/g, " ").trim().replace(/:+$/, "")
+    const value = cells
+      .filter((c) => c !== labelCell)
+      .map((c) =>
+        getTextContent(c as Element, STRIP_FROM_TABLE_CELLS)
+          .replace(/\n/g, " ")
+          .replace(/\s+/g, " ")
+          .trim()
+      )
+      .filter((v) => v && /\p{L}|\p{N}/u.test(v))
+      .join(" ")
+    const line = `${label}: ${value}`
+    if (label && value && !seen.has(line)) {
+      seen.add(line)
+      lines.push(line)
+    }
+  }
+  return lines
+}
+
+function buildAssignmentSummary(mainRegion: Element): string {
+  const parts: string[] = []
+
+  const desc = getTextContent(
+    mainRegion.querySelector(ASSIGNMENT_SELECTORS.intro),
+    ["[id^='assign_files_tree']", ".fileuploadsubmission", ".fileuploadsubmissiontime", ".ygtvitem", ".ygtvchildren", ".ygtvtable"]
+  )
+  if (desc) parts.push(desc)
+
+  for (const selector of [ASSIGNMENT_SELECTORS.overview, ASSIGNMENT_SELECTORS.submission, ASSIGNMENT_SELECTORS.feedback]) {
+    const rows = Array.from(mainRegion.querySelectorAll(selector)).flatMap(getTableRows)
+    if (rows.length > 0) parts.push(rows.join("\n"))
+  }
+
+  return parts.join("\n\n")
+}
 
 class Downloader {
   id: string
@@ -163,6 +256,9 @@ class Downloader {
           case "folder":
             await this.downloadFolder(r as FolderResource)
             break
+          case "assignment":
+            await this.downloadAssignment(r as AssignmentResource)
+            break
           case "videoservice":
             await this.downloadVideoServiceVideo(r as VideoServiceResource)
             break
@@ -214,7 +310,7 @@ class Downloader {
       this.sentData = true
     }
 
-    chrome.runtime.sendMessage({
+    await sendRuntimeMessageSafely({
       command: COMMANDS.DOWNLOAD_PROGRESS,
       id: this.id,
       courseLink: this.courseLink,
@@ -226,7 +322,11 @@ class Downloader {
     } satisfies DownloadProgressMessage)
   }
 
-  private async download(href: string, fileName: string, resource: FileResource | FolderResource) {
+  private async download(
+    href: string,
+    fileName: string,
+    resource: FileResource | FolderResource | AssignmentResource
+  ) {
     if (this.isCancelled) return
 
     const { lastModified, resourceIndex, section, sectionIndex } = resource
@@ -234,8 +334,8 @@ class Downloader {
     // Remove illegal characters from possible filename parts
     const cleanCourseShortcut = sanitizeFileName(this.courseShortcut, "_") || "Unknown Shortcut"
     const cleanCourseName = sanitizeFileName(this.courseName, "") || "Unknown Course"
-    const cleanSectionName = sanitizeFileName(section) || "Unknown Section"
-    const cleanFileName = sanitizeFileName(fileName).replace("{slash}", "/")
+    const cleanSectionName = sanitizeFileName(section)
+    const cleanFileName = sanitizeFileName(fileName).replace(/\{slash\}/g, "/")
 
     let filePath = cleanFileName
 
@@ -263,11 +363,11 @@ class Downloader {
       filePath = `${padNumber(resourceIndex, 3)}_${filePath}`
     }
 
-    if (this.options.prependSectionToFileName) {
+    if (this.options.prependSectionToFileName && cleanSectionName !== "") {
       filePath = `${cleanSectionName}_${filePath}`
     }
 
-    if (this.options.prependSectionIndexToFileName) {
+    if (this.options.prependSectionIndexToFileName && cleanSectionName !== "") {
       filePath = `${padNumber(sectionIndex, 3)}_${filePath}`
     }
 
@@ -321,7 +421,11 @@ class Downloader {
           await this.onDownloadStart(id)
         } catch (err) {
           logger.error(err)
-          sendLog({ errorMessage: err.message, url: href, fileName: filePath })
+          sendLog({
+            errorMessage: err.message,
+            url: href,
+            fileName: `raw=${fileName} | clean=${cleanFileName} | path=${filePath}`,
+          })
           await this.onError()
         }
       } else {
@@ -489,6 +593,65 @@ class Downloader {
     }
 
     await this.download(src, fileName, resource)
+  }
+
+  private async downloadAssignment(resource: AssignmentResource) {
+    if (this.isCancelled) return
+
+    const res = await fetch(resource.href)
+    const body = await res.text()
+    const { document } = parseHTML(body)
+    const mainRegion = document.querySelector("#region-main")
+
+    await this.removeFiles(1)
+    if (!mainRegion) return
+
+    const assignmentName = parseAssignmentNameFromPage(document) || resource.name
+    const activityId = resource.href.match(/[?&]id=(\d+)/i)?.[1] ?? ""
+    const folderName =
+      sanitizeFileName(assignmentName) || (activityId ? `assignment-${activityId}` : "assignment")
+
+    const items: Array<{ href?: string; fileName: string; content?: string }> = []
+    items.push({
+      fileName: `${folderName}{slash}assignment-summary.txt`,
+      content: buildAssignmentSummary(mainRegion),
+    })
+
+    const introNode = mainRegion.querySelector(ASSIGNMENT_SELECTORS.intro)
+    const seenHrefs = new Set<string>()
+    for (const anchor of Array.from(
+      mainRegion.querySelectorAll<HTMLAnchorElement>(getQuerySelector("pluginfile", this.options))
+    )) {
+      if (seenHrefs.has(anchor.href)) continue
+      seenHrefs.add(anchor.href)
+
+      const isIntro = introNode?.contains(anchor) || anchor.href.includes("/mod_assign/introattachment/")
+      if (!isIntro && !this.options.includeAssignmentSubmissionFiles) continue
+
+      const displayName = (anchor.textContent ?? "")
+        .replace(/[\u200b-\u200f\u202a-\u202e\u2060-\u2069\ufeff]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+      const fileName =
+        this.options.useMoodleFileName && displayName
+          ? displayName
+          : parseFileNameFromPluginFileURL(anchor.href)
+
+      items.push({ href: anchor.href, fileName: `${folderName}{slash}${fileName}` })
+    }
+
+    await this.addFiles(items.length)
+    for (const item of items) {
+      if (item.content !== undefined) {
+        await this.download(
+          `data:text/plain;charset=utf-8,${encodeURIComponent(item.content)}`,
+          item.fileName,
+          resource
+        )
+      } else if (item.href) {
+        await this.download(item.href, item.fileName, resource)
+      }
+    }
   }
 }
 

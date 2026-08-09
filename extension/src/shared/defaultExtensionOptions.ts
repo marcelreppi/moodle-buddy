@@ -17,6 +17,7 @@ const defaultExtensionOptions: ExtensionOptions = {
   backgroundScanInterval: 30,
   enableBackgroundScanning: true,
   downloadFolderAsZip: true,
+  includeAssignmentSubmissionFiles: false,
   saveToMoodleFolder: false,
   folderStructure: "CourseFile",
   includeVideo: true,

@@ -58,7 +58,7 @@
 
       <div v-if="folderResources.length > 0">
         <label class="category" @input="(e) => onCategoryClick(e, 'folder')">
-          <span>Folders</span>
+          <span>{{ hasAssignments ? "Folders / Assignments" : "Folders" }}</span>
           <div>
             <input :ref="setCbRef('foldersCb')" class="mt-1" type="checkbox" />
           </div>
@@ -97,7 +97,13 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue"
 import { Resource } from "types"
-import { isFile, isFolder, isVideoServiceVideo, setResourceSelected } from "@shared/resourceHelpers"
+import {
+  isAssignment,
+  isFile,
+  isFolder,
+  isVideoServiceVideo,
+  setResourceSelected,
+} from "@shared/resourceHelpers"
 import useNavigation from "../composables/useNavigation"
 import { onlyNewResources } from "../state"
 import { ArrowTopRightOnSquareIcon } from "@heroicons/vue/24/outline"
@@ -138,7 +144,8 @@ const filteredResources = computed(() => {
 const fileResources = computed(() =>
   filteredResources.value.filter((r) => isFile(r) || isVideoServiceVideo(r))
 )
-const folderResources = computed(() => filteredResources.value.filter(isFolder))
+const folderResources = computed(() => filteredResources.value.filter((r) => isFolder(r) || isAssignment(r)))
+const hasAssignments = computed(() => folderResources.value.some(isAssignment))
 
 const onMouseOver = (e: Event) => {
   if (mouseDown.value) {

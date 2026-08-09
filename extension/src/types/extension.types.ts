@@ -22,6 +22,7 @@ export interface ExtensionOptions {
   backgroundScanInterval: number
   enableBackgroundScanning: boolean
   downloadFolderAsZip: boolean
+  includeAssignmentSubmissionFiles: boolean
   saveToMoodleFolder: boolean
   folderStructure: FolderStructure
   includeVideo: boolean

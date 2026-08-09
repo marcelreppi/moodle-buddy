@@ -12,6 +12,10 @@ export function isFolder(resource: Resource) {
   return resource.type === "folder"
 }
 
+export function isAssignment(resource: Resource) {
+  return resource.type === "assignment"
+}
+
 export function isActivity(resource: Resource) {
   return resource.type === "activity"
 }

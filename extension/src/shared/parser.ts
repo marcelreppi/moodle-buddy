@@ -124,6 +124,58 @@ export function parseCourseLink(htmlString: string): string {
   const match = htmlString.match(courseURLRegex)
   return match ? match[0] : htmlString
 }
+export function parseAssignmentNameFromPage(document: Document): string {
+  const selectors = [
+    ".page-header-headings h1",
+    "#page-header h1",
+    ".page-context-header h1",
+    "#region-main h2",
+    "#region-main h1",
+    "h1",
+  ]
+
+  for (const selector of selectors) {
+    const node = document.querySelector(selector)
+    const textContent = node?.textContent?.replace(/\s+/g, " ")?.trim()
+    if (textContent) {
+      return textContent
+    }
+  }
+
+  return ""
+}
+
+function getBreadcrumbItems(document: Document): HTMLElement[] {
+  const breadcrumb = document.querySelector(".breadcrumb, nav[aria-label] ol, [role='navigation'] ol")
+  if (!breadcrumb) return []
+  return Array.from(breadcrumb.querySelectorAll("li"))
+}
+
+function breadcrumbText(item: HTMLElement | undefined): string {
+  return item?.textContent?.replace(/[\/]/g, "")?.replace(/\s+/g, " ")?.trim() || ""
+}
+
+function findCourseIndexInBreadcrumb(items: HTMLElement[]): number {
+  const courseURLRegex = getURLRegex("course")
+  return items.findIndex((item) => item.querySelector("a")?.href.match(courseURLRegex))
+}
+
+export function parseCourseNameFromBreadcrumb(document: Document): string {
+  const items = getBreadcrumbItems(document)
+  const courseIndex = findCourseIndexInBreadcrumb(items)
+  if (courseIndex !== -1) return breadcrumbText(items[courseIndex])
+  return ""
+}
+
+export function parseSectionFromBreadcrumb(document: Document): string {
+  const items = getBreadcrumbItems(document)
+  const courseIndex = findCourseIndexInBreadcrumb(items)
+  // Section is the item immediately after the course and before the last item (current page)
+  if (courseIndex !== -1 && courseIndex < items.length - 2) {
+    return breadcrumbText(items[courseIndex + 1])
+  }
+  return ""
+}
 
 type QuerySelectorTypes =
   | "file"
@@ -320,9 +372,9 @@ export function parseActivityNameFromNode(node: HTMLElement): string {
 }
 
 export function parseActivityTypeFromNode(node: HTMLElement): string {
-  const modtypeClassResult = node.className.match(/modtype.*(?= )/gi)
-  if (modtypeClassResult) {
-    const activityType = modtypeClassResult[0].split("_")[1]
+  const modtypeClass = Array.from(node.classList).find((className) => className.startsWith("modtype_"))
+  if (modtypeClass) {
+    const activityType = modtypeClass.replace(/^modtype_/, "").trim()
     if (activityType) {
       return activityType
     }
