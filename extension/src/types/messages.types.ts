@@ -37,12 +37,7 @@ export interface LogMessage extends Message {
   logData: LogPayloadData
 }
 
-export type ScriptName =
-  | "coursePage"
-  | "courseSectionPage"
-  | "activityPage"
-  | "videoservicePage"
-  | "dashboardPage"
+export type ScriptName = "coursePage" | "activityPage" | "videoservicePage" | "dashboardPage"
 
 export interface ExecuteScriptMessage extends Message {
   command: typeof COMMANDS.EXECUTE_SCRIPT

@@ -3,6 +3,7 @@ import { checkForMoodle, parseCourseLink } from "@shared/parser"
 import { updateIconFromCourses, sendLog, getCourseDownloadId } from "@shared/helpers"
 
 import Course from "../models/Course"
+import CourseSection from "../models/CourseSection"
 import logger from "@shared/logger"
 import { COMMANDS } from "@shared/constants"
 import { sendScanResults } from "./shared"
@@ -11,8 +12,14 @@ import { sendScanResults } from "./shared"
 
 async function initCoursePage() {
   const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage
-  const courseLink = parseCourseLink(location.href)
-  const course = new Course(courseLink, document, options)
+  const url = new URL(location.href)
+  const isCourseSection =
+    url.pathname.endsWith("/course/section.php") ||
+    url.searchParams.has("section") ||
+    url.searchParams.has("sectionid")
+  const course = isCourseSection
+    ? new CourseSection(location.href, document, options)
+    : new Course(parseCourseLink(location.href), document, options)
 
   let initialScanCompleted = false
 

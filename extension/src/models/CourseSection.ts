@@ -1,8 +1,8 @@
 import { ExtensionOptions } from "types"
 import * as parser from "@shared/parser"
-import MoodlePage from "./MoodlePage"
+import Course from "./Course"
 
-class CourseSection extends MoodlePage {
+class CourseSection extends Course {
   protected parseCourseName(HTMLDocument: Document, options: ExtensionOptions): string {
     const navbarName = parser.parseCourseNameFromNavBar(HTMLDocument, options)
     if (navbarName !== "Unknown Course") return navbarName

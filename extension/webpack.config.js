@@ -31,7 +31,6 @@ const addExtensionEntry = (pathToFile, customOutputPath) => {
 
 addExtensionEntry("content-scripts/index.ts")
 addExtensionEntry("content-scripts/coursePage.ts")
-addExtensionEntry("content-scripts/courseSectionPage.ts")
 addExtensionEntry("content-scripts/activityPage.ts")
 addExtensionEntry("content-scripts/dashboardPage.ts")
 addExtensionEntry("content-scripts/videoservicePage.ts")
