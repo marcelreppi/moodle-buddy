@@ -7,6 +7,7 @@ text
 .npmrc
 mariadb
 /.agents
+.DS_Store
 
 test/**
 !test/index.js
