@@ -12,8 +12,16 @@ import { getMoodleBaseURL, getURLRegex } from "@shared/regexHelpers"
 import logger from "@shared/logger"
 import { COMMANDS } from "@shared/constants"
 
+const paginatedCourseFormats = new Set([
+  "format-flexsections",
+  "format-mst",
+  "format-multitopic",
+  "format-onetopic",
+])
+
 const pageToScriptMapping: Record<NonNullable<SupportedPage>, ScriptName> = {
   course: "coursePage",
+  courseSection: "courseSectionPage",
   activity: "activityPage",
   dashboard: "dashboardPage",
   videoservice: "videoservicePage",
@@ -33,28 +41,41 @@ async function setDefaultMoodleURL() {
   } satisfies Partial<ExtensionStorage>)
 }
 
-export function getSupportedPage(): SupportedPage | undefined {
+export function getSupportedPage(
+  href = location.href,
+  HTMLDocument = document
+): SupportedPage | undefined {
   const dashboardPageRegex = getURLRegex("dashboard")
-  const isDashboardPage = Boolean(location.href.match(dashboardPageRegex))
+  const isDashboardPage = Boolean(href.match(dashboardPageRegex))
   if (isDashboardPage) return "dashboard"
 
   const coursePageRegex = getURLRegex("course")
   const courseResourcesPageRegex = getURLRegex("courseResources")
-  const isCoursePage = Boolean(
-    location.href.match(coursePageRegex) || location.href.match(courseResourcesPageRegex)
-  )
-  if (isCoursePage) return "course"
+  const isCoursePage = Boolean(href.match(coursePageRegex) || href.match(courseResourcesPageRegex))
+  if (isCoursePage) {
+    const url = new URL(href)
+    const isCourseSection =
+      url.pathname.endsWith("/course/section.php") ||
+      url.searchParams.has("section") ||
+      url.searchParams.has("sectionid") ||
+      Array.from(HTMLDocument.body?.classList ?? []).some((className) =>
+        paginatedCourseFormats.has(className)
+      )
+
+    return isCourseSection ? "courseSection" : "course"
+  }
 
   const activityPageRegex = getURLRegex("activity")
-  const isActivityPage = Boolean(location.href.match(activityPageRegex))
+  const isActivityPage = Boolean(href.match(activityPageRegex))
   if (isActivityPage) return "activity"
 
   const videoServicePageRegex = getURLRegex("videoservice")
-  const isVideoServicePage = Boolean(location.href.match(videoServicePageRegex))
+  const isVideoServicePage = Boolean(href.match(videoServicePageRegex))
   if (isVideoServicePage) return "videoservice"
 
   if (isDev) {
-    const filename = location.href.split("/").pop()?.toLowerCase()
+    const filename = href.split("/").pop()?.toLowerCase()
+    if (filename?.includes("section")) return "courseSection"
     if (filename?.includes("course")) return "course"
     if (filename?.includes("dashboard")) return "dashboard"
     if (filename?.includes("activity")) return "activity"
