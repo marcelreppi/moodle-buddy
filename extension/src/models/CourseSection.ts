@@ -22,6 +22,20 @@ class CourseSection extends Course {
 
     return parser.parseCourseShortcutFromNavBar(HTMLDocument, options)
   }
+
+  protected getSectionName(node: HTMLElement): string {
+    return this.name
+  }
+
+  protected getSectionIndex(section: string): number {
+    const sectionNode = document.querySelector<HTMLElement>("li[id^='section-']")
+    if (!sectionNode) return -1
+
+    const sectionId = sectionNode.id.split("-").pop()
+    if (!sectionId) return -1
+
+    return parseInt(sectionId, 10)
+  }
 }
 
 export default CourseSection

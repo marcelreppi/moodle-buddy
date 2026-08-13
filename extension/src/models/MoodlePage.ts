@@ -65,7 +65,11 @@ class MoodlePage {
     return parser.parseCourseShortcut(HTMLDocument, options)
   }
 
-  private getSectionIndex(section: string): number {
+  protected getSectionName(node: HTMLElement): string {
+    return parser.parseSectionName(node, this.HTMLDocument, this.options)
+  }
+
+  protected getSectionIndex(section: string): number {
     if (this.sectionIndices[section] === undefined) {
       this.sectionIndices[section] = Object.keys(this.sectionIndices).length
     }
@@ -81,7 +85,7 @@ class MoodlePage {
     const href = parser.parseURLFromNode(node, "file", this.options)
     if (href === "") return
 
-    const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
+    const section = this.getSectionName(node)
     const sectionIndex = this.getSectionIndex(section)
     const resource: FileResource = {
       href,
@@ -106,7 +110,7 @@ class MoodlePage {
     const detectedURLs = this.resources.map((r) => r.href)
     if (detectedURLs.includes(href)) return
 
-    const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
+    const section = this.getSectionName(node)
     const sectionIndex = this.getSectionIndex(section)
     const resource: FileResource = {
       href,
@@ -138,7 +142,7 @@ class MoodlePage {
           const href = parser.parseURLFromNode(node, "url", this.options)
           if (href === "") return
 
-          const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
+          const section = this.getSectionName(node)
           const sectionIndex = this.getSectionIndex(section)
           const resourceNode: FileResource = {
             href,
@@ -161,7 +165,7 @@ class MoodlePage {
   private async addFolder(node: HTMLElement) {
     const href = parser.parseURLFromNode(node, "folder", this.options)
 
-    const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
+    const section = this.getSectionName(node)
     const sectionIndex = this.getSectionIndex(section)
     const resource: FolderResource = {
       href,
@@ -216,7 +220,7 @@ class MoodlePage {
       return
     }
 
-    const section = parser.parseSectionName(node, this.HTMLDocument, this.options)
+    const section = this.getSectionName(node)
     const sectionIndex = this.getSectionIndex(section)
     const href = parser.parseURLFromNode(node, "activity", this.options)
     if (href === "") return
@@ -224,7 +228,7 @@ class MoodlePage {
     const activity: Activity = {
       href,
       name: parser.parseActivityNameFromNode(node),
-      section: parser.parseSectionName(node, this.HTMLDocument, this.options),
+      section,
       isNew: false,
       isUpdated: false,
       type: "activity",
