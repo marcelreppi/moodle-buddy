@@ -27,6 +27,7 @@ export type DownloadPayload = BasePayload & DownloadPayloadData
 export interface PagePayloadData {
   content: string
   page: SupportedPage
+  url: string
 }
 export type PagePayload = BasePayload & PagePayloadData
 

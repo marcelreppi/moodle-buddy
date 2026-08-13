@@ -62,7 +62,9 @@ logger.debug({ env: process.env.NODE_ENV, isDev })
 const page = ref<SupportedPage>()
 
 const showDashboardPageView = computed(() => page.value === "dashboard")
-const showCourseView = computed(() => page.value === "course" || page.value === "activity")
+const showCourseView = computed(
+  () => page.value === "course" || page.value === "courseSection" || page.value === "activity"
+)
 const showVideoServiceView = computed(() => page.value === "videoservice")
 const showNoMoodle = computed(() => page.value === undefined)
 const showErrorView = ref(false)
