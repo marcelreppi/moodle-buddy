@@ -75,16 +75,14 @@ export interface ScanResultMessage extends Message {
   command: typeof COMMANDS.SCAN_RESULT
 }
 
-interface CourseScanData {
+interface PageScanData {
   resources: Resource[]
   activities: Activity[]
 }
 
-export interface CourseScanResultMessage extends ScanResultMessage {
-  course: CourseScanData
-}
+export interface PageScanResultMessage extends ScanResultMessage, PageScanData {}
 
-export interface DashboardCourseData extends CourseScanData {
+export interface DashboardCourseData extends PageScanData {
   name: string
   link: string
   isNew: boolean

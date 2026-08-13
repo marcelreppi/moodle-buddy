@@ -1,6 +1,6 @@
 import {
   CourseCrawlMessage,
-  CourseScanResultMessage,
+  PageScanResultMessage,
   DownloadMessage,
   ExtensionStorage,
   Message,
@@ -11,16 +11,7 @@ import { getCourseDownloadId, sendLog } from "@shared/helpers"
 import CourseActivity from "../models/CourseActivity"
 import logger from "@shared/logger"
 import { COMMANDS } from "@shared/constants"
-
-function sendScanResults(course) {
-  chrome.runtime.sendMessage({
-    command: COMMANDS.SCAN_RESULT,
-    course: {
-      resources: course.resources,
-      activities: [],
-    },
-  } satisfies CourseScanResultMessage)
-}
+import { sendScanResults } from "./shared"
 
 async function initActivityPage() {
   const { options } = (await chrome.storage.local.get("options")) as ExtensionStorage

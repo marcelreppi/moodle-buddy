@@ -1,26 +1,11 @@
-import {
-  CourseCrawlMessage,
-  CourseScanResultMessage,
-  DownloadMessage,
-  ExtensionStorage,
-  Message,
-} from "types"
+import { CourseCrawlMessage, DownloadMessage, ExtensionStorage, Message } from "types"
 import { checkForMoodle, parseCourseLink } from "@shared/parser"
 import { updateIconFromCourses, sendLog, getCourseDownloadId } from "@shared/helpers"
 
 import Course from "../models/Course"
 import logger from "@shared/logger"
 import { COMMANDS } from "@shared/constants"
-
-function sendScanResults(course) {
-  chrome.runtime.sendMessage({
-    command: COMMANDS.SCAN_RESULT,
-    course: {
-      resources: course.resources,
-      activities: course.activities,
-    },
-  } satisfies CourseScanResultMessage)
-}
+import { sendScanResults } from "./shared"
 
 // chrome.storage.local.clear()
 

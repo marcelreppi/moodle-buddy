@@ -31,7 +31,7 @@
 import { ref, computed, watch } from "vue"
 import { sendEvent } from "@shared/helpers"
 import { isFile, isFolder } from "@shared/resourceHelpers"
-import { Resource, Activity, Message, CourseScanResultMessage } from "@types"
+import { Resource, Activity, Message, PageScanResultMessage } from "@types"
 import FilesViewLayout from "../components/FilesViewLayout.vue"
 import DetailedResourceSelection from "../components/DetailedResourceSelection.vue"
 import { options, activeTab, currentSelectionTab, onlyNewResources } from "../state"
@@ -139,8 +139,8 @@ const onMarkAsSeen = () => {
 chrome.runtime.onMessage.addListener(async (message: Message) => {
   const { command } = message
   if (command === COMMANDS.SCAN_RESULT) {
-    const { course } = message as CourseScanResultMessage
-    const { resources: detectedResources, activities: detectedActivities } = course
+    const { resources: detectedResources, activities: detectedActivities } =
+      message as PageScanResultMessage
     resources.value = detectedResources.map((r) => ({ ...r, selected: false }))
     activities.value = detectedActivities
 
