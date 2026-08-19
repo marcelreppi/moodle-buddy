@@ -127,6 +127,16 @@
         <input type="radio" id="fs2" name="folderStructure" value="CourseSectionFile" />
         <label for="fs2">Course name / Section name / File</label>
         <br />
+        <input type="checkbox" id="prependSectionIndexToFolderName" />
+        <label for="prependSectionIndexToFolderName">
+          Prepend section index to each section folder
+          <br />
+          (A number in the order that the sections appear in the course)
+          <br />
+          (Hint: This only applies to the course/section/file subfolder structure and the index may
+          not always be 100% correct)
+        </label>
+        <br />
         <input type="radio" id="fs3" name="folderStructure" value="None" />
         <label for="fs3">No subfolders</label>
         <br />
@@ -184,10 +194,12 @@
         </div>
       </div>
 
-      <div class="form-subsection">File name</div>
+      <div class="form-subsection">File and folder names</div>
       <div>
         <input type="checkbox" id="showDownloadOptions" />
-        <label for="showDownloadOptions">Show the download options to modify the filename</label>
+        <label for="showDownloadOptions">
+          Show the download options to modify file and folder names
+        </label>
       </div>
       <div>
         <input type="checkbox" id="useMoodleFileName" />

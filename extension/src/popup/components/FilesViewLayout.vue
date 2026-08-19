@@ -142,6 +142,12 @@
         </div>
         <div>
           <label>
+            <input v-model="prependSectionIndexToFolderName" type="checkbox" />
+            <span class="ml-1">Prepend section index to each section folder</span>
+          </label>
+        </div>
+        <div>
+          <label>
             <input v-model="prependFileIndexToFileName" type="checkbox" />
             <span class="ml-1">
               Prepend file index to each file name (a number in the order that the files appear in
@@ -214,6 +220,7 @@ const prependCourseNameToFileName = ref(options.value?.prependCourseNameToFileNa
 const prependCourseShortcutToFileName = ref(options.value?.prependCourseShortcutToFileName)
 const prependSectionToFileName = ref(options.value?.prependSectionToFileName)
 const prependSectionIndexToFileName = ref(options.value?.prependSectionIndexToFileName)
+const prependSectionIndexToFolderName = ref(options.value?.prependSectionIndexToFolderName)
 const prependFileIndexToFileName = ref(options.value?.prependFileIndexToFileName)
 
 // Resource data
@@ -326,6 +333,9 @@ const onDownload = () => {
         prependSectionIndexToFileName:
           prependSectionIndexToFileName.value ??
           defaultExtensionOptions.prependSectionIndexToFileName,
+        prependSectionIndexToFolderName:
+          prependSectionIndexToFolderName.value ??
+          defaultExtensionOptions.prependSectionIndexToFolderName,
         prependFileIndexToFileName:
           prependFileIndexToFileName.value ?? defaultExtensionOptions.prependFileIndexToFileName,
       },

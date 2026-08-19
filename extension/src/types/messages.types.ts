@@ -56,6 +56,7 @@ type CrawlOptions = Pick<
   | "prependCourseShortcutToFileName"
   | "prependSectionToFileName"
   | "prependSectionIndexToFileName"
+  | "prependSectionIndexToFolderName"
   | "prependFileIndexToFileName"
 >
 

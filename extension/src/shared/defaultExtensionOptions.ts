@@ -8,6 +8,7 @@ const defaultExtensionOptions: ExtensionOptions = {
   prependCourseNameToFileName: false,
   prependSectionToFileName: false,
   prependSectionIndexToFileName: false,
+  prependSectionIndexToFolderName: false,
   prependFileIndexToFileName: false,
   prependLastModifiedToFileName: false,
   alwaysShowDetails: false,
