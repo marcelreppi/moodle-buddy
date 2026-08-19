@@ -37,6 +37,11 @@ input[type="checkbox"] ~ label {
   text-decoration: underline;
 }
 
+.form-option-group-heading {
+  margin: 10px 0px 5px 5px;
+  font-weight: 500;
+}
+
 .url-input {
   width: 400px;
   margin-bottom: 10px;
