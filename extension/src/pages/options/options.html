@@ -184,11 +184,14 @@
         </div>
       </div>
 
-      <div class="form-subsection">File name</div>
+      <div class="form-subsection">File and folder names</div>
       <div>
         <input type="checkbox" id="showDownloadOptions" />
-        <label for="showDownloadOptions">Show the download options to modify the filename</label>
+        <label for="showDownloadOptions">
+          Show the download options to modify file and folder names
+        </label>
       </div>
+      <div class="form-option-group-heading">File name modifications</div>
       <div>
         <input type="checkbox" id="useMoodleFileName" />
         <label for="useMoodleFileName">Use Moodle file name as actual file name</label>
@@ -234,6 +237,18 @@
           <br />
           (Hint: This requires the option to detect updates for previously scanned files. See the
           file detection options above.)
+        </label>
+      </div>
+      <div class="form-option-group-heading">Folder name modifications</div>
+      <div>
+        <input type="checkbox" id="prependSectionIndexToFolderName" />
+        <label for="prependSectionIndexToFolderName">
+          Prepend section index to each section folder
+          <br />
+          (A number in the order that the sections appear in the course)
+          <br />
+          (Hint: This only applies to the course/section/file subfolder structure and the index may
+          not always be 100% correct)
         </label>
       </div>
 

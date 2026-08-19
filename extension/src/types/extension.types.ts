@@ -10,6 +10,7 @@ export interface ExtensionOptions {
   prependCourseNameToFileName: boolean
   prependSectionToFileName: boolean
   prependSectionIndexToFileName: boolean
+  prependSectionIndexToFolderName: boolean
   prependFileIndexToFileName: boolean
   prependLastModifiedToFileName: boolean
   alwaysShowDetails: boolean

@@ -28,7 +28,7 @@ import { COMMANDS } from "@shared/constants"
 
 let downloaders: Record<number, Downloader> = {}
 
-class Downloader {
+export class Downloader {
   id: string
   courseLink: string
   courseName: string
@@ -268,7 +268,7 @@ class Downloader {
     }
 
     if (this.options.prependSectionIndexToFileName) {
-      filePath = `${padNumber(sectionIndex, 3)}_${filePath}`
+      filePath = `${padNumber(sectionIndex, 2)}_${filePath}`
     }
 
     if (this.options.prependCourseNameToFileName) {
@@ -289,7 +289,10 @@ class Downloader {
       case "CourseSectionFile":
         if (cleanCourseName !== "") {
           if (cleanSectionName !== "") {
-            filePath = `${cleanCourseName}/${cleanSectionName}/${filePath}`
+            const sectionFolderName = this.options.prependSectionIndexToFolderName
+              ? `${padNumber(sectionIndex, 2)}_${cleanSectionName}`
+              : cleanSectionName
+            filePath = `${cleanCourseName}/${sectionFolderName}/${filePath}`
           } else {
             filePath = `${cleanCourseName}/${filePath}`
           }
